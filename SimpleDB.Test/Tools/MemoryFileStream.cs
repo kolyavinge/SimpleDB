@@ -177,5 +177,10 @@ namespace SimpleDB.Test.Tools
         {
             _writer.Write(value);
         }
+
+        public void Write(byte[] value, int index, int count)
+        {
+            _writer.Write(value, index, count);
+        }
     }
 }

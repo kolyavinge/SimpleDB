@@ -5,43 +5,8 @@ using System.Text;
 
 namespace SimpleDB.Infrastructure
 {
-    internal interface IFileStream : IDisposable
+    internal interface IFileStream : IReadableStream, IWriteableStream
     {
-        bool EOF { get; }
-
-        long Position { get; }
-
-        void Seek(long offset, SeekOrigin origin);
-
-        bool ReadBool();
-        sbyte ReadSByte();
-        byte ReadByte();
-        char ReadChar();
-        short ReadShort();
-        ushort ReadUShort();
-        int ReadInt();
-        uint ReadUInt();
-        long ReadLong();
-        ulong ReadULong();
-        float ReadFloat();
-        double ReadDouble();
-        decimal ReadDecimal();
-        string ReadString();
-
-        void Write(bool value);
-        void Write(sbyte value);
-        void Write(byte value);
-        void Write(char value);
-        void Write(short value);
-        void Write(ushort value);
-        void Write(int value);
-        void Write(uint value);
-        void Write(long value);
-        void Write(ulong value);
-        void Write(float value);
-        void Write(double value);
-        void Write(decimal value);
-        void Write(string value);
     }
 
     internal class FileStream : IFileStream
@@ -209,6 +174,11 @@ namespace SimpleDB.Infrastructure
         public void Write(string value)
         {
             _writer.Write(value);
+        }
+
+        public void Write(byte[] value, int index, int count)
+        {
+            _writer.Write(value, index, count);
         }
     }
 }

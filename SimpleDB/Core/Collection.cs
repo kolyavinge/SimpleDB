@@ -27,23 +27,41 @@ namespace SimpleDB.Core
             _primaryKeys = _primaryKeyFile.GetAllPrimaryKeys().ToDictionary(k => k.Value, v => v);
         }
 
-        public void Insert(TEntity entity)
-        {
-            var fieldValueCollection = _mapper.GetFieldValueCollection(entity);
-            var insertResult = _dataFile.Insert(fieldValueCollection);
-            var primaryKeyValue = _mapper.GetPrimaryKeyValue(entity);
-            var primaryKey = new PrimaryKey(primaryKeyValue, insertResult.StartDataFileOffset, insertResult.EndDataFileOffset);
-            _primaryKeys.Add(primaryKeyValue, primaryKey);
-            _primaryKeyFile.Insert(primaryKey);
-        }
-
-        public TEntity GetById(object id)
+        public TEntity Get(object id)
         {
             var primaryKey = _primaryKeys[id];
             var fieldValueCollection = _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset).ToList();
             var entity = _mapper.GetEntity(primaryKey.Value, fieldValueCollection);
 
             return entity;
+        }
+
+        public void Insert(TEntity entity)
+        {
+            var fieldValueCollection = _mapper.GetFieldValueCollection(entity);
+            var insertResult = _dataFile.Insert(fieldValueCollection);
+            var primaryKeyValue = _mapper.GetPrimaryKeyValue(entity);
+            var primaryKey = _primaryKeyFile.Insert(primaryKeyValue, insertResult.StartDataFileOffset, insertResult.EndDataFileOffset);
+            _primaryKeys.Add(primaryKeyValue, primaryKey);
+        }
+
+        public void Update(TEntity entity)
+        {
+            var primaryKeyValue = _mapper.GetPrimaryKeyValue(entity);
+            var primaryKey = _primaryKeys[primaryKeyValue];
+            var fieldValueCollection = _mapper.GetFieldValueCollection(entity);
+            var updateResult = _dataFile.Update(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldValueCollection);
+            if (primaryKey.StartDataFileOffset != updateResult.NewStartDataFileOffset)
+            {
+                _primaryKeyFile.UpdateStartEndDataFileOffset(primaryKey.StartDataFileOffset, updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset);
+                primaryKey.StartDataFileOffset = updateResult.NewStartDataFileOffset;
+                primaryKey.EndDataFileOffset = updateResult.NewEndDataFileOffset;
+            }
+            else if (primaryKey.EndDataFileOffset != updateResult.NewEndDataFileOffset)
+            {
+                _primaryKeyFile.UpdateEndDataFileOffset(updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset);
+                primaryKey.EndDataFileOffset = updateResult.NewEndDataFileOffset;
+            }
         }
     }
 }

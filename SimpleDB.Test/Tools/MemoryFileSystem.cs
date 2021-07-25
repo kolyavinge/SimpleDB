@@ -16,12 +16,6 @@ namespace SimpleDB.Test.Tools
 
         public List<string> FullFilePathes { get; set; }
 
-        public void Reset()
-        {
-            _fileStreams = new List<MemoryFileStream>();
-            FullFilePathes = new List<string>();
-        }
-
         public void CreateFileIfNeeded(string fullFilePath)
         {
             FullFilePathes.Add(fullFilePath);

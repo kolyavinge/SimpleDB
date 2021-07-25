@@ -21,68 +21,85 @@ namespace SimpleDB.Core
             _fileStream = IOC.Get<IFileSystem>().OpenFile(_fileFullPath);
         }
 
-        public void Insert(PrimaryKey primaryKey)
+        public PrimaryKey Insert(object value, long startDataFileOffset, long endDataFileOffset)
         {
             _fileStream.Seek(0, System.IO.SeekOrigin.End);
+            var primaryKeyFileOffset = _fileStream.Position;
+            _fileStream.Write(startDataFileOffset);
+            _fileStream.Write(endDataFileOffset);
             if (_primaryKeyType == typeof(sbyte))
             {
-                _fileStream.Write((sbyte)primaryKey.Value);
+                _fileStream.Write((sbyte)value);
             }
             else if (_primaryKeyType == typeof(byte))
             {
-                _fileStream.Write((byte)primaryKey.Value);
+                _fileStream.Write((byte)value);
             }
             else if (_primaryKeyType == typeof(char))
             {
-                _fileStream.Write((char)primaryKey.Value);
+                _fileStream.Write((char)value);
             }
             else if (_primaryKeyType == typeof(short))
             {
-                _fileStream.Write((short)primaryKey.Value);
+                _fileStream.Write((short)value);
             }
             else if (_primaryKeyType == typeof(ushort))
             {
-                _fileStream.Write((ushort)primaryKey.Value);
+                _fileStream.Write((ushort)value);
             }
             else if (_primaryKeyType == typeof(int))
             {
-                _fileStream.Write((int)primaryKey.Value);
+                _fileStream.Write((int)value);
             }
             else if (_primaryKeyType == typeof(uint))
             {
-                _fileStream.Write((uint)primaryKey.Value);
+                _fileStream.Write((uint)value);
             }
             else if (_primaryKeyType == typeof(long))
             {
-                _fileStream.Write((long)primaryKey.Value);
+                _fileStream.Write((long)value);
             }
             else if (_primaryKeyType == typeof(ulong))
             {
-                _fileStream.Write((ulong)primaryKey.Value);
+                _fileStream.Write((ulong)value);
             }
             else if (_primaryKeyType == typeof(float))
             {
-                _fileStream.Write((float)primaryKey.Value);
+                _fileStream.Write((float)value);
             }
             else if (_primaryKeyType == typeof(double))
             {
-                _fileStream.Write((double)primaryKey.Value);
+                _fileStream.Write((double)value);
             }
             else if (_primaryKeyType == typeof(decimal))
             {
-                _fileStream.Write((decimal)primaryKey.Value);
+                _fileStream.Write((decimal)value);
             }
             else if (_primaryKeyType == typeof(string))
             {
-                _fileStream.Write((string)primaryKey.Value);
+                _fileStream.Write((string)value);
             }
             else
             {
-                var primaryKeyValueJson = JsonSerialization.ToJson(primaryKey.Value);
+                var primaryKeyValueJson = JsonSerialization.ToJson(value);
                 _fileStream.Write(primaryKeyValueJson);
             }
-            _fileStream.Write(primaryKey.StartDataFileOffset);
-            _fileStream.Write(primaryKey.EndDataFileOffset);
+
+            return new PrimaryKey(value, startDataFileOffset, endDataFileOffset, primaryKeyFileOffset);
+        }
+
+        public void UpdateStartEndDataFileOffset(long primaryKeyFileOffset, long newStartDataFileOffset, long newEndDataFileOffset)
+        {
+            _fileStream.Seek(primaryKeyFileOffset, System.IO.SeekOrigin.Begin);
+            _fileStream.Write(newStartDataFileOffset);
+            _fileStream.Write(newEndDataFileOffset);
+        }
+
+        public void UpdateEndDataFileOffset(long primaryKeyFileOffset, long newEndDataFileOffset)
+        {
+            _fileStream.Seek(primaryKeyFileOffset, System.IO.SeekOrigin.Begin);
+            _fileStream.Seek(8, System.IO.SeekOrigin.Current); // skip 'startDataFileOffset'
+            _fileStream.Write(newEndDataFileOffset);
         }
 
         public IEnumerable<PrimaryKey> GetAllPrimaryKeys()
@@ -90,6 +107,9 @@ namespace SimpleDB.Core
             _fileStream.Seek(0, System.IO.SeekOrigin.Begin);
             while (_fileStream.EOF == false)
             {
+                var primaryKeyFileOffset = _fileStream.Position;
+                var startDataFileOffset = _fileStream.ReadLong();
+                var endDataFileOffset = _fileStream.ReadLong();
                 object primaryKeyValue;
                 if (_primaryKeyType == typeof(sbyte))
                 {
@@ -148,9 +168,7 @@ namespace SimpleDB.Core
                     var primaryKeyValueJson = _fileStream.ReadString();
                     primaryKeyValue = JsonSerialization.FromJson(_primaryKeyType, primaryKeyValueJson);
                 }
-                var startDataFileOffset = _fileStream.ReadLong();
-                var endDataFileOffset = _fileStream.ReadLong();
-                yield return new PrimaryKey(primaryKeyValue, startDataFileOffset, endDataFileOffset);
+                yield return new PrimaryKey(primaryKeyValue, startDataFileOffset, endDataFileOffset, primaryKeyFileOffset);
             }
         }
     }

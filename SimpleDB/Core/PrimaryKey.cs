@@ -8,15 +8,18 @@ namespace SimpleDB.Core
     {
         public object Value { get; private set; }
 
-        public long StartDataFileOffset { get; private set; }
+        public long StartDataFileOffset { get; set; }
 
-        public long EndDataFileOffset { get; private set; }
+        public long EndDataFileOffset { get; set; }
 
-        public PrimaryKey(object value, long startDataFileOffset, long endDataFileOffset)
+        public long PrimaryKeyFileOffset { get; set; }
+
+        public PrimaryKey(object value, long startDataFileOffset, long endDataFileOffset, long primaryKeyFileOffset)
         {
             Value = value;
             StartDataFileOffset = startDataFileOffset;
             EndDataFileOffset = endDataFileOffset;
+            PrimaryKeyFileOffset = primaryKeyFileOffset;
         }
     }
 }

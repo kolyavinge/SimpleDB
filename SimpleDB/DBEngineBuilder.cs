@@ -15,6 +15,7 @@ namespace SimpleDB
         static DBEngineBuilder()
         {
             IOC.Set<IFileSystem>(new FileSystem());
+            IOC.Set<IMemory>(new Memory());
         }
 
         public static DBEngineBuilder Make()

@@ -6,8 +6,10 @@ namespace SimpleDB
 {
     public interface ICollection<TEntity>
     {
-        TEntity GetById(object id);
+        TEntity Get(object id);
 
         void Insert(TEntity entity);
+
+        void Update(TEntity entity);
     }
 }
