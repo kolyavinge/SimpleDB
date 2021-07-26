@@ -8,18 +8,15 @@ namespace SimpleDB.Test.Core
 {
     class DataFileTest
     {
+        private FieldMeta[] _fieldMetaCollection;
+
         [SetUp]
         public void Setup()
         {
             IOC.Reset();
             IOC.Set<IFileSystem>(new MemoryFileSystem());
             IOC.Set<IMemory>(new Memory());
-        }
-
-        [Test]
-        public void InsertAndReadFields()
-        {
-            var fieldMetaCollection = new FieldMeta[]
+            _fieldMetaCollection = new FieldMeta[]
             {
                 new FieldMeta(0, typeof(bool)),
                 new FieldMeta(1, typeof(sbyte)),
@@ -36,7 +33,23 @@ namespace SimpleDB.Test.Core
                 new FieldMeta(12, typeof(decimal)),
                 new FieldMeta(13, typeof(string))
             };
-            var dataFile = new DataFile("", fieldMetaCollection);
+        }
+
+        [Test]
+        public void CreateFile()
+        {
+            IOC.Reset();
+            IOC.Set<IMemory>(new Memory());
+            var fileSystem = new MemoryFileSystem();
+            IOC.Set<IFileSystem>(fileSystem);
+            new DataFile(@"working directory\testEntity.data", Enumerable.Empty<FieldMeta>());
+            Assert.True(fileSystem.FullFilePathes.Contains(@"working directory\testEntity.data"));
+        }
+
+        [Test]
+        public void InsertAndReadFields()
+        {
+            var dataFile = new DataFile("", _fieldMetaCollection);
             var fieldValueCollection = new FieldValue[]
             {
                 new FieldValue(0, false),
@@ -56,8 +69,9 @@ namespace SimpleDB.Test.Core
             };
             var insertResult = dataFile.Insert(fieldValueCollection);
 
-            var readFieldsResult = dataFile.ReadFields(0, insertResult.EndDataFileOffset).ToList();
-            Assert.AreEqual(14, readFieldsResult.Count);
+            var readFieldsResult = new FieldValue[_fieldMetaCollection.Length];
+            dataFile.ReadFields(0, insertResult.EndDataFileOffset, readFieldsResult);
+            Assert.AreEqual(14, readFieldsResult.Length);
 
             Assert.AreEqual(0, readFieldsResult[0].Number);
             Assert.AreEqual(1, readFieldsResult[1].Number);
@@ -121,8 +135,9 @@ namespace SimpleDB.Test.Core
             };
             var insertResult = dataFile.Insert(fieldValueCollection);
 
-            var readFieldsResult = dataFile.ReadFields(0, insertResult.EndDataFileOffset).ToList();
-            Assert.AreEqual(1, readFieldsResult.Count);
+            var readFieldsResult = new FieldValue[fieldMetaCollection.Length];
+            dataFile.ReadFields(0, insertResult.EndDataFileOffset, readFieldsResult);
+            Assert.AreEqual(1, readFieldsResult.Length);
             var resultObject = (TestEntity)readFieldsResult.First().Value;
 
             Assert.AreEqual(false, resultObject.Bool);
@@ -144,24 +159,7 @@ namespace SimpleDB.Test.Core
         [Test]
         public void InsertManyEntities()
         {
-            var fieldMetaCollection = new FieldMeta[]
-            {
-                new FieldMeta(0, typeof(bool)),
-                new FieldMeta(1, typeof(sbyte)),
-                new FieldMeta(2, typeof(byte)),
-                new FieldMeta(3, typeof(char)),
-                new FieldMeta(4, typeof(short)),
-                new FieldMeta(5, typeof(ushort)),
-                new FieldMeta(6, typeof(int)),
-                new FieldMeta(7, typeof(uint)),
-                new FieldMeta(8, typeof(long)),
-                new FieldMeta(9, typeof(ulong)),
-                new FieldMeta(10, typeof(float)),
-                new FieldMeta(11, typeof(double)),
-                new FieldMeta(12, typeof(decimal)),
-                new FieldMeta(13, typeof(string))
-            };
-            var dataFile = new DataFile("", fieldMetaCollection);
+            var dataFile = new DataFile("", _fieldMetaCollection);
             var fieldValueCollection = new FieldValue[]
             {
                 new FieldValue(0, false),
@@ -183,31 +181,15 @@ namespace SimpleDB.Test.Core
             dataFile.Insert(fieldValueCollection);
             dataFile.Insert(fieldValueCollection);
 
-            var result = dataFile.ReadFields(0, insertResult.EndDataFileOffset).ToList();
-            Assert.AreEqual(14, result.Count);
+            var readFieldsResult = new FieldValue[_fieldMetaCollection.Length];
+            dataFile.ReadFields(0, insertResult.EndDataFileOffset, readFieldsResult);
+            Assert.AreEqual(14, readFieldsResult.Length);
         }
 
         [Test]
         public void UpdateLengthEqual()
         {
-            var fieldMetaCollection = new FieldMeta[]
-            {
-                new FieldMeta(0, typeof(bool)),
-                new FieldMeta(1, typeof(sbyte)),
-                new FieldMeta(2, typeof(byte)),
-                new FieldMeta(3, typeof(char)),
-                new FieldMeta(4, typeof(short)),
-                new FieldMeta(5, typeof(ushort)),
-                new FieldMeta(6, typeof(int)),
-                new FieldMeta(7, typeof(uint)),
-                new FieldMeta(8, typeof(long)),
-                new FieldMeta(9, typeof(ulong)),
-                new FieldMeta(10, typeof(float)),
-                new FieldMeta(11, typeof(double)),
-                new FieldMeta(12, typeof(decimal)),
-                new FieldMeta(13, typeof(string))
-            };
-            var dataFile = new DataFile("", fieldMetaCollection);
+            var dataFile = new DataFile("", _fieldMetaCollection);
             var fieldValueCollection = new FieldValue[]
             {
                 new FieldValue(0, false),
@@ -248,7 +230,8 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual(insertResult.StartDataFileOffset, updateResult.NewStartDataFileOffset);
             Assert.AreEqual(insertResult.EndDataFileOffset, updateResult.NewEndDataFileOffset);
 
-            var readFieldsResult = dataFile.ReadFields(updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset).ToList();
+            var readFieldsResult = new FieldValue[_fieldMetaCollection.Length];
+            dataFile.ReadFields(updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset, readFieldsResult);
             Assert.AreEqual(true, readFieldsResult[0].Value);
             Assert.AreEqual((sbyte)10, readFieldsResult[1].Value);
             Assert.AreEqual((byte)20, readFieldsResult[2].Value);
@@ -268,24 +251,7 @@ namespace SimpleDB.Test.Core
         [Test]
         public void UpdateLengthLess()
         {
-            var fieldMetaCollection = new FieldMeta[]
-            {
-                new FieldMeta(0, typeof(bool)),
-                new FieldMeta(1, typeof(sbyte)),
-                new FieldMeta(2, typeof(byte)),
-                new FieldMeta(3, typeof(char)),
-                new FieldMeta(4, typeof(short)),
-                new FieldMeta(5, typeof(ushort)),
-                new FieldMeta(6, typeof(int)),
-                new FieldMeta(7, typeof(uint)),
-                new FieldMeta(8, typeof(long)),
-                new FieldMeta(9, typeof(ulong)),
-                new FieldMeta(10, typeof(float)),
-                new FieldMeta(11, typeof(double)),
-                new FieldMeta(12, typeof(decimal)),
-                new FieldMeta(13, typeof(string))
-            };
-            var dataFile = new DataFile("", fieldMetaCollection);
+            var dataFile = new DataFile("", _fieldMetaCollection);
             var fieldValueCollection = new FieldValue[]
             {
                 new FieldValue(0, false),
@@ -326,7 +292,8 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual(insertResult.StartDataFileOffset, updateResult.NewStartDataFileOffset);
             Assert.IsTrue(insertResult.EndDataFileOffset > updateResult.NewEndDataFileOffset);
 
-            var readFieldsResult = dataFile.ReadFields(updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset).ToList();
+            var readFieldsResult = new FieldValue[_fieldMetaCollection.Length];
+            dataFile.ReadFields(updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset, readFieldsResult);
             Assert.AreEqual(true, readFieldsResult[0].Value);
             Assert.AreEqual((sbyte)10, readFieldsResult[1].Value);
             Assert.AreEqual((byte)20, readFieldsResult[2].Value);
@@ -346,24 +313,7 @@ namespace SimpleDB.Test.Core
         [Test]
         public void UpdateLengthChange()
         {
-            var fieldMetaCollection = new FieldMeta[]
-            {
-                new FieldMeta(0, typeof(bool)),
-                new FieldMeta(1, typeof(sbyte)),
-                new FieldMeta(2, typeof(byte)),
-                new FieldMeta(3, typeof(char)),
-                new FieldMeta(4, typeof(short)),
-                new FieldMeta(5, typeof(ushort)),
-                new FieldMeta(6, typeof(int)),
-                new FieldMeta(7, typeof(uint)),
-                new FieldMeta(8, typeof(long)),
-                new FieldMeta(9, typeof(ulong)),
-                new FieldMeta(10, typeof(float)),
-                new FieldMeta(11, typeof(double)),
-                new FieldMeta(12, typeof(decimal)),
-                new FieldMeta(13, typeof(string))
-            };
-            var dataFile = new DataFile("", fieldMetaCollection);
+            var dataFile = new DataFile("", _fieldMetaCollection);
             var fieldValueCollection = new FieldValue[]
             {
                 new FieldValue(0, false),
@@ -404,7 +354,8 @@ namespace SimpleDB.Test.Core
             Assert.IsTrue(insertResult.StartDataFileOffset < updateResult.NewStartDataFileOffset);
             Assert.IsTrue(insertResult.EndDataFileOffset < updateResult.NewEndDataFileOffset);
 
-            var readFieldsResult = dataFile.ReadFields(updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset).ToList();
+            var readFieldsResult = new FieldValue[_fieldMetaCollection.Length];
+            dataFile.ReadFields(updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset, readFieldsResult);
             Assert.AreEqual(true, readFieldsResult[0].Value);
             Assert.AreEqual((sbyte)10, readFieldsResult[1].Value);
             Assert.AreEqual((byte)20, readFieldsResult[2].Value);
@@ -419,6 +370,38 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual((double)30.4, readFieldsResult[11].Value);
             Assert.AreEqual((decimal)50.6, readFieldsResult[12].Value);
             Assert.AreEqual("0987654321098765432109876543210987654321", readFieldsResult[13].Value);
+        }
+
+        [Test]
+        public void InsertNullString()
+        {
+            var dataFile = new DataFile("", _fieldMetaCollection);
+            var fieldValueCollection = new FieldValue[]
+            {
+                new FieldValue(13, null)
+            };
+            var insertResult = dataFile.Insert(fieldValueCollection);
+            var readFieldsResult = new FieldValue[_fieldMetaCollection.Length];
+            dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, readFieldsResult);
+            Assert.AreEqual(null, readFieldsResult[13].Value);
+        }
+
+        [Test]
+        public void InsertNullInnerObject()
+        {
+            var fieldMetaCollection = new FieldMeta[]
+            {
+                new FieldMeta(0, typeof(InnerObject)),
+            };
+            var fieldValueCollection = new FieldValue[]
+            {
+                new FieldValue(0, null)
+            };
+            var dataFile = new DataFile("", fieldMetaCollection);
+            var insertResult = dataFile.Insert(fieldValueCollection);
+            var readFieldsResult = new FieldValue[1];
+            dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, readFieldsResult);
+            Assert.AreEqual(null, readFieldsResult[0].Value);
         }
 
         class TestEntity
@@ -437,6 +420,16 @@ namespace SimpleDB.Test.Core
             public double Double { get; set; }
             public decimal Decimal { get; set; }
             public string String { get; set; }
+        }
+
+        class TestEntityWithInnerObject
+        {
+            public InnerObject Value { get; set; }
+        }
+
+        class InnerObject
+        {
+            public int Value { get; set; }
         }
     }
 }

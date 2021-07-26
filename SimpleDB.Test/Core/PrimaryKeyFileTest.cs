@@ -16,6 +16,16 @@ namespace SimpleDB.Test.Core
         }
 
         [Test]
+        public void CreateFile()
+        {
+            IOC.Reset();
+            var fileSystem = new MemoryFileSystem();
+            IOC.Set<IFileSystem>(fileSystem);
+            new PrimaryKeyFile(@"working directory\testEntity.primary", typeof(int));
+            Assert.True(fileSystem.FullFilePathes.Contains(@"working directory\testEntity.primary"));
+        }
+
+        [Test]
         public void Insert()
         {
             var primaryKeyFile = new PrimaryKeyFile("", typeof(int));

@@ -64,7 +64,7 @@ namespace SimpleDB.Test.Core
         }
 
         [Test]
-        public void GetEntity()
+        public void GetEntity_IncludePrimaryKeyYes()
         {
             var fieldValueCollection = new FieldValue[]
             {
@@ -72,8 +72,24 @@ namespace SimpleDB.Test.Core
                 new FieldValue(1, 6.7f),
                 new FieldValue(2, "123")
             };
-            var result = _mapper.GetEntity(123, fieldValueCollection);
+            var result = _mapper.GetEntity(123, fieldValueCollection, Mapper<TestEntity>.IncludePrimaryKey.Yes);
             Assert.AreEqual(123, result.Id);
+            Assert.AreEqual((byte)45, result.Byte);
+            Assert.AreEqual(6.7f, result.Float);
+            Assert.AreEqual("123", result.String);
+        }
+
+        [Test]
+        public void GetEntity_IncludePrimaryKeyNo()
+        {
+            var fieldValueCollection = new FieldValue[]
+            {
+                new FieldValue(0, (byte)45),
+                new FieldValue(1, 6.7f),
+                new FieldValue(2, "123")
+            };
+            var result = _mapper.GetEntity(123, fieldValueCollection, Mapper<TestEntity>.IncludePrimaryKey.No);
+            Assert.AreEqual(0, result.Id);
             Assert.AreEqual((byte)45, result.Byte);
             Assert.AreEqual(6.7f, result.Float);
             Assert.AreEqual("123", result.String);

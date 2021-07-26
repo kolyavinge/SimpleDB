@@ -8,11 +8,11 @@ namespace SimpleDB.Core
     internal class Mapper<TEntity>
     {
         private readonly PrimaryKeyMapping<TEntity> _primaryKeyMapping;
-        private readonly List<FieldMapping<TEntity>> _fieldMappings;
+        private readonly Dictionary<byte, FieldMapping<TEntity>> _fieldMappings;
 
         public Type PrimaryKeyType { get; private set; }
 
-        public IEnumerable<FieldMeta> FieldMetaCollection { get; private set; }
+        public List<FieldMeta> FieldMetaCollection { get; private set; }
 
         public string EntityName { get; private set; }
 
@@ -23,7 +23,7 @@ namespace SimpleDB.Core
         {
             EntityName = entityName;
             _primaryKeyMapping = primaryKeyMapping;
-            _fieldMappings = fieldMappings.ToList();
+            _fieldMappings = fieldMappings.ToDictionary(k => k.Number, v => v);
             PrimaryKeyType = _primaryKeyMapping.PropertyType;
             FieldMetaCollection = GetFieldMetaCollection(fieldMappings).ToList();
         }
@@ -43,27 +43,46 @@ namespace SimpleDB.Core
 
         public IEnumerable<FieldValue> GetFieldValueCollection(TEntity entity)
         {
-            foreach (var fieldMapping in _fieldMappings)
+            foreach (var fieldMapping in _fieldMappings.Values)
             {
                 yield return new FieldValue(fieldMapping.Number, fieldMapping.Func.Invoke(entity));
             }
         }
 
-        public TEntity GetEntity(object primaryKeyValue, IEnumerable<FieldValue> fieldValueCollection)
+        public TEntity GetEntity(object primaryKeyValue, IEnumerable<FieldValue> fieldValueCollection, IncludePrimaryKey includePrimaryKey, ISet<byte> selectedFieldNumbers = null)
         {
             var entity = Activator.CreateInstance<TEntity>();
-            var primaryKeyProperty = entity.GetType().GetProperty(_primaryKeyMapping.PropertyName);
-            primaryKeyProperty.SetValue(entity, primaryKeyValue);
-            var fieldValueDictionary = fieldValueCollection.ToDictionary(k => k.Number, v => v);
-            foreach (var fieldMapping in _fieldMappings)
+            if (includePrimaryKey == IncludePrimaryKey.Yes)
             {
-                var fieldValue = fieldValueDictionary[fieldMapping.Number].Value;
-                var fieldProperty = entity.GetType().GetProperty(fieldMapping.PropertyName);
-                fieldProperty.SetValue(entity, fieldValue);
+                var primaryKeyProperty = entity.GetType().GetProperty(_primaryKeyMapping.PropertyName);
+                primaryKeyProperty.SetValue(entity, primaryKeyValue);
+            }
+            if (selectedFieldNumbers != null)
+            {
+                foreach (var fieldValue in fieldValueCollection)
+                {
+                    if (selectedFieldNumbers.Contains(fieldValue.Number))
+                    {
+                        var fieldMapping = _fieldMappings[fieldValue.Number];
+                        var fieldProperty = entity.GetType().GetProperty(fieldMapping.PropertyName);
+                        fieldProperty.SetValue(entity, fieldValue.Value);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var fieldValue in fieldValueCollection)
+                {
+                    var fieldMapping = _fieldMappings[fieldValue.Number];
+                    var fieldProperty = entity.GetType().GetProperty(fieldMapping.PropertyName);
+                    fieldProperty.SetValue(entity, fieldValue.Value);
+                }
             }
 
             return entity;
         }
+
+        public enum IncludePrimaryKey { Yes, No }
     }
 
     internal class PrimaryKeyMapping<TEntity>

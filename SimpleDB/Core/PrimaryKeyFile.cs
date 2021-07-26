@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using SimpleDB.Infrastructure;
-
-[assembly: InternalsVisibleTo("SimpleDB.Test")]
 
 namespace SimpleDB.Core
 {
