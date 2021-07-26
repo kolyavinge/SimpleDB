@@ -11,5 +11,7 @@ namespace SimpleDB
         void Insert(TEntity entity);
 
         void Update(TEntity entity);
+
+        void Delete(object id);
     }
 }

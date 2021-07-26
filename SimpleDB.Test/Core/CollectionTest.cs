@@ -68,6 +68,26 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual(60.7f, result.Float);
         }
 
+        [Test]
+        public void Delete()
+        {
+            var entity = new TestEntity { Id = 123, Byte = 45, Float = 6.7f };
+            var mapper = new Mapper<TestEntity>(
+                "testEntity",
+                new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
+                new FieldMapping<TestEntity>[]
+                {
+                    new FieldMapping<TestEntity>(0, entity => entity.Byte),
+                    new FieldMapping<TestEntity>(1, entity => entity.Float)
+                });
+            var collection = new Collection<TestEntity>("working directory", mapper);
+
+            collection.Insert(entity);
+            collection.Delete(123);
+
+            Assert.IsNull(collection.Get(123));
+        }
+
         class TestEntity
         {
             public int Id { get; set; }

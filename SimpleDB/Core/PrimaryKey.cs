@@ -14,12 +14,25 @@ namespace SimpleDB.Core
 
         public long PrimaryKeyFileOffset { get; set; }
 
-        public PrimaryKey(object value, long startDataFileOffset, long endDataFileOffset, long primaryKeyFileOffset)
+        public byte Flags { get; set; }
+
+        public PrimaryKey(object value, long startDataFileOffset, long endDataFileOffset, long primaryKeyFileOffset, byte flags)
         {
             Value = value;
             StartDataFileOffset = startDataFileOffset;
             EndDataFileOffset = endDataFileOffset;
             PrimaryKeyFileOffset = primaryKeyFileOffset;
+            Flags = flags;
+        }
+
+        public bool IsDeleted()
+        {
+            return (Flags & 0x00000001) == 1;
+        }
+
+        public static byte SetDeleted(byte primaryKeyFlags)
+        {
+            return (byte)(primaryKeyFlags | 0x00000001);
         }
     }
 }

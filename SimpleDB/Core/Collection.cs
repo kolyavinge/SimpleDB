@@ -24,16 +24,23 @@ namespace SimpleDB.Core
             var dataFileFileFullPath = Path.Combine(workingDirectory, DataFileFileName.FromCollectionName(_collectionName));
             _primaryKeyFile = new PrimaryKeyFile(primaryKeyFileFullPath, mapper.PrimaryKeyType);
             _dataFile = new DataFile(dataFileFileFullPath, mapper.FieldMetaCollection);
-            _primaryKeys = _primaryKeyFile.GetAllPrimaryKeys().ToDictionary(k => k.Value, v => v);
+            _primaryKeys = _primaryKeyFile.GetAllPrimaryKeys().Where(x => !x.IsDeleted()).ToDictionary(k => k.Value, v => v);
         }
 
         public TEntity Get(object id)
         {
-            var primaryKey = _primaryKeys[id];
-            var fieldValueCollection = _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset).ToList();
-            var entity = _mapper.GetEntity(primaryKey.Value, fieldValueCollection);
+            if (_primaryKeys.ContainsKey(id))
+            {
+                var primaryKey = _primaryKeys[id];
+                var fieldValueCollection = _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset).ToList();
+                var entity = _mapper.GetEntity(primaryKey.Value, fieldValueCollection);
 
-            return entity;
+                return entity;
+            }
+            else
+            {
+                return default(TEntity);
+            }
         }
 
         public void Insert(TEntity entity)
@@ -62,6 +69,13 @@ namespace SimpleDB.Core
                 _primaryKeyFile.UpdateEndDataFileOffset(updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset);
                 primaryKey.EndDataFileOffset = updateResult.NewEndDataFileOffset;
             }
+        }
+
+        public void Delete(object id)
+        {
+            var primaryKey = _primaryKeys[id];
+            _primaryKeyFile.Delete(primaryKey.PrimaryKeyFileOffset);
+            _primaryKeys.Remove(id);
         }
     }
 }

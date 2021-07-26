@@ -73,6 +73,13 @@ namespace StartApp
             Console.WriteLine(collection.Get(count - 2));
             Console.WriteLine(collection.Get(count - 1));
 
+            // delete
+
+            Console.WriteLine("========== Delete ==========");
+            collection.Delete(0);
+            Console.WriteLine(collection.Get(0) == null ? "collection.Get(0): null" : "collection.Get(0): !!! not null !!!");
+            Console.WriteLine("collection.Get(1): " + collection.Get(1));
+
             Console.ReadKey();
         }
     }

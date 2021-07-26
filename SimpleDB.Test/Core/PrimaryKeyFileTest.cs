@@ -28,7 +28,7 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual(456, primaryKey2.Value);
             Assert.AreEqual(45, primaryKey2.StartDataFileOffset);
             Assert.AreEqual(60, primaryKey2.EndDataFileOffset);
-            Assert.AreEqual(8+8+4, primaryKey2.PrimaryKeyFileOffset);
+            Assert.AreEqual(1 + 8 + 8 + 4, primaryKey2.PrimaryKeyFileOffset);
         }
 
         [Test]
@@ -86,6 +86,18 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual(20, allPrimaryKeys[0].EndDataFileOffset);
             Assert.AreEqual(30, allPrimaryKeys[1].StartDataFileOffset);
             Assert.AreEqual(40, allPrimaryKeys[1].EndDataFileOffset);
+        }
+
+        [Test]
+        public void Delete()
+        {
+            var primaryKeyFile = new PrimaryKeyFile("", typeof(int));
+            primaryKeyFile.Insert(123, 10, 20);
+            var second = primaryKeyFile.Insert(456, 30, 35);
+            primaryKeyFile.Delete(second.PrimaryKeyFileOffset);
+            var allPrimaryKeys = primaryKeyFile.GetAllPrimaryKeys().ToList();
+            Assert.False(allPrimaryKeys[0].IsDeleted());
+            Assert.True(allPrimaryKeys[1].IsDeleted());
         }
 
         class TestEntity
