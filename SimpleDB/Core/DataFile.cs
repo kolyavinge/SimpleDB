@@ -34,7 +34,7 @@ namespace SimpleDB.Core
         {
             foreach (var fieldMeta in _fieldMetaDictionary.Values)
             {
-                stream.Write(fieldMeta.Number);
+                stream.WriteByte(fieldMeta.Number);
                 var fieldValue = fieldValueCollection.FirstOrDefault(x => x.Number == fieldMeta.Number);
                 if (fieldValue != null)
                 {
@@ -49,77 +49,77 @@ namespace SimpleDB.Core
 
         private void InsertValue(IWriteableStream stream, FieldMeta fieldMeta, object fieldValue)
         {
-            stream.Write((byte)fieldMeta.GetFieldType());
+            stream.WriteByte((byte)fieldMeta.GetFieldType());
             if (fieldMeta.Type == typeof(bool))
             {
-                stream.Write((bool)fieldValue);
+                stream.WriteBool((bool)fieldValue);
             }
             else if (fieldMeta.Type == typeof(sbyte))
             {
-                stream.Write((sbyte)fieldValue);
+                stream.WriteSByte((sbyte)fieldValue);
             }
             else if (fieldMeta.Type == typeof(byte))
             {
-                stream.Write((byte)fieldValue);
+                stream.WriteByte((byte)fieldValue);
             }
             else if (fieldMeta.Type == typeof(char))
             {
-                stream.Write((char)fieldValue);
+                stream.WriteChar((char)fieldValue);
             }
             else if (fieldMeta.Type == typeof(short))
             {
-                stream.Write((short)fieldValue);
+                stream.WriteShort((short)fieldValue);
             }
             else if (fieldMeta.Type == typeof(ushort))
             {
-                stream.Write((ushort)fieldValue);
+                stream.WriteUShort((ushort)fieldValue);
             }
             else if (fieldMeta.Type == typeof(int))
             {
-                stream.Write((int)fieldValue);
+                stream.WriteInt((int)fieldValue);
             }
             else if (fieldMeta.Type == typeof(uint))
             {
-                stream.Write((uint)fieldValue);
+                stream.WriteUInt((uint)fieldValue);
             }
             else if (fieldMeta.Type == typeof(long))
             {
-                stream.Write((long)fieldValue);
+                stream.WriteLong((long)fieldValue);
             }
             else if (fieldMeta.Type == typeof(ulong))
             {
-                stream.Write((ulong)fieldValue);
+                stream.WriteULong((ulong)fieldValue);
             }
             else if (fieldMeta.Type == typeof(float))
             {
-                stream.Write((float)fieldValue);
+                stream.WriteFloat((float)fieldValue);
             }
             else if (fieldMeta.Type == typeof(double))
             {
-                stream.Write((double)fieldValue);
+                stream.WriteDouble((double)fieldValue);
             }
             else if (fieldMeta.Type == typeof(decimal))
             {
-                stream.Write((decimal)fieldValue);
+                stream.WriteDecimal((decimal)fieldValue);
             }
             else if (fieldMeta.Type == typeof(string))
             {
                 var str = (string)fieldValue;
                 if (String.IsNullOrWhiteSpace(str))
                 {
-                    stream.Write(-1);
+                    stream.WriteInt(-1);
                 }
                 else
                 {
-                    stream.Write(str.Length);
-                    stream.Write(str);
+                    stream.WriteInt(str.Length);
+                    stream.WriteString(str);
                 }
             }
             else
             {
                 var fieldValueJson = JsonSerialization.ToJson(fieldValue);
-                stream.Write(fieldValueJson.Length);
-                stream.Write(fieldValueJson);
+                stream.WriteInt(fieldValueJson.Length);
+                stream.WriteString(fieldValueJson);
             }
         }
 
@@ -131,14 +131,14 @@ namespace SimpleDB.Core
             if (newLength <= endDataFileOffset - startDataFileOffset)
             {
                 _fileStream.Seek(startDataFileOffset, System.IO.SeekOrigin.Begin);
-                _fileStream.Write(_memoryBuffer.BufferArray, 0, (int)newLength);
+                _fileStream.WriteByteArray(_memoryBuffer.BufferArray, 0, (int)newLength);
                 return new UpdateResult { NewStartDataFileOffset = startDataFileOffset, NewEndDataFileOffset = _fileStream.Position };
             }
             else
             {
                 _fileStream.Seek(0, System.IO.SeekOrigin.End);
                 var newStartDataFileOffset = _fileStream.Position;
-                _fileStream.Write(_memoryBuffer.BufferArray, 0, (int)newLength);
+                _fileStream.WriteByteArray(_memoryBuffer.BufferArray, 0, (int)newLength);
                 return new UpdateResult { NewStartDataFileOffset = newStartDataFileOffset, NewEndDataFileOffset = _fileStream.Position };
             }
         }

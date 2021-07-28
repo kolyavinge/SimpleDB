@@ -94,65 +94,65 @@ namespace SimpleDB.Core
             _fileStream.Seek(0, System.IO.SeekOrigin.End);
             var primaryKeyFileOffset = _fileStream.Position;
             byte primaryKeyFlags = 0;
-            _fileStream.Write(primaryKeyFlags);
-            _fileStream.Write(startDataFileOffset);
-            _fileStream.Write(endDataFileOffset);
+            _fileStream.WriteByte(primaryKeyFlags);
+            _fileStream.WriteLong(startDataFileOffset);
+            _fileStream.WriteLong(endDataFileOffset);
             if (_primaryKeyType == typeof(sbyte))
             {
-                _fileStream.Write((sbyte)value);
+                _fileStream.WriteSByte((sbyte)value);
             }
             else if (_primaryKeyType == typeof(byte))
             {
-                _fileStream.Write((byte)value);
+                _fileStream.WriteByte((byte)value);
             }
             else if (_primaryKeyType == typeof(char))
             {
-                _fileStream.Write((char)value);
+                _fileStream.WriteChar((char)value);
             }
             else if (_primaryKeyType == typeof(short))
             {
-                _fileStream.Write((short)value);
+                _fileStream.WriteShort((short)value);
             }
             else if (_primaryKeyType == typeof(ushort))
             {
-                _fileStream.Write((ushort)value);
+                _fileStream.WriteUShort((ushort)value);
             }
             else if (_primaryKeyType == typeof(int))
             {
-                _fileStream.Write((int)value);
+                _fileStream.WriteInt((int)value);
             }
             else if (_primaryKeyType == typeof(uint))
             {
-                _fileStream.Write((uint)value);
+                _fileStream.WriteUInt((uint)value);
             }
             else if (_primaryKeyType == typeof(long))
             {
-                _fileStream.Write((long)value);
+                _fileStream.WriteLong((long)value);
             }
             else if (_primaryKeyType == typeof(ulong))
             {
-                _fileStream.Write((ulong)value);
+                _fileStream.WriteULong((ulong)value);
             }
             else if (_primaryKeyType == typeof(float))
             {
-                _fileStream.Write((float)value);
+                _fileStream.WriteFloat((float)value);
             }
             else if (_primaryKeyType == typeof(double))
             {
-                _fileStream.Write((double)value);
+                _fileStream.WriteDouble((double)value);
             }
             else if (_primaryKeyType == typeof(decimal))
             {
-                _fileStream.Write((decimal)value);
+                _fileStream.WriteDecimal((decimal)value);
             }
             else if (_primaryKeyType == typeof(string))
             {
-                _fileStream.Write((string)value);
+                _fileStream.WriteString((string)value);
             }
             else
             {
                 var primaryKeyValueJson = JsonSerialization.ToJson(value);
-                _fileStream.Write(primaryKeyValueJson);
+                _fileStream.WriteString(primaryKeyValueJson);
             }
 
             return new PrimaryKey(value, startDataFileOffset, endDataFileOffset, primaryKeyFileOffset, primaryKeyFlags);
@@ -162,15 +162,15 @@ namespace SimpleDB.Core
         {
             _fileStream.Seek(primaryKeyFileOffset, System.IO.SeekOrigin.Begin);
             _fileStream.Seek(1, System.IO.SeekOrigin.Current); // skip 'primaryKeyFileOffset'
-            _fileStream.Write(newStartDataFileOffset);
-            _fileStream.Write(newEndDataFileOffset);
+            _fileStream.WriteLong(newStartDataFileOffset);
+            _fileStream.WriteLong(newEndDataFileOffset);
         }
 
         public void UpdateEndDataFileOffset(long primaryKeyFileOffset, long newEndDataFileOffset)
         {
             _fileStream.Seek(primaryKeyFileOffset, System.IO.SeekOrigin.Begin);
             _fileStream.Seek(1 + 8, System.IO.SeekOrigin.Current); // skip 'primaryKeyFileOffset' and 'startDataFileOffset'
-            _fileStream.Write(newEndDataFileOffset);
+            _fileStream.WriteLong(newEndDataFileOffset);
         }
 
         public void Delete(long primaryKeyFileOffset)
@@ -179,7 +179,7 @@ namespace SimpleDB.Core
             var primaryKeyFlags = _fileStream.ReadByte();
             primaryKeyFlags = PrimaryKey.SetDeleted(primaryKeyFlags);
             _fileStream.Seek(primaryKeyFileOffset, System.IO.SeekOrigin.Begin);
-            _fileStream.Write(primaryKeyFlags);
+            _fileStream.WriteByte(primaryKeyFlags);
         }
     }
 

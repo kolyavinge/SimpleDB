@@ -6,20 +6,20 @@ namespace SimpleDB.Infrastructure
 {
     internal interface IWriteableStream : IStream
     {
-        void Write(bool value);
-        void Write(sbyte value);
-        void Write(byte value);
-        void Write(char value);
-        void Write(short value);
-        void Write(ushort value);
-        void Write(int value);
-        void Write(uint value);
-        void Write(long value);
-        void Write(ulong value);
-        void Write(float value);
-        void Write(double value);
-        void Write(decimal value);
-        void Write(string value);
-        void Write(byte[] value, int index, int count);
+        void WriteBool(bool value);
+        void WriteSByte(sbyte value);
+        void WriteByte(byte value);
+        void WriteChar(char value);
+        void WriteShort(short value);
+        void WriteUShort(ushort value);
+        void WriteInt(int value);
+        void WriteUInt(uint value);
+        void WriteLong(long value);
+        void WriteULong(ulong value);
+        void WriteFloat(float value);
+        void WriteDouble(double value);
+        void WriteDecimal(decimal value);
+        void WriteString(string value);
+        void WriteByteArray(byte[] value, int index, int count);
     }
 }

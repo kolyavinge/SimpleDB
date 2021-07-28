@@ -51,77 +51,77 @@ namespace SimpleDB.Infrastructure
             _memoryStream.Seek(offset, origin);
         }
 
-        public void Write(bool value)
+        public void WriteBool(bool value)
         {
             _write.Write(value);
         }
 
-        public void Write(sbyte value)
+        public void WriteSByte(sbyte value)
         {
             _write.Write(value);
         }
 
-        public void Write(byte value)
+        public void WriteByte(byte value)
         {
             _write.Write(value);
         }
 
-        public void Write(char value)
+        public void WriteChar(char value)
         {
             _write.Write(value);
         }
 
-        public void Write(short value)
+        public void WriteShort(short value)
         {
             _write.Write(value);
         }
 
-        public void Write(ushort value)
+        public void WriteUShort(ushort value)
         {
             _write.Write(value);
         }
 
-        public void Write(int value)
+        public void WriteInt(int value)
         {
             _write.Write(value);
         }
 
-        public void Write(uint value)
+        public void WriteUInt(uint value)
         {
             _write.Write(value);
         }
 
-        public void Write(long value)
+        public void WriteLong(long value)
         {
             _write.Write(value);
         }
 
-        public void Write(ulong value)
+        public void WriteULong(ulong value)
         {
             _write.Write(value);
         }
 
-        public void Write(float value)
+        public void WriteFloat(float value)
         {
             _write.Write(value);
         }
 
-        public void Write(double value)
+        public void WriteDouble(double value)
         {
             _write.Write(value);
         }
 
-        public void Write(decimal value)
+        public void WriteDecimal(decimal value)
         {
             _write.Write(value);
         }
 
-        public void Write(string value)
+        public void WriteString(string value)
         {
             _write.Write(value);
         }
 
-        public void Write(byte[] value, int index, int count)
+        public void WriteByteArray(byte[] value, int index, int count)
         {
             _write.Write(value, index, count);
         }
