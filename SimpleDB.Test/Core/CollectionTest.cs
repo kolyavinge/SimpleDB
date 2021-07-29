@@ -221,7 +221,7 @@ namespace SimpleDB.Test.Core
             _collection.Insert(new TestEntity { Id = 3, String = "123" });
             var query = new Query(new SelectClause(new[] { new SelectClause.Field(2) }))
             {
-                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(2, OrderByClause.OrderByDirection.Asc) })
+                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(2, OrderByClause.Direction.Asc) })
             };
 
             var result = _collection.ExecuteQuery(query).ToList();
@@ -239,7 +239,7 @@ namespace SimpleDB.Test.Core
             _collection.Insert(new TestEntity { Id = 3, String = "123" });
             var query = new Query(new SelectClause(new[] { new SelectClause.Field(2) }))
             {
-                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(2, OrderByClause.OrderByDirection.Desc) })
+                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(2, OrderByClause.Direction.Desc) })
             };
 
             var result = _collection.ExecuteQuery(query).ToList();
@@ -257,7 +257,7 @@ namespace SimpleDB.Test.Core
             _collection.Insert(new TestEntity { Id = 3, Byte = 20, String = "123" });
             var query = new Query(new SelectClause(new[] { new SelectClause.Field(2) }))
             {
-                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, OrderByClause.OrderByDirection.Asc), new OrderByClause.Field(2, OrderByClause.OrderByDirection.Asc) })
+                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, OrderByClause.Direction.Asc), new OrderByClause.Field(2, OrderByClause.Direction.Asc) })
             };
 
             var result = _collection.ExecuteQuery(query).ToList();
@@ -275,7 +275,7 @@ namespace SimpleDB.Test.Core
             _collection.Insert(new TestEntity { Id = 3, Byte = 10, String = "123" });
             var query = new Query(new SelectClause(new[] { new SelectClause.Field(2) }))
             {
-                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, OrderByClause.OrderByDirection.Asc), new OrderByClause.Field(2, OrderByClause.OrderByDirection.Desc) })
+                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, OrderByClause.Direction.Asc), new OrderByClause.Field(2, OrderByClause.Direction.Desc) })
             };
 
             var result = _collection.ExecuteQuery(query).ToList();
@@ -293,7 +293,7 @@ namespace SimpleDB.Test.Core
             _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
             var query = new Query(new SelectClause(new[] { new SelectClause.Field(0) }))
             {
-                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, OrderByClause.OrderByDirection.Asc) }),
+                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, OrderByClause.Direction.Asc) }),
                 Skip = 1
             };
 
@@ -312,7 +312,7 @@ namespace SimpleDB.Test.Core
             _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
             var query = new Query(new SelectClause(new[] { new SelectClause.Field(0) }))
             {
-                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, OrderByClause.OrderByDirection.Asc) }),
+                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, OrderByClause.Direction.Asc) }),
                 Limit = 2
             };
 

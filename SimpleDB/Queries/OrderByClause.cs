@@ -22,7 +22,7 @@ namespace SimpleDB.Queries
                 var yComparable = (IComparable)y.FieldValues[orderedField.Number].Value;
                 var compareResult = xComparable.CompareTo(yComparable);
                 if (compareResult == 0) continue;
-                if (orderedField.Direction == OrderByDirection.Desc) compareResult = -compareResult;
+                if (orderedField.Direction == Direction.Desc) compareResult = -compareResult;
                 return compareResult;
             }
 
@@ -36,16 +36,16 @@ namespace SimpleDB.Queries
 
         public class Field
         {
-            public Field(byte number, OrderByDirection direction)
+            public Field(byte number, Direction direction)
             {
                 Number = number;
                 Direction = direction;
             }
 
             public byte Number { get; }
-            public OrderByDirection Direction { get; }
+            public Direction Direction { get; }
         }
 
-        public enum OrderByDirection { Asc, Desc }
+        public enum Direction { Asc, Desc }
     }
 }
