@@ -159,9 +159,8 @@ namespace SimpleDB.Core
             }
         }
 
-        public void ReadFields(long startDataFileOffset, long endDataFileOffset, ISet<byte> fieldNumbers, FieldValue[] result)
+        public void ReadFields(long startDataFileOffset, long endDataFileOffset, ISet<byte> fieldNumbers, Dictionary<byte, FieldValue> result)
         {
-            int resultIndex = 0;
             _fileStream.Seek(startDataFileOffset, System.IO.SeekOrigin.Begin);
             while (_fileStream.Position < endDataFileOffset)
             {
@@ -170,7 +169,7 @@ namespace SimpleDB.Core
                 {
                     var fieldMeta = _fieldMetaDictionary[fieldNumber];
                     object fieldValue = ReadValue(_fileStream, fieldMeta);
-                    result[resultIndex++] = new FieldValue(fieldNumber, fieldValue);
+                    result.Add(fieldNumber, new FieldValue(fieldNumber, fieldValue));
                 }
                 else
                 {
@@ -180,7 +179,7 @@ namespace SimpleDB.Core
                         var length = _fileStream.ReadInt();
                         if (length > 0)
                         {
-                            _fileStream.Seek(length, System.IO.SeekOrigin.Current);
+                            _fileStream.Seek(length+1, System.IO.SeekOrigin.Current);
                         }
                     }
                     else

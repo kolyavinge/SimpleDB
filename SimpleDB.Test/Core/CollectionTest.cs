@@ -71,9 +71,10 @@ namespace SimpleDB.Test.Core
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new Query(
-                new SelectClause(new[] { new SelectClause.Field(0) }),
-                new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(1), new WhereClause.Constant(3.4f))));
+            var query = new Query(new SelectClause(new[] { new SelectClause.Field(0) }))
+            {
+                WhereClause = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(1), new WhereClause.Constant(3.4f)))
+            };
 
             var result = _collection.ExecuteQuery(query).ToList();
 
@@ -89,9 +90,10 @@ namespace SimpleDB.Test.Core
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new Query(
-                new SelectClause(new SelectClause.SelectClauseItem[] { new SelectClause.PrimaryKey(), new SelectClause.Field(0) }),
-                new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(1), new WhereClause.Constant(3.4f))));
+            var query = new Query(new SelectClause(new SelectClause.SelectClauseItem[] { new SelectClause.PrimaryKey(), new SelectClause.Field(0) }))
+            {
+                WhereClause = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(1), new WhereClause.Constant(3.4f)))
+            };
 
             var result = _collection.ExecuteQuery(query).ToList();
 
@@ -107,9 +109,10 @@ namespace SimpleDB.Test.Core
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new Query(
-                new SelectClause(new[] { new SelectClause.Field(0) }),
-                new WhereClause(new WhereClause.LessOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20))));
+            var query = new Query(new SelectClause(new[] { new SelectClause.Field(0) }))
+            {
+                WhereClause = new WhereClause(new WhereClause.LessOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20)))
+            };
 
             var result = _collection.ExecuteQuery(query).ToList();
 
@@ -123,9 +126,10 @@ namespace SimpleDB.Test.Core
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new Query(
-                new SelectClause(new[] { new SelectClause.Field(0) }),
-                new WhereClause(new WhereClause.GreatOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)10))));
+            var query = new Query(new SelectClause(new[] { new SelectClause.Field(0) }))
+            {
+                WhereClause = new WhereClause(new WhereClause.GreatOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)10)))
+            };
 
             var result = _collection.ExecuteQuery(query).ToList();
 
@@ -140,9 +144,10 @@ namespace SimpleDB.Test.Core
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new Query(
-                new SelectClause(new[] { new SelectClause.Field(0) }),
-                new WhereClause(new WhereClause.LessOrEqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20))));
+            var query = new Query(new SelectClause(new[] { new SelectClause.Field(0) }))
+            {
+                WhereClause = new WhereClause(new WhereClause.LessOrEqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20)))
+            };
 
             var result = _collection.ExecuteQuery(query).ToList();
 
@@ -157,9 +162,10 @@ namespace SimpleDB.Test.Core
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new Query(
-                new SelectClause(new[] { new SelectClause.Field(0) }),
-                new WhereClause(new WhereClause.GreatOrEqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20))));
+            var query = new Query(new SelectClause(new[] { new SelectClause.Field(0) }))
+            {
+                WhereClause = new WhereClause(new WhereClause.GreatOrEqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20)))
+            };
 
             var result = _collection.ExecuteQuery(query).ToList();
 
@@ -174,11 +180,13 @@ namespace SimpleDB.Test.Core
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new Query(
-                new SelectClause(new[] { new SelectClause.Field(0) }),
-                new WhereClause(
-                    new WhereClause.NotOperation(
-                        new WhereClause.EqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20)))));
+            var query = new Query(new SelectClause(new[] { new SelectClause.Field(0) }))
+            {
+                WhereClause =
+                    new WhereClause(
+                        new WhereClause.NotOperation(
+                            new WhereClause.EqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20))))
+            };
 
             var result = _collection.ExecuteQuery(query).ToList();
 
@@ -193,15 +201,88 @@ namespace SimpleDB.Test.Core
             _collection.Insert(new TestEntity { Id = 1, String = "12345" });
             _collection.Insert(new TestEntity { Id = 2, String = "12" });
             _collection.Insert(new TestEntity { Id = 3, String = "123" });
-            var query = new Query(
-                new SelectClause(new[] { new SelectClause.Field(2) }),
-                new WhereClause(new WhereClause.LikeOperation(new WhereClause.Field(2), new WhereClause.Constant("123"))));
+            var query = new Query(new SelectClause(new[] { new SelectClause.Field(2) }))
+            {
+                WhereClause = new WhereClause(new WhereClause.LikeOperation(new WhereClause.Field(2), new WhereClause.Constant("123")))
+            };
 
             var result = _collection.ExecuteQuery(query).ToList();
 
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual("12345", result[0].String);
             Assert.AreEqual("123", result[1].String);
+        }
+
+        [Test]
+        public void ExecuteQuery_OrderByAsc()
+        {
+            _collection.Insert(new TestEntity { Id = 1, String = "12345" });
+            _collection.Insert(new TestEntity { Id = 2, String = "12" });
+            _collection.Insert(new TestEntity { Id = 3, String = "123" });
+            var query = new Query(new SelectClause(new[] { new SelectClause.Field(2) }))
+            {
+                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(2, OrderByClause.OrderByDirection.Asc) })
+            };
+
+            var result = _collection.ExecuteQuery(query).ToList();
+
+            Assert.AreEqual("12", result[0].String);
+            Assert.AreEqual("123", result[1].String);
+            Assert.AreEqual("12345", result[2].String);
+        }
+
+        [Test]
+        public void ExecuteQuery_OrderByDesc()
+        {
+            _collection.Insert(new TestEntity { Id = 1, String = "12345" });
+            _collection.Insert(new TestEntity { Id = 2, String = "12" });
+            _collection.Insert(new TestEntity { Id = 3, String = "123" });
+            var query = new Query(new SelectClause(new[] { new SelectClause.Field(2) }))
+            {
+                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(2, OrderByClause.OrderByDirection.Desc) })
+            };
+
+            var result = _collection.ExecuteQuery(query).ToList();
+
+            Assert.AreEqual("12345", result[0].String);
+            Assert.AreEqual("123", result[1].String);
+            Assert.AreEqual("12", result[2].String);
+        }
+
+        [Test]
+        public void ExecuteQuery_OrderByTwoFields()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10, String = "12345" });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20, String = "12" });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 20, String = "123" });
+            var query = new Query(new SelectClause(new[] { new SelectClause.Field(2) }))
+            {
+                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, OrderByClause.OrderByDirection.Asc), new OrderByClause.Field(2, OrderByClause.OrderByDirection.Asc) })
+            };
+
+            var result = _collection.ExecuteQuery(query).ToList();
+
+            Assert.AreEqual("12345", result[0].String);
+            Assert.AreEqual("12", result[1].String);
+            Assert.AreEqual("123", result[2].String);
+        }
+
+        [Test]
+        public void ExecuteQuery_OrderByTwoFieldsDesc()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10, String = "12345" });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 10, String = "12" });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 10, String = "123" });
+            var query = new Query(new SelectClause(new[] { new SelectClause.Field(2) }))
+            {
+                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, OrderByClause.OrderByDirection.Asc), new OrderByClause.Field(2, OrderByClause.OrderByDirection.Desc) })
+            };
+
+            var result = _collection.ExecuteQuery(query).ToList();
+
+            Assert.AreEqual("12345", result[0].String);
+            Assert.AreEqual("123", result[1].String);
+            Assert.AreEqual("12", result[2].String);
         }
 
         class TestEntity

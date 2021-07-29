@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using SimpleDB.Infrastructure;
 using SimpleDB.Queries;
 
 namespace SimpleDB.Core
@@ -9,16 +10,14 @@ namespace SimpleDB.Core
     {
         private readonly PrimaryKeyFile _primaryKeyFile;
         private readonly DataFile _dataFile;
-        private readonly string _collectionName;
         private readonly Mapper<TEntity> _mapper;
         private readonly Dictionary<object, PrimaryKey> _primaryKeys;
 
         public Collection(string workingDirectory, Mapper<TEntity> mapper)
         {
-            _collectionName = mapper.EntityName;
             _mapper = mapper;
-            var primaryKeyFileFullPath = Path.Combine(workingDirectory, PrimaryKeyFileName.FromCollectionName(_collectionName));
-            var dataFileFileFullPath = Path.Combine(workingDirectory, DataFileFileName.FromCollectionName(_collectionName));
+            var primaryKeyFileFullPath = Path.Combine(workingDirectory, PrimaryKeyFileName.FromCollectionName(mapper.EntityName));
+            var dataFileFileFullPath = Path.Combine(workingDirectory, DataFileFileName.FromCollectionName(mapper.EntityName));
             _primaryKeyFile = new PrimaryKeyFile(primaryKeyFileFullPath, mapper.PrimaryKeyType);
             _dataFile = new DataFile(dataFileFileFullPath, mapper.FieldMetaCollection);
             _primaryKeys = _primaryKeyFile.GetAllPrimaryKeys().Where(x => !x.IsDeleted()).ToDictionary(k => k.Value, v => v);
@@ -76,36 +75,70 @@ namespace SimpleDB.Core
             _primaryKeys.Remove(id);
         }
 
-        public IEnumerable<TEntity> ExecuteQuery(Query query)
+        public List<TEntity> ExecuteQuery(Query query)
         {
-            var selectFieldNumbers = query.SelectClause.SelectItems.Where(x => x is SelectClause.Field).Cast<SelectClause.Field>().Select(x => x.Number).ToHashSet();
-            var includePrimaryKey = query.SelectClause.SelectItems.Any(x => x is SelectClause.PrimaryKey) ? Mapper<TEntity>.IncludePrimaryKey.Yes : Mapper<TEntity>.IncludePrimaryKey.No;
-            var allFieldNumbers = selectFieldNumbers.ToHashSet();
+            var fieldValueDictionaries = new List<FieldValueDictionary>();
+            var allFieldNumbers = new HashSet<byte>();
             if (query.WhereClause != null)
             {
-                var whereClauseFieldNumbers = query.WhereClause.ToEnumerable().Where(x => x is WhereClause.Field).Cast<WhereClause.Field>().Select(x => x.Number).ToList();
-                whereClauseFieldNumbers.ForEach(x => allFieldNumbers.Add(x));
-            }
-            var fieldValueCollection = new FieldValue[allFieldNumbers.Count];
-            foreach (var primaryKey in _primaryKeys.Values.OrderBy(x => x.StartDataFileOffset))
-            {
-                _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, allFieldNumbers, fieldValueCollection);
-                if (query.WhereClause != null)
+                var whereFieldNumbers = query.WhereClause.GetAllFieldNumbers().ToHashSet();
+                allFieldNumbers.AddRange(whereFieldNumbers);
+                foreach (var primaryKey in _primaryKeys.Values.OrderBy(x => x.StartDataFileOffset))
                 {
-                    var fieldValueDictionary = fieldValueCollection.ToDictionary(k => k.Number, v => v.Value);
+                    var fieldValueDictionary = new FieldValueDictionary { PrimaryKey = primaryKey, FieldValues = new Dictionary<byte, FieldValue>() };
+                    _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, whereFieldNumbers, fieldValueDictionary.FieldValues);
                     var whereResult = query.WhereClause.GetValue(fieldValueDictionary);
                     if (whereResult)
                     {
-                        var entity = _mapper.GetEntity(primaryKey.Value, fieldValueCollection, includePrimaryKey, selectFieldNumbers);
-                        yield return entity;
+                        fieldValueDictionaries.Add(fieldValueDictionary);
                     }
                 }
-                else
+            }
+            else
+            {
+                foreach (var primaryKey in _primaryKeys.Values.OrderBy(x => x.StartDataFileOffset))
                 {
-                    var entity = _mapper.GetEntity(primaryKey.Value, fieldValueCollection, includePrimaryKey);
-                    yield return entity;
+                    var fieldValueDictionary = new FieldValueDictionary { PrimaryKey = primaryKey, FieldValues = new Dictionary<byte, FieldValue>() };
+                    fieldValueDictionaries.Add(fieldValueDictionary);
                 }
             }
+            if (query.OrderByClause != null)
+            {
+                var orderbyFieldNumbers = query.OrderByClause.GetAllFieldNumbers().ToHashSet();
+                orderbyFieldNumbers.ExceptWith(allFieldNumbers);
+                allFieldNumbers.AddRange(orderbyFieldNumbers);
+                foreach (var fieldValueDictionary in fieldValueDictionaries)
+                {
+                    var primaryKey = fieldValueDictionary.PrimaryKey;
+                    _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, orderbyFieldNumbers, fieldValueDictionary.FieldValues);
+                }
+                fieldValueDictionaries.Sort(query.OrderByClause);
+            }
+            if (query.Skip.HasValue)
+            {
+
+            }
+            if (query.Limit.HasValue)
+            {
+
+            }
+            var selectFieldNumbers = query.SelectClause.GetAllFieldNumbers().ToHashSet();
+            var nonSelectedFieldNumbers = selectFieldNumbers.ToHashSet();
+            nonSelectedFieldNumbers.ExceptWith(allFieldNumbers);
+            foreach (var fieldValueDictionary in fieldValueDictionaries)
+            {
+                var primaryKey = fieldValueDictionary.PrimaryKey;
+                _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, nonSelectedFieldNumbers, fieldValueDictionary.FieldValues);
+            }
+            var includePrimaryKey = query.SelectClause.SelectItems.Any(x => x is SelectClause.PrimaryKey) ? Mapper<TEntity>.IncludePrimaryKey.Yes : Mapper<TEntity>.IncludePrimaryKey.No;
+            var result = new List<TEntity>();
+            foreach (var fieldValueDictionary in fieldValueDictionaries)
+            {
+                var primaryKey = fieldValueDictionary.PrimaryKey;
+                result.Add(_mapper.GetEntity(primaryKey.Value, fieldValueDictionary.FieldValues.Values, includePrimaryKey, selectFieldNumbers));
+            }
+
+            return result;
         }
     }
 }

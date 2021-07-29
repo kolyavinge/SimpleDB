@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using SimpleDB.Core;
 
 namespace SimpleDB.Queries
 {
@@ -12,7 +14,7 @@ namespace SimpleDB.Queries
 
         public WhereClauseItem Root { get; }
 
-        public bool GetValue(IDictionary<byte, object> fieldValueDictionary)
+        public bool GetValue(FieldValueDictionary fieldValueDictionary)
         {
             var value = (bool)Root.GetValue(fieldValueDictionary);
             return value;
@@ -33,13 +35,18 @@ namespace SimpleDB.Queries
             return items;
         }
 
+        public IEnumerable<byte> GetAllFieldNumbers()
+        {
+            return ToEnumerable().Where(x => x is Field).Cast<Field>().Select(x => x.Number).Distinct();
+        }
+
         public abstract class WhereClauseItem
         {
             public WhereClauseItem Left { get; protected set; }
 
             public WhereClauseItem Right { get; protected set; }
 
-            public abstract object GetValue(IDictionary<byte, object> fieldValueDictionary);
+            public abstract object GetValue(FieldValueDictionary fieldValueDictionary);
         }
 
         public class EqualsOperation : WhereClauseItem
@@ -50,7 +57,7 @@ namespace SimpleDB.Queries
                 Right = right;
             }
 
-            public override object GetValue(IDictionary<byte, object> fieldValueDictionary)
+            public override object GetValue(FieldValueDictionary fieldValueDictionary)
             {
                 var leftValue = Left.GetValue(fieldValueDictionary);
                 var rightValue = Right.GetValue(fieldValueDictionary);
@@ -66,7 +73,7 @@ namespace SimpleDB.Queries
                 Right = right;
             }
 
-            public override object GetValue(IDictionary<byte, object> fieldValueDictionary)
+            public override object GetValue(FieldValueDictionary fieldValueDictionary)
             {
                 var leftValue = (IComparable)Left.GetValue(fieldValueDictionary);
                 var rightValue = (IComparable)Right.GetValue(fieldValueDictionary);
@@ -82,7 +89,7 @@ namespace SimpleDB.Queries
                 Right = right;
             }
 
-            public override object GetValue(IDictionary<byte, object> fieldValueDictionary)
+            public override object GetValue(FieldValueDictionary fieldValueDictionary)
             {
                 var leftValue = (IComparable)Left.GetValue(fieldValueDictionary);
                 var rightValue = (IComparable)Right.GetValue(fieldValueDictionary);
@@ -98,7 +105,7 @@ namespace SimpleDB.Queries
                 Right = right;
             }
 
-            public override object GetValue(IDictionary<byte, object> fieldValueDictionary)
+            public override object GetValue(FieldValueDictionary fieldValueDictionary)
             {
                 var leftValue = (IComparable)Left.GetValue(fieldValueDictionary);
                 var rightValue = (IComparable)Right.GetValue(fieldValueDictionary);
@@ -114,7 +121,7 @@ namespace SimpleDB.Queries
                 Right = right;
             }
 
-            public override object GetValue(IDictionary<byte, object> fieldValueDictionary)
+            public override object GetValue(FieldValueDictionary fieldValueDictionary)
             {
                 var leftValue = (IComparable)Left.GetValue(fieldValueDictionary);
                 var rightValue = (IComparable)Right.GetValue(fieldValueDictionary);
@@ -129,7 +136,7 @@ namespace SimpleDB.Queries
                 Left = left;
             }
 
-            public override object GetValue(IDictionary<byte, object> fieldValueDictionary)
+            public override object GetValue(FieldValueDictionary fieldValueDictionary)
             {
                 var leftValue = (bool)Left.GetValue(fieldValueDictionary);
                 return leftValue == false;
@@ -144,7 +151,7 @@ namespace SimpleDB.Queries
                 Right = right;
             }
 
-            public override object GetValue(IDictionary<byte, object> fieldValueDictionary)
+            public override object GetValue(FieldValueDictionary fieldValueDictionary)
             {
                 var leftValue = (string)Left.GetValue(fieldValueDictionary);
                 var rightValue = (string)Right.GetValue(fieldValueDictionary);
@@ -161,9 +168,9 @@ namespace SimpleDB.Queries
 
             public byte Number { get; }
 
-            public override object GetValue(IDictionary<byte, object> fieldValueDictionary)
+            public override object GetValue(FieldValueDictionary fieldValueDictionary)
             {
-                return fieldValueDictionary[Number];
+                return fieldValueDictionary.FieldValues[Number].Value;
             }
         }
 
@@ -176,7 +183,7 @@ namespace SimpleDB.Queries
 
             public object Value { get; }
 
-            public override object GetValue(IDictionary<byte, object> fieldValueDictionary)
+            public override object GetValue(FieldValueDictionary fieldValueDictionary)
             {
                 return Value;
             }

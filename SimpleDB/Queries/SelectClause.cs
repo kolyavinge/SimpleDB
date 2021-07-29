@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace SimpleDB.Queries
 {
@@ -12,6 +12,11 @@ namespace SimpleDB.Queries
         }
 
         public IEnumerable<SelectClauseItem> SelectItems { get; }
+
+        public IEnumerable<byte> GetAllFieldNumbers()
+        {
+            return SelectItems.Where(x => x is Field).Cast<Field>().Select(x => x.Number).Distinct();
+        }
 
         public abstract class SelectClauseItem { }
 

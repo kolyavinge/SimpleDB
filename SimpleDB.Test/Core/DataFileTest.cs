@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using SimpleDB.Core;
 using SimpleDB.Infrastructure;
@@ -404,6 +405,69 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual(null, readFieldsResult[0].Value);
         }
 
+        [Test]
+        public void SkipString()
+        {
+            var fieldMetaCollection = new FieldMeta[]
+            {
+                new FieldMeta(0, typeof(string)),
+                new FieldMeta(1, typeof(int)),
+            };
+            var fieldValueCollection = new FieldValue[]
+            {
+                new FieldValue(0, "123"),
+                new FieldValue(1, 10),
+            };
+            var dataFile = new DataFile("", fieldMetaCollection);
+            var insertResult = dataFile.Insert(fieldValueCollection);
+            var fieldNumbers = new HashSet<byte> { 1 };
+            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, fieldNumbers, readFieldsResult);
+            Assert.AreEqual(10, readFieldsResult[1].Value);
+        }
+
+        [Test]
+        public void SkipEmptyString()
+        {
+            var fieldMetaCollection = new FieldMeta[]
+            {
+                new FieldMeta(0, typeof(string)),
+                new FieldMeta(1, typeof(int)),
+            };
+            var fieldValueCollection = new FieldValue[]
+            {
+                new FieldValue(0, ""),
+                new FieldValue(1, 10),
+            };
+            var dataFile = new DataFile("", fieldMetaCollection);
+            var insertResult = dataFile.Insert(fieldValueCollection);
+            var fieldNumbers = new HashSet<byte> { 1 };
+            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, fieldNumbers, readFieldsResult);
+            Assert.AreEqual(10, readFieldsResult[1].Value);
+        }
+
+        [Test]
+        public void SkipNullString()
+        {
+            var fieldMetaCollection = new FieldMeta[]
+            {
+                new FieldMeta(0, typeof(string)),
+                new FieldMeta(1, typeof(int)),
+            };
+            var fieldValueCollection = new FieldValue[]
+            {
+                new FieldValue(0, null),
+                new FieldValue(1, 10),
+            };
+            var dataFile = new DataFile("", fieldMetaCollection);
+            var insertResult = dataFile.Insert(fieldValueCollection);
+            var fieldNumbers = new HashSet<byte> { 1 };
+            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, fieldNumbers, readFieldsResult);
+            Assert.AreEqual(10, readFieldsResult[1].Value);
+        }
+
         class TestEntity
         {
             public bool Bool { get; set; }
@@ -430,6 +494,12 @@ namespace SimpleDB.Test.Core
         class InnerObject
         {
             public int Value { get; set; }
+        }
+
+        class TestEntityWithString
+        {
+            public string String { get; set; }
+            public int Int { get; set; }
         }
     }
 }
