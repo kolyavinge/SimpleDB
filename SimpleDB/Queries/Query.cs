@@ -17,8 +17,8 @@ namespace SimpleDB.Queries
 
         public OrderByClause OrderByClause { get; set; }
 
-        public uint? Skip { get; set; }
+        public int? Skip { get; set; }
 
-        public uint? Limit { get; set; }
+        public int? Limit { get; set; }
     }
 }

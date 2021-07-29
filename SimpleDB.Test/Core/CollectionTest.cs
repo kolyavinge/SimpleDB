@@ -285,6 +285,44 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual("12", result[2].String);
         }
 
+        [Test]
+        public void ExecuteQuery_Skip()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
+            var query = new Query(new SelectClause(new[] { new SelectClause.Field(0) }))
+            {
+                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, OrderByClause.OrderByDirection.Asc) }),
+                Skip = 1
+            };
+
+            var result = _collection.ExecuteQuery(query).ToList();
+
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(20, result[0].Byte);
+            Assert.AreEqual(30, result[1].Byte);
+        }
+
+        [Test]
+        public void ExecuteQuery_Limit()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
+            var query = new Query(new SelectClause(new[] { new SelectClause.Field(0) }))
+            {
+                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, OrderByClause.OrderByDirection.Asc) }),
+                Limit = 2
+            };
+
+            var result = _collection.ExecuteQuery(query).ToList();
+
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(10, result[0].Byte);
+            Assert.AreEqual(20, result[1].Byte);
+        }
+
         class TestEntity
         {
             public int Id { get; set; }

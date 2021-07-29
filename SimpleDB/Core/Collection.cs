@@ -114,13 +114,13 @@ namespace SimpleDB.Core
                 }
                 fieldValueDictionaries.Sort(query.OrderByClause);
             }
-            if (query.Skip.HasValue)
+            if (query.Skip.HasValue && query.Skip.Value < fieldValueDictionaries.Count)
             {
-
+                fieldValueDictionaries.RemoveRange(0, query.Skip.Value);
             }
-            if (query.Limit.HasValue)
+            if (query.Limit.HasValue && query.Limit.Value < fieldValueDictionaries.Count)
             {
-
+                fieldValueDictionaries.RemoveRange(query.Limit.Value, fieldValueDictionaries.Count - query.Limit.Value);
             }
             var selectFieldNumbers = query.SelectClause.GetAllFieldNumbers().ToHashSet();
             var nonSelectedFieldNumbers = selectFieldNumbers.ToHashSet();
