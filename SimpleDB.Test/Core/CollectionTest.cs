@@ -274,6 +274,24 @@ namespace SimpleDB.Test.Core
         }
 
         [Test]
+        public void ExecuteQuery_In()
+        {
+            _collection.Insert(new TestEntity { Id = 1, String = "12345" });
+            _collection.Insert(new TestEntity { Id = 2, String = "12" });
+            _collection.Insert(new TestEntity { Id = 3, String = "123" });
+            var query = new Query(new SelectClause(new[] { new SelectClause.Field(2) }))
+            {
+                WhereClause = new WhereClause(new WhereClause.InOperation(new WhereClause.Field(2), new WhereClause.Set(new[] { "123", "12" })))
+            };
+
+            var result = _collection.ExecuteQuery(query).ToList();
+
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual("12", result[0].String);
+            Assert.AreEqual("123", result[1].String);
+        }
+
+        [Test]
         public void ExecuteQuery_OrderByAsc()
         {
             _collection.Insert(new TestEntity { Id = 1, String = "12345" });

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using SimpleDB.Core;
@@ -146,6 +148,47 @@ namespace SimpleDB.Test.Linq
             Assert.AreEqual(typeof(WhereClause.Field), result.Left.GetType());
             Assert.AreEqual(typeof(WhereClause.Constant), result.Right.GetType());
             Assert.AreEqual("123", result.Right.Value);
+        }
+
+        [Test]
+        public void Build_In_Field_1()
+        {
+            var set = new List<string> { "12", "123" };
+            Expression<Func<TestEntity, bool>> whereExpression = x => set.Contains(x.String);
+            dynamic result = _builder.Build(_mapper, whereExpression).Root;
+            Assert.AreEqual(typeof(WhereClause.InOperation), result.GetType());
+            Assert.AreEqual(typeof(WhereClause.Field), result.Left.GetType());
+            Assert.AreEqual(typeof(WhereClause.Set), result.Right.GetType());
+            Assert.AreEqual(2, ((ISet<object>)result.Right.Value).Count);
+            Assert.True(((ISet<object>)result.Right.Value).Contains("12"));
+            Assert.True(((ISet<object>)result.Right.Value).Contains("123"));
+        }
+
+        [Test]
+        public void Build_In_Field_2()
+        {
+            Expression<Func<TestEntity, bool>> whereExpression = x => new string[] { "12", "123" }.Contains(x.String);
+            dynamic result = _builder.Build(_mapper, whereExpression).Root;
+            Assert.AreEqual(typeof(WhereClause.InOperation), result.GetType());
+            Assert.AreEqual(typeof(WhereClause.Field), result.Left.GetType());
+            Assert.AreEqual(typeof(WhereClause.Set), result.Right.GetType());
+            Assert.AreEqual(2, ((ISet<object>)result.Right.Value).Count);
+            Assert.True(((ISet<object>)result.Right.Value).Contains("12"));
+            Assert.True(((ISet<object>)result.Right.Value).Contains("123"));
+        }
+
+        [Test]
+        public void Build_In_PrimaryKey()
+        {
+            var set = new List<int> { 12, 123 };
+            Expression<Func<TestEntity, bool>> whereExpression = x => set.Contains(x.Id);
+            dynamic result = _builder.Build(_mapper, whereExpression).Root;
+            Assert.AreEqual(typeof(WhereClause.InOperation), result.GetType());
+            Assert.AreEqual(typeof(WhereClause.PrimaryKey), result.Left.GetType());
+            Assert.AreEqual(typeof(WhereClause.Set), result.Right.GetType());
+            Assert.AreEqual(2, ((ISet<object>)result.Right.Value).Count);
+            Assert.True(((ISet<object>)result.Right.Value).Contains(12));
+            Assert.True(((ISet<object>)result.Right.Value).Contains(123));
         }
 
         class TestEntity

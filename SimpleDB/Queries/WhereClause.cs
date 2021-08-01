@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using SimpleDB.Core;
@@ -191,6 +192,22 @@ namespace SimpleDB.Queries
             }
         }
 
+        public class InOperation : WhereClauseItem
+        {
+            public InOperation(WhereClauseItem left, Set right)
+            {
+                Left = left;
+                Right = right;
+            }
+
+            public override object GetValue(FieldValueDictionary fieldValueDictionary)
+            {
+                var leftValue = Left.GetValue(fieldValueDictionary);
+                var set = (ISet<object>)Right.GetValue(fieldValueDictionary);
+                return set.Contains(leftValue);
+            }
+        }
+
         public class PrimaryKey : WhereClauseItem
         {
             public override object GetValue(FieldValueDictionary fieldValueDictionary)
@@ -222,6 +239,21 @@ namespace SimpleDB.Queries
             }
 
             public object Value { get; }
+
+            public override object GetValue(FieldValueDictionary fieldValueDictionary)
+            {
+                return Value;
+            }
+        }
+
+        public class Set : WhereClauseItem
+        {
+            public Set(IEnumerable value)
+            {
+                Value = value.Cast<object>().ToHashSet();
+            }
+
+            public ISet<object> Value { get; }
 
             public override object GetValue(FieldValueDictionary fieldValueDictionary)
             {

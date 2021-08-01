@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using SimpleDB.Core;
@@ -19,11 +21,32 @@ namespace SimpleDB.Linq
             if (expression is MethodCallExpression)
             {
                 var methodCallExpression = (MethodCallExpression)expression;
-                if (methodCallExpression.Method.Name == "Contains"
-                    && methodCallExpression.Arguments.First() is ConstantExpression)
+                if (methodCallExpression.Method.Name == "Contains" && methodCallExpression.Arguments.First() is ConstantExpression)
                 {
                     var right = ((ConstantExpression)methodCallExpression.Arguments.First()).Value;
                     return new WhereClause.LikeOperation(BuildItem(mapper, methodCallExpression.Object), new WhereClause.Constant(right));
+                }
+                else if (methodCallExpression.Method.Name == "Contains"
+                    && methodCallExpression.Arguments.Count == 1
+                    && methodCallExpression.Arguments.First() is MemberExpression)
+                {
+                    var left = methodCallExpression.Arguments.First();
+                    if (methodCallExpression.Object is MemberExpression)
+                    {
+                        var objectMemberExpression = (MemberExpression)methodCallExpression.Object;
+                        var constantExpression = (ConstantExpression)objectMemberExpression.Expression;
+                        var set = (IEnumerable)constantExpression.Value.GetType().GetField(objectMemberExpression.Member.Name).GetValue(constantExpression.Value);
+                        return new WhereClause.InOperation(BuildItem(mapper, left), new WhereClause.Set(set));
+                    }
+                }
+                else if (methodCallExpression.Method.Name == "Contains"
+                    && methodCallExpression.Arguments.Count == 2
+                    && methodCallExpression.Arguments[0] is NewArrayExpression
+                    && methodCallExpression.Arguments[1] is MemberExpression)
+                {
+                    var left = methodCallExpression.Arguments[1];
+                    var set = ((NewArrayExpression)methodCallExpression.Arguments[0]).Expressions.Cast<ConstantExpression>().Select(x => x.Value).ToList();
+                    return new WhereClause.InOperation(BuildItem(mapper, left), new WhereClause.Set(set));
                 }
             }
             else if (expression is BinaryExpression)
