@@ -7,22 +7,33 @@ namespace SimpleDB.Queries
 {
     internal class OrderByClause : IComparer<FieldValueDictionary>
     {
-        public OrderByClause(IEnumerable<Field> orderedFields)
+        public OrderByClause(IEnumerable<OrderByClauseItem> orderedItems)
         {
-            OrderedFields = orderedFields;
+            OrderedItems = orderedItems;
         }
 
-        public IEnumerable<Field> OrderedFields { get; }
+        public IEnumerable<OrderByClauseItem> OrderedItems { get; }
 
         public int Compare(FieldValueDictionary x, FieldValueDictionary y)
         {
-            foreach (var orderedField in OrderedFields)
+            foreach (var orderedItem in OrderedItems)
             {
-                var xComparable = (IComparable)x.FieldValues[orderedField.Number].Value;
-                var yComparable = (IComparable)y.FieldValues[orderedField.Number].Value;
+                IComparable xComparable = null, yComparable = null;
+                if (orderedItem is Field)
+                {
+                    var orderedField = (Field)orderedItem;
+                    xComparable = (IComparable)x.FieldValues[orderedField.Number].Value;
+                    yComparable = (IComparable)y.FieldValues[orderedField.Number].Value;
+                }
+                else if (orderedItem is PrimaryKey)
+                {
+                    xComparable = (IComparable)x.PrimaryKey.Value;
+                    yComparable = (IComparable)y.PrimaryKey.Value;
+                }
                 var compareResult = xComparable.CompareTo(yComparable);
                 if (compareResult == 0) continue;
-                if (orderedField.Direction == Direction.Desc) compareResult = -compareResult;
+                if (orderedItem.Direction == SortDirection.Desc) compareResult = -compareResult;
+
                 return compareResult;
             }
 
@@ -31,21 +42,31 @@ namespace SimpleDB.Queries
 
         public IEnumerable<byte> GetAllFieldNumbers()
         {
-            return OrderedFields.Select(x => x.Number).Distinct();
+            return OrderedItems.Where(x => x is Field).Cast<Field>().Select(x => x.Number).Distinct();
         }
 
-        public class Field
+        public abstract class OrderByClauseItem
         {
-            public Field(byte number, Direction direction)
+            public SortDirection Direction { get; protected set; }
+        }
+
+        public class PrimaryKey : OrderByClauseItem
+        {
+            public PrimaryKey(SortDirection direction)
+            {
+                Direction = direction;
+            }
+        }
+
+        public class Field : OrderByClauseItem
+        {
+            public Field(byte number, SortDirection direction)
             {
                 Number = number;
                 Direction = direction;
             }
 
             public byte Number { get; }
-            public Direction Direction { get; }
         }
-
-        public enum Direction { Asc, Desc }
     }
 }

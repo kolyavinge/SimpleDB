@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using SimpleDB.Infrastructure;
+using SimpleDB.Linq;
 using SimpleDB.Queries;
 
 namespace SimpleDB.Core
@@ -18,7 +19,7 @@ namespace SimpleDB.Core
             _mapper = mapper;
             var primaryKeyFileFullPath = Path.Combine(workingDirectory, PrimaryKeyFileName.FromCollectionName(mapper.EntityName));
             var dataFileFileFullPath = Path.Combine(workingDirectory, DataFileFileName.FromCollectionName(mapper.EntityName));
-            _primaryKeyFile = new PrimaryKeyFile(primaryKeyFileFullPath, mapper.PrimaryKeyType);
+            _primaryKeyFile = new PrimaryKeyFile(primaryKeyFileFullPath, mapper.PrimaryKeyMapping.PropertyType);
             _dataFile = new DataFile(dataFileFileFullPath, mapper.FieldMetaCollection);
             _primaryKeys = _primaryKeyFile.GetAllPrimaryKeys().Where(x => !x.IsDeleted()).ToDictionary(k => k.Value, v => v);
         }
@@ -30,7 +31,7 @@ namespace SimpleDB.Core
                 var primaryKey = _primaryKeys[id];
                 var fieldValueCollection = new FieldValue[_mapper.FieldMetaCollection.Count];
                 _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldValueCollection);
-                var entity = _mapper.GetEntity(primaryKey.Value, fieldValueCollection, Mapper<TEntity>.IncludePrimaryKey.Yes);
+                var entity = _mapper.GetEntity(primaryKey.Value, fieldValueCollection, true);
 
                 return entity;
             }
@@ -142,7 +143,7 @@ namespace SimpleDB.Core
                 }
             }
             // result entities
-            var includePrimaryKey = query.SelectClause.SelectItems.Any(x => x is SelectClause.PrimaryKey) ? Mapper<TEntity>.IncludePrimaryKey.Yes : Mapper<TEntity>.IncludePrimaryKey.No;
+            var includePrimaryKey = query.SelectClause.SelectItems.Any(x => x is SelectClause.PrimaryKey);
             var result = new List<TEntity>();
             foreach (var fieldValueDictionary in fieldValueDictionaries)
             {
@@ -152,6 +153,11 @@ namespace SimpleDB.Core
             }
 
             return result;
+        }
+
+        public IQueryable<TEntity> Query()
+        {
+            return new Queryable<TEntity>(ExecuteQuery, _mapper);
         }
     }
 }

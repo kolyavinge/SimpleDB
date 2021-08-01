@@ -13,5 +13,7 @@ namespace SimpleDB
         void Update(TEntity entity);
 
         void Delete(object id);
+
+        IQueryable<TEntity> Query();
     }
 }

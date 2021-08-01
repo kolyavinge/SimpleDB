@@ -7,10 +7,11 @@ namespace SimpleDB.Core
 {
     internal class Mapper<TEntity>
     {
-        private readonly PrimaryKeyMapping<TEntity> _primaryKeyMapping;
         private readonly Dictionary<byte, FieldMapping<TEntity>> _fieldMappings;
 
-        public Type PrimaryKeyType { get; private set; }
+        public PrimaryKeyMapping<TEntity> PrimaryKeyMapping { get; private set; }
+
+        public List<FieldMapping<TEntity>> FieldMappings { get; private set; }
 
         public List<FieldMeta> FieldMetaCollection { get; private set; }
 
@@ -22,9 +23,9 @@ namespace SimpleDB.Core
             IEnumerable<FieldMapping<TEntity>> fieldMappings)
         {
             EntityName = entityName;
-            _primaryKeyMapping = primaryKeyMapping;
+            PrimaryKeyMapping = primaryKeyMapping;
             _fieldMappings = fieldMappings.ToDictionary(k => k.Number, v => v);
-            PrimaryKeyType = _primaryKeyMapping.PropertyType;
+            FieldMappings = _fieldMappings.Values.ToList();
             FieldMetaCollection = GetFieldMetaCollection(fieldMappings).ToList();
         }
 
@@ -38,7 +39,7 @@ namespace SimpleDB.Core
 
         public object GetPrimaryKeyValue(TEntity entity)
         {
-            return _primaryKeyMapping.Func.Invoke(entity);
+            return PrimaryKeyMapping.Func.Invoke(entity);
         }
 
         public IEnumerable<FieldValue> GetFieldValueCollection(TEntity entity)
@@ -49,12 +50,12 @@ namespace SimpleDB.Core
             }
         }
 
-        public TEntity GetEntity(object primaryKeyValue, IEnumerable<FieldValue> fieldValueCollection, IncludePrimaryKey includePrimaryKey, ISet<byte> selectedFieldNumbers = null)
+        public TEntity GetEntity(object primaryKeyValue, IEnumerable<FieldValue> fieldValueCollection, bool includePrimaryKey, ISet<byte> selectedFieldNumbers = null)
         {
             var entity = Activator.CreateInstance<TEntity>();
-            if (includePrimaryKey == IncludePrimaryKey.Yes)
+            if (includePrimaryKey)
             {
-                var primaryKeyProperty = entity.GetType().GetProperty(_primaryKeyMapping.PropertyName);
+                var primaryKeyProperty = entity.GetType().GetProperty(PrimaryKeyMapping.PropertyName);
                 primaryKeyProperty.SetValue(entity, primaryKeyValue);
             }
             if (selectedFieldNumbers != null)
@@ -81,8 +82,6 @@ namespace SimpleDB.Core
 
             return entity;
         }
-
-        public enum IncludePrimaryKey { Yes, No }
     }
 
     internal class PrimaryKeyMapping<TEntity>

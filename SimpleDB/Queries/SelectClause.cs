@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace SimpleDB.Queries
@@ -20,9 +19,7 @@ namespace SimpleDB.Queries
 
         public abstract class SelectClauseItem { }
 
-        public class PrimaryKey : SelectClauseItem
-        {
-        }
+        public class PrimaryKey : SelectClauseItem { }
 
         public class Field : SelectClauseItem
         {

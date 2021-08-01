@@ -65,6 +65,52 @@ namespace SimpleDB.Queries
             }
         }
 
+        public class NotOperation : WhereClauseItem
+        {
+            public NotOperation(WhereClauseItem left)
+            {
+                Left = left;
+            }
+
+            public override object GetValue(FieldValueDictionary fieldValueDictionary)
+            {
+                var leftValue = (bool)Left.GetValue(fieldValueDictionary);
+                return leftValue == false;
+            }
+        }
+
+        public class AndOperation : WhereClauseItem
+        {
+            public AndOperation(WhereClauseItem left, WhereClauseItem right)
+            {
+                Left = left;
+                Right = right;
+            }
+
+            public override object GetValue(FieldValueDictionary fieldValueDictionary)
+            {
+                var leftValue = (bool)Left.GetValue(fieldValueDictionary);
+                var rightValue = (bool)Right.GetValue(fieldValueDictionary);
+                return leftValue && rightValue;
+            }
+        }
+
+        public class OrOperation : WhereClauseItem
+        {
+            public OrOperation(WhereClauseItem left, WhereClauseItem right)
+            {
+                Left = left;
+                Right = right;
+            }
+
+            public override object GetValue(FieldValueDictionary fieldValueDictionary)
+            {
+                var leftValue = (bool)Left.GetValue(fieldValueDictionary);
+                var rightValue = (bool)Right.GetValue(fieldValueDictionary);
+                return leftValue || rightValue;
+            }
+        }
+
         public class LessOperation : WhereClauseItem
         {
             public LessOperation(WhereClauseItem left, WhereClauseItem right)
@@ -129,20 +175,6 @@ namespace SimpleDB.Queries
             }
         }
 
-        public class NotOperation : WhereClauseItem
-        {
-            public NotOperation(WhereClauseItem left)
-            {
-                Left = left;
-            }
-
-            public override object GetValue(FieldValueDictionary fieldValueDictionary)
-            {
-                var leftValue = (bool)Left.GetValue(fieldValueDictionary);
-                return leftValue == false;
-            }
-        }
-
         public class LikeOperation : WhereClauseItem
         {
             public LikeOperation(WhereClauseItem left, Constant right)
@@ -156,6 +188,14 @@ namespace SimpleDB.Queries
                 var leftValue = (string)Left.GetValue(fieldValueDictionary);
                 var rightValue = (string)Right.GetValue(fieldValueDictionary);
                 return leftValue.Contains(rightValue);
+            }
+        }
+
+        public class PrimaryKey : WhereClauseItem
+        {
+            public override object GetValue(FieldValueDictionary fieldValueDictionary)
+            {
+                return fieldValueDictionary.PrimaryKey.Value;
             }
         }
 

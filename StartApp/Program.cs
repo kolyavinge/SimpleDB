@@ -36,7 +36,7 @@ namespace StartApp
             var count = 10000;
             for (int i = 0; i < count; i++)
             {
-                collection.Insert(new Person { Id = i, Name = "Name " + i, Surname = "Surname" + i, Middlename = "Middlename " + i, AdditionalInfo = new PersonAdditionalInfo { Value = i } });
+                collection.Insert(new Person { Id = i, Name = "Name " + i, Surname = "Surname " + i, Middlename = "Middlename " + i, AdditionalInfo = new PersonAdditionalInfo { Value = i } });
             }
             sw.Stop();
             Console.WriteLine(sw.Elapsed);
@@ -63,7 +63,7 @@ namespace StartApp
             sw = System.Diagnostics.Stopwatch.StartNew();
             for (int i = 0; i < count; i++)
             {
-                collection.Update(new Person { Id = i, Name = "New Name " + i, Surname = "New Surname" + i, Middlename = "New Middlename " + i, AdditionalInfo = new PersonAdditionalInfo { Value = -i } });
+                collection.Update(new Person { Id = i, Name = "New Name " + i, Surname = "New Surname " + i, Middlename = "New Middlename " + i, AdditionalInfo = new PersonAdditionalInfo { Value = -i } });
             }
             sw.Stop();
             Console.WriteLine(sw.Elapsed);
@@ -79,6 +79,24 @@ namespace StartApp
             collection.Delete(0);
             Console.WriteLine(collection.Get(0) == null ? "collection.Get(0): null" : "collection.Get(0): !!! not null !!!");
             Console.WriteLine("collection.Get(1): " + collection.Get(1));
+
+            // linq query
+
+            Console.WriteLine("========== Linq query ==========");
+
+            var queryResult = collection.Query()
+                .Select(x => new { x.Id, x.Name, x.AdditionalInfo })
+                .Where(x => x.Name == "New Name 10" && x.Surname == "New Surname 10")
+                .OrderBy(x => x.Name, SortDirection.Asc)
+                .OrderBy(x => x.Surname, SortDirection.Desc)
+                .Skip(1)
+                .Limit(10)
+                .ToList();
+
+            foreach (var item in queryResult)
+            {
+                Console.WriteLine(item);
+            }
 
             Console.ReadKey();
         }
