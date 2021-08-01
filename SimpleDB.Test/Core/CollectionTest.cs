@@ -401,6 +401,23 @@ namespace SimpleDB.Test.Core
         }
 
         [Test]
+        public void ExecuteQuery_Skip_Big()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
+            var query = new Query(new SelectClause(new[] { new SelectClause.Field(0) }))
+            {
+                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, SortDirection.Asc) }),
+                Skip = 100
+            };
+
+            var result = _collection.ExecuteQuery(query).ToList();
+
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [Test]
         public void ExecuteQuery_Limit()
         {
             _collection.Insert(new TestEntity { Id = 1, Byte = 10 });

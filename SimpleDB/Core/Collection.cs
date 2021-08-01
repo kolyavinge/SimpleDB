@@ -121,9 +121,16 @@ namespace SimpleDB.Core
                 fieldValueDictionaries.Sort(query.OrderByClause);
             }
             // skip
-            if (query.Skip.HasValue && query.Skip.Value < fieldValueDictionaries.Count)
+            if (query.Skip.HasValue)
             {
-                fieldValueDictionaries.RemoveRange(0, query.Skip.Value);
+                if (query.Skip.Value < fieldValueDictionaries.Count)
+                {
+                    fieldValueDictionaries.RemoveRange(0, query.Skip.Value);
+                }
+                else
+                {
+                    fieldValueDictionaries.Clear();
+                }
             }
             // limit
             if (query.Limit.HasValue && query.Limit.Value < fieldValueDictionaries.Count)
