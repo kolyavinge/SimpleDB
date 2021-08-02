@@ -25,6 +25,11 @@ namespace SimpleDB.Core
             PrimaryKeys = _primaryKeyFile.GetAllPrimaryKeys().Where(x => !x.IsDeleted()).ToDictionary(k => k.Value, v => v);
         }
 
+        public bool Exist(object id)
+        {
+            return PrimaryKeys.ContainsKey(id);
+        }
+
         public TEntity Get(object id)
         {
             if (PrimaryKeys.ContainsKey(id))
@@ -67,6 +72,19 @@ namespace SimpleDB.Core
             {
                 _primaryKeyFile.UpdateEndDataFileOffset(primaryKey.PrimaryKeyFileOffset, updateResult.NewEndDataFileOffset);
                 primaryKey.EndDataFileOffset = updateResult.NewEndDataFileOffset;
+            }
+        }
+
+        public void InsertOrUpdate(TEntity entity)
+        {
+            var primaryKeyValue = _mapper.GetPrimaryKeyValue(entity);
+            if (Exist(primaryKeyValue))
+            {
+                Update(entity);
+            }
+            else
+            {
+                Insert(entity);
             }
         }
 
