@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using SimpleDB.Core;
@@ -14,6 +13,7 @@ namespace SimpleDB.Linq
         {
             if (whereExpression is null) return null;
             var whereClause = new WhereClause(BuildItem(mapper, whereExpression.Body));
+
             return whereClause;
         }
 
@@ -22,12 +22,37 @@ namespace SimpleDB.Linq
             if (expression is MethodCallExpression)
             {
                 var methodCallExpression = (MethodCallExpression)expression;
-                if (methodCallExpression.Method.Name == "Contains" && methodCallExpression.Arguments.First() is ConstantExpression)
+                if (methodCallExpression.Method.Name == "Contains"
+                    && methodCallExpression.Method.DeclaringType == typeof(string)
+                    && methodCallExpression.Arguments.Count == 1
+                    && methodCallExpression.Arguments.First() is ConstantExpression)
                 {
                     var right = ((ConstantExpression)methodCallExpression.Arguments.First()).Value;
                     return new WhereClause.LikeOperation(BuildItem(mapper, methodCallExpression.Object), new WhereClause.Constant(right));
                 }
                 else if (methodCallExpression.Method.Name == "Contains"
+                    && methodCallExpression.Method.DeclaringType == typeof(string)
+                    && methodCallExpression.Arguments.Count == 1
+                    && methodCallExpression.Arguments.First() is MemberExpression)
+                {
+                    var memberExpression = (MemberExpression)methodCallExpression.Arguments.First();
+                    if (memberExpression.Expression is ConstantExpression)
+                    {
+                        var constantExpression = (ConstantExpression)memberExpression.Expression;
+                        var right = constantExpression.Value.GetType().GetField(memberExpression.Member.Name).GetValue(constantExpression.Value);
+                        return new WhereClause.LikeOperation(BuildItem(mapper, methodCallExpression.Object), new WhereClause.Constant(right));
+                    }
+                    else if (memberExpression.Expression is MemberExpression)
+                    {
+                        var innerMemberExpression = (MemberExpression)memberExpression.Expression;
+                        var constantExpression = (ConstantExpression)innerMemberExpression.Expression;
+                        var constantExpressionValue = constantExpression.Value.GetType().GetField(innerMemberExpression.Member.Name).GetValue(constantExpression.Value);
+                        var right = constantExpressionValue.GetType().GetProperty(memberExpression.Member.Name).GetValue(constantExpressionValue);
+                        return new WhereClause.LikeOperation(BuildItem(mapper, methodCallExpression.Object), new WhereClause.Constant(right));
+                    }
+                }
+                else if (methodCallExpression.Method.Name == "Contains"
+                    && methodCallExpression.Method.DeclaringType.GetInterfaces().Any(x => x.FullName == "System.Collections.IEnumerable")
                     && methodCallExpression.Arguments.Count == 1
                     && methodCallExpression.Arguments.First() is MemberExpression)
                 {
@@ -114,7 +139,6 @@ namespace SimpleDB.Linq
                 return new WhereClause.Constant(constantExpression.Value);
             }
 
-            throw new Exception();
             throw new UnsupportedQueryException();
         }
     }

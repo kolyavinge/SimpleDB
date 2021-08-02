@@ -12,7 +12,8 @@ namespace SimpleDB.Core
         private readonly PrimaryKeyFile _primaryKeyFile;
         private readonly DataFile _dataFile;
         private readonly Mapper<TEntity> _mapper;
-        private readonly Dictionary<object, PrimaryKey> _primaryKeys;
+
+        internal Dictionary<object, PrimaryKey> PrimaryKeys { get; private set; }
 
         public Collection(string workingDirectory, Mapper<TEntity> mapper)
         {
@@ -21,14 +22,14 @@ namespace SimpleDB.Core
             var dataFileFileFullPath = Path.Combine(workingDirectory, DataFileFileName.FromCollectionName(mapper.EntityName));
             _primaryKeyFile = new PrimaryKeyFile(primaryKeyFileFullPath, mapper.PrimaryKeyMapping.PropertyType);
             _dataFile = new DataFile(dataFileFileFullPath, mapper.FieldMetaCollection);
-            _primaryKeys = _primaryKeyFile.GetAllPrimaryKeys().Where(x => !x.IsDeleted()).ToDictionary(k => k.Value, v => v);
+            PrimaryKeys = _primaryKeyFile.GetAllPrimaryKeys().Where(x => !x.IsDeleted()).ToDictionary(k => k.Value, v => v);
         }
 
         public TEntity Get(object id)
         {
-            if (_primaryKeys.ContainsKey(id))
+            if (PrimaryKeys.ContainsKey(id))
             {
-                var primaryKey = _primaryKeys[id];
+                var primaryKey = PrimaryKeys[id];
                 var fieldValueCollection = new FieldValue[_mapper.FieldMetaCollection.Count];
                 _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldValueCollection);
                 var entity = _mapper.GetEntity(primaryKey.Value, fieldValueCollection, true);
@@ -47,33 +48,33 @@ namespace SimpleDB.Core
             var insertResult = _dataFile.Insert(fieldValueCollection);
             var primaryKeyValue = _mapper.GetPrimaryKeyValue(entity);
             var primaryKey = _primaryKeyFile.Insert(primaryKeyValue, insertResult.StartDataFileOffset, insertResult.EndDataFileOffset);
-            _primaryKeys.Add(primaryKeyValue, primaryKey);
+            PrimaryKeys.Add(primaryKeyValue, primaryKey);
         }
 
         public void Update(TEntity entity)
         {
             var primaryKeyValue = _mapper.GetPrimaryKeyValue(entity);
-            var primaryKey = _primaryKeys[primaryKeyValue];
+            var primaryKey = PrimaryKeys[primaryKeyValue];
             var fieldValueCollection = _mapper.GetFieldValueCollection(entity);
             var updateResult = _dataFile.Update(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldValueCollection);
             if (primaryKey.StartDataFileOffset != updateResult.NewStartDataFileOffset)
             {
-                _primaryKeyFile.UpdateStartEndDataFileOffset(primaryKey.StartDataFileOffset, updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset);
+                _primaryKeyFile.UpdateStartEndDataFileOffset(primaryKey.PrimaryKeyFileOffset, updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset);
                 primaryKey.StartDataFileOffset = updateResult.NewStartDataFileOffset;
                 primaryKey.EndDataFileOffset = updateResult.NewEndDataFileOffset;
             }
             else if (primaryKey.EndDataFileOffset != updateResult.NewEndDataFileOffset)
             {
-                _primaryKeyFile.UpdateEndDataFileOffset(updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset);
+                _primaryKeyFile.UpdateEndDataFileOffset(primaryKey.PrimaryKeyFileOffset, updateResult.NewEndDataFileOffset);
                 primaryKey.EndDataFileOffset = updateResult.NewEndDataFileOffset;
             }
         }
 
         public void Delete(object id)
         {
-            var primaryKey = _primaryKeys[id];
+            var primaryKey = PrimaryKeys[id];
             _primaryKeyFile.Delete(primaryKey.PrimaryKeyFileOffset);
-            _primaryKeys.Remove(id);
+            PrimaryKeys.Remove(id);
         }
 
         public List<TEntity> ExecuteQuery(Query query)
@@ -85,7 +86,7 @@ namespace SimpleDB.Core
             {
                 var whereFieldNumbers = query.WhereClause.GetAllFieldNumbers().ToHashSet();
                 allFieldNumbers.AddRange(whereFieldNumbers);
-                foreach (var primaryKey in _primaryKeys.Values.OrderBy(x => x.StartDataFileOffset))
+                foreach (var primaryKey in PrimaryKeys.Values.OrderBy(x => x.StartDataFileOffset))
                 {
                     var fieldValueDictionary = new FieldValueDictionary { PrimaryKey = primaryKey };
                     _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, whereFieldNumbers, fieldValueDictionary.FieldValues);
@@ -98,7 +99,7 @@ namespace SimpleDB.Core
             }
             else
             {
-                foreach (var primaryKey in _primaryKeys.Values.OrderBy(x => x.StartDataFileOffset))
+                foreach (var primaryKey in PrimaryKeys.Values.OrderBy(x => x.StartDataFileOffset))
                 {
                     var fieldValueDictionary = new FieldValueDictionary { PrimaryKey = primaryKey };
                     fieldValueDictionaries.Add(fieldValueDictionary);

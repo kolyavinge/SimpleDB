@@ -29,9 +29,9 @@ namespace SimpleDB.Test.Tools
 
         public long Position { get { return _stream.Position; } }
 
-        public void Dispose()
-        {
-        }
+        public void Flush() { }
+
+        public void Dispose() { }
 
         public bool ReadBool()
         {

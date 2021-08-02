@@ -105,21 +105,33 @@ namespace SimpleDB.Core
             else if (fieldMeta.Type == typeof(string))
             {
                 var str = (string)fieldValue;
-                if (String.IsNullOrWhiteSpace(str))
+                if (str == null)
                 {
                     stream.WriteInt(-1);
                 }
                 else
                 {
-                    stream.WriteInt(str.Length);
+                    stream.WriteInt(0);
+                    var oldPosition = stream.Position;
                     stream.WriteString(str);
+                    var newPosition = stream.Position;
+                    int length = (int)(newPosition - oldPosition);
+                    stream.Seek(-length - sizeof(int), System.IO.SeekOrigin.Current);
+                    stream.WriteInt(length);
+                    stream.Seek(length, System.IO.SeekOrigin.Current);
                 }
             }
             else
             {
                 var fieldValueJson = JsonSerialization.ToJson(fieldValue);
-                stream.WriteInt(fieldValueJson.Length);
+                stream.WriteInt(0);
+                var oldPosition = stream.Position;
                 stream.WriteString(fieldValueJson);
+                var newPosition = stream.Position;
+                int length = (int)(newPosition - oldPosition);
+                stream.Seek(-length - sizeof(int), System.IO.SeekOrigin.Current);
+                stream.WriteInt(length);
+                stream.Seek(length, System.IO.SeekOrigin.Current);
             }
         }
 
@@ -179,7 +191,7 @@ namespace SimpleDB.Core
                         var length = _fileStream.ReadInt();
                         if (length > 0)
                         {
-                            _fileStream.Seek(length+1, System.IO.SeekOrigin.Current);
+                            _fileStream.Seek(length, System.IO.SeekOrigin.Current);
                         }
                     }
                     else

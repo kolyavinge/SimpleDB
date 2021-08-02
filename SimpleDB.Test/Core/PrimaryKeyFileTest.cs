@@ -8,21 +8,21 @@ namespace SimpleDB.Test.Core
 {
     public class PrimaryKeyFileTest
     {
+        private MemoryFileSystem _fileSystem;
+
         [SetUp]
         public void Setup()
         {
+            _fileSystem = new MemoryFileSystem();
             IOC.Reset();
-            IOC.Set<IFileSystem>(new MemoryFileSystem());
+            IOC.Set<IFileSystem>(_fileSystem);
         }
 
         [Test]
         public void CreateFile()
         {
-            IOC.Reset();
-            var fileSystem = new MemoryFileSystem();
-            IOC.Set<IFileSystem>(fileSystem);
             new PrimaryKeyFile(@"working directory\testEntity.primary", typeof(int));
-            Assert.True(fileSystem.FullFilePathes.Contains(@"working directory\testEntity.primary"));
+            Assert.True(_fileSystem.FullFilePathes.Contains(@"working directory\testEntity.primary"));
         }
 
         [Test]

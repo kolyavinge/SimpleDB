@@ -6,11 +6,11 @@ namespace SimpleDB.Test.Tools
 {
     internal class MemoryFileSystem : IFileSystem
     {
-        private List<MemoryFileStream> _fileStreams;
+        public List<MemoryFileStream> FileStreams { get; set; }
 
         public MemoryFileSystem()
         {
-            _fileStreams = new List<MemoryFileStream>();
+            FileStreams = new List<MemoryFileStream>();
             FullFilePathes = new List<string>();
         }
 
@@ -23,7 +23,7 @@ namespace SimpleDB.Test.Tools
 
         public IFileStream OpenFile(string fullPath)
         {
-            var fileStream = _fileStreams.FirstOrDefault(x => x.FileFullPath == fullPath);
+            var fileStream = FileStreams.FirstOrDefault(x => x.FileFullPath == fullPath);
             if (fileStream != null)
             {
                 return fileStream;
@@ -31,7 +31,7 @@ namespace SimpleDB.Test.Tools
             else
             {
                 fileStream = new MemoryFileStream { FileFullPath = fullPath };
-                _fileStreams.Add(fileStream);
+                FileStreams.Add(fileStream);
                 return fileStream;
             }
         }

@@ -22,8 +22,8 @@ namespace SimpleDB.Test.Linq
                 new PrimaryKeyMapping<TestEntity>(x => x.Id),
                 new[]
                 {
-                    new FieldMapping<TestEntity>(0, x => x.Int),
-                    new FieldMapping<TestEntity>(1, x => x.String)
+                    new FieldMapping<TestEntity>(0, x => x.IntField),
+                    new FieldMapping<TestEntity>(1, x => x.StringField)
                 });
             _builder = new WhereClauseBuilder();
         }
@@ -73,7 +73,7 @@ namespace SimpleDB.Test.Linq
         [Test]
         public void Build_And()
         {
-            Expression<Func<TestEntity, bool>> whereExpression = x => x.Id == 2 && x.Int == 4;
+            Expression<Func<TestEntity, bool>> whereExpression = x => x.Id == 2 && x.IntField == 4;
             dynamic result = _builder.Build(_mapper, whereExpression).Root;
             Assert.AreEqual(typeof(WhereClause.AndOperation), result.GetType());
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), result.Left.GetType());
@@ -89,7 +89,7 @@ namespace SimpleDB.Test.Linq
         [Test]
         public void Build_Or()
         {
-            Expression<Func<TestEntity, bool>> whereExpression = x => x.Id == 2 || x.Int == 4;
+            Expression<Func<TestEntity, bool>> whereExpression = x => x.Id == 2 || x.IntField == 4;
             dynamic result = _builder.Build(_mapper, whereExpression).Root;
             Assert.AreEqual(typeof(WhereClause.OrOperation), result.GetType());
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), result.Left.GetType());
@@ -147,9 +147,33 @@ namespace SimpleDB.Test.Linq
         }
 
         [Test]
-        public void Build_Like()
+        public void Build_Like_Constant()
         {
-            Expression<Func<TestEntity, bool>> whereExpression = x => x.String.Contains("123");
+            Expression<Func<TestEntity, bool>> whereExpression = x => x.StringField.Contains("123");
+            dynamic result = _builder.Build(_mapper, whereExpression).Root;
+            Assert.AreEqual(typeof(WhereClause.LikeOperation), result.GetType());
+            Assert.AreEqual(typeof(WhereClause.Field), result.Left.GetType());
+            Assert.AreEqual(typeof(WhereClause.Constant), result.Right.GetType());
+            Assert.AreEqual("123", result.Right.Value);
+        }
+
+        [Test]
+        public void Build_Like_Variable()
+        {
+            var like = "123";
+            Expression<Func<TestEntity, bool>> whereExpression = x => x.StringField.Contains(like);
+            dynamic result = _builder.Build(_mapper, whereExpression).Root;
+            Assert.AreEqual(typeof(WhereClause.LikeOperation), result.GetType());
+            Assert.AreEqual(typeof(WhereClause.Field), result.Left.GetType());
+            Assert.AreEqual(typeof(WhereClause.Constant), result.Right.GetType());
+            Assert.AreEqual("123", result.Right.Value);
+        }
+
+        [Test]
+        public void Build_Like_ClassField()
+        {
+            var entity = new TestEntity { StringField = "123" };
+            Expression<Func<TestEntity, bool>> whereExpression = x => x.StringField.Contains(entity.StringField);
             dynamic result = _builder.Build(_mapper, whereExpression).Root;
             Assert.AreEqual(typeof(WhereClause.LikeOperation), result.GetType());
             Assert.AreEqual(typeof(WhereClause.Field), result.Left.GetType());
@@ -161,7 +185,7 @@ namespace SimpleDB.Test.Linq
         public void Build_In_Field_1()
         {
             var set = new List<string> { "12", "123" };
-            Expression<Func<TestEntity, bool>> whereExpression = x => set.Contains(x.String);
+            Expression<Func<TestEntity, bool>> whereExpression = x => set.Contains(x.StringField);
             dynamic result = _builder.Build(_mapper, whereExpression).Root;
             Assert.AreEqual(typeof(WhereClause.InOperation), result.GetType());
             Assert.AreEqual(typeof(WhereClause.Field), result.Left.GetType());
@@ -174,7 +198,7 @@ namespace SimpleDB.Test.Linq
         [Test]
         public void Build_In_Field_2()
         {
-            Expression<Func<TestEntity, bool>> whereExpression = x => new string[] { "12", "123" }.Contains(x.String);
+            Expression<Func<TestEntity, bool>> whereExpression = x => new string[] { "12", "123" }.Contains(x.StringField);
             dynamic result = _builder.Build(_mapper, whereExpression).Root;
             Assert.AreEqual(typeof(WhereClause.InOperation), result.GetType());
             Assert.AreEqual(typeof(WhereClause.Field), result.Left.GetType());
@@ -201,8 +225,8 @@ namespace SimpleDB.Test.Linq
         class TestEntity
         {
             public int Id { get; set; }
-            public int Int { get; set; }
-            public string String { get; set; }
+            public int IntField { get; set; }
+            public string StringField { get; set; }
         }
     }
 }

@@ -44,7 +44,7 @@ namespace SimpleDB.Test.Core
         }
 
         [Test]
-        public void UpdateAndGet()
+        public void UpdateAndGet_StartDataFileOffsetNotChange()
         {
             _collection.Insert(_entity);
             _entity.Byte = 10;
@@ -54,6 +54,41 @@ namespace SimpleDB.Test.Core
             var result = _collection.Get(123);
             Assert.AreEqual((byte)10, result.Byte);
             Assert.AreEqual(60.7f, result.Float);
+            var primaryKey = _collection.PrimaryKeys[123];
+            Assert.AreEqual(0, primaryKey.PrimaryKeyFileOffset);
+            Assert.AreEqual(0, primaryKey.StartDataFileOffset);
+            Assert.AreEqual(15, primaryKey.EndDataFileOffset);
+        }
+
+        [Test]
+        public void UpdateAndGet_StartDataFileOffsetChange()
+        {
+            _collection.Insert(_entity);
+            _entity.String = "12345";
+            _collection.Update(_entity);
+
+            var result = _collection.Get(123);
+            Assert.AreEqual("12345", result.String);
+            var primaryKey = _collection.PrimaryKeys[123];
+            Assert.AreEqual(0, primaryKey.PrimaryKeyFileOffset);
+            Assert.AreEqual(15, primaryKey.StartDataFileOffset);
+            Assert.AreEqual(36, primaryKey.EndDataFileOffset);
+        }
+
+        [Test]
+        public void UpdateAndGet_EndDataFileOffsetChange()
+        {
+            _entity.String = "1234567890";
+            _collection.Insert(_entity);
+            _entity.String = "12345";
+            _collection.Update(_entity);
+
+            var result = _collection.Get(123);
+            Assert.AreEqual("12345", result.String);
+            var primaryKey = _collection.PrimaryKeys[123];
+            Assert.AreEqual(0, primaryKey.PrimaryKeyFileOffset);
+            Assert.AreEqual(0, primaryKey.StartDataFileOffset);
+            Assert.AreEqual(21, primaryKey.EndDataFileOffset);
         }
 
         [Test]

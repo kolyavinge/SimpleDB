@@ -161,7 +161,7 @@ namespace SimpleDB.Core
         public void UpdateStartEndDataFileOffset(long primaryKeyFileOffset, long newStartDataFileOffset, long newEndDataFileOffset)
         {
             _fileStream.Seek(primaryKeyFileOffset, System.IO.SeekOrigin.Begin);
-            _fileStream.Seek(1, System.IO.SeekOrigin.Current); // skip 'primaryKeyFileOffset'
+            _fileStream.Seek(sizeof(byte), System.IO.SeekOrigin.Current); // skip 'primaryKeyFlags'
             _fileStream.WriteLong(newStartDataFileOffset);
             _fileStream.WriteLong(newEndDataFileOffset);
         }
@@ -169,7 +169,7 @@ namespace SimpleDB.Core
         public void UpdateEndDataFileOffset(long primaryKeyFileOffset, long newEndDataFileOffset)
         {
             _fileStream.Seek(primaryKeyFileOffset, System.IO.SeekOrigin.Begin);
-            _fileStream.Seek(1 + 8, System.IO.SeekOrigin.Current); // skip 'primaryKeyFileOffset' and 'startDataFileOffset'
+            _fileStream.Seek(sizeof(byte) + sizeof(long), System.IO.SeekOrigin.Current); // skip 'primaryKeyFlags' and 'startDataFileOffset'
             _fileStream.WriteLong(newEndDataFileOffset);
         }
 
@@ -178,7 +178,7 @@ namespace SimpleDB.Core
             _fileStream.Seek(primaryKeyFileOffset, System.IO.SeekOrigin.Begin);
             var primaryKeyFlags = _fileStream.ReadByte();
             primaryKeyFlags = PrimaryKey.SetDeleted(primaryKeyFlags);
-            _fileStream.Seek(primaryKeyFileOffset, System.IO.SeekOrigin.Begin);
+            _fileStream.Seek(-sizeof(byte), System.IO.SeekOrigin.Current);
             _fileStream.WriteByte(primaryKeyFlags);
         }
     }

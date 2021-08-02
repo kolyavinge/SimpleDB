@@ -415,7 +415,7 @@ namespace SimpleDB.Test.Core
             };
             var fieldValueCollection = new FieldValue[]
             {
-                new FieldValue(0, "123"),
+                new FieldValue(0, "йцукенгшщзхъфывапролджэячсмитьбю 1234567890"),
                 new FieldValue(1, 10),
             };
             var dataFile = new DataFile("", fieldMetaCollection);
