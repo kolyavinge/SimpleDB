@@ -11,6 +11,8 @@ namespace SimpleDB.Linq
     {
         public SelectClause Build<TEntity>(Mapper<TEntity> mapper, Expression<Func<TEntity, object>> selectExpression)
         {
+            if (selectExpression is null) throw new ArgumentNullException(nameof(selectExpression));
+
             var selectedItems = new List<SelectClause.SelectClauseItem>();
             if (selectExpression.Body is UnaryExpression)
             {

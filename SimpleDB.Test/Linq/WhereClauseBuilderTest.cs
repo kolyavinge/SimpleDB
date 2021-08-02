@@ -29,6 +29,13 @@ namespace SimpleDB.Test.Linq
         }
 
         [Test]
+        public void Build_Null()
+        {
+            var result = _builder.Build(_mapper, null);
+            Assert.IsNull(result);
+        }
+
+        [Test]
         public void Build_Equals()
         {
             Expression<Func<TestEntity, bool>> whereExpression = x => x.Id == 2;

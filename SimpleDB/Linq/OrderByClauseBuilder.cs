@@ -10,6 +10,7 @@ namespace SimpleDB.Linq
     {
         public OrderByClause Build<TEntity>(Mapper<TEntity> mapper, List<OrderByExpressionItem<TEntity>> orderbyExpressionItems)
         {
+            if (orderbyExpressionItems == null || orderbyExpressionItems.Any() == false) return null;
             var orderbyClauseFields = new List<OrderByClause.OrderByClauseItem>();
             foreach (var item in orderbyExpressionItems)
             {

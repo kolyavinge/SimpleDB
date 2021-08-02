@@ -90,7 +90,9 @@ namespace SimpleDB.Core
             if (type == FieldTypes.Float) return sizeof(float);
             if (type == FieldTypes.Double) return sizeof(double);
             if (type == FieldTypes.Decimal) return sizeof(decimal);
-            else throw new Exception();
+            else throw new UnsupportedFieldTypeException();
         }
     }
+
+    internal class UnsupportedFieldTypeException : Exception { }
 }

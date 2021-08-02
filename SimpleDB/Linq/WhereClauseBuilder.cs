@@ -12,6 +12,7 @@ namespace SimpleDB.Linq
     {
         public WhereClause Build<TEntity>(Mapper<TEntity> mapper, Expression<Func<TEntity, bool>> whereExpression)
         {
+            if (whereExpression is null) return null;
             var whereClause = new WhereClause(BuildItem(mapper, whereExpression.Body));
             return whereClause;
         }
@@ -114,6 +115,7 @@ namespace SimpleDB.Linq
             }
 
             throw new Exception();
+            throw new UnsupportedQueryException();
         }
     }
 }

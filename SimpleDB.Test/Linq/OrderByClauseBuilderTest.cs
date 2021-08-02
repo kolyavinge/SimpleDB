@@ -23,6 +23,20 @@ namespace SimpleDB.Test.Linq
         }
 
         [Test]
+        public void Build_Null()
+        {
+            var result = _builder.Build(_mapper, null);
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void Build_Empty()
+        {
+            var result = _builder.Build(_mapper, new List<OrderByExpressionItem<TestEntity>>());
+            Assert.IsNull(result);
+        }
+
+        [Test]
         public void Build()
         {
             var items = new List<OrderByExpressionItem<TestEntity>>

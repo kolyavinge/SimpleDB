@@ -29,7 +29,7 @@ namespace SimpleDB.Linq
 
         public IQueryableSelect<TEntity> Where(Expression<Func<TEntity, bool>> whereExpression)
         {
-            if (_whereExpression != null) throw new Exception();
+            if (_whereExpression != null) throw new QueryableSelectException("Where clause is already exist in the query");
             _whereExpression = whereExpression;
             return this;
         }
@@ -66,6 +66,13 @@ namespace SimpleDB.Linq
             var result = _queryExecutorFunc(query);
 
             return result;
+        }
+    }
+
+    internal class QueryableSelectException : Exception
+    {
+        public QueryableSelectException(string message) : base(message)
+        {
         }
     }
 }
