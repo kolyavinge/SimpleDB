@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using SimpleDB.Infrastructure;
 
@@ -16,6 +17,11 @@ namespace SimpleDB.Core
             _workingDirectory = workingDirectory;
             _mapperHolder = mapperHolder;
             _collectionHolder = new CollectionHolder();
+        }
+
+        public void Dispose()
+        {
+            _collectionHolder.GetAllCollections().Cast<IDisposable>().Each(x => x.Dispose());
         }
 
         public ICollection<TEntity> GetCollection<TEntity>()

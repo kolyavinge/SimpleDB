@@ -5,7 +5,7 @@ using SimpleDB.Infrastructure;
 
 namespace SimpleDB.Core
 {
-    internal class DataFile
+    internal class DataFile : IDisposable
     {
         private readonly string _fileFullPath;
         private readonly Dictionary<byte, FieldMeta> _fieldMetaDictionary;
@@ -19,6 +19,12 @@ namespace SimpleDB.Core
             IOC.Get<IFileSystem>().CreateFileIfNeeded(_fileFullPath);
             _fileStream = IOC.Get<IFileSystem>().OpenFile(_fileFullPath);
             _memoryBuffer = IOC.Get<IMemory>().GetBuffer();
+        }
+
+        public void Dispose()
+        {
+            _fileStream.Flush();
+            _fileStream.Dispose();
         }
 
         public InsertResult Insert(IEnumerable<FieldValue> fieldValueCollection)

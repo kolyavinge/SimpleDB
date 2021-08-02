@@ -4,7 +4,7 @@ using SimpleDB.Infrastructure;
 
 namespace SimpleDB.Core
 {
-    internal class PrimaryKeyFile
+    internal class PrimaryKeyFile : IDisposable
     {
         private readonly string _fileFullPath;
         private readonly Type _primaryKeyType;
@@ -16,6 +16,12 @@ namespace SimpleDB.Core
             _primaryKeyType = primaryKeyType;
             IOC.Get<IFileSystem>().CreateFileIfNeeded(_fileFullPath);
             _fileStream = IOC.Get<IFileSystem>().OpenFile(_fileFullPath);
+        }
+
+        public void Dispose()
+        {
+            _fileStream.Flush();
+            _fileStream.Dispose();
         }
 
         public IEnumerable<PrimaryKey> GetAllPrimaryKeys()

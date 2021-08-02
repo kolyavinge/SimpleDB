@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace SimpleDB.Infrastructure
 {
-    internal interface IFileStream : IReadableStream, IWriteableStream
+    internal interface IFileStream : IReadableStream, IWriteableStream, IDisposable
     {
+        void Flush();
     }
 
     internal class FileStream : IFileStream
@@ -29,6 +28,11 @@ namespace SimpleDB.Infrastructure
         public void Dispose()
         {
             _fileStream.Dispose();
+        }
+
+        public void Flush()
+        {
+            _fileStream.Flush();
         }
 
         public bool ReadBool()

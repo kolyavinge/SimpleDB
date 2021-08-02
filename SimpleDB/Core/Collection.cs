@@ -25,6 +25,12 @@ namespace SimpleDB.Core
             PrimaryKeys = _primaryKeyFile.GetAllPrimaryKeys().Where(x => !x.IsDeleted()).ToDictionary(k => k.Value, v => v);
         }
 
+        public void Dispose()
+        {
+            _primaryKeyFile.Dispose();
+            _dataFile.Dispose();
+        }
+
         public bool Exist(object id)
         {
             return PrimaryKeys.ContainsKey(id);

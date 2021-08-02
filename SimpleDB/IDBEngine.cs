@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SimpleDB
 {
-    public interface IDBEngine
+    public interface IDBEngine : IDisposable
     {
         ICollection<TEntity> GetCollection<TEntity>();
     }

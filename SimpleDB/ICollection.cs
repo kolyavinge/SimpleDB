@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SimpleDB
 {
-    public interface ICollection<TEntity>
+    public interface ICollection<TEntity> : IDisposable
     {
         bool Exist(object id);
 

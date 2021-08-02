@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 
 namespace SimpleDB.Core
 {
@@ -21,6 +21,11 @@ namespace SimpleDB.Core
         public void Add<TEntity>(Collection<TEntity> collection)
         {
             _collection.Add(typeof(TEntity), collection);
+        }
+
+        public IEnumerable GetAllCollections()
+        {
+            return _collection.Values;
         }
     }
 }
