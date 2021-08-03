@@ -31,6 +31,7 @@ namespace SimpleDB.Core
             else if (Type == typeof(float)) return FieldTypes.Float;
             else if (Type == typeof(double)) return FieldTypes.Double;
             else if (Type == typeof(decimal)) return FieldTypes.Decimal;
+            else if (Type == typeof(DateTime)) return FieldTypes.DateTime;
             else if (Type == typeof(string)) return FieldTypes.String;
             else return FieldTypes.Object;
         }
@@ -50,6 +51,7 @@ namespace SimpleDB.Core
             else if (Type == typeof(float)) return default(float);
             else if (Type == typeof(double)) return default(double);
             else if (Type == typeof(decimal)) return default(decimal);
+            else if (Type == typeof(DateTime)) return default(DateTime);
             else return null;
         }
     }
@@ -69,8 +71,9 @@ namespace SimpleDB.Core
         Float = 11,
         Double = 12,
         Decimal = 13,
-        String = 14,
-        Object = 15
+        DateTime = 14,
+        String = 15,
+        Object = 255
     }
 
     internal static class FieldTypesSize
@@ -90,6 +93,7 @@ namespace SimpleDB.Core
             if (type == FieldTypes.Float) return sizeof(float);
             if (type == FieldTypes.Double) return sizeof(double);
             if (type == FieldTypes.Decimal) return sizeof(decimal);
+            if (type == FieldTypes.DateTime) return sizeof(long);
             else throw new UnsupportedFieldTypeException();
         }
     }

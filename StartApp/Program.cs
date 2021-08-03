@@ -9,7 +9,7 @@ namespace StartApp
         static void Main(string[] args)
         {
             var workingDirectory = @"D:\Projects\SimpleDB\StartApp\bin\Debug\netcoreapp3.1\Database";
-            var modeCreate = false;
+            var modeCreate = true;
 
             if (modeCreate)
             {
@@ -25,7 +25,8 @@ namespace StartApp
                 .Field(0, x => x.Name)
                 .Field(1, x => x.Surname)
                 .Field(2, x => x.Middlename)
-                .Field(3, x => x.AdditionalInfo);
+                .Field(3, x => x.BirthDay)
+                .Field(4, x => x.AdditionalInfo);
 
             var engine = builder.BuildEngine();
             var collection = engine.GetCollection<Person>();
@@ -40,7 +41,15 @@ namespace StartApp
                 sw = System.Diagnostics.Stopwatch.StartNew();
                 for (int i = 0; i < count; i++)
                 {
-                    collection.Insert(new Person { Id = i, Name = "Name " + i, Surname = "Surname " + i, Middlename = "Middlename " + i, AdditionalInfo = new PersonAdditionalInfo { Value = i } });
+                    collection.Insert(new Person
+                    {
+                        Id = i,
+                        Name = "Name " + i,
+                        Surname = "Surname " + i,
+                        Middlename = "Middlename " + i,
+                        BirthDay = DateTime.Today.AddYears(-10).AddDays(i),
+                        AdditionalInfo = new PersonAdditionalInfo { Value = i }
+                    });
                 }
                 sw.Stop();
                 Console.WriteLine(sw.Elapsed);
@@ -68,7 +77,15 @@ namespace StartApp
             {
                 if (collection.Exist(i))
                 {
-                    collection.Update(new Person { Id = i, Name = "New Name " + i, Surname = "New Surname " + i, Middlename = "New Middlename " + i, AdditionalInfo = new PersonAdditionalInfo { Value = -i } });
+                    collection.Update(new Person
+                    {
+                        Id = i,
+                        Name = "Новое имя " + i,
+                        Surname = "Новая фамилия " + i,
+                        Middlename = "Новое отчество " + i,
+                        BirthDay = DateTime.Today.AddDays(i),
+                        AdditionalInfo = new PersonAdditionalInfo { Value = -i }
+                    });
                 }
                 else
                 {
@@ -100,8 +117,8 @@ namespace StartApp
             Console.WriteLine("========== Linq query ==========");
 
             var queryResult = collection.Query()
-                .Select(x => new { x.Id, x.Name, x.AdditionalInfo })
-                .Where(x => x.Name == "New Name 10" && x.Surname == "New Surname 10")
+                .Select(x => new { x.Id, x.Name, x.BirthDay, x.AdditionalInfo })
+                .Where(x => x.Name == "Новое имя 10" && x.Surname == "Новая фамилия 10")
                 .ToList();
             foreach (var item in queryResult) Console.WriteLine(item);
             Console.WriteLine("- - - - - - - - -");
@@ -138,11 +155,13 @@ namespace StartApp
 
         public string Middlename { get; set; }
 
+        public DateTime BirthDay { get; set; }
+
         public PersonAdditionalInfo AdditionalInfo { get; set; }
 
         public override string ToString()
         {
-            return String.Format("{0}:\t{1}\t{2}\t{3}\t{4}", Id, Name, Surname, Middlename, AdditionalInfo != null ? AdditionalInfo.Value.ToString() : "null");
+            return String.Format("{0}:\t{1}\t{2}\t{3}\t{4:yyyy-MM-dd}\t{5}", Id, Name, Surname, Middlename, BirthDay, AdditionalInfo != null ? AdditionalInfo.Value.ToString() : "null");
         }
     }
 

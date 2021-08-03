@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using SimpleDB.Core;
@@ -32,7 +33,8 @@ namespace SimpleDB.Test.Core
                 new FieldMeta(10, typeof(float)),
                 new FieldMeta(11, typeof(double)),
                 new FieldMeta(12, typeof(decimal)),
-                new FieldMeta(13, typeof(string))
+                new FieldMeta(13, typeof(DateTime)),
+                new FieldMeta(14, typeof(string))
             };
         }
 
@@ -66,13 +68,14 @@ namespace SimpleDB.Test.Core
                 new FieldValue(10, (float)1.2),
                 new FieldValue(11, (double)3.4),
                 new FieldValue(12, (decimal)5.6),
-                new FieldValue(13, "1234567890"),
+                new FieldValue(13, DateTime.Parse("2000-12-31")),
+                new FieldValue(14, "1234567890"),
             };
             var insertResult = dataFile.Insert(fieldValueCollection);
 
             var readFieldsResult = new FieldValue[_fieldMetaCollection.Length];
             dataFile.ReadFields(0, insertResult.EndDataFileOffset, readFieldsResult);
-            Assert.AreEqual(14, readFieldsResult.Length);
+            Assert.AreEqual(15, readFieldsResult.Length);
 
             Assert.AreEqual(0, readFieldsResult[0].Number);
             Assert.AreEqual(1, readFieldsResult[1].Number);
@@ -88,6 +91,7 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual(11, readFieldsResult[11].Number);
             Assert.AreEqual(12, readFieldsResult[12].Number);
             Assert.AreEqual(13, readFieldsResult[13].Number);
+            Assert.AreEqual(14, readFieldsResult[14].Number);
 
             Assert.AreEqual(false, readFieldsResult[0].Value);
             Assert.AreEqual((sbyte)1, readFieldsResult[1].Value);
@@ -102,7 +106,8 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual((float)1.2, readFieldsResult[10].Value);
             Assert.AreEqual((double)3.4, readFieldsResult[11].Value);
             Assert.AreEqual((decimal)5.6, readFieldsResult[12].Value);
-            Assert.AreEqual("1234567890", readFieldsResult[13].Value);
+            Assert.AreEqual(DateTime.Parse("2000-12-31"), readFieldsResult[13].Value);
+            Assert.AreEqual("1234567890", readFieldsResult[14].Value);
         }
 
         [Test]
@@ -128,6 +133,7 @@ namespace SimpleDB.Test.Core
                 Float = 1.2f,
                 Double = 3.4,
                 Decimal = 5.6m,
+                DateTime = DateTime.Parse("2000-12-31"),
                 String = "1234567890"
             };
             var fieldValueCollection = new FieldValue[]
@@ -154,6 +160,7 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual((float)1.2, resultObject.Float);
             Assert.AreEqual((double)3.4, resultObject.Double);
             Assert.AreEqual((decimal)5.6, resultObject.Decimal);
+            Assert.AreEqual(DateTime.Parse("2000-12-31"), resultObject.DateTime);
             Assert.AreEqual("1234567890", resultObject.String);
         }
 
@@ -176,7 +183,8 @@ namespace SimpleDB.Test.Core
                 new FieldValue(10, (float)1.2),
                 new FieldValue(11, (double)3.4),
                 new FieldValue(12, (decimal)5.6),
-                new FieldValue(13, "1234567890"),
+                new FieldValue(13, DateTime.Parse("2000-12-31")),
+                new FieldValue(14, "1234567890"),
             };
             var insertResult = dataFile.Insert(fieldValueCollection);
             dataFile.Insert(fieldValueCollection);
@@ -184,7 +192,7 @@ namespace SimpleDB.Test.Core
 
             var readFieldsResult = new FieldValue[_fieldMetaCollection.Length];
             dataFile.ReadFields(0, insertResult.EndDataFileOffset, readFieldsResult);
-            Assert.AreEqual(14, readFieldsResult.Length);
+            Assert.AreEqual(15, readFieldsResult.Length);
         }
 
         [Test]
@@ -206,7 +214,8 @@ namespace SimpleDB.Test.Core
                 new FieldValue(10, (float)1.2),
                 new FieldValue(11, (double)3.4),
                 new FieldValue(12, (decimal)5.6),
-                new FieldValue(13, "1234567890"),
+                new FieldValue(13, DateTime.Parse("2000-12-31")),
+                new FieldValue(14, "1234567890"),
             };
             var insertResult = dataFile.Insert(fieldValueCollection);
 
@@ -225,7 +234,8 @@ namespace SimpleDB.Test.Core
                 new FieldValue(10, (float)10.2),
                 new FieldValue(11, (double)30.4),
                 new FieldValue(12, (decimal)50.6),
-                new FieldValue(13, "0987654321"),
+                new FieldValue(13, DateTime.Parse("2000-12-31")),
+                new FieldValue(14, "0987654321"),
             };
             var updateResult = dataFile.Update(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, fieldValueCollection);
             Assert.AreEqual(insertResult.StartDataFileOffset, updateResult.NewStartDataFileOffset);
@@ -246,7 +256,8 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual((float)10.2, readFieldsResult[10].Value);
             Assert.AreEqual((double)30.4, readFieldsResult[11].Value);
             Assert.AreEqual((decimal)50.6, readFieldsResult[12].Value);
-            Assert.AreEqual("0987654321", readFieldsResult[13].Value);
+            Assert.AreEqual(DateTime.Parse("2000-12-31"), readFieldsResult[13].Value);
+            Assert.AreEqual("0987654321", readFieldsResult[14].Value);
         }
 
         [Test]
@@ -268,7 +279,8 @@ namespace SimpleDB.Test.Core
                 new FieldValue(10, (float)1.2),
                 new FieldValue(11, (double)3.4),
                 new FieldValue(12, (decimal)5.6),
-                new FieldValue(13, "1234567890"),
+                new FieldValue(13, DateTime.Parse("2000-12-31")),
+                new FieldValue(14, "1234567890"),
             };
             var insertResult = dataFile.Insert(fieldValueCollection);
 
@@ -287,7 +299,8 @@ namespace SimpleDB.Test.Core
                 new FieldValue(10, (float)10.2),
                 new FieldValue(11, (double)30.4),
                 new FieldValue(12, (decimal)50.6),
-                new FieldValue(13, "0"),
+                new FieldValue(13, DateTime.Parse("2000-01-10")),
+                new FieldValue(14, "0"),
             };
             var updateResult = dataFile.Update(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, fieldValueCollection);
             Assert.AreEqual(insertResult.StartDataFileOffset, updateResult.NewStartDataFileOffset);
@@ -308,7 +321,8 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual((float)10.2, readFieldsResult[10].Value);
             Assert.AreEqual((double)30.4, readFieldsResult[11].Value);
             Assert.AreEqual((decimal)50.6, readFieldsResult[12].Value);
-            Assert.AreEqual("0", readFieldsResult[13].Value);
+            Assert.AreEqual(DateTime.Parse("2000-01-10"), readFieldsResult[13].Value);
+            Assert.AreEqual("0", readFieldsResult[14].Value);
         }
 
         [Test]
@@ -330,7 +344,8 @@ namespace SimpleDB.Test.Core
                 new FieldValue(10, (float)1.2),
                 new FieldValue(11, (double)3.4),
                 new FieldValue(12, (decimal)5.6),
-                new FieldValue(13, "1234567890"),
+                new FieldValue(13, DateTime.Parse("2000-12-31")),
+                new FieldValue(14, "1234567890"),
             };
             var insertResult = dataFile.Insert(fieldValueCollection);
 
@@ -349,7 +364,8 @@ namespace SimpleDB.Test.Core
                 new FieldValue(10, (float)10.2),
                 new FieldValue(11, (double)30.4),
                 new FieldValue(12, (decimal)50.6),
-                new FieldValue(13, "0987654321098765432109876543210987654321"),
+                new FieldValue(13, DateTime.Parse("2000-01-10")),
+                new FieldValue(14, "0987654321098765432109876543210987654321"),
             };
             var updateResult = dataFile.Update(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, fieldValueCollection);
             Assert.IsTrue(insertResult.StartDataFileOffset < updateResult.NewStartDataFileOffset);
@@ -370,7 +386,8 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual((float)10.2, readFieldsResult[10].Value);
             Assert.AreEqual((double)30.4, readFieldsResult[11].Value);
             Assert.AreEqual((decimal)50.6, readFieldsResult[12].Value);
-            Assert.AreEqual("0987654321098765432109876543210987654321", readFieldsResult[13].Value);
+            Assert.AreEqual(DateTime.Parse("2000-01-10"), readFieldsResult[13].Value);
+            Assert.AreEqual("0987654321098765432109876543210987654321", readFieldsResult[14].Value);
         }
 
         [Test]
@@ -379,12 +396,12 @@ namespace SimpleDB.Test.Core
             var dataFile = new DataFile("", _fieldMetaCollection);
             var fieldValueCollection = new FieldValue[]
             {
-                new FieldValue(13, null)
+                new FieldValue(14, null)
             };
             var insertResult = dataFile.Insert(fieldValueCollection);
             var readFieldsResult = new FieldValue[_fieldMetaCollection.Length];
             dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, readFieldsResult);
-            Assert.AreEqual(null, readFieldsResult[13].Value);
+            Assert.AreEqual(null, readFieldsResult[14].Value);
         }
 
         [Test]
@@ -483,6 +500,7 @@ namespace SimpleDB.Test.Core
             public float Float { get; set; }
             public double Double { get; set; }
             public decimal Decimal { get; set; }
+            public DateTime DateTime { get; set; }
             public string String { get; set; }
         }
 

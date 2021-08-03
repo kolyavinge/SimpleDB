@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using SimpleDB.Infrastructure;
 
 namespace SimpleDB.Core
@@ -53,7 +54,7 @@ namespace SimpleDB.Core
             }
         }
 
-        private void InsertValue(IWriteableStream stream, FieldMeta fieldMeta, object fieldValue)
+        private static void InsertValue(IWriteableStream stream, FieldMeta fieldMeta, object fieldValue)
         {
             stream.WriteByte((byte)fieldMeta.GetFieldType());
             if (fieldMeta.Type == typeof(bool))
@@ -107,6 +108,10 @@ namespace SimpleDB.Core
             else if (fieldMeta.Type == typeof(decimal))
             {
                 stream.WriteDecimal((decimal)fieldValue);
+            }
+            else if (fieldMeta.Type == typeof(DateTime))
+            {
+                stream.WriteLong(((DateTime)fieldValue).ToBinary());
             }
             else if (fieldMeta.Type == typeof(string))
             {
@@ -195,10 +200,7 @@ namespace SimpleDB.Core
                     if (fieldType == FieldTypes.String || fieldType == FieldTypes.Object)
                     {
                         var length = _fileStream.ReadInt();
-                        if (length > 0)
-                        {
-                            _fileStream.Seek(length, System.IO.SeekOrigin.Current);
-                        }
+                        if (length > 0) _fileStream.Seek(length, System.IO.SeekOrigin.Current);
                     }
                     else
                     {
@@ -209,7 +211,7 @@ namespace SimpleDB.Core
             }
         }
 
-        private object ReadValue(IReadableStream stream, FieldMeta fieldMeta)
+        private static object ReadValue(IReadableStream stream, FieldMeta fieldMeta)
         {
             stream.Seek(sizeof(byte), System.IO.SeekOrigin.Current); // skip 'fieldType'
             object fieldValue;
@@ -264,6 +266,11 @@ namespace SimpleDB.Core
             else if (fieldMeta.Type == typeof(decimal))
             {
                 fieldValue = stream.ReadDecimal();
+            }
+            else if (fieldMeta.Type == typeof(DateTime))
+            {
+                var dateTimeLong = stream.ReadLong();
+                fieldValue = DateTime.FromBinary(dateTimeLong);
             }
             else if (fieldMeta.Type == typeof(string))
             {
