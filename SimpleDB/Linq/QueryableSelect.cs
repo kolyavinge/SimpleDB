@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using SimpleDB.Core;
-using SimpleDB.Queries;
 
 namespace SimpleDB.Linq
 {
     internal class QueryableSelect<TEntity> : IQueryableSelect<TEntity>
     {
-        private readonly Func<Query, List<TEntity>> _queryExecutorFunc;
+        private readonly QueryExecutor<TEntity> _queryExecutor;
         private readonly Mapper<TEntity> _mapper;
         private Expression<Func<TEntity, object>> _selectExpression;
         private Expression<Func<TEntity, bool>> _whereExpression;
@@ -17,11 +16,11 @@ namespace SimpleDB.Linq
         private int? _limitValue;
 
         public QueryableSelect(
-            Func<Query, List<TEntity>> queryExecutorFunc,
+            QueryExecutor<TEntity> queryExecutor,
             Mapper<TEntity> mapper,
             Expression<Func<TEntity, object>> selectExpression)
         {
-            _queryExecutorFunc = queryExecutorFunc;
+            _queryExecutor = queryExecutor;
             _mapper = mapper;
             _selectExpression = selectExpression;
             _orderbyExpressionItems = new List<OrderByExpressionItem<TEntity>>();
@@ -63,7 +62,7 @@ namespace SimpleDB.Linq
                 _skipValue,
                 _limitValue);
             var query = queryBuilder.BuildQuery();
-            var result = _queryExecutorFunc(query);
+            var result = _queryExecutor.ExecuteQuery(query);
 
             return result;
         }
