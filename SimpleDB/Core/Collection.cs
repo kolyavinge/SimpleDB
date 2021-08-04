@@ -22,7 +22,8 @@ namespace SimpleDB.Core
             var dataFileFileFullPath = Path.Combine(workingDirectory, DataFileFileName.FromCollectionName(mapper.EntityName));
             PrimaryKeyFile = new PrimaryKeyFile(primaryKeyFileFullPath, mapper.PrimaryKeyMapping.PropertyType);
             DataFile = new DataFile(dataFileFileFullPath, mapper.FieldMetaCollection);
-            PrimaryKeys = PrimaryKeyFile.GetAllPrimaryKeys().Where(x => !x.IsDeleted()).ToDictionary(k => k.Value, v => v);
+            var allPrimaryKeys = PrimaryKeyFile.GetAllPrimaryKeys().ToList();
+            PrimaryKeys = allPrimaryKeys.Where(x => !x.IsDeleted()).ToDictionary(k => k.Value, v => v);
         }
 
         public void Dispose()
@@ -46,9 +47,10 @@ namespace SimpleDB.Core
             if (PrimaryKeys.ContainsKey(id))
             {
                 var primaryKey = PrimaryKeys[id];
-                var fieldValueCollection = new FieldValue[Mapper.FieldMetaCollection.Count];
-                DataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldValueCollection);
-                var entity = Mapper.GetEntity(primaryKey.Value, fieldValueCollection, true);
+                var fieldNumbers = Mapper.FieldMetaCollection.Select(x => x.Number).ToHashSet();
+                var fieldValueCollection = new Dictionary<byte, FieldValue>();
+                DataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldNumbers, fieldValueCollection);
+                var entity = Mapper.GetEntity(primaryKey.Value, fieldValueCollection.Values, true);
 
                 return entity;
             }

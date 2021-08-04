@@ -70,7 +70,7 @@ namespace SimpleDB.Test.Core
             var primaryKey = _collection.PrimaryKeys[123];
             Assert.AreEqual(0, primaryKey.PrimaryKeyFileOffset);
             Assert.AreEqual(15, primaryKey.StartDataFileOffset);
-            Assert.AreEqual(36, primaryKey.EndDataFileOffset);
+            Assert.AreEqual(35, primaryKey.EndDataFileOffset);
         }
 
         [Test]
@@ -86,7 +86,7 @@ namespace SimpleDB.Test.Core
             var primaryKey = _collection.PrimaryKeys[123];
             Assert.AreEqual(0, primaryKey.PrimaryKeyFileOffset);
             Assert.AreEqual(0, primaryKey.StartDataFileOffset);
-            Assert.AreEqual(21, primaryKey.EndDataFileOffset);
+            Assert.AreEqual(20, primaryKey.EndDataFileOffset);
         }
 
         [Test]

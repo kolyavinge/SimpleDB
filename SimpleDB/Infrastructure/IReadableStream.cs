@@ -20,5 +20,7 @@ namespace SimpleDB.Infrastructure
         double ReadDouble();
         decimal ReadDecimal();
         string ReadString();
+        byte[] ReadByteArray(int count);
+        void ReadByteArray(byte[] buffer, int index, int count);
     }
 }

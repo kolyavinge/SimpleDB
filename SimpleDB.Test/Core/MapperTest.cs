@@ -96,6 +96,40 @@ namespace SimpleDB.Test.Core
         }
 
         [Test]
+        public void GetEntity_SetFunctions()
+        {
+            _mapper = new Mapper<TestEntity>(
+                "testEntity",
+                new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
+                new FieldMapping<TestEntity>[]
+                {
+                    new FieldMapping<TestEntity>(0, entity => entity.Byte),
+                    new FieldMapping<TestEntity>(1, entity => entity.Float),
+                    new FieldMapping<TestEntity>(2, entity => entity.String)
+                });
+            _mapper.MakeFunction = () => new TestEntity();
+            _mapper.PrimaryKeySetFunction = (primaryKeyValue, entity) => entity.Id = (int)primaryKeyValue;
+            _mapper.FieldSetFunction = (fieldNumber, fieldValue, entity) =>
+            {
+                if (fieldNumber == 0) entity.Byte = (byte)fieldValue;
+                if (fieldNumber == 1) entity.Float = (float)fieldValue;
+                if (fieldNumber == 2) entity.String = (string)fieldValue;
+            };
+
+            var fieldValueCollection = new FieldValue[]
+            {
+                new FieldValue(0, (byte)45),
+                new FieldValue(1, 6.7f),
+                new FieldValue(2, "123")
+            };
+            var result = _mapper.GetEntity(123, fieldValueCollection, false);
+            Assert.AreEqual(0, result.Id);
+            Assert.AreEqual((byte)45, result.Byte);
+            Assert.AreEqual(6.7f, result.Float);
+            Assert.AreEqual("123", result.String);
+        }
+
+        [Test]
         public void PrimaryKeyObject()
         {
             var entity = new TestEntityPrimaryKeyObject { Id = new TestPrimaryKey() };

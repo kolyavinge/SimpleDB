@@ -25,9 +25,9 @@ namespace SimpleDB.Test.Tools
 
         public string FileFullPath { get; set; }
 
-        public bool EOF { get { return _stream.Position >= _stream.Length; } }
-
         public long Position { get { return _stream.Position; } }
+
+        public long Length { get { return _stream.Length; } }
 
         public void Flush() { }
 
@@ -103,9 +103,19 @@ namespace SimpleDB.Test.Tools
             return _reader.ReadString();
         }
 
-        public void Seek(long offset, SeekOrigin origin)
+        public byte[] ReadByteArray(int count)
         {
-            _stream.Seek(offset, origin);
+            return _reader.ReadBytes(count);
+        }
+
+        public void ReadByteArray(byte[] buffer, int index, int count)
+        {
+            _reader.Read(buffer, index, count);
+        }
+
+        public long Seek(long offset, SeekOrigin origin)
+        {
+            return _stream.Seek(offset, origin);
         }
 
         public void WriteBool(bool value)

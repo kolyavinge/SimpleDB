@@ -17,6 +17,12 @@ namespace SimpleDB.Core
 
         public string EntityName { get; private set; }
 
+        public Func<TEntity> MakeFunction { get; set; }
+
+        public PrimaryKeySetFunctionDelegate<TEntity> PrimaryKeySetFunction { get; set; }
+
+        public FieldSetFunctionDelegate<TEntity> FieldSetFunction { get; set; }
+
         public Mapper(
             string entityName,
             PrimaryKeyMapping<TEntity> primaryKeyMapping,
@@ -52,6 +58,18 @@ namespace SimpleDB.Core
 
         public TEntity GetEntity(object primaryKeyValue, IEnumerable<FieldValue> fieldValueCollection, bool includePrimaryKey, ISet<byte> selectedFieldNumbers = null)
         {
+            if (MakeFunction != null && PrimaryKeySetFunction != null && FieldSetFunction != null)
+            {
+                return GetEntityBySetFunctions(primaryKeyValue, fieldValueCollection, includePrimaryKey, selectedFieldNumbers);
+            }
+            else
+            {
+                return GetEntityByReflection(primaryKeyValue, fieldValueCollection, includePrimaryKey, selectedFieldNumbers);
+            }
+        }
+
+        private TEntity GetEntityByReflection(object primaryKeyValue, IEnumerable<FieldValue> fieldValueCollection, bool includePrimaryKey, ISet<byte> selectedFieldNumbers = null)
+        {
             var entity = Activator.CreateInstance<TEntity>();
             if (includePrimaryKey)
             {
@@ -77,6 +95,34 @@ namespace SimpleDB.Core
                     var fieldMapping = _fieldMappings[fieldValue.Number];
                     var fieldProperty = entity.GetType().GetProperty(fieldMapping.PropertyName);
                     fieldProperty.SetValue(entity, fieldValue.Value);
+                }
+            }
+
+            return entity;
+        }
+
+        private TEntity GetEntityBySetFunctions(object primaryKeyValue, IEnumerable<FieldValue> fieldValueCollection, bool includePrimaryKey, ISet<byte> selectedFieldNumbers = null)
+        {
+            var entity = MakeFunction();
+            if (includePrimaryKey)
+            {
+                PrimaryKeySetFunction(primaryKeyValue, entity);
+            }
+            if (selectedFieldNumbers != null)
+            {
+                foreach (var fieldValue in fieldValueCollection)
+                {
+                    if (selectedFieldNumbers.Contains(fieldValue.Number))
+                    {
+                        FieldSetFunction(fieldValue.Number, fieldValue.Value, entity);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var fieldValue in fieldValueCollection)
+                {
+                    FieldSetFunction(fieldValue.Number, fieldValue.Value, entity);
                 }
             }
 

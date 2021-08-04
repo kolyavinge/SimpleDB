@@ -51,7 +51,17 @@ namespace SimpleDB
         IMapperBuilder<TEntity> PrimaryKey(Expression<Func<TEntity, object>> primaryKeyExpression);
 
         IMapperBuilder<TEntity> Field(byte number, Expression<Func<TEntity, object>> fieldExpression);
+
+        IMapperBuilder<TEntity> MakeFunction(Func<TEntity> func);
+
+        IMapperBuilder<TEntity> PrimaryKeySetFunction(PrimaryKeySetFunctionDelegate<TEntity> func);
+
+        IMapperBuilder<TEntity> FieldSetFunction(FieldSetFunctionDelegate<TEntity> func);
     }
+
+    public delegate void PrimaryKeySetFunctionDelegate<TEntity>(object primaryKeyValue, TEntity entity);
+
+    public delegate void FieldSetFunctionDelegate<TEntity>(byte fieldNumber, object fieldValue, TEntity entity);
 
     internal abstract class MapperBuilder
     {
@@ -63,6 +73,9 @@ namespace SimpleDB
         private string _name;
         private PrimaryKeyMapping<TEntity> _primaryKeyMapping;
         private List<FieldMapping<TEntity>> _fieldMappings = new List<FieldMapping<TEntity>>();
+        private Func<TEntity> _makeFunction;
+        private PrimaryKeySetFunctionDelegate<TEntity> _primaryKeySetFunction;
+        private FieldSetFunctionDelegate<TEntity> _fieldSetFunction;
 
         public IMapperBuilder<TEntity> Name(string name)
         {
@@ -82,9 +95,32 @@ namespace SimpleDB
             return this;
         }
 
+        public IMapperBuilder<TEntity> MakeFunction(Func<TEntity> func)
+        {
+            _makeFunction = func;
+            return this;
+        }
+
+        public IMapperBuilder<TEntity> PrimaryKeySetFunction(PrimaryKeySetFunctionDelegate<TEntity> func)
+        {
+            _primaryKeySetFunction = func;
+            return this;
+        }
+
+        public IMapperBuilder<TEntity> FieldSetFunction(FieldSetFunctionDelegate<TEntity> func)
+        {
+            _fieldSetFunction = func;
+            return this;
+        }
+
         public override object Build()
         {
-            return new Mapper<TEntity>(_name, _primaryKeyMapping, _fieldMappings);
+            return new Mapper<TEntity>(_name, _primaryKeyMapping, _fieldMappings)
+            {
+                MakeFunction = _makeFunction,
+                PrimaryKeySetFunction = _primaryKeySetFunction,
+                FieldSetFunction = _fieldSetFunction
+            };
         }
     }
 }
