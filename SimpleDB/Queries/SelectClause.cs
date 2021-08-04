@@ -30,5 +30,7 @@ namespace SimpleDB.Queries
 
             public byte Number { get; }
         }
+
+        public class CountAggregate : SelectClauseItem { }
     }
 }

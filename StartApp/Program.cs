@@ -139,6 +139,13 @@ namespace StartApp
             foreach (var item in queryResult) Console.WriteLine(item);
             Console.WriteLine("- - - - - - - - -");
 
+            var queryResultCount = collection.Query()
+                .Select(x => x.Id)
+                .Where(x => x.Surname == "Новая фамилия 10")
+                .Count();
+            Console.WriteLine("count: " + queryResultCount);
+            Console.WriteLine("- - - - - - - - -");
+
             engine.Dispose();
 
             Console.ReadKey();

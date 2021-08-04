@@ -61,10 +61,25 @@ namespace SimpleDB.Linq
                 _orderbyExpressionItems,
                 _skipValue,
                 _limitValue);
-            var query = queryBuilder.BuildQuery();
+            var query = queryBuilder.BuildQueryForToList();
             var result = _queryExecutor.ExecuteQuery(query);
 
-            return result;
+            return result.Items;
+        }
+
+        public int Count()
+        {
+            var queryBuilder = new QueryBuilder<TEntity>(
+                _mapper,
+                _selectExpression,
+                _whereExpression,
+                _orderbyExpressionItems,
+                _skipValue,
+                _limitValue);
+            var query = queryBuilder.BuildQueryForCount();
+            var result = _queryExecutor.ExecuteQuery(query);
+
+            return (int)result.Scalar;
         }
     }
 

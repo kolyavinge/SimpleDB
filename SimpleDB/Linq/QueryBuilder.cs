@@ -31,7 +31,7 @@ namespace SimpleDB.Linq
             _limitValue = limitValue;
         }
 
-        public Query BuildQuery()
+        public Query BuildQueryForToList()
         {
             var selectClauseBuilder = new SelectClauseBuilder();
             var whereClauseBuilder = new WhereClauseBuilder();
@@ -39,6 +39,18 @@ namespace SimpleDB.Linq
             var query = new Query(selectClauseBuilder.Build(_mapper, _selectExpression));
             query.WhereClause = whereClauseBuilder.Build(_mapper, _whereExpression);
             query.OrderByClause = orderbyClauseBuilder.Build(_mapper, _orderbyExpressionItems);
+            query.Skip = _skipValue;
+            query.Limit = _limitValue;
+
+            return query;
+        }
+
+        public Query BuildQueryForCount()
+        {
+            var selectClauseBuilder = new SelectClauseBuilder();
+            var whereClauseBuilder = new WhereClauseBuilder();
+            var query = new Query(selectClauseBuilder.BuildCountAggregate());
+            query.WhereClause = whereClauseBuilder.Build(_mapper, _whereExpression);
             query.Skip = _skipValue;
             query.Limit = _limitValue;
 

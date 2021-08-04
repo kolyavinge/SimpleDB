@@ -15,5 +15,7 @@ namespace SimpleDB
         IQueryableSelect<TEntity> Limit(int value);
 
         List<TEntity> ToList();
+
+        int Count();
     }
 }

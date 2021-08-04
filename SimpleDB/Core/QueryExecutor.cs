@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using SimpleDB.Infrastructure;
 using SimpleDB.Queries;
@@ -18,7 +19,7 @@ namespace SimpleDB.Core
             _primaryKeys = primaryKeys;
         }
 
-        public List<TEntity> ExecuteQuery(Query query)
+        public QueryResult<TEntity> ExecuteQuery(Query query)
         {
             var fieldValueDictionaries = new List<FieldValueDictionary>();
             var allFieldNumbers = new HashSet<byte>();
@@ -45,6 +46,16 @@ namespace SimpleDB.Core
                     var fieldValueDictionary = new FieldValueDictionary { PrimaryKey = primaryKey };
                     fieldValueDictionaries.Add(fieldValueDictionary);
                 }
+            }
+            // aggregate functions
+            if (query.SelectClause.SelectItems.Any(x => x is SelectClause.CountAggregate))
+            {
+                var count = fieldValueDictionaries.Count - (query.Skip ?? 0);
+                if (query.Limit.HasValue)
+                {
+                    count = Math.Min(count, query.Limit.Value);
+                }
+                return new QueryResult<TEntity> { Scalar = count };
             }
             // order by
             if (query.OrderByClause != null)
@@ -93,15 +104,22 @@ namespace SimpleDB.Core
             }
             // result entities
             var includePrimaryKey = query.SelectClause.SelectItems.Any(x => x is SelectClause.PrimaryKey);
-            var result = new List<TEntity>();
+            var queryResultItems = new List<TEntity>();
             foreach (var fieldValueDictionary in fieldValueDictionaries)
             {
                 var primaryKey = fieldValueDictionary.PrimaryKey;
                 var entity = _mapper.GetEntity(primaryKey.Value, fieldValueDictionary.FieldValues.Values, includePrimaryKey, selectFieldNumbers);
-                result.Add(entity);
+                queryResultItems.Add(entity);
             }
 
-            return result;
+            return new QueryResult<TEntity> { Items = queryResultItems };
         }
+    }
+
+    internal class QueryResult<TEntity>
+    {
+        public List<TEntity> Items { get; set; }
+
+        public object Scalar { get; set; }
     }
 }

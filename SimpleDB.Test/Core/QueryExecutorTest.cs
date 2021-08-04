@@ -43,7 +43,7 @@ namespace SimpleDB.Test.Core
                 WhereClause = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(1), new WhereClause.Constant(3.4f)))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).ToList();
+            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
 
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(20, result[0].Byte);
@@ -62,7 +62,7 @@ namespace SimpleDB.Test.Core
                 WhereClause = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(1), new WhereClause.Constant(3.4f)))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).ToList();
+            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
 
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(2, result[0].Id);
@@ -81,7 +81,7 @@ namespace SimpleDB.Test.Core
                 WhereClause = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.PrimaryKey(), new WhereClause.Constant(2)))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).ToList();
+            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
 
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(2, result[0].Id);
@@ -102,7 +102,7 @@ namespace SimpleDB.Test.Core
                         new WhereClause.EqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20))))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).ToList();
+            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
 
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(2, result[0].Id);
@@ -123,7 +123,7 @@ namespace SimpleDB.Test.Core
                         new WhereClause.EqualsOperation(new WhereClause.PrimaryKey(), new WhereClause.Constant(2))))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).ToList();
+            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
 
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual(1, result[0].Id);
@@ -141,7 +141,7 @@ namespace SimpleDB.Test.Core
                 WhereClause = new WhereClause(new WhereClause.LessOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20)))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).ToList();
+            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
 
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(10, result[0].Byte);
@@ -158,7 +158,7 @@ namespace SimpleDB.Test.Core
                 WhereClause = new WhereClause(new WhereClause.GreatOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)10)))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).ToList();
+            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
 
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual(20, result[0].Byte);
@@ -176,7 +176,7 @@ namespace SimpleDB.Test.Core
                 WhereClause = new WhereClause(new WhereClause.LessOrEqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20)))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).ToList();
+            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
 
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual(10, result[0].Byte);
@@ -194,7 +194,7 @@ namespace SimpleDB.Test.Core
                 WhereClause = new WhereClause(new WhereClause.GreatOrEqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20)))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).ToList();
+            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
 
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual(20, result[0].Byte);
@@ -215,7 +215,7 @@ namespace SimpleDB.Test.Core
                             new WhereClause.EqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20))))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).ToList();
+            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
 
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual(10, result[0].Byte);
@@ -233,7 +233,7 @@ namespace SimpleDB.Test.Core
                 WhereClause = new WhereClause(new WhereClause.LikeOperation(new WhereClause.Field(2), new WhereClause.Constant("123")))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).ToList();
+            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
 
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual("12345", result[0].String);
@@ -251,7 +251,7 @@ namespace SimpleDB.Test.Core
                 WhereClause = new WhereClause(new WhereClause.InOperation(new WhereClause.Field(2), new WhereClause.Set(new[] { "123", "12" })))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).ToList();
+            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
 
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual("12", result[0].String);
@@ -269,7 +269,7 @@ namespace SimpleDB.Test.Core
                 OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(2, SortDirection.Asc) })
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).ToList();
+            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
 
             Assert.AreEqual("12", result[0].String);
             Assert.AreEqual("123", result[1].String);
@@ -287,7 +287,7 @@ namespace SimpleDB.Test.Core
                 OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(2, SortDirection.Desc) })
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).ToList();
+            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
 
             Assert.AreEqual("12345", result[0].String);
             Assert.AreEqual("123", result[1].String);
@@ -305,7 +305,7 @@ namespace SimpleDB.Test.Core
                 OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, SortDirection.Asc), new OrderByClause.Field(2, SortDirection.Asc) })
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).ToList();
+            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
 
             Assert.AreEqual("12345", result[0].String);
             Assert.AreEqual("12", result[1].String);
@@ -323,7 +323,7 @@ namespace SimpleDB.Test.Core
                 OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, SortDirection.Asc), new OrderByClause.Field(2, SortDirection.Desc) })
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).ToList();
+            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
 
             Assert.AreEqual("12345", result[0].String);
             Assert.AreEqual("123", result[1].String);
@@ -341,7 +341,7 @@ namespace SimpleDB.Test.Core
                 OrderByClause = new OrderByClause(new[] { new OrderByClause.PrimaryKey(SortDirection.Asc) })
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).ToList();
+            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
 
             Assert.AreEqual("12345", result[0].String);
             Assert.AreEqual("12", result[1].String);
@@ -359,7 +359,7 @@ namespace SimpleDB.Test.Core
                 OrderByClause = new OrderByClause(new[] { new OrderByClause.PrimaryKey(SortDirection.Desc) })
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).ToList();
+            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
 
             Assert.AreEqual("123", result[0].String);
             Assert.AreEqual("12", result[1].String);
@@ -378,7 +378,7 @@ namespace SimpleDB.Test.Core
                 Skip = 1
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).ToList();
+            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
 
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual(20, result[0].Byte);
@@ -397,7 +397,7 @@ namespace SimpleDB.Test.Core
                 Skip = 100
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).ToList();
+            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
 
             Assert.AreEqual(0, result.Count);
         }
@@ -414,11 +414,73 @@ namespace SimpleDB.Test.Core
                 Limit = 2
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).ToList();
+            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
 
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual(10, result[0].Byte);
             Assert.AreEqual(20, result[1].Byte);
+        }
+
+        [Test]
+        public void ExecuteQuery_CountAggregate()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
+            var query = new Query(new SelectClause(new[] { new SelectClause.CountAggregate() }));
+
+            var result = (int)_queryExecutor.ExecuteQuery(query).Scalar;
+
+            Assert.AreEqual(3, result);
+        }
+
+        [Test]
+        public void ExecuteQuery_CountAggregate_Where()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
+            var query = new Query(new SelectClause(new[] { new SelectClause.CountAggregate() }))
+            {
+                WhereClause = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)10)))
+            };
+
+            var result = (int)_queryExecutor.ExecuteQuery(query).Scalar;
+
+            Assert.AreEqual(1, result);
+        }
+
+        [Test]
+        public void ExecuteQuery_CountAggregate_Skip()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
+            var query = new Query(new SelectClause(new[] { new SelectClause.CountAggregate() }))
+            {
+                Skip = 1
+            };
+
+            var result = (int)_queryExecutor.ExecuteQuery(query).Scalar;
+
+            Assert.AreEqual(2, result);
+        }
+
+        [Test]
+        public void ExecuteQuery_CountAggregate_SkipLimit()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
+            var query = new Query(new SelectClause(new[] { new SelectClause.CountAggregate() }))
+            {
+                Skip = 1,
+                Limit = 3
+            };
+
+            var result = (int)_queryExecutor.ExecuteQuery(query).Scalar;
+
+            Assert.AreEqual(2, result);
         }
 
         class TestEntity

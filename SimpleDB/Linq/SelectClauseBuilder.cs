@@ -46,5 +46,10 @@ namespace SimpleDB.Linq
                 return new SelectClause.Field(fieldNumber);
             }
         }
+
+        public SelectClause BuildCountAggregate()
+        {
+            return new SelectClause(new[] { new SelectClause.CountAggregate() });
+        }
     }
 }
