@@ -42,6 +42,15 @@ namespace SimpleDB.Test.Linq
             Assert.AreEqual(typeof(SelectClause.Field), result[1].GetType());
         }
 
+        [Test]
+        public void Build_All()
+        {
+            var result = _builder.Build(_mapper, null).SelectItems.ToList();
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(typeof(SelectClause.PrimaryKey), result[0].GetType());
+            Assert.AreEqual(typeof(SelectClause.Field), result[1].GetType());
+        }
+
         class TestEntity
         {
             public int Id { get; set; }

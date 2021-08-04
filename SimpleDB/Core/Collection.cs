@@ -31,6 +31,11 @@ namespace SimpleDB.Core
             DataFile.Dispose();
         }
 
+        public int Count()
+        {
+            return PrimaryKeys.Count;
+        }
+
         public bool Exist(object id)
         {
             return PrimaryKeys.ContainsKey(id);

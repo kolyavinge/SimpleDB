@@ -5,6 +5,6 @@ namespace SimpleDB
 {
     public interface IQueryable<TEntity>
     {
-        IQueryableSelect<TEntity> Select(Expression<Func<TEntity, object>> selectExpression);
+        IQueryableSelect<TEntity> Select(Expression<Func<TEntity, object>> selectExpression = null);
     }
 }

@@ -15,7 +15,7 @@ namespace SimpleDB.Linq
             _mapper = mapper;
         }
 
-        public IQueryableSelect<TEntity> Select(Expression<Func<TEntity, object>> selectExpression)
+        public IQueryableSelect<TEntity> Select(Expression<Func<TEntity, object>> selectExpression = null)
         {
             return new QueryableSelect<TEntity>(_queryExecutor, _mapper, selectExpression);
         }

@@ -6,6 +6,8 @@ namespace SimpleDB
 {
     public interface ICollection<TEntity> : IDisposable
     {
+        int Count();
+
         bool Exist(object id);
 
         TEntity Get(object id);
