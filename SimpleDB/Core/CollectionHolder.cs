@@ -22,10 +22,5 @@ namespace SimpleDB.Core
         {
             _collection.Add(typeof(TEntity), collection);
         }
-
-        public IEnumerable GetAllCollections()
-        {
-            return _collection.Values;
-        }
     }
 }

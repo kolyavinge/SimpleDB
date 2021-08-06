@@ -19,11 +19,6 @@ namespace SimpleDB.Core
             _collectionHolder = new CollectionHolder();
         }
 
-        public void Dispose()
-        {
-            _collectionHolder.GetAllCollections().Cast<IDisposable>().Each(x => x.Dispose());
-        }
-
         public ICollection<TEntity> GetCollection<TEntity>()
         {
             var collection = _collectionHolder.GetOrNull<TEntity>();

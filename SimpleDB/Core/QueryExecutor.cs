@@ -21,6 +21,19 @@ namespace SimpleDB.Core
 
         public QueryResult<TEntity> ExecuteQuery(Query query)
         {
+            try
+            {
+                _dataFile.BeginRead();
+                return TryExecuteQuery(query);
+            }
+            finally
+            {
+                _dataFile.EndReadWrite();
+            }
+        }
+
+        private QueryResult<TEntity> TryExecuteQuery(Query query)
+        {
             var fieldValueDictionaries = new List<FieldValueDictionary>();
             var allFieldNumbers = new HashSet<byte>();
             // where

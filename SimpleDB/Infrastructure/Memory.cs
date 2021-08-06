@@ -43,7 +43,10 @@ namespace SimpleDB.Infrastructure
             _writer = new BinaryWriter(_memoryStream);
         }
 
-        public void Dispose() { }
+        public void Dispose()
+        {
+            _memoryStream.Dispose();
+        }
 
         public bool ReadBool()
         {

@@ -22,14 +22,20 @@ namespace SimpleDB.Core
             var dataFileFileFullPath = Path.Combine(workingDirectory, DataFileFileName.FromCollectionName(mapper.EntityName));
             PrimaryKeyFile = new PrimaryKeyFile(primaryKeyFileFullPath, mapper.PrimaryKeyMapping.PropertyType);
             DataFile = new DataFile(dataFileFileFullPath, mapper.FieldMetaCollection);
-            var allPrimaryKeys = PrimaryKeyFile.GetAllPrimaryKeys().ToList();
-            PrimaryKeys = allPrimaryKeys.Where(x => !x.IsDeleted()).ToDictionary(k => k.Value, v => v);
+            PrimaryKeys = GetAllPrimaryKeys().Where(x => !x.IsDeleted()).ToDictionary(k => k.Value, v => v);
         }
 
-        public void Dispose()
+        private List<PrimaryKey> GetAllPrimaryKeys()
         {
-            PrimaryKeyFile.Dispose();
-            DataFile.Dispose();
+            try
+            {
+                PrimaryKeyFile.BeginRead();
+                return PrimaryKeyFile.GetAllPrimaryKeys().ToList();
+            }
+            finally
+            {
+                PrimaryKeyFile.EndReadWrite();
+            }
         }
 
         public int Count()
@@ -44,23 +50,79 @@ namespace SimpleDB.Core
 
         public TEntity Get(object id)
         {
-            if (PrimaryKeys.ContainsKey(id))
+            try
             {
-                var primaryKey = PrimaryKeys[id];
-                var fieldNumbers = Mapper.FieldMetaCollection.Select(x => x.Number).ToHashSet();
-                var fieldValueCollection = new Dictionary<byte, FieldValue>();
-                DataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldNumbers, fieldValueCollection);
-                var entity = Mapper.GetEntity(primaryKey.Value, fieldValueCollection.Values, true);
-
-                return entity;
+                DataFile.BeginRead();
+                return GetInternal(id);
             }
-            else
+            finally
             {
-                return default(TEntity);
+                DataFile.EndReadWrite();
             }
         }
 
+        public IEnumerable<TEntity> Get(IEnumerable<object> idList)
+        {
+            try
+            {
+                DataFile.BeginRead();
+                foreach (var id in idList)
+                {
+                    yield return GetInternal(id);
+                }
+            }
+            finally
+            {
+                DataFile.EndReadWrite();
+            }
+        }
+
+        private TEntity GetInternal(object id)
+        {
+            if (Exist(id) == false) return default(TEntity);
+            var primaryKey = PrimaryKeys[id];
+            var fieldNumbers = Mapper.FieldMetaCollection.Select(x => x.Number).ToHashSet();
+            var fieldValueCollection = new Dictionary<byte, FieldValue>();
+            DataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldNumbers, fieldValueCollection);
+            var entity = Mapper.GetEntity(primaryKey.Value, fieldValueCollection.Values, true);
+
+            return entity;
+        }
+
         public void Insert(TEntity entity)
+        {
+            try
+            {
+                DataFile.BeginWrite();
+                PrimaryKeyFile.BeginWrite();
+                InsertInternal(entity);
+            }
+            finally
+            {
+                DataFile.EndReadWrite();
+                PrimaryKeyFile.EndReadWrite();
+            }
+        }
+
+        public void Insert(IEnumerable<TEntity> entities)
+        {
+            try
+            {
+                DataFile.BeginWrite();
+                PrimaryKeyFile.BeginWrite();
+                foreach (var entity in entities)
+                {
+                    InsertInternal(entity);
+                }
+            }
+            finally
+            {
+                DataFile.EndReadWrite();
+                PrimaryKeyFile.EndReadWrite();
+            }
+        }
+
+        private void InsertInternal(TEntity entity)
         {
             var fieldValueCollection = Mapper.GetFieldValueCollection(entity);
             var insertResult = DataFile.Insert(fieldValueCollection);
@@ -71,7 +133,31 @@ namespace SimpleDB.Core
 
         public void Update(TEntity entity)
         {
+            UpdateInternal(entity);
+        }
+
+        public void Update(IEnumerable<TEntity> entities)
+        {
+            try
+            {
+                DataFile.BeginWrite();
+                PrimaryKeyFile.BeginWrite();
+                foreach (var entity in entities)
+                {
+                    UpdateInternal(entity);
+                }
+            }
+            finally
+            {
+                DataFile.EndReadWrite();
+                PrimaryKeyFile.EndReadWrite();
+            }
+        }
+
+        private void UpdateInternal(TEntity entity)
+        {
             var primaryKeyValue = Mapper.GetPrimaryKeyValue(entity);
+            if (Exist(primaryKeyValue) == false) return;
             var primaryKey = PrimaryKeys[primaryKeyValue];
             var fieldValueCollection = Mapper.GetFieldValueCollection(entity);
             var updateResult = DataFile.Update(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldValueCollection);
@@ -90,18 +176,83 @@ namespace SimpleDB.Core
 
         public void InsertOrUpdate(TEntity entity)
         {
-            var primaryKeyValue = Mapper.GetPrimaryKeyValue(entity);
-            if (Exist(primaryKeyValue))
+            try
             {
-                Update(entity);
+                DataFile.BeginWrite();
+                PrimaryKeyFile.BeginWrite();
+                var primaryKeyValue = Mapper.GetPrimaryKeyValue(entity);
+                if (Exist(primaryKeyValue))
+                {
+                    UpdateInternal(entity);
+                }
+                else
+                {
+                    InsertInternal(entity);
+                }
             }
-            else
+            finally
             {
-                Insert(entity);
+                DataFile.EndReadWrite();
+                PrimaryKeyFile.EndReadWrite();
+            }
+        }
+
+        public void InsertOrUpdate(IEnumerable<TEntity> entities)
+        {
+            try
+            {
+                DataFile.BeginWrite();
+                PrimaryKeyFile.BeginWrite();
+                foreach (var entity in entities)
+                {
+                    var primaryKeyValue = Mapper.GetPrimaryKeyValue(entity);
+                    if (Exist(primaryKeyValue))
+                    {
+                        UpdateInternal(entity);
+                    }
+                    else
+                    {
+                        InsertInternal(entity);
+                    }
+                }
+            }
+            finally
+            {
+                DataFile.EndReadWrite();
+                PrimaryKeyFile.EndReadWrite();
             }
         }
 
         public void Delete(object id)
+        {
+            try
+            {
+                PrimaryKeyFile.BeginWrite();
+                DeleteInternal(id);
+            }
+            finally
+            {
+                PrimaryKeyFile.EndReadWrite();
+            }
+        }
+
+        public void Delete(IEnumerable<object> idList)
+        {
+            try
+            {
+                PrimaryKeyFile.BeginWrite();
+                foreach (var id in idList)
+                {
+                    DeleteInternal(id);
+                }
+            }
+            finally
+            {
+                PrimaryKeyFile.EndReadWrite();
+            }
+        }
+
+        private void DeleteInternal(object id)
         {
             var primaryKey = PrimaryKeys[id];
             PrimaryKeyFile.Delete(primaryKey.PrimaryKeyFileOffset);

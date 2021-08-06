@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using SimpleDB;
 
 namespace StartApp
@@ -10,9 +12,10 @@ namespace StartApp
         {
             var doInsert = 0;
             var doGet = 1;
-            var doUpdate = 0;
-            var doDelete = 0;
-            var doQuery = 0;
+            var doUpdate = 1;
+            var doDelete = 1;
+            var doQuery = 1;
+            var doGetAsync = 0;
 
             var workingDirectory = @"D:\Projects\SimpleDB\StartApp\bin\Debug\netcoreapp3.1\Database";
             if (doInsert == 1)
@@ -52,19 +55,17 @@ namespace StartApp
             {
                 // insert
                 Console.WriteLine("========== Insert ==========");
-                sw = System.Diagnostics.Stopwatch.StartNew();
-                for (int i = 0; i < count; i++)
+                var personList = Enumerable.Range(0, count).Select(i => new Person
                 {
-                    collection.Insert(new Person
-                    {
-                        Id = i,
-                        Name = "Name " + i,
-                        Surname = "Surname " + i,
-                        Middlename = "Middlename " + i,
-                        BirthDay = DateTime.Today.AddYears(-10).AddDays(i),
-                        AdditionalInfo = new PersonAdditionalInfo { Value = i }
-                    });
-                }
+                    Id = i,
+                    Name = "Name " + i,
+                    Surname = "Surname " + i,
+                    Middlename = "Middlename " + i,
+                    BirthDay = DateTime.Today.AddYears(-10).AddDays(i),
+                    AdditionalInfo = new PersonAdditionalInfo { Value = i }
+                }).ToList();
+                sw = System.Diagnostics.Stopwatch.StartNew();
+                collection.Insert(personList);
                 sw.Stop();
                 Console.WriteLine(sw.Elapsed);
             }
@@ -73,54 +74,44 @@ namespace StartApp
             {
                 // get
                 Console.WriteLine("========== Get ==========");
+                var personIdList = Enumerable.Range(0, count).Cast<object>().ToList();
                 sw = System.Diagnostics.Stopwatch.StartNew();
-                for (int i = 0; i < count; i++)
-                {
-                    var person = collection.Get(i);
-                }
+                collection.Get(personIdList).ToList();
                 sw.Stop();
                 Console.WriteLine(sw.Elapsed);
-
-                Console.WriteLine(collection.Get(0));
-                Console.WriteLine(collection.Get(1));
-                Console.WriteLine(collection.Get(count - 2));
-                Console.WriteLine(collection.Get(count - 1));
+                var result = collection.Get(new object[] { 0, 1, count - 2, count - 1 }).ToList();
+                Console.WriteLine(result[0]);
+                Console.WriteLine(result[1]);
+                Console.WriteLine(result[2]);
+                Console.WriteLine(result[3]);
             }
 
             if (doUpdate == 1)
             {
                 // update
                 Console.WriteLine("========== Update ==========");
-                sw = System.Diagnostics.Stopwatch.StartNew();
-                for (int i = 0; i < count; i++)
+                var personUpdateList = Enumerable.Range(0, count).Select(i => new Person
                 {
-                    if (collection.Exist(i))
-                    {
-                        collection.Update(new Person
-                        {
-                            Id = i,
-                            Name = "Новое имя " + i,
-                            Surname = "Новая фамилия " + i,
-                            Middlename = "Новое отчество " + i,
-                            BirthDay = DateTime.Today.AddDays(i),
-                            AdditionalInfo = new PersonAdditionalInfo { Value = -i }
-                        });
-                    }
-                    else
-                    {
-                        Console.WriteLine(String.Format("Id {0} not exists", i));
-                    }
-                }
+                    Id = i,
+                    Name = "Новое имя " + i,
+                    Surname = "Новая фамилия " + i,
+                    Middlename = "Новое отчество " + i,
+                    BirthDay = DateTime.Today.AddDays(i),
+                    AdditionalInfo = new PersonAdditionalInfo { Value = -i }
+                }).ToList();
+                sw = System.Diagnostics.Stopwatch.StartNew();
+                collection.Update(personUpdateList);
                 sw.Stop();
                 Console.WriteLine(sw.Elapsed);
             }
 
             if (doGet == 1)
             {
-                Console.WriteLine(collection.Get(0));
-                Console.WriteLine(collection.Get(1));
-                Console.WriteLine(collection.Get(count - 2));
-                Console.WriteLine(collection.Get(count - 1));
+                var result = collection.Get(new object[] { 0, 1, count - 2, count - 1 }).ToList();
+                Console.WriteLine(result[0]);
+                Console.WriteLine(result[1]);
+                Console.WriteLine(result[2]);
+                Console.WriteLine(result[3]);
             }
 
             if (doDelete == 1)
@@ -162,7 +153,7 @@ namespace StartApp
 
                 queryResult = collection.Query()
                     .Select(x => new { x.Id, x.Name })
-                    .Where(x => x.Name.Contains("111"))
+                    .Where(x => x.Name.Contains("1111"))
                     .OrderBy(x => x.Id, SortDirection.Desc)
                     .ToList();
                 foreach (var item in queryResult) Console.WriteLine(item);
@@ -179,7 +170,10 @@ namespace StartApp
                 Console.WriteLine(sw.Elapsed);
             }
 
-            engine.Dispose();
+            if (doGetAsync == 1)
+            {
+                Parallel.For(0, 10, i => collection.Get(i));
+            }
 
             Console.ReadKey();
         }

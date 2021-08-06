@@ -29,6 +29,7 @@ namespace SimpleDB.Test.Core
         public void Insert()
         {
             var primaryKeyFile = new PrimaryKeyFile("", typeof(int));
+            primaryKeyFile.BeginWrite();
             var primaryKey1 = primaryKeyFile.Insert(123, 0, 45);
             var primaryKey2 = primaryKeyFile.Insert(456, 45, 60);
             Assert.AreEqual(123, primaryKey1.Value);
@@ -45,6 +46,7 @@ namespace SimpleDB.Test.Core
         public void InsertAndGetAllPrimaryKeys()
         {
             var primaryKeyFile = new PrimaryKeyFile("", typeof(int));
+            primaryKeyFile.BeginWrite();
             primaryKeyFile.Insert(123, 0, 45);
             var allPrimaryKeys = primaryKeyFile.GetAllPrimaryKeys().ToList();
             Assert.AreEqual(1, allPrimaryKeys.Count);
@@ -57,6 +59,7 @@ namespace SimpleDB.Test.Core
         public void InsertAndGetAllPrimaryKeys_Object()
         {
             var primaryKeyFile = new PrimaryKeyFile("", typeof(TestEntity));
+            primaryKeyFile.BeginWrite();
             var obj = new TestEntity { Int = 123, Float = 4.56f, String = "123" };
             primaryKeyFile.Insert(obj, 0, 45);
 
@@ -74,6 +77,7 @@ namespace SimpleDB.Test.Core
         public void UpdateStartEndDataFileOffset()
         {
             var primaryKeyFile = new PrimaryKeyFile("", typeof(int));
+            primaryKeyFile.BeginWrite();
             primaryKeyFile.Insert(123, 10, 20);
             var second = primaryKeyFile.Insert(456, 30, 35);
             primaryKeyFile.UpdateStartEndDataFileOffset(second.PrimaryKeyFileOffset, 40, 50);
@@ -88,6 +92,7 @@ namespace SimpleDB.Test.Core
         public void UpdateEndDataFileOffset()
         {
             var primaryKeyFile = new PrimaryKeyFile("", typeof(int));
+            primaryKeyFile.BeginWrite();
             primaryKeyFile.Insert(123, 10, 20);
             var second = primaryKeyFile.Insert(456, 30, 35);
             primaryKeyFile.UpdateEndDataFileOffset(second.PrimaryKeyFileOffset, 40);
@@ -102,6 +107,7 @@ namespace SimpleDB.Test.Core
         public void Delete()
         {
             var primaryKeyFile = new PrimaryKeyFile("", typeof(int));
+            primaryKeyFile.BeginWrite();
             primaryKeyFile.Insert(123, 10, 20);
             var second = primaryKeyFile.Insert(456, 30, 35);
             primaryKeyFile.Delete(second.PrimaryKeyFileOffset);

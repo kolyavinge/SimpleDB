@@ -6,11 +6,11 @@ using SimpleDB.Infrastructure;
 
 namespace SimpleDB.Core
 {
-    internal class DataFile : IDisposable
+    internal class DataFile
     {
         private readonly string _fileFullPath;
         private readonly Dictionary<byte, FieldMeta> _fieldMetaDictionary;
-        private readonly IFileStream _fileStream;
+        private IFileStream _fileStream;
         private readonly IMemoryBuffer _memoryBuffer;
 
         public DataFile(string fileFullPath, IEnumerable<FieldMeta> fieldMetaCollection)
@@ -18,13 +18,21 @@ namespace SimpleDB.Core
             _fileFullPath = fileFullPath;
             _fieldMetaDictionary = fieldMetaCollection.ToDictionary(k => k.Number, v => v);
             IOC.Get<IFileSystem>().CreateFileIfNeeded(_fileFullPath);
-            _fileStream = IOC.Get<IFileSystem>().OpenFile(_fileFullPath);
             _memoryBuffer = IOC.Get<IMemory>().GetBuffer();
         }
 
-        public void Dispose()
+        public void BeginRead()
         {
-            _fileStream.Flush();
+            _fileStream = IOC.Get<IFileSystem>().OpenFileRead(_fileFullPath);
+        }
+
+        public void BeginWrite()
+        {
+            _fileStream = IOC.Get<IFileSystem>().OpenFileWrite(_fileFullPath);
+        }
+
+        public void EndReadWrite()
+        {
             _fileStream.Dispose();
         }
 

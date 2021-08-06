@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace SimpleDB
 {
-    public interface ICollection<TEntity> : IDisposable
+    public interface ICollection<TEntity>
     {
         int Count();
 
@@ -12,13 +10,23 @@ namespace SimpleDB
 
         TEntity Get(object id);
 
+        IEnumerable<TEntity> Get(IEnumerable<object> idList);
+
         void Insert(TEntity entity);
+
+        void Insert(IEnumerable<TEntity> entities);
 
         void Update(TEntity entity);
 
+        void Update(IEnumerable<TEntity> entities);
+
         void InsertOrUpdate(TEntity entity);
 
+        void InsertOrUpdate(IEnumerable<TEntity> entities);
+
         void Delete(object id);
+
+        void Delete(IEnumerable<object> idList);
 
         IQueryable<TEntity> Query();
     }

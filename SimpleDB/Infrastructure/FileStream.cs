@@ -5,7 +5,6 @@ namespace SimpleDB.Infrastructure
 {
     internal interface IFileStream : IReadableStream, IWriteableStream, IDisposable
     {
-        void Flush();
     }
 
     internal class FileStream : IFileStream
@@ -22,19 +21,20 @@ namespace SimpleDB.Infrastructure
         public FileStream(System.IO.FileStream fileStream)
         {
             _fileStream = fileStream;
-            _buffered = new BufferedStream(_fileStream, 10*1024*1024);
-            _reader = new BinaryReader(_buffered);
-            _writer = new BinaryWriter(_buffered);
+            _buffered = new BufferedStream(_fileStream, 10 * 1024 * 1024);
+            if (_fileStream.CanRead)
+            {
+                _reader = new BinaryReader(_buffered);
+            }
+            if (_fileStream.CanWrite)
+            {
+                _writer = new BinaryWriter(_buffered);
+            }
         }
 
         public void Dispose()
         {
-            _fileStream.Dispose();
-        }
-
-        public void Flush()
-        {
-            _fileStream.Flush();
+            _buffered.Dispose();
         }
 
         public bool ReadBool()

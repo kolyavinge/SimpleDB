@@ -21,7 +21,7 @@ namespace SimpleDB.Test.Tools
             FullFilePathes.Add(fullFilePath);
         }
 
-        public IFileStream OpenFile(string fullPath)
+        public IFileStream OpenFileRead(string fullPath)
         {
             var fileStream = FileStreams.FirstOrDefault(x => x.FileFullPath == fullPath);
             if (fileStream != null)
@@ -34,6 +34,11 @@ namespace SimpleDB.Test.Tools
                 FileStreams.Add(fileStream);
                 return fileStream;
             }
+        }
+
+        public IFileStream OpenFileWrite(string fullPath)
+        {
+            return OpenFileRead(fullPath);
         }
     }
 }

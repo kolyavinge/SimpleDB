@@ -5,23 +5,31 @@ using SimpleDB.Infrastructure;
 
 namespace SimpleDB.Core
 {
-    internal class PrimaryKeyFile : IDisposable
+    internal class PrimaryKeyFile
     {
         private readonly string _fileFullPath;
         private readonly Type _primaryKeyType;
-        private readonly IFileStream _fileStream;
+        private IFileStream _fileStream;
 
         public PrimaryKeyFile(string fileFullPath, Type primaryKeyType)
         {
             _fileFullPath = fileFullPath;
             _primaryKeyType = primaryKeyType;
             IOC.Get<IFileSystem>().CreateFileIfNeeded(_fileFullPath);
-            _fileStream = IOC.Get<IFileSystem>().OpenFile(_fileFullPath);
         }
 
-        public void Dispose()
+        public void BeginRead()
         {
-            _fileStream.Flush();
+            _fileStream = IOC.Get<IFileSystem>().OpenFileRead(_fileFullPath);
+        }
+
+        public void BeginWrite()
+        {
+            _fileStream = IOC.Get<IFileSystem>().OpenFileWrite(_fileFullPath);
+        }
+
+        public void EndReadWrite()
+        {
             _fileStream.Dispose();
         }
 
@@ -214,9 +222,7 @@ namespace SimpleDB.Core
         public void Delete(long primaryKeyFileOffset)
         {
             _fileStream.Seek(primaryKeyFileOffset, System.IO.SeekOrigin.Begin);
-            var primaryKeyFlags = _fileStream.ReadByte();
-            primaryKeyFlags = PrimaryKey.SetDeleted(primaryKeyFlags);
-            _fileStream.Seek(-sizeof(byte), System.IO.SeekOrigin.Current);
+            var primaryKeyFlags = PrimaryKey.SetDeleted(0);
             _fileStream.WriteByte(primaryKeyFlags);
         }
     }

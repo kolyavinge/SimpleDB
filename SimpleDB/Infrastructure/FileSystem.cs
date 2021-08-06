@@ -8,7 +8,9 @@ namespace SimpleDB.Infrastructure
     {
         void CreateFileIfNeeded(string fullFilePath);
 
-        IFileStream OpenFile(string fullPath);
+        IFileStream OpenFileRead(string fullPath);
+
+        IFileStream OpenFileWrite(string fullPath);
     }
 
     internal class FileSystem : IFileSystem
@@ -21,9 +23,14 @@ namespace SimpleDB.Infrastructure
             }
         }
 
-        public IFileStream OpenFile(string fullPath)
+        public IFileStream OpenFileRead(string fullPath)
         {
-            return new FileStream(System.IO.File.Open(fullPath, System.IO.FileMode.Open, System.IO.FileAccess.ReadWrite));
+            return new FileStream(System.IO.File.Open(fullPath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read));
+        }
+
+        public IFileStream OpenFileWrite(string fullPath)
+        {
+            return new FileStream(System.IO.File.OpenWrite(fullPath));
         }
     }
 }
