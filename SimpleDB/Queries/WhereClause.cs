@@ -62,7 +62,7 @@ namespace SimpleDB.Queries
             {
                 var leftValue = Left.GetValue(fieldValueDictionary);
                 var rightValue = Right.GetValue(fieldValueDictionary);
-                return leftValue.Equals(rightValue);
+                return SmartComparer.Compare(leftValue, rightValue) == 0;
             }
         }
 
@@ -122,9 +122,9 @@ namespace SimpleDB.Queries
 
             public override object GetValue(FieldValueDictionary fieldValueDictionary)
             {
-                var leftValue = (IComparable)Left.GetValue(fieldValueDictionary);
-                var rightValue = (IComparable)Right.GetValue(fieldValueDictionary);
-                return leftValue.CompareTo(rightValue) < 0;
+                var leftValue = Left.GetValue(fieldValueDictionary);
+                var rightValue = Right.GetValue(fieldValueDictionary);
+                return SmartComparer.Compare(leftValue, rightValue) < 0;
             }
         }
 
@@ -138,9 +138,9 @@ namespace SimpleDB.Queries
 
             public override object GetValue(FieldValueDictionary fieldValueDictionary)
             {
-                var leftValue = (IComparable)Left.GetValue(fieldValueDictionary);
-                var rightValue = (IComparable)Right.GetValue(fieldValueDictionary);
-                return leftValue.CompareTo(rightValue) > 0;
+                var leftValue = Left.GetValue(fieldValueDictionary);
+                var rightValue = Right.GetValue(fieldValueDictionary);
+                return SmartComparer.Compare(leftValue, rightValue) > 0;
             }
         }
 
@@ -154,9 +154,9 @@ namespace SimpleDB.Queries
 
             public override object GetValue(FieldValueDictionary fieldValueDictionary)
             {
-                var leftValue = (IComparable)Left.GetValue(fieldValueDictionary);
-                var rightValue = (IComparable)Right.GetValue(fieldValueDictionary);
-                return leftValue.CompareTo(rightValue) < 0 || leftValue.CompareTo(rightValue) == 0;
+                var leftValue = Left.GetValue(fieldValueDictionary);
+                var rightValue = Right.GetValue(fieldValueDictionary);
+                return SmartComparer.Compare(leftValue, rightValue) < 0 || SmartComparer.Compare(leftValue, rightValue) == 0;
             }
         }
 
@@ -170,9 +170,9 @@ namespace SimpleDB.Queries
 
             public override object GetValue(FieldValueDictionary fieldValueDictionary)
             {
-                var leftValue = (IComparable)Left.GetValue(fieldValueDictionary);
-                var rightValue = (IComparable)Right.GetValue(fieldValueDictionary);
-                return leftValue.CompareTo(rightValue) > 0 || leftValue.CompareTo(rightValue) == 0;
+                var leftValue = Left.GetValue(fieldValueDictionary);
+                var rightValue = Right.GetValue(fieldValueDictionary);
+                return SmartComparer.Compare(leftValue, rightValue) > 0 || SmartComparer.Compare(leftValue, rightValue) == 0;
             }
         }
 

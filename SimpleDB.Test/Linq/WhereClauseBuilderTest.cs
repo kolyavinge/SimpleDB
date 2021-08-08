@@ -22,8 +22,9 @@ namespace SimpleDB.Test.Linq
                 new PrimaryKeyMapping<TestEntity>(x => x.Id),
                 new[]
                 {
-                    new FieldMapping<TestEntity>(0, x => x.IntField),
-                    new FieldMapping<TestEntity>(1, x => x.StringField)
+                    new FieldMapping<TestEntity>(0, x => x.ByteField),
+                    new FieldMapping<TestEntity>(1, x => x.IntField),
+                    new FieldMapping<TestEntity>(2, x => x.StringField)
                 });
             _builder = new WhereClauseBuilder();
         }
@@ -73,7 +74,7 @@ namespace SimpleDB.Test.Linq
         [Test]
         public void Build_And()
         {
-            Expression<Func<TestEntity, bool>> whereExpression = x => x.Id == 2 && x.IntField == 4;
+            Expression<Func<TestEntity, bool>> whereExpression = x => x.Id == 2 && x.ByteField == 4;
             dynamic result = _builder.Build(_mapper, whereExpression).Root;
             Assert.AreEqual(typeof(WhereClause.AndOperation), result.GetType());
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), result.Left.GetType());
@@ -89,7 +90,7 @@ namespace SimpleDB.Test.Linq
         [Test]
         public void Build_Or()
         {
-            Expression<Func<TestEntity, bool>> whereExpression = x => x.Id == 2 || x.IntField == 4;
+            Expression<Func<TestEntity, bool>> whereExpression = x => x.Id == 2 || x.ByteField == 4;
             dynamic result = _builder.Build(_mapper, whereExpression).Root;
             Assert.AreEqual(typeof(WhereClause.OrOperation), result.GetType());
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), result.Left.GetType());
@@ -105,10 +106,10 @@ namespace SimpleDB.Test.Linq
         [Test]
         public void Build_Less()
         {
-            Expression<Func<TestEntity, bool>> whereExpression = x => x.Id < 2;
+            Expression<Func<TestEntity, bool>> whereExpression = x => x.ByteField < 2;
             dynamic result = _builder.Build(_mapper, whereExpression).Root;
             Assert.AreEqual(typeof(WhereClause.LessOperation), result.GetType());
-            Assert.AreEqual(typeof(WhereClause.PrimaryKey), result.Left.GetType());
+            Assert.AreEqual(typeof(WhereClause.Field), result.Left.GetType());
             Assert.AreEqual(typeof(WhereClause.Constant), result.Right.GetType());
             Assert.AreEqual(2, result.Right.Value);
         }
@@ -116,10 +117,10 @@ namespace SimpleDB.Test.Linq
         [Test]
         public void Build_Great()
         {
-            Expression<Func<TestEntity, bool>> whereExpression = x => x.Id > 2;
+            Expression<Func<TestEntity, bool>> whereExpression = x => x.ByteField > 2;
             dynamic result = _builder.Build(_mapper, whereExpression).Root;
             Assert.AreEqual(typeof(WhereClause.GreatOperation), result.GetType());
-            Assert.AreEqual(typeof(WhereClause.PrimaryKey), result.Left.GetType());
+            Assert.AreEqual(typeof(WhereClause.Field), result.Left.GetType());
             Assert.AreEqual(typeof(WhereClause.Constant), result.Right.GetType());
             Assert.AreEqual(2, result.Right.Value);
         }
@@ -127,10 +128,10 @@ namespace SimpleDB.Test.Linq
         [Test]
         public void Build_LessOrEquals()
         {
-            Expression<Func<TestEntity, bool>> whereExpression = x => x.Id <= 2;
+            Expression<Func<TestEntity, bool>> whereExpression = x => x.ByteField <= 2;
             dynamic result = _builder.Build(_mapper, whereExpression).Root;
             Assert.AreEqual(typeof(WhereClause.LessOrEqualsOperation), result.GetType());
-            Assert.AreEqual(typeof(WhereClause.PrimaryKey), result.Left.GetType());
+            Assert.AreEqual(typeof(WhereClause.Field), result.Left.GetType());
             Assert.AreEqual(typeof(WhereClause.Constant), result.Right.GetType());
             Assert.AreEqual(2, result.Right.Value);
         }
@@ -138,10 +139,10 @@ namespace SimpleDB.Test.Linq
         [Test]
         public void Build_GreatOrEquals()
         {
-            Expression<Func<TestEntity, bool>> whereExpression = x => x.Id >= 2;
+            Expression<Func<TestEntity, bool>> whereExpression = x => x.ByteField >= 2;
             dynamic result = _builder.Build(_mapper, whereExpression).Root;
             Assert.AreEqual(typeof(WhereClause.GreatOrEqualsOperation), result.GetType());
-            Assert.AreEqual(typeof(WhereClause.PrimaryKey), result.Left.GetType());
+            Assert.AreEqual(typeof(WhereClause.Field), result.Left.GetType());
             Assert.AreEqual(typeof(WhereClause.Constant), result.Right.GetType());
             Assert.AreEqual(2, result.Right.Value);
         }
@@ -225,6 +226,7 @@ namespace SimpleDB.Test.Linq
         class TestEntity
         {
             public int Id { get; set; }
+            public byte ByteField { get; set; }
             public int IntField { get; set; }
             public string StringField { get; set; }
         }
