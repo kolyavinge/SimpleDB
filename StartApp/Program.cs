@@ -144,7 +144,6 @@ namespace StartApp
                 Console.WriteLine("- - - - - - - - -");
 
                 queryResult = collection.Query()
-                    .Select(x => new { x.Id, x.Name })
                     .Skip(10)
                     .Limit(10)
                     .ToList();
@@ -152,7 +151,6 @@ namespace StartApp
                 Console.WriteLine("- - - - - - - - -");
 
                 queryResult = collection.Query()
-                    .Select(x => new { x.Id, x.Name })
                     .Where(x => x.Name.Contains("1111"))
                     .OrderBy(x => x.Id, SortDirection.Desc)
                     .ToList();
@@ -163,6 +161,9 @@ namespace StartApp
                     .Select()
                     .Where(x => x.Surname == "Новая фамилия 10")
                     .Count();
+                Console.WriteLine("count: " + queryResultCount);
+
+                queryResultCount = collection.Query().Count();
                 Console.WriteLine("count: " + queryResultCount);
                 Console.WriteLine("- - - - - - - - -");
 

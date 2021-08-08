@@ -98,6 +98,130 @@ namespace SimpleDB.Test.Core
             Assert.IsNull(_collection.Get(123));
         }
 
+        [Test]
+        public void Linq_Count()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
+            _collection.Insert(new TestEntity { Id = 4, Byte = 40 });
+            _collection.Insert(new TestEntity { Id = 5, Byte = 50 });
+            var result = _collection.Query().Count();
+            Assert.AreEqual(5, result);
+        }
+
+        [Test]
+        public void Linq_ToList()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
+            _collection.Insert(new TestEntity { Id = 4, Byte = 40 });
+            _collection.Insert(new TestEntity { Id = 5, Byte = 50 });
+            var result = _collection.Query().ToList();
+            Assert.AreEqual(5, result.Count);
+            Assert.AreEqual(1, result[0].Id);
+            Assert.AreEqual((byte)10, result[0].Byte);
+            Assert.AreEqual(5, result[4].Id);
+            Assert.AreEqual((byte)50, result[4].Byte);
+        }
+
+        [Test]
+        public void Linq_Select()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
+            _collection.Insert(new TestEntity { Id = 4, Byte = 40 });
+            _collection.Insert(new TestEntity { Id = 5, Byte = 50 });
+            var result = _collection.Query().Select().ToList();
+            Assert.AreEqual(5, result.Count);
+            Assert.AreEqual(1, result[0].Id);
+            Assert.AreEqual((byte)10, result[0].Byte);
+            Assert.AreEqual(5, result[4].Id);
+            Assert.AreEqual((byte)50, result[4].Byte);
+        }
+
+        [Test]
+        public void Linq_SelectFields()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
+            _collection.Insert(new TestEntity { Id = 4, Byte = 40 });
+            _collection.Insert(new TestEntity { Id = 5, Byte = 50 });
+            var result = _collection.Query().Select(x => new { x.Id }).ToList();
+            Assert.AreEqual(5, result.Count);
+            Assert.AreEqual(1, result[0].Id);
+            Assert.AreEqual(default(byte), result[0].Byte);
+            Assert.AreEqual(5, result[4].Id);
+            Assert.AreEqual(default(byte), result[4].Byte);
+        }
+
+        [Test]
+        public void Linq_Where()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
+            _collection.Insert(new TestEntity { Id = 4, Byte = 40 });
+            _collection.Insert(new TestEntity { Id = 5, Byte = 50 });
+            var result = _collection.Query().Where(x => x.Id > 2).ToList();
+            Assert.AreEqual(3, result.Count);
+            Assert.AreEqual(3, result[0].Id);
+            Assert.AreEqual((byte)30, result[0].Byte);
+            Assert.AreEqual(4, result[1].Id);
+            Assert.AreEqual(5, result[2].Id);
+        }
+
+        [Test]
+        public void Linq_OrderBy()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
+            _collection.Insert(new TestEntity { Id = 4, Byte = 40 });
+            _collection.Insert(new TestEntity { Id = 5, Byte = 50 });
+            var result = _collection.Query().OrderBy(x => x.Byte, SortDirection.Desc).ToList();
+            Assert.AreEqual(5, result.Count);
+            Assert.AreEqual(5, result[0].Id);
+            Assert.AreEqual((byte)50, result[0].Byte);
+            Assert.AreEqual(4, result[1].Id);
+            Assert.AreEqual(3, result[2].Id);
+            Assert.AreEqual(2, result[3].Id);
+            Assert.AreEqual(1, result[4].Id);
+        }
+
+        [Test]
+        public void Linq_Skip()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
+            _collection.Insert(new TestEntity { Id = 4, Byte = 40 });
+            _collection.Insert(new TestEntity { Id = 5, Byte = 50 });
+            var result = _collection.Query().OrderBy(x => x.Byte, SortDirection.Desc).Skip(2).ToList();
+            Assert.AreEqual(3, result.Count);
+            Assert.AreEqual(3, result[0].Id);
+            Assert.AreEqual((byte)30, result[0].Byte);
+            Assert.AreEqual(2, result[1].Id);
+            Assert.AreEqual(1, result[2].Id);
+        }
+
+        [Test]
+        public void Linq_Limit()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
+            _collection.Insert(new TestEntity { Id = 4, Byte = 40 });
+            _collection.Insert(new TestEntity { Id = 5, Byte = 50 });
+            var result = _collection.Query().OrderBy(x => x.Byte, SortDirection.Desc).Limit(2).ToList();
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(5, result[0].Id);
+            Assert.AreEqual((byte)50, result[0].Byte);
+            Assert.AreEqual(4, result[1].Id);
+        }
         class TestEntity
         {
             public int Id { get; set; }
