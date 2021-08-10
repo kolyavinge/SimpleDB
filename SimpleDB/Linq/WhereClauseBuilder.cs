@@ -119,6 +119,10 @@ namespace SimpleDB.Linq
                 {
                     return new WhereClause.NotOperation(BuildItem(mapper, unaryExpression.Operand));
                 }
+                else if (unaryExpression.NodeType == ExpressionType.Convert)
+                {
+                    return BuildItem(mapper, unaryExpression.Operand);
+                }
             }
             else if (expression is MemberExpression)
             {

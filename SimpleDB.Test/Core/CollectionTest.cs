@@ -222,6 +222,67 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual((byte)50, result[0].Byte);
             Assert.AreEqual(4, result[1].Id);
         }
+
+        [Test]
+        public void Linq_WhereConvertByte_Equal()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
+            _collection.Insert(new TestEntity { Id = 4, Byte = 40 });
+            _collection.Insert(new TestEntity { Id = 5, Byte = 50 });
+            var result = _collection.Query().Where(x => x.Byte == 20).ToList();
+            Assert.AreEqual(1, result.Count);
+        }
+
+        [Test]
+        public void Linq_WhereConvertByte_Less()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
+            _collection.Insert(new TestEntity { Id = 4, Byte = 40 });
+            _collection.Insert(new TestEntity { Id = 5, Byte = 50 });
+            var result = _collection.Query().Where(x => x.Byte < 20).ToList();
+            Assert.AreEqual(1, result.Count);
+        }
+
+        [Test]
+        public void Linq_WhereConvertByte_LessEqual()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
+            _collection.Insert(new TestEntity { Id = 4, Byte = 40 });
+            _collection.Insert(new TestEntity { Id = 5, Byte = 50 });
+            var result = _collection.Query().Where(x => x.Byte <= 20).ToList();
+            Assert.AreEqual(2, result.Count);
+        }
+
+        [Test]
+        public void Linq_WhereConvertByte_Great()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
+            _collection.Insert(new TestEntity { Id = 4, Byte = 40 });
+            _collection.Insert(new TestEntity { Id = 5, Byte = 50 });
+            var result = _collection.Query().Where(x => x.Byte > 20).ToList();
+            Assert.AreEqual(3, result.Count);
+        }
+
+        [Test]
+        public void Linq_WhereConvertByte_GreatEqual()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
+            _collection.Insert(new TestEntity { Id = 4, Byte = 40 });
+            _collection.Insert(new TestEntity { Id = 5, Byte = 50 });
+            var result = _collection.Query().Where(x => x.Byte >= 20).ToList();
+            Assert.AreEqual(4, result.Count);
+        }
+
         class TestEntity
         {
             public int Id { get; set; }
