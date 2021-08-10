@@ -152,6 +152,10 @@ namespace SimpleDB.Core
                 else
                 {
                     var bytes = Encoding.UTF8.GetBytes(str);
+                    if (fieldMeta.Settings.Compressed)
+                    {
+                        bytes = ZipCompression.Compress(bytes);
+                    }
                     stream.WriteInt(bytes.Length);
                     stream.WriteByteArray(bytes, 0, bytes.Length);
                     insertedBytesCount += sizeof(int) + bytes.Length;
@@ -160,10 +164,14 @@ namespace SimpleDB.Core
             else
             {
                 var fieldValueJson = JsonSerialization.ToJson(fieldValue);
-                var strBytes = Encoding.UTF8.GetBytes(fieldValueJson);
-                stream.WriteInt(strBytes.Length);
-                stream.WriteByteArray(strBytes, 0, strBytes.Length);
-                insertedBytesCount += sizeof(int) + strBytes.Length;
+                var bytes = Encoding.UTF8.GetBytes(fieldValueJson);
+                if (fieldMeta.Settings.Compressed)
+                {
+                    bytes = ZipCompression.Compress(bytes);
+                }
+                stream.WriteInt(bytes.Length);
+                stream.WriteByteArray(bytes, 0, bytes.Length);
+                insertedBytesCount += sizeof(int) + bytes.Length;
             }
         }
 
@@ -321,6 +329,10 @@ namespace SimpleDB.Core
                 else
                 {
                     var bytes = stream.ReadByteArray(length);
+                    if (fieldMeta.Settings.Compressed)
+                    {
+                        bytes = ZipCompression.Decompress(bytes);
+                    }
                     fieldValue = Encoding.UTF8.GetString(bytes);
                     readedBytesCount += length;
                 }
@@ -330,6 +342,10 @@ namespace SimpleDB.Core
                 var length = stream.ReadInt();
                 readedBytesCount += sizeof(int) + length;
                 var bytes = stream.ReadByteArray(length);
+                if (fieldMeta.Settings.Compressed)
+                {
+                    bytes = ZipCompression.Decompress(bytes);
+                }
                 var fieldValueJson = Encoding.UTF8.GetString(bytes);
                 fieldValue = JsonSerialization.FromJson(fieldMeta.Type, fieldValueJson);
             }

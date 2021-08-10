@@ -10,7 +10,7 @@ namespace StartApp
     {
         static void Main(string[] args)
         {
-            var doInsert = 0;
+            var doInsert = 1;
             var doGet = 1;
             var doUpdate = 1;
             var doDelete = 1;
@@ -31,9 +31,9 @@ namespace StartApp
                 .PrimaryKey(x => x.Id)
                 .Field(0, x => x.Name)
                 .Field(1, x => x.Surname)
-                .Field(2, x => x.Middlename)
+                .Field(2, x => x.Middlename, new FieldSettings { Compressed = true })
                 .Field(3, x => x.BirthDay)
-                .Field(4, x => x.AdditionalInfo)
+                .Field(4, x => x.AdditionalInfo, new FieldSettings { Compressed = true })
                 .MakeFunction(() => new Person())
                 .PrimaryKeySetFunction((primaryKeyValue, entity) => entity.Id = (int)primaryKeyValue)
                 .FieldSetFunction((fieldNumber, fieldValue, entity) =>

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SimpleDB.Core
 {
@@ -9,6 +7,8 @@ namespace SimpleDB.Core
         public byte Number { get; private set; }
 
         public Type Type { get; private set; }
+
+        public FieldSettings Settings { get; set; }
 
         public FieldMeta(byte number, Type type)
         {

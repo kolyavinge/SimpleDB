@@ -50,7 +50,7 @@ namespace SimpleDB
 
         IMapperBuilder<TEntity> PrimaryKey(Expression<Func<TEntity, object>> primaryKeyExpression);
 
-        IMapperBuilder<TEntity> Field(byte number, Expression<Func<TEntity, object>> fieldExpression);
+        IMapperBuilder<TEntity> Field(byte number, Expression<Func<TEntity, object>> fieldExpression, FieldSettings settings = default(FieldSettings));
 
         IMapperBuilder<TEntity> MakeFunction(Func<TEntity> func);
 
@@ -89,9 +89,9 @@ namespace SimpleDB
             return this;
         }
 
-        public IMapperBuilder<TEntity> Field(byte number, Expression<Func<TEntity, object>> fieldExpression)
+        public IMapperBuilder<TEntity> Field(byte number, Expression<Func<TEntity, object>> fieldExpression, FieldSettings settings = default(FieldSettings))
         {
-            _fieldMappings.Add(new FieldMapping<TEntity>(number, fieldExpression));
+            _fieldMappings.Add(new FieldMapping<TEntity>(number, fieldExpression) { Settings = settings });
             return this;
         }
 

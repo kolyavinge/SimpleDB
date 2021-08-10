@@ -498,6 +498,45 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual(10, readFieldsResult[1].Value);
         }
 
+        [Test]
+        public void Compress_String()
+        {
+            var fieldMetaCollection = new FieldMeta[]
+            {
+                new FieldMeta(0, typeof(string)) { Settings = new FieldSettings { Compressed = true } }
+            };
+            var fieldValueCollection = new FieldValue[]
+            {
+                new FieldValue(0, new string('*', 100)),
+            };
+            var dataFile = new DataFile("", fieldMetaCollection);
+            dataFile.BeginWrite();
+            var insertResult = dataFile.Insert(fieldValueCollection);
+            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, new HashSet<byte> { 0 }, readFieldsResult);
+            Assert.AreEqual(new string('*', 100), readFieldsResult[0].Value);
+        }
+
+        [Test]
+        public void Compress_Object()
+        {
+            var fieldMetaCollection = new FieldMeta[]
+            {
+                new FieldMeta(0, typeof(InnerObject)) { Settings = new FieldSettings { Compressed = true } }
+            };
+            var fieldValueCollection = new FieldValue[]
+            {
+                new FieldValue(0, new InnerObject { Value = 123 }),
+            };
+            var dataFile = new DataFile("", fieldMetaCollection);
+            dataFile.BeginWrite();
+            var insertResult = dataFile.Insert(fieldValueCollection);
+            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, new HashSet<byte> { 0 }, readFieldsResult);
+            var result = (InnerObject)readFieldsResult[0].Value;
+            Assert.AreEqual(123, result.Value);
+        }
+
         class TestEntity
         {
             public bool Bool { get; set; }
@@ -517,20 +556,9 @@ namespace SimpleDB.Test.Core
             public string String { get; set; }
         }
 
-        class TestEntityWithInnerObject
-        {
-            public InnerObject Value { get; set; }
-        }
-
         class InnerObject
         {
             public int Value { get; set; }
-        }
-
-        class TestEntityWithString
-        {
-            public string String { get; set; }
-            public int Int { get; set; }
         }
     }
 }

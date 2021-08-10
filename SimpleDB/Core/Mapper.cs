@@ -39,7 +39,7 @@ namespace SimpleDB.Core
         {
             foreach (var fieldMapping in fieldMappings)
             {
-                yield return new FieldMeta(fieldMapping.Number, fieldMapping.PropertyType);
+                yield return new FieldMeta(fieldMapping.Number, fieldMapping.PropertyType) { Settings = fieldMapping.Settings };
             }
         }
 
@@ -168,6 +168,8 @@ namespace SimpleDB.Core
         public Type PropertyType { get; private set; }
 
         public Func<TEntity, object> Func { get; private set; }
+
+        public FieldSettings Settings { get; set; }
 
         public FieldMapping(byte number, Expression<Func<TEntity, object>> fieldExpression)
         {
