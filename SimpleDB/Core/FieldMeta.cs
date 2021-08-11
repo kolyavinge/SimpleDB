@@ -83,7 +83,7 @@ namespace SimpleDB.Core
             if (type == FieldTypes.Bool) return sizeof(bool);
             if (type == FieldTypes.Sbyte) return sizeof(sbyte);
             if (type == FieldTypes.Byte) return sizeof(byte);
-            if (type == FieldTypes.Char) return sizeof(char);
+            if (type == FieldTypes.Char) return sizeof(ushort); // char хранится как ushort
             if (type == FieldTypes.Short) return sizeof(short);
             if (type == FieldTypes.UShort) return sizeof(ushort);
             if (type == FieldTypes.Int) return sizeof(int);

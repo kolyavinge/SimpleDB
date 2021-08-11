@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using NUnit.Framework;
 using SimpleDB.Core;
 using SimpleDB.Infrastructure;
@@ -399,6 +400,167 @@ namespace SimpleDB.Test.Core
         }
 
         [Test]
+        public void UpdateManual()
+        {
+            var dataFile = new DataFile("", _fieldMetaCollection);
+            dataFile.BeginWrite();
+            var fieldValueCollection = new FieldValue[]
+            {
+                new FieldValue(0, false),
+                new FieldValue(1, (sbyte)1),
+                new FieldValue(2, (byte)2),
+                new FieldValue(3, 'a'),
+                new FieldValue(4, (short)4),
+                new FieldValue(5, (ushort)5),
+                new FieldValue(6, 6),
+                new FieldValue(7, (uint)7),
+                new FieldValue(8, (long)8),
+                new FieldValue(9, (ulong)9),
+                new FieldValue(10, (float)1.2),
+                new FieldValue(11, (double)3.4),
+                new FieldValue(12, (decimal)5.6),
+                new FieldValue(13, DateTime.Parse("2000-12-31")),
+                new FieldValue(14, "1234567890"),
+            };
+            var insertResult = dataFile.Insert(fieldValueCollection);
+            fieldValueCollection = new FieldValue[]
+            {
+                new FieldValue(0, true),
+                new FieldValue(1, (sbyte)10),
+                new FieldValue(2, (byte)20),
+                new FieldValue(3, 'b'),
+                new FieldValue(4, (short)40),
+                new FieldValue(5, (ushort)50),
+                new FieldValue(6, 60),
+                new FieldValue(7, (uint)70),
+                new FieldValue(8, (long)80),
+                new FieldValue(9, (ulong)90),
+                new FieldValue(10, (float)10.2),
+                new FieldValue(11, (double)30.4),
+                new FieldValue(12, (decimal)50.6),
+                new FieldValue(13, DateTime.Parse("2000-01-10")),
+                new FieldValue(14, "0987654321"),
+            };
+            dataFile.UpdateManual(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, fieldValueCollection);
+            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, _fieldNumbers, readFieldsResult);
+            Assert.AreEqual(true, readFieldsResult[0].Value);
+            Assert.AreEqual((sbyte)10, readFieldsResult[1].Value);
+            Assert.AreEqual((byte)20, readFieldsResult[2].Value);
+            Assert.AreEqual('b', readFieldsResult[3].Value);
+            Assert.AreEqual((short)40, readFieldsResult[4].Value);
+            Assert.AreEqual((ushort)50, readFieldsResult[5].Value);
+            Assert.AreEqual(60, readFieldsResult[6].Value);
+            Assert.AreEqual((uint)70, readFieldsResult[7].Value);
+            Assert.AreEqual((long)80, readFieldsResult[8].Value);
+            Assert.AreEqual((ulong)90, readFieldsResult[9].Value);
+            Assert.AreEqual((float)10.2, readFieldsResult[10].Value);
+            Assert.AreEqual((double)30.4, readFieldsResult[11].Value);
+            Assert.AreEqual((decimal)50.6, readFieldsResult[12].Value);
+            Assert.AreEqual(DateTime.Parse("2000-01-10"), readFieldsResult[13].Value);
+            Assert.AreEqual("0987654321", readFieldsResult[14].Value);
+        }
+
+        [Test]
+        public void UpdateManual_Skip()
+        {
+            var dataFile = new DataFile("", _fieldMetaCollection);
+            dataFile.BeginWrite();
+            var fieldValueCollection = new FieldValue[]
+            {
+                new FieldValue(0, false),
+                new FieldValue(1, (sbyte)1),
+                new FieldValue(2, (byte)2),
+                new FieldValue(3, 'a'),
+                new FieldValue(4, (short)4),
+                new FieldValue(5, (ushort)5),
+                new FieldValue(6, 6),
+                new FieldValue(7, (uint)7),
+                new FieldValue(8, (long)8),
+                new FieldValue(9, (ulong)9),
+                new FieldValue(10, (float)1.2),
+                new FieldValue(11, (double)3.4),
+                new FieldValue(12, (decimal)5.6),
+                new FieldValue(13, DateTime.Parse("2000-12-31")),
+                new FieldValue(14, "1234567890"),
+            };
+            var insertResult = dataFile.Insert(fieldValueCollection);
+            fieldValueCollection = new FieldValue[]
+            {
+                new FieldValue(0, true),
+                new FieldValue(2, (byte)20),
+                new FieldValue(4, (short)40),
+                new FieldValue(6, 60),
+                new FieldValue(8, (long)80),
+                new FieldValue(10, (float)10.2),
+                new FieldValue(12, (decimal)50.6),
+                new FieldValue(14, "0987654321"), // длина нового значения в байтах должна равняться старому, иначе ф-я работать не будет
+            };
+            dataFile.UpdateManual(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, fieldValueCollection);
+            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, _fieldNumbers, readFieldsResult);
+            Assert.AreEqual(true, readFieldsResult[0].Value);
+            Assert.AreEqual((sbyte)1, readFieldsResult[1].Value);
+            Assert.AreEqual((byte)20, readFieldsResult[2].Value);
+            Assert.AreEqual('a', readFieldsResult[3].Value);
+            Assert.AreEqual((short)40, readFieldsResult[4].Value);
+            Assert.AreEqual((ushort)5, readFieldsResult[5].Value);
+            Assert.AreEqual(60, readFieldsResult[6].Value);
+            Assert.AreEqual((uint)7, readFieldsResult[7].Value);
+            Assert.AreEqual((long)80, readFieldsResult[8].Value);
+            Assert.AreEqual((ulong)9, readFieldsResult[9].Value);
+            Assert.AreEqual((float)10.2, readFieldsResult[10].Value);
+            Assert.AreEqual((double)3.4, readFieldsResult[11].Value);
+            Assert.AreEqual((decimal)50.6, readFieldsResult[12].Value);
+            Assert.AreEqual(DateTime.Parse("2000-12-31"), readFieldsResult[13].Value);
+            Assert.AreEqual("0987654321", readFieldsResult[14].Value);
+        }
+
+        [Test]
+        public void UpdateManual_StringAsByteArray()
+        {
+            var dataFile = new DataFile("", _fieldMetaCollection);
+            dataFile.BeginWrite();
+            var fieldValueCollection = new FieldValue[]
+            {
+                new FieldValue(14, "01234")
+            };
+            var insertResult = dataFile.Insert(fieldValueCollection);
+            fieldValueCollection = new FieldValue[]
+            {
+                new FieldValue(14, new byte[] { 48, 49, 50, 51, 52 })
+            };
+            dataFile.UpdateManual(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, fieldValueCollection);
+            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, _fieldNumbers, readFieldsResult);
+            Assert.AreEqual("01234", readFieldsResult[14].Value);
+        }
+
+        [Test]
+        public void UpdateManual_ObjectAsByteArray()
+        {
+            var fieldMetaCollection = new FieldMeta[]
+            {
+                new FieldMeta(0, typeof(InnerObject))
+            };
+            var dataFile = new DataFile("", fieldMetaCollection);
+            dataFile.BeginWrite();
+            var fieldValueCollection = new FieldValue[]
+            {
+                new FieldValue(0, new InnerObject { Value = 123 })
+            };
+            var insertResult = dataFile.Insert(fieldValueCollection);
+            fieldValueCollection = new FieldValue[]
+            {
+                new FieldValue(0, Encoding.UTF8.GetBytes(JsonSerialization.ToJson(new InnerObject { Value = 321 })))
+            };
+            dataFile.UpdateManual(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, fieldValueCollection);
+            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, _fieldNumbers, readFieldsResult);
+            Assert.AreEqual(321, ((InnerObject)readFieldsResult[0].Value).Value);
+        }
+
+        [Test]
         public void InsertNullString()
         {
             var dataFile = new DataFile("", _fieldMetaCollection);
@@ -496,6 +658,85 @@ namespace SimpleDB.Test.Core
             var readFieldsResult = new Dictionary<byte, FieldValue>();
             dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, fieldNumbers, readFieldsResult);
             Assert.AreEqual(10, readFieldsResult[1].Value);
+        }
+
+        [Test]
+        public void ReadFieldsLength()
+        {
+            var fieldValueCollection = new FieldValue[]
+            {
+                new FieldValue(0, true),
+                new FieldValue(1, (sbyte)10),
+                new FieldValue(2, (byte)20),
+                new FieldValue(3, 'b'),
+                new FieldValue(4, (short)40),
+                new FieldValue(5, (ushort)50),
+                new FieldValue(6, 60),
+                new FieldValue(7, (uint)70),
+                new FieldValue(8, (long)80),
+                new FieldValue(9, (ulong)90),
+                new FieldValue(10, (float)10.2),
+                new FieldValue(11, (double)30.4),
+                new FieldValue(12, (decimal)50.6),
+                new FieldValue(13, DateTime.Parse("2000-01-10")),
+                new FieldValue(14, "0987654321098765432109876543210987654321"),
+            };
+            var dataFile = new DataFile("", _fieldMetaCollection);
+            dataFile.BeginWrite();
+            var insertResult = dataFile.Insert(fieldValueCollection);
+            var result = new Dictionary<byte, int>();
+            dataFile.ReadFieldsLength(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, _fieldNumbers, result);
+            Assert.AreEqual(1, result[0]);
+            Assert.AreEqual(1, result[1]);
+            Assert.AreEqual(1, result[2]);
+            Assert.AreEqual(2, result[3]);
+            Assert.AreEqual(2, result[4]);
+            Assert.AreEqual(2, result[5]);
+            Assert.AreEqual(4, result[6]);
+            Assert.AreEqual(4, result[7]);
+            Assert.AreEqual(8, result[8]);
+            Assert.AreEqual(8, result[9]);
+            Assert.AreEqual(4, result[10]);
+            Assert.AreEqual(8, result[11]);
+            Assert.AreEqual(16, result[12]);
+            Assert.AreEqual(8, result[13]);
+            Assert.AreEqual(44, result[14]);
+        }
+
+        [Test]
+        public void ReadFieldsLength_Skip()
+        {
+            var fieldValueCollection = new FieldValue[]
+            {
+                new FieldValue(0, true),
+                new FieldValue(1, (sbyte)10),
+                new FieldValue(2, (byte)20),
+                new FieldValue(3, 'b'),
+                new FieldValue(4, (short)40),
+                new FieldValue(5, (ushort)50),
+                new FieldValue(6, 60),
+                new FieldValue(7, (uint)70),
+                new FieldValue(8, (long)80),
+                new FieldValue(9, (ulong)90),
+                new FieldValue(10, (float)10.2),
+                new FieldValue(11, (double)30.4),
+                new FieldValue(12, (decimal)50.6),
+                new FieldValue(13, DateTime.Parse("2000-01-10")),
+                new FieldValue(14, "0987654321098765432109876543210987654321"),
+            };
+            var dataFile = new DataFile("", _fieldMetaCollection);
+            dataFile.BeginWrite();
+            var insertResult = dataFile.Insert(fieldValueCollection);
+            var result = new Dictionary<byte, int>();
+            dataFile.ReadFieldsLength(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, new HashSet<byte> { 0, 2, 4, 6, 8, 10, 12, 14 }, result);
+            Assert.AreEqual(1, result[0]);
+            Assert.AreEqual(1, result[2]);
+            Assert.AreEqual(2, result[4]);
+            Assert.AreEqual(4, result[6]);
+            Assert.AreEqual(8, result[8]);
+            Assert.AreEqual(4, result[10]);
+            Assert.AreEqual(16, result[12]);
+            Assert.AreEqual(44, result[14]);
         }
 
         [Test]

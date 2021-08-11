@@ -88,8 +88,8 @@ namespace SimpleDB.Core
             }
             else if (fieldMeta.Type == typeof(char))
             {
-                stream.WriteChar((char)fieldValue);
-                insertedBytesCount += sizeof(char);
+                stream.WriteUShort((char)fieldValue); // char хранится как ushort
+                insertedBytesCount += sizeof(ushort);
             }
             else if (fieldMeta.Type == typeof(short))
             {
@@ -143,14 +143,14 @@ namespace SimpleDB.Core
             }
             else if (fieldMeta.Type == typeof(string))
             {
-                var str = (string)fieldValue;
-                if (str == null)
+                if (fieldValue == null)
                 {
                     stream.WriteInt(-1);
                     insertedBytesCount += sizeof(int);
                 }
-                else
+                else if (fieldValue is string)
                 {
+                    var str = (string)fieldValue;
                     var bytes = Encoding.UTF8.GetBytes(str);
                     if (fieldMeta.Settings.Compressed)
                     {
@@ -160,18 +160,35 @@ namespace SimpleDB.Core
                     stream.WriteByteArray(bytes, 0, bytes.Length);
                     insertedBytesCount += sizeof(int) + bytes.Length;
                 }
+                else if (fieldValue is byte[])
+                {
+                    var bytes = (byte[])fieldValue;
+                    stream.WriteInt(bytes.Length);
+                    stream.WriteByteArray(bytes, 0, bytes.Length);
+                    insertedBytesCount += sizeof(int) + bytes.Length;
+                }
             }
             else
             {
-                var fieldValueJson = JsonSerialization.ToJson(fieldValue);
-                var bytes = Encoding.UTF8.GetBytes(fieldValueJson);
-                if (fieldMeta.Settings.Compressed)
+                if (fieldValue is byte[])
                 {
-                    bytes = ZipCompression.Compress(bytes);
+                    var bytes = (byte[])fieldValue;
+                    stream.WriteInt(bytes.Length);
+                    stream.WriteByteArray(bytes, 0, bytes.Length);
+                    insertedBytesCount += sizeof(int) + bytes.Length;
                 }
-                stream.WriteInt(bytes.Length);
-                stream.WriteByteArray(bytes, 0, bytes.Length);
-                insertedBytesCount += sizeof(int) + bytes.Length;
+                else
+                {
+                    var fieldValueJson = JsonSerialization.ToJson(fieldValue);
+                    var bytes = Encoding.UTF8.GetBytes(fieldValueJson);
+                    if (fieldMeta.Settings.Compressed)
+                    {
+                        bytes = ZipCompression.Compress(bytes);
+                    }
+                    stream.WriteInt(bytes.Length);
+                    stream.WriteByteArray(bytes, 0, bytes.Length);
+                    insertedBytesCount += sizeof(int) + bytes.Length;
+                }
             }
         }
 
@@ -194,6 +211,54 @@ namespace SimpleDB.Core
                 var newStartDataFileOffset = _fileStream.Seek(0, System.IO.SeekOrigin.End);
                 _fileStream.WriteByteArray(_memoryBuffer.BufferArray, 0, newLength);
                 return new UpdateResult { NewStartDataFileOffset = newStartDataFileOffset, NewEndDataFileOffset = newStartDataFileOffset + newLength };
+            }
+        }
+
+        public void UpdateManual(long startDataFileOffset, long endDataFileOffset, IEnumerable<FieldValue> fieldValueCollection)
+        {
+            var fieldValueDictionary = fieldValueCollection.ToDictionary(k => k.Number, v => v);
+            var currentPosition = _fileStream.Position;
+            if (currentPosition != startDataFileOffset)
+            {
+                currentPosition = _fileStream.Seek(startDataFileOffset, System.IO.SeekOrigin.Begin);
+            }
+            while (currentPosition < endDataFileOffset)
+            {
+                var fieldNumber = _fileStream.ReadByte();
+                currentPosition += sizeof(byte);
+                if (fieldValueDictionary.ContainsKey(fieldNumber))
+                {
+                    var fieldMeta = _fieldMetaDictionary[fieldNumber];
+                    var fieldValue = fieldValueDictionary[fieldNumber].Value;
+                    int insertedBytesCount;
+                    InsertValue(_fileStream, fieldMeta, fieldValue, out insertedBytesCount);
+                    currentPosition += insertedBytesCount;
+                }
+                else
+                {
+                    var fieldType = (FieldTypes)_fileStream.ReadByte();
+                    currentPosition += sizeof(byte) + SkipCurrentField(fieldType);
+                }
+            }
+        }
+
+        public void ReadFieldsLength(long startDataFileOffset, long endDataFileOffset, ISet<byte> fieldNumbers, Dictionary<byte, int> result)
+        {
+            var currentPosition = _fileStream.Position;
+            if (currentPosition != startDataFileOffset)
+            {
+                currentPosition = _fileStream.Seek(startDataFileOffset, System.IO.SeekOrigin.Begin);
+            }
+            while (currentPosition < endDataFileOffset)
+            {
+                var fieldNumber = _fileStream.ReadByte();
+                var fieldType = (FieldTypes)_fileStream.ReadByte();
+                var fieldLength = SkipCurrentField(fieldType);
+                if (_fieldMetaDictionary.ContainsKey(fieldNumber) && fieldNumbers.Contains(fieldNumber))
+                {
+                    result.Add(fieldNumber, fieldLength);
+                }
+                currentPosition += 2 * sizeof(byte) + fieldLength;
             }
         }
 
@@ -221,24 +286,32 @@ namespace SimpleDB.Core
                 {
                     var fieldType = (FieldTypes)_fileStream.ReadByte();
                     currentPosition += sizeof(byte);
-                    if (fieldType == FieldTypes.String || fieldType == FieldTypes.Object)
-                    {
-                        var length = _fileStream.ReadInt();
-                        currentPosition += sizeof(int);
-                        if (length > 0)
-                        {
-                            _fileStream.ReadByteArray(_skipBuffer, 0, length);
-                            currentPosition += length;
-                        }
-                    }
-                    else
-                    {
-                        var fieldTypeSize = FieldTypesSize.GetSize(fieldType);
-                        _fileStream.ReadByteArray(_skipBuffer, 0, fieldTypeSize);
-                        currentPosition += fieldTypeSize;
-                    }
+                    currentPosition += SkipCurrentField(fieldType);
                 }
             }
+        }
+
+        private int SkipCurrentField(FieldTypes fieldType)
+        {
+            int skippedBytes = 0;
+            if (fieldType == FieldTypes.String || fieldType == FieldTypes.Object)
+            {
+                var length = _fileStream.ReadInt();
+                skippedBytes += sizeof(int);
+                if (length > 0)
+                {
+                    _fileStream.ReadByteArray(_skipBuffer, 0, length);
+                    skippedBytes += length;
+                }
+            }
+            else
+            {
+                var fieldTypeSize = FieldTypesSize.GetSize(fieldType);
+                _fileStream.ReadByteArray(_skipBuffer, 0, fieldTypeSize);
+                skippedBytes += fieldTypeSize;
+            }
+
+            return skippedBytes;
         }
 
         private static object ReadValue(IReadableStream stream, FieldMeta fieldMeta, out int readedBytesCount)
@@ -264,8 +337,8 @@ namespace SimpleDB.Core
             }
             else if (fieldMeta.Type == typeof(char))
             {
-                fieldValue = stream.ReadChar();
-                readedBytesCount += sizeof(char);
+                fieldValue = (char)stream.ReadUShort(); // char хранится как ushort
+                readedBytesCount += sizeof(ushort);
             }
             else if (fieldMeta.Type == typeof(short))
             {
