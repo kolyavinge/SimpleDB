@@ -161,17 +161,7 @@ namespace SimpleDB.Core
             var primaryKey = PrimaryKeys[primaryKeyValue];
             var fieldValueCollection = Mapper.GetFieldValueCollection(entity);
             var updateResult = DataFile.Update(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldValueCollection);
-            if (primaryKey.StartDataFileOffset != updateResult.NewStartDataFileOffset)
-            {
-                PrimaryKeyFile.UpdateStartEndDataFileOffset(primaryKey.PrimaryKeyFileOffset, updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset);
-                primaryKey.StartDataFileOffset = updateResult.NewStartDataFileOffset;
-                primaryKey.EndDataFileOffset = updateResult.NewEndDataFileOffset;
-            }
-            else if (primaryKey.EndDataFileOffset != updateResult.NewEndDataFileOffset)
-            {
-                PrimaryKeyFile.UpdateEndDataFileOffset(primaryKey.PrimaryKeyFileOffset, updateResult.NewEndDataFileOffset);
-                primaryKey.EndDataFileOffset = updateResult.NewEndDataFileOffset;
-            }
+            PrimaryKeyFile.UpdatePrimaryKey(primaryKey, updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset);
         }
 
         public void InsertOrUpdate(TEntity entity)
@@ -261,7 +251,7 @@ namespace SimpleDB.Core
 
         public IQueryable<TEntity> Query()
         {
-            var queryExecutor = new QueryExecutor<TEntity>(Mapper, DataFile, PrimaryKeys.Values);
+            var queryExecutor = new SelectQueryExecutor<TEntity>(Mapper, DataFile, PrimaryKeys.Values);
             return new Queryable<TEntity>(queryExecutor, Mapper);
         }
     }

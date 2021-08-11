@@ -6,7 +6,7 @@ using SimpleDB.Queries;
 
 namespace SimpleDB.Test.Linq
 {
-    class QueryBuilderTest
+    class SelectQueryBuilderTest
     {
         private Mapper<TestEntity> _mapper;
 
@@ -22,7 +22,7 @@ namespace SimpleDB.Test.Linq
         [Test]
         public void Count()
         {
-            var builder = new QueryBuilder<TestEntity>(
+            var builder = new SelectQueryBuilder<TestEntity>(
                 _mapper,
                 null,
                 x => x.Id == 1);

@@ -4,9 +4,9 @@ using System.Text;
 
 namespace SimpleDB.Queries
 {
-    internal class Query
+    internal class SelectQuery
     {
-        public Query(SelectClause selectClause)
+        public SelectQuery(SelectClause selectClause)
         {
             SelectClause = selectClause;
         }

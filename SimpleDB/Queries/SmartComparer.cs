@@ -1,5 +1,5 @@
 ﻿using System;
-using SimpleDB.Infrastructure;
+using SimpleDB.Utils.ObjectExtension;
 
 namespace SimpleDB.Queries
 {

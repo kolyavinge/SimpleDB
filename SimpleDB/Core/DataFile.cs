@@ -426,6 +426,31 @@ namespace SimpleDB.Core
             return fieldValue;
         }
 
+        public byte[] ToByteArray(FieldMeta fieldMeta, object fieldValue)
+        {
+            byte[] bytes;
+            if (fieldMeta.Type == typeof(string))
+            {
+                var str = (string)fieldValue;
+                bytes = Encoding.UTF8.GetBytes(str);
+                if (fieldMeta.Settings.Compressed)
+                {
+                    bytes = ZipCompression.Compress(bytes);
+                }
+            }
+            else
+            {
+                var fieldValueJson = JsonSerialization.ToJson(fieldValue);
+                bytes = Encoding.UTF8.GetBytes(fieldValueJson);
+                if (fieldMeta.Settings.Compressed)
+                {
+                    bytes = ZipCompression.Compress(bytes);
+                }
+            }
+
+            return bytes;
+        }
+
         public struct InsertResult
         {
             public long StartDataFileOffset;

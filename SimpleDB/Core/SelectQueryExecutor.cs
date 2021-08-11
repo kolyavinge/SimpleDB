@@ -1,25 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SimpleDB.Infrastructure;
 using SimpleDB.Queries;
+using SimpleDB.Utils.EnumerableExtension;
 
 namespace SimpleDB.Core
 {
-    internal class QueryExecutor<TEntity>
+    internal class SelectQueryExecutor<TEntity>
     {
         private readonly Mapper<TEntity> _mapper;
         private readonly DataFile _dataFile;
         private readonly IEnumerable<PrimaryKey> _primaryKeys;
 
-        public QueryExecutor(Mapper<TEntity> mapper, DataFile dataFile, IEnumerable<PrimaryKey> primaryKeys)
+        public SelectQueryExecutor(Mapper<TEntity> mapper, DataFile dataFile, IEnumerable<PrimaryKey> primaryKeys)
         {
             _mapper = mapper;
             _dataFile = dataFile;
             _primaryKeys = primaryKeys;
         }
 
-        public QueryResult<TEntity> ExecuteQuery(Query query)
+        public SelectQueryResult<TEntity> ExecuteQuery(SelectQuery query)
         {
             try
             {
@@ -32,7 +32,7 @@ namespace SimpleDB.Core
             }
         }
 
-        private QueryResult<TEntity> TryExecuteQuery(Query query)
+        private SelectQueryResult<TEntity> TryExecuteQuery(SelectQuery query)
         {
             var fieldValueDictionaries = new List<FieldValueDictionary>();
             var allFieldNumbers = new HashSet<byte>();
@@ -68,7 +68,7 @@ namespace SimpleDB.Core
                 {
                     count = Math.Min(count, query.Limit.Value);
                 }
-                return new QueryResult<TEntity> { Scalar = count };
+                return new SelectQueryResult<TEntity> { Scalar = count };
             }
             // order by
             if (query.OrderByClause != null)
@@ -125,11 +125,11 @@ namespace SimpleDB.Core
                 queryResultItems.Add(entity);
             }
 
-            return new QueryResult<TEntity> { Items = queryResultItems };
+            return new SelectQueryResult<TEntity> { Items = queryResultItems };
         }
     }
 
-    internal class QueryResult<TEntity>
+    internal class SelectQueryResult<TEntity>
     {
         public List<TEntity> Items { get; set; }
 

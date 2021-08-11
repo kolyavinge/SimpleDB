@@ -204,6 +204,21 @@ namespace SimpleDB.Core
             return new PrimaryKey(value, startDataFileOffset, endDataFileOffset, primaryKeyFileOffset, primaryKeyFlags);
         }
 
+        public void UpdatePrimaryKey(PrimaryKey primaryKey, long newStartDataFileOffset, long newEndDataFileOffset)
+        {
+            if (primaryKey.StartDataFileOffset != newStartDataFileOffset)
+            {
+                UpdateStartEndDataFileOffset(primaryKey.PrimaryKeyFileOffset, newStartDataFileOffset, newEndDataFileOffset);
+                primaryKey.StartDataFileOffset = newStartDataFileOffset;
+                primaryKey.EndDataFileOffset = newEndDataFileOffset;
+            }
+            else if (primaryKey.EndDataFileOffset != newEndDataFileOffset)
+            {
+                UpdateEndDataFileOffset(primaryKey.PrimaryKeyFileOffset, newEndDataFileOffset);
+                primaryKey.EndDataFileOffset = newEndDataFileOffset;
+            }
+        }
+
         public void UpdateStartEndDataFileOffset(long primaryKeyFileOffset, long newStartDataFileOffset, long newEndDataFileOffset)
         {
             _fileStream.Seek(primaryKeyFileOffset, System.IO.SeekOrigin.Begin);

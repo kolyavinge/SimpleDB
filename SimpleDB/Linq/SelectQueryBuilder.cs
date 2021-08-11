@@ -6,7 +6,7 @@ using SimpleDB.Queries;
 
 namespace SimpleDB.Linq
 {
-    internal class QueryBuilder<TEntity>
+    internal class SelectQueryBuilder<TEntity>
     {
         private readonly Mapper<TEntity> _mapper;
         private readonly Expression<Func<TEntity, object>> _selectExpression;
@@ -15,7 +15,7 @@ namespace SimpleDB.Linq
         private readonly int? _skipValue;
         private readonly int? _limitValue;
 
-        public QueryBuilder(
+        public SelectQueryBuilder(
             Mapper<TEntity> mapper,
             Expression<Func<TEntity, object>> selectExpression,
             Expression<Func<TEntity, bool>> whereExpression = null,
@@ -31,12 +31,12 @@ namespace SimpleDB.Linq
             _limitValue = limitValue;
         }
 
-        public Query BuildQueryForToList()
+        public SelectQuery BuildQueryForToList()
         {
             var selectClauseBuilder = new SelectClauseBuilder();
             var whereClauseBuilder = new WhereClauseBuilder();
             var orderbyClauseBuilder = new OrderByClauseBuilder();
-            var query = new Query(selectClauseBuilder.Build(_mapper, _selectExpression));
+            var query = new SelectQuery(selectClauseBuilder.Build(_mapper, _selectExpression));
             query.WhereClause = whereClauseBuilder.Build(_mapper, _whereExpression);
             query.OrderByClause = orderbyClauseBuilder.Build(_mapper, _orderbyExpressionItems);
             query.Skip = _skipValue;
@@ -45,11 +45,11 @@ namespace SimpleDB.Linq
             return query;
         }
 
-        public Query BuildQueryForCount()
+        public SelectQuery BuildQueryForCount()
         {
             var selectClauseBuilder = new SelectClauseBuilder();
             var whereClauseBuilder = new WhereClauseBuilder();
-            var query = new Query(selectClauseBuilder.BuildCountAggregate());
+            var query = new SelectQuery(selectClauseBuilder.BuildCountAggregate());
             query.WhereClause = whereClauseBuilder.Build(_mapper, _whereExpression);
             query.Skip = _skipValue;
             query.Limit = _limitValue;

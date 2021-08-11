@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SimpleDB.Infrastructure
+namespace SimpleDB.Utils.ObjectExtension
 {
     internal static class ObjectExt
     {

@@ -7,11 +7,11 @@ namespace SimpleDB.Linq
 {
     internal class Queryable<TEntity> : IQueryable<TEntity>
     {
-        private readonly QueryExecutor<TEntity> _queryExecutor;
+        private readonly SelectQueryExecutor<TEntity> _queryExecutor;
         private readonly Mapper<TEntity> _mapper;
         private QueryableSelect<TEntity> _queryableSelect;
 
-        public Queryable(QueryExecutor<TEntity> queryExecutor, Mapper<TEntity> mapper)
+        public Queryable(SelectQueryExecutor<TEntity> queryExecutor, Mapper<TEntity> mapper)
         {
             _queryExecutor = queryExecutor;
             _mapper = mapper;
