@@ -10,7 +10,7 @@ namespace StartApp
     {
         static void Main(string[] args)
         {
-            var doInsert = 1;
+            var doInsert = 0;
             var doGet = 1;
             var doUpdate = 1;
             var doDelete = 1;
@@ -134,27 +134,28 @@ namespace StartApp
             {
                 // linq query
                 Console.WriteLine("========== Linq query ==========");
+                Console.WriteLine("========== Select ==========");
 
                 sw = System.Diagnostics.Stopwatch.StartNew();
-                var queryResult = collection.Query()
+                var selectQueryResult = collection.Query()
                     .Select(x => new { x.Id, x.Name, x.BirthDay, x.AdditionalInfo })
                     .Where(x => x.Name.Contains("Name"))
                     .ToList();
-                foreach (var item in queryResult) Console.WriteLine(item);
+                foreach (var item in selectQueryResult) Console.WriteLine(item);
                 Console.WriteLine("- - - - - - - - -");
 
-                queryResult = collection.Query()
+                selectQueryResult = collection.Query()
                     .Skip(10)
                     .Limit(10)
                     .ToList();
-                foreach (var item in queryResult) Console.WriteLine(item);
+                foreach (var item in selectQueryResult) Console.WriteLine(item);
                 Console.WriteLine("- - - - - - - - -");
 
-                queryResult = collection.Query()
+                selectQueryResult = collection.Query()
                     .Where(x => x.Name.Contains("1111"))
                     .OrderBy(x => x.Id, SortDirection.Desc)
                     .ToList();
-                foreach (var item in queryResult) Console.WriteLine(item);
+                foreach (var item in selectQueryResult) Console.WriteLine(item);
                 Console.WriteLine("- - - - - - - - -");
 
                 var queryResultCount = collection.Query()
@@ -167,6 +168,25 @@ namespace StartApp
                 Console.WriteLine("count: " + queryResultCount);
                 Console.WriteLine("- - - - - - - - -");
 
+                sw.Stop();
+                Console.WriteLine(sw.Elapsed);
+
+                Console.WriteLine("========== Select ==========");
+
+                sw = System.Diagnostics.Stopwatch.StartNew();
+                var updateQueryResult = collection.Query()
+                    .Update(x => new Person { Name = "Linq new name" }, x => x.Id == 100 || x.Id == 101);
+                Console.WriteLine(collection.Get(100));
+                Console.WriteLine(collection.Get(101));
+                sw.Stop();
+                Console.WriteLine(sw.Elapsed);
+
+                Console.WriteLine("========== Delete ==========");
+
+                sw = System.Diagnostics.Stopwatch.StartNew();
+                Console.WriteLine(collection.Exist(102));
+                var deelteQueryResult = collection.Query().Delete(x => x.Id == 102);
+                Console.WriteLine(collection.Exist(102));
                 sw.Stop();
                 Console.WriteLine(sw.Elapsed);
             }

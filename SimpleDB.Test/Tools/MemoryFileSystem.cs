@@ -40,5 +40,10 @@ namespace SimpleDB.Test.Tools
         {
             return OpenFileRead(fullPath);
         }
+
+        public IFileStream OpenFileReadWrite(string fullPath)
+        {
+            return OpenFileRead(fullPath);
+        }
     }
 }

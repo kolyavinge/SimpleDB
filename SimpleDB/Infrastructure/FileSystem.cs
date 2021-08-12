@@ -11,6 +11,8 @@ namespace SimpleDB.Infrastructure
         IFileStream OpenFileRead(string fullPath);
 
         IFileStream OpenFileWrite(string fullPath);
+
+        IFileStream OpenFileReadWrite(string fullPath);
     }
 
     internal class FileSystem : IFileSystem
@@ -31,6 +33,11 @@ namespace SimpleDB.Infrastructure
         public IFileStream OpenFileWrite(string fullPath)
         {
             return new FileStream(System.IO.File.OpenWrite(fullPath));
+        }
+
+        public IFileStream OpenFileReadWrite(string fullPath)
+        {
+            return new FileStream(System.IO.File.Open(fullPath, System.IO.FileMode.Open, System.IO.FileAccess.ReadWrite));
         }
     }
 }

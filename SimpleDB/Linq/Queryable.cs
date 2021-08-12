@@ -7,54 +7,79 @@ namespace SimpleDB.Linq
 {
     internal class Queryable<TEntity> : IQueryable<TEntity>
     {
-        private readonly SelectQueryExecutor<TEntity> _queryExecutor;
+        private readonly QueryExecutorFactory<TEntity> _queryExecutorFactory;
         private readonly Mapper<TEntity> _mapper;
-        private QueryableSelect<TEntity> _queryableSelect;
 
-        public Queryable(SelectQueryExecutor<TEntity> queryExecutor, Mapper<TEntity> mapper)
+        public Queryable(QueryExecutorFactory<TEntity> queryExecutorFactory, Mapper<TEntity> mapper)
         {
-            _queryExecutor = queryExecutor;
+            _queryExecutorFactory = queryExecutorFactory;
             _mapper = mapper;
         }
 
         public IQueryableSelect<TEntity> Select(Expression<Func<TEntity, object>> selectExpression = null)
         {
-            return _queryableSelect ?? MakeQueryableSelect(selectExpression);
+            return MakeQueryableSelect(selectExpression);
         }
 
         public IQueryableSelect<TEntity> Where(Expression<Func<TEntity, bool>> whereExpression)
         {
-            return (_queryableSelect ?? MakeQueryableSelect()).Where(whereExpression);
+            return MakeQueryableSelect().Where(whereExpression);
         }
 
         public IQueryableSelect<TEntity> OrderBy(Expression<Func<TEntity, object>> orderbyExpression, SortDirection direction)
         {
-            return (_queryableSelect ?? MakeQueryableSelect()).OrderBy(orderbyExpression, direction);
+            return MakeQueryableSelect().OrderBy(orderbyExpression, direction);
         }
 
         public IQueryableSelect<TEntity> Skip(int value)
         {
-            return (_queryableSelect ?? MakeQueryableSelect()).Skip(value);
+            return MakeQueryableSelect().Skip(value);
         }
 
         public IQueryableSelect<TEntity> Limit(int value)
         {
-            return (_queryableSelect ?? MakeQueryableSelect()).Limit(value);
+            return MakeQueryableSelect().Limit(value);
         }
 
         public List<TEntity> ToList()
         {
-            return (_queryableSelect ?? MakeQueryableSelect()).ToList();
+            return MakeQueryableSelect().ToList();
         }
 
         public int Count()
         {
-            return (_queryableSelect ?? MakeQueryableSelect()).Count();
+            return MakeQueryableSelect().Count();
+        }
+
+        public int Update(Expression<Func<TEntity, TEntity>> updateExpression, Expression<Func<TEntity, bool>> whereExpression = null)
+        {
+            var queryBuilder = new UpdateQueryBuilder<TEntity>(
+                _mapper,
+                updateExpression,
+                whereExpression);
+            var query = queryBuilder.BuildQuery();
+            var queryExecutor = _queryExecutorFactory.MakeUpdateQueryExecutor();
+            var result = queryExecutor.ExecuteQuery(query);
+
+            return result;
+        }
+
+        public int Delete(Expression<Func<TEntity, bool>> whereExpression = null)
+        {
+            var queryBuilder = new DeleteQueryBuilder<TEntity>(
+                _mapper,
+                whereExpression);
+            var query = queryBuilder.BuildQuery();
+            var queryExecutor = _queryExecutorFactory.MakeDeleteQueryExecutor();
+            var result = queryExecutor.ExecuteQuery(query);
+
+            return result;
         }
 
         private IQueryableSelect<TEntity> MakeQueryableSelect(Expression<Func<TEntity, object>> selectExpression = null)
         {
-            return new QueryableSelect<TEntity>(_queryExecutor, _mapper, selectExpression);
+            var queryExecutor = _queryExecutorFactory.MakeSelectQueryExecutor();
+            return new QueryableSelect<TEntity>(queryExecutor, _mapper, selectExpression);
         }
     }
 }

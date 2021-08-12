@@ -31,6 +31,11 @@ namespace SimpleDB.Core
             _fileStream = IOC.Get<IFileSystem>().OpenFileWrite(_fileFullPath);
         }
 
+        public void BeginReadWrite()
+        {
+            _fileStream = IOC.Get<IFileSystem>().OpenFileReadWrite(_fileFullPath);
+        }
+
         public void EndReadWrite()
         {
             _fileStream.Dispose();

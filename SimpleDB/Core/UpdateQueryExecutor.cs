@@ -25,7 +25,7 @@ namespace SimpleDB.Core
             try
             {
                 _primaryKeyFile.BeginWrite();
-                _dataFile.BeginRead();
+                _dataFile.BeginReadWrite();
                 return TryExecuteQuery(query);
             }
             finally

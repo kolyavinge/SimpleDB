@@ -18,6 +18,10 @@ namespace SimpleDB
 
         List<TEntity> ToList();
 
+        int Update(Expression<Func<TEntity, TEntity>> updateExpression, Expression<Func<TEntity, bool>> whereExpression = null);
+
+        int Delete(Expression<Func<TEntity, bool>> whereExpression = null);
+
         int Count();
     }
 }
