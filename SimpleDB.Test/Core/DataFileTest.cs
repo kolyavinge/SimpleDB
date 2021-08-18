@@ -77,7 +77,7 @@ namespace SimpleDB.Test.Core
             };
             var insertResult = dataFile.Insert(fieldValueCollection);
 
-            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            var readFieldsResult = new FieldValueCollection();
             dataFile.ReadFields(0, insertResult.EndDataFileOffset, _fieldNumbers, readFieldsResult);
             Assert.AreEqual(15, readFieldsResult.Count);
 
@@ -147,10 +147,10 @@ namespace SimpleDB.Test.Core
             };
             var insertResult = dataFile.Insert(fieldValueCollection);
 
-            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            var readFieldsResult = new FieldValueCollection();
             dataFile.ReadFields(0, insertResult.EndDataFileOffset, _fieldNumbers, readFieldsResult);
             Assert.AreEqual(1, readFieldsResult.Count);
-            var resultObject = (TestEntity)readFieldsResult.Values.First().Value;
+            var resultObject = (TestEntity)readFieldsResult.First().Value;
 
             Assert.AreEqual(false, resultObject.Bool);
             Assert.AreEqual((sbyte)1, resultObject.SByte);
@@ -196,7 +196,7 @@ namespace SimpleDB.Test.Core
             dataFile.Insert(fieldValueCollection);
             dataFile.Insert(fieldValueCollection);
 
-            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            var readFieldsResult = new FieldValueCollection();
             dataFile.ReadFields(0, insertResult.EndDataFileOffset, _fieldNumbers, readFieldsResult);
             Assert.AreEqual(15, readFieldsResult.Count);
         }
@@ -248,7 +248,7 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual(insertResult.StartDataFileOffset, updateResult.NewStartDataFileOffset);
             Assert.AreEqual(insertResult.EndDataFileOffset, updateResult.NewEndDataFileOffset);
 
-            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            var readFieldsResult = new FieldValueCollection();
             dataFile.ReadFields(updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset, _fieldNumbers, readFieldsResult);
             Assert.AreEqual(true, readFieldsResult[0].Value);
             Assert.AreEqual((sbyte)10, readFieldsResult[1].Value);
@@ -314,7 +314,7 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual(insertResult.StartDataFileOffset, updateResult.NewStartDataFileOffset);
             Assert.IsTrue(insertResult.EndDataFileOffset > updateResult.NewEndDataFileOffset);
 
-            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            var readFieldsResult = new FieldValueCollection();
             dataFile.ReadFields(updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset, _fieldNumbers, readFieldsResult);
             Assert.AreEqual(true, readFieldsResult[0].Value);
             Assert.AreEqual((sbyte)10, readFieldsResult[1].Value);
@@ -380,7 +380,7 @@ namespace SimpleDB.Test.Core
             Assert.IsTrue(insertResult.StartDataFileOffset < updateResult.NewStartDataFileOffset);
             Assert.IsTrue(insertResult.EndDataFileOffset < updateResult.NewEndDataFileOffset);
 
-            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            var readFieldsResult = new FieldValueCollection();
             dataFile.ReadFields(updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset, _fieldNumbers, readFieldsResult);
             Assert.AreEqual(true, readFieldsResult[0].Value);
             Assert.AreEqual((sbyte)10, readFieldsResult[1].Value);
@@ -442,7 +442,7 @@ namespace SimpleDB.Test.Core
                 new FieldValue(14, "0987654321"),
             };
             dataFile.UpdateManual(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, fieldValueCollection);
-            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            var readFieldsResult = new FieldValueCollection();
             dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, _fieldNumbers, readFieldsResult);
             Assert.AreEqual(true, readFieldsResult[0].Value);
             Assert.AreEqual((sbyte)10, readFieldsResult[1].Value);
@@ -497,7 +497,7 @@ namespace SimpleDB.Test.Core
                 new FieldValue(14, "0987654321"), // длина нового значения в байтах должна равняться старому, иначе ф-я работать не будет
             };
             dataFile.UpdateManual(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, fieldValueCollection);
-            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            var readFieldsResult = new FieldValueCollection();
             dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, _fieldNumbers, readFieldsResult);
             Assert.AreEqual(true, readFieldsResult[0].Value);
             Assert.AreEqual((sbyte)1, readFieldsResult[1].Value);
@@ -531,7 +531,7 @@ namespace SimpleDB.Test.Core
                 new FieldValue(14, new byte[] { 48, 49, 50, 51, 52 })
             };
             dataFile.UpdateManual(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, fieldValueCollection);
-            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            var readFieldsResult = new FieldValueCollection();
             dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, _fieldNumbers, readFieldsResult);
             Assert.AreEqual("01234", readFieldsResult[14].Value);
         }
@@ -555,7 +555,7 @@ namespace SimpleDB.Test.Core
                 new FieldValue(0, Encoding.UTF8.GetBytes(JsonSerialization.ToJson(new InnerObject { Value = 321 })))
             };
             dataFile.UpdateManual(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, fieldValueCollection);
-            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            var readFieldsResult = new FieldValueCollection();
             dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, _fieldNumbers, readFieldsResult);
             Assert.AreEqual(321, ((InnerObject)readFieldsResult[0].Value).Value);
         }
@@ -570,7 +570,7 @@ namespace SimpleDB.Test.Core
                 new FieldValue(14, null)
             };
             var insertResult = dataFile.Insert(fieldValueCollection);
-            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            var readFieldsResult = new FieldValueCollection();
             dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, _fieldNumbers, readFieldsResult);
             Assert.AreEqual(null, readFieldsResult[14].Value);
         }
@@ -589,7 +589,7 @@ namespace SimpleDB.Test.Core
             var dataFile = new DataFile("", fieldMetaCollection);
             dataFile.BeginWrite();
             var insertResult = dataFile.Insert(fieldValueCollection);
-            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            var readFieldsResult = new FieldValueCollection();
             dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, _fieldNumbers, readFieldsResult);
             Assert.AreEqual(null, readFieldsResult[0].Value);
         }
@@ -611,7 +611,7 @@ namespace SimpleDB.Test.Core
             dataFile.BeginRead();
             var insertResult = dataFile.Insert(fieldValueCollection);
             var fieldNumbers = new HashSet<byte> { 1 };
-            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            var readFieldsResult = new FieldValueCollection();
             dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, fieldNumbers, readFieldsResult);
             Assert.AreEqual(10, readFieldsResult[1].Value);
         }
@@ -633,7 +633,7 @@ namespace SimpleDB.Test.Core
             dataFile.BeginRead();
             var insertResult = dataFile.Insert(fieldValueCollection);
             var fieldNumbers = new HashSet<byte> { 1 };
-            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            var readFieldsResult = new FieldValueCollection();
             dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, fieldNumbers, readFieldsResult);
             Assert.AreEqual(10, readFieldsResult[1].Value);
         }
@@ -655,7 +655,7 @@ namespace SimpleDB.Test.Core
             dataFile.BeginRead();
             var insertResult = dataFile.Insert(fieldValueCollection);
             var fieldNumbers = new HashSet<byte> { 1 };
-            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            var readFieldsResult = new FieldValueCollection();
             dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, fieldNumbers, readFieldsResult);
             Assert.AreEqual(10, readFieldsResult[1].Value);
         }
@@ -753,7 +753,7 @@ namespace SimpleDB.Test.Core
             var dataFile = new DataFile("", fieldMetaCollection);
             dataFile.BeginWrite();
             var insertResult = dataFile.Insert(fieldValueCollection);
-            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            var readFieldsResult = new FieldValueCollection();
             dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, new HashSet<byte> { 0 }, readFieldsResult);
             Assert.AreEqual(new string('*', 100), readFieldsResult[0].Value);
         }
@@ -772,7 +772,7 @@ namespace SimpleDB.Test.Core
             var dataFile = new DataFile("", fieldMetaCollection);
             dataFile.BeginWrite();
             var insertResult = dataFile.Insert(fieldValueCollection);
-            var readFieldsResult = new Dictionary<byte, FieldValue>();
+            var readFieldsResult = new FieldValueCollection();
             dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, new HashSet<byte> { 0 }, readFieldsResult);
             var result = (InnerObject)readFieldsResult[0].Value;
             Assert.AreEqual(123, result.Value);

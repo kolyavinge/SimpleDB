@@ -5,7 +5,7 @@ using SimpleDB.Core;
 
 namespace SimpleDB.Queries
 {
-    internal class OrderByClause : IComparer<FieldValueDictionary>
+    internal class OrderByClause : IComparer<FieldValueCollection>
     {
         public OrderByClause(IEnumerable<OrderByClauseItem> orderedItems)
         {
@@ -14,7 +14,7 @@ namespace SimpleDB.Queries
 
         public IEnumerable<OrderByClauseItem> OrderedItems { get; }
 
-        public int Compare(FieldValueDictionary x, FieldValueDictionary y)
+        public int Compare(FieldValueCollection x, FieldValueCollection y)
         {
             foreach (var orderedItem in OrderedItems)
             {
@@ -22,8 +22,8 @@ namespace SimpleDB.Queries
                 if (orderedItem is Field)
                 {
                     var orderedField = (Field)orderedItem;
-                    xComparable = (IComparable)x.FieldValues[orderedField.Number].Value;
-                    yComparable = (IComparable)y.FieldValues[orderedField.Number].Value;
+                    xComparable = (IComparable)x[orderedField.Number].Value;
+                    yComparable = (IComparable)y[orderedField.Number].Value;
                 }
                 else if (orderedItem is PrimaryKey)
                 {

@@ -42,9 +42,9 @@ namespace SimpleDB.Core
                 var primaryKeys = _primaryKeysDictionary.Values;
                 foreach (var primaryKey in primaryKeys.OrderBy(x => x.StartDataFileOffset))
                 {
-                    var fieldValueDictionary = new FieldValueDictionary { PrimaryKey = primaryKey };
-                    _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, whereFieldNumbers, fieldValueDictionary.FieldValues);
-                    var whereResult = query.WhereClause.GetValue(fieldValueDictionary);
+                    var fieldValueCollection = new FieldValueCollection { PrimaryKey = primaryKey };
+                    _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, whereFieldNumbers, fieldValueCollection);
+                    var whereResult = query.WhereClause.GetValue(fieldValueCollection);
                     if (whereResult)
                     {
                         Delete(primaryKey);

@@ -15,9 +15,9 @@ namespace SimpleDB.Queries
 
         public WhereClauseItem Root { get; }
 
-        public bool GetValue(FieldValueDictionary fieldValueDictionary)
+        public bool GetValue(FieldValueCollection fieldValueCollection)
         {
-            var value = (bool)Root.GetValue(fieldValueDictionary);
+            var value = (bool)Root.GetValue(fieldValueCollection);
             return value;
         }
 
@@ -47,7 +47,7 @@ namespace SimpleDB.Queries
 
             public WhereClauseItem Right { get; protected set; }
 
-            public abstract object GetValue(FieldValueDictionary fieldValueDictionary);
+            public abstract object GetValue(FieldValueCollection fieldValueCollection);
         }
 
         public class EqualsOperation : WhereClauseItem
@@ -58,10 +58,10 @@ namespace SimpleDB.Queries
                 Right = right;
             }
 
-            public override object GetValue(FieldValueDictionary fieldValueDictionary)
+            public override object GetValue(FieldValueCollection fieldValueCollection)
             {
-                var leftValue = Left.GetValue(fieldValueDictionary);
-                var rightValue = Right.GetValue(fieldValueDictionary);
+                var leftValue = Left.GetValue(fieldValueCollection);
+                var rightValue = Right.GetValue(fieldValueCollection);
                 return SmartComparer.Compare(leftValue, rightValue) == 0;
             }
         }
@@ -73,9 +73,9 @@ namespace SimpleDB.Queries
                 Left = left;
             }
 
-            public override object GetValue(FieldValueDictionary fieldValueDictionary)
+            public override object GetValue(FieldValueCollection fieldValueCollection)
             {
-                var leftValue = (bool)Left.GetValue(fieldValueDictionary);
+                var leftValue = (bool)Left.GetValue(fieldValueCollection);
                 return leftValue == false;
             }
         }
@@ -88,10 +88,10 @@ namespace SimpleDB.Queries
                 Right = right;
             }
 
-            public override object GetValue(FieldValueDictionary fieldValueDictionary)
+            public override object GetValue(FieldValueCollection fieldValueCollection)
             {
-                var leftValue = (bool)Left.GetValue(fieldValueDictionary);
-                var rightValue = (bool)Right.GetValue(fieldValueDictionary);
+                var leftValue = (bool)Left.GetValue(fieldValueCollection);
+                var rightValue = (bool)Right.GetValue(fieldValueCollection);
                 return leftValue && rightValue;
             }
         }
@@ -104,10 +104,10 @@ namespace SimpleDB.Queries
                 Right = right;
             }
 
-            public override object GetValue(FieldValueDictionary fieldValueDictionary)
+            public override object GetValue(FieldValueCollection fieldValueCollection)
             {
-                var leftValue = (bool)Left.GetValue(fieldValueDictionary);
-                var rightValue = (bool)Right.GetValue(fieldValueDictionary);
+                var leftValue = (bool)Left.GetValue(fieldValueCollection);
+                var rightValue = (bool)Right.GetValue(fieldValueCollection);
                 return leftValue || rightValue;
             }
         }
@@ -120,10 +120,10 @@ namespace SimpleDB.Queries
                 Right = right;
             }
 
-            public override object GetValue(FieldValueDictionary fieldValueDictionary)
+            public override object GetValue(FieldValueCollection fieldValueCollection)
             {
-                var leftValue = Left.GetValue(fieldValueDictionary);
-                var rightValue = Right.GetValue(fieldValueDictionary);
+                var leftValue = Left.GetValue(fieldValueCollection);
+                var rightValue = Right.GetValue(fieldValueCollection);
                 return SmartComparer.Compare(leftValue, rightValue) < 0;
             }
         }
@@ -136,10 +136,10 @@ namespace SimpleDB.Queries
                 Right = right;
             }
 
-            public override object GetValue(FieldValueDictionary fieldValueDictionary)
+            public override object GetValue(FieldValueCollection fieldValueCollection)
             {
-                var leftValue = Left.GetValue(fieldValueDictionary);
-                var rightValue = Right.GetValue(fieldValueDictionary);
+                var leftValue = Left.GetValue(fieldValueCollection);
+                var rightValue = Right.GetValue(fieldValueCollection);
                 return SmartComparer.Compare(leftValue, rightValue) > 0;
             }
         }
@@ -152,10 +152,10 @@ namespace SimpleDB.Queries
                 Right = right;
             }
 
-            public override object GetValue(FieldValueDictionary fieldValueDictionary)
+            public override object GetValue(FieldValueCollection fieldValueCollection)
             {
-                var leftValue = Left.GetValue(fieldValueDictionary);
-                var rightValue = Right.GetValue(fieldValueDictionary);
+                var leftValue = Left.GetValue(fieldValueCollection);
+                var rightValue = Right.GetValue(fieldValueCollection);
                 return SmartComparer.Compare(leftValue, rightValue) < 0 || SmartComparer.Compare(leftValue, rightValue) == 0;
             }
         }
@@ -168,10 +168,10 @@ namespace SimpleDB.Queries
                 Right = right;
             }
 
-            public override object GetValue(FieldValueDictionary fieldValueDictionary)
+            public override object GetValue(FieldValueCollection fieldValueCollection)
             {
-                var leftValue = Left.GetValue(fieldValueDictionary);
-                var rightValue = Right.GetValue(fieldValueDictionary);
+                var leftValue = Left.GetValue(fieldValueCollection);
+                var rightValue = Right.GetValue(fieldValueCollection);
                 return SmartComparer.Compare(leftValue, rightValue) > 0 || SmartComparer.Compare(leftValue, rightValue) == 0;
             }
         }
@@ -184,10 +184,10 @@ namespace SimpleDB.Queries
                 Right = right;
             }
 
-            public override object GetValue(FieldValueDictionary fieldValueDictionary)
+            public override object GetValue(FieldValueCollection fieldValueCollection)
             {
-                var leftValue = (string)Left.GetValue(fieldValueDictionary);
-                var rightValue = (string)Right.GetValue(fieldValueDictionary);
+                var leftValue = (string)Left.GetValue(fieldValueCollection);
+                var rightValue = (string)Right.GetValue(fieldValueCollection);
                 return leftValue.Contains(rightValue);
             }
         }
@@ -200,19 +200,19 @@ namespace SimpleDB.Queries
                 Right = right;
             }
 
-            public override object GetValue(FieldValueDictionary fieldValueDictionary)
+            public override object GetValue(FieldValueCollection fieldValueCollection)
             {
-                var leftValue = Left.GetValue(fieldValueDictionary);
-                var set = (ISet<object>)Right.GetValue(fieldValueDictionary);
+                var leftValue = Left.GetValue(fieldValueCollection);
+                var set = (ISet<object>)Right.GetValue(fieldValueCollection);
                 return set.Contains(leftValue);
             }
         }
 
         public class PrimaryKey : WhereClauseItem
         {
-            public override object GetValue(FieldValueDictionary fieldValueDictionary)
+            public override object GetValue(FieldValueCollection fieldValueCollection)
             {
-                return fieldValueDictionary.PrimaryKey.Value;
+                return fieldValueCollection.PrimaryKey.Value;
             }
         }
 
@@ -225,9 +225,9 @@ namespace SimpleDB.Queries
 
             public byte Number { get; }
 
-            public override object GetValue(FieldValueDictionary fieldValueDictionary)
+            public override object GetValue(FieldValueCollection fieldValueCollection)
             {
-                return fieldValueDictionary.FieldValues[Number].Value;
+                return fieldValueCollection[Number].Value;
             }
         }
 
@@ -240,7 +240,7 @@ namespace SimpleDB.Queries
 
             public object Value { get; }
 
-            public override object GetValue(FieldValueDictionary fieldValueDictionary)
+            public override object GetValue(FieldValueCollection fieldValueCollection)
             {
                 return Value;
             }
@@ -255,7 +255,7 @@ namespace SimpleDB.Queries
 
             public ISet<object> Value { get; }
 
-            public override object GetValue(FieldValueDictionary fieldValueDictionary)
+            public override object GetValue(FieldValueCollection fieldValueCollection)
             {
                 return Value;
             }

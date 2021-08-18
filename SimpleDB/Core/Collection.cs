@@ -82,9 +82,9 @@ namespace SimpleDB.Core
             if (Exist(id) == false) return default(TEntity);
             var primaryKey = PrimaryKeys[id];
             var fieldNumbers = Mapper.FieldMetaCollection.Select(x => x.Number).ToHashSet();
-            var fieldValueCollection = new Dictionary<byte, FieldValue>();
+            var fieldValueCollection = new FieldValueCollection();
             DataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldNumbers, fieldValueCollection);
-            var entity = Mapper.GetEntity(primaryKey.Value, fieldValueCollection.Values, true);
+            var entity = Mapper.GetEntity(primaryKey.Value, fieldValueCollection, true);
 
             return entity;
         }

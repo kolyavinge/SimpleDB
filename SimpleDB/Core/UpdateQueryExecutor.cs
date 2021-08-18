@@ -37,7 +37,7 @@ namespace SimpleDB.Core
 
         private int TryExecuteQuery(UpdateQuery query)
         {
-            var fieldValueDictionaries = new List<FieldValueDictionary>();
+            var fieldValueCollections = new List<FieldValueCollection>();
             var allFieldNumbers = new HashSet<byte>();
             // where
             if (query.WhereClause != null)
@@ -46,12 +46,12 @@ namespace SimpleDB.Core
                 allFieldNumbers.AddRange(whereFieldNumbers);
                 foreach (var primaryKey in _primaryKeys.OrderBy(x => x.StartDataFileOffset))
                 {
-                    var fieldValueDictionary = new FieldValueDictionary { PrimaryKey = primaryKey };
-                    _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, whereFieldNumbers, fieldValueDictionary.FieldValues);
-                    var whereResult = query.WhereClause.GetValue(fieldValueDictionary);
+                    var fieldValueCollection = new FieldValueCollection { PrimaryKey = primaryKey };
+                    _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, whereFieldNumbers, fieldValueCollection);
+                    var whereResult = query.WhereClause.GetValue(fieldValueCollection);
                     if (whereResult)
                     {
-                        fieldValueDictionaries.Add(fieldValueDictionary);
+                        fieldValueCollections.Add(fieldValueCollection);
                     }
                 }
             }
@@ -59,8 +59,8 @@ namespace SimpleDB.Core
             {
                 foreach (var primaryKey in _primaryKeys.OrderBy(x => x.StartDataFileOffset))
                 {
-                    var fieldValueDictionary = new FieldValueDictionary { PrimaryKey = primaryKey };
-                    fieldValueDictionaries.Add(fieldValueDictionary);
+                    var fieldValueCollection = new FieldValueCollection { PrimaryKey = primaryKey };
+                    fieldValueCollections.Add(fieldValueCollection);
                 }
             }
             // update
@@ -82,18 +82,18 @@ namespace SimpleDB.Core
                 if (nonSelectedUpdateFieldNumbers.Any())
                 {
                     // добираем недостающие значения
-                    foreach (var fieldValueDictionary in fieldValueDictionaries)
+                    foreach (var fieldValueCollection in fieldValueCollections)
                     {
-                        var primaryKey = fieldValueDictionary.PrimaryKey;
-                        _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, nonSelectedUpdateFieldNumbers, fieldValueDictionary.FieldValues);
+                        var primaryKey = fieldValueCollection.PrimaryKey;
+                        _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, nonSelectedUpdateFieldNumbers, fieldValueCollection);
                     }
                 }
-                foreach (var fieldValueDictionary in fieldValueDictionaries)
+                foreach (var fieldValueCollection in fieldValueCollections)
                 {
-                    var primaryKey = fieldValueDictionary.PrimaryKey;
+                    var primaryKey = fieldValueCollection.PrimaryKey;
                     foreach (var variableFieldNumber in variableFieldNumbers)
                     {
-                        var currentValue = fieldValueDictionary.FieldValues[variableFieldNumber].Value;
+                        var currentValue = fieldValueCollection[variableFieldNumber].Value;
                         var currentValueByteArray = _dataFile.ToByteArray(variableFieldNumber, currentValue);
                         var newValue = updateFieldDictionary[variableFieldNumber].Value;
                         var newValueByteArray = _dataFile.ToByteArray(variableFieldNumber, newValue);
@@ -101,14 +101,14 @@ namespace SimpleDB.Core
                         if (currentValueByteArray.Length != newValueByteArray.Length)
                         {
                             // если не равняются, добираем все значения до конца
-                            _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, remainingFieldNumbers, fieldValueDictionary.FieldValues);
+                            _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, remainingFieldNumbers, fieldValueCollection);
                             foreach (var updateFieldValue in updateFieldDictionary.Values)
                             {
                                 // обновляем их
-                                fieldValueDictionary.FieldValues[updateFieldValue.Number] = new FieldValue(updateFieldValue.Number, updateFieldValue.Value);
+                                fieldValueCollection[updateFieldValue.Number] = new FieldValue(updateFieldValue.Number, updateFieldValue.Value);
                             }
                             // делаем полное обновление всей записи
-                            UpdateAllFields(fieldValueDictionary);
+                            UpdateAllFields(fieldValueCollection);
                             break;
                         }
                     }
@@ -117,20 +117,20 @@ namespace SimpleDB.Core
             }
             else
             {
-                foreach (var fieldValueDictionary in fieldValueDictionaries)
+                foreach (var fieldValueCollection in fieldValueCollections)
                 {
-                    var primaryKey = fieldValueDictionary.PrimaryKey;
+                    var primaryKey = fieldValueCollection.PrimaryKey;
                     _dataFile.UpdateManual(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, updateFieldDictionary.Values);
                 }
             }
 
-            return fieldValueDictionaries.Count;
+            return fieldValueCollections.Count;
         }
 
-        private void UpdateAllFields(FieldValueDictionary fieldValueDictionary)
+        private void UpdateAllFields(FieldValueCollection fieldValueCollection)
         {
-            var primaryKey = fieldValueDictionary.PrimaryKey;
-            var updateResult = _dataFile.Update(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldValueDictionary.FieldValues.Values);
+            var primaryKey = fieldValueCollection.PrimaryKey;
+            var updateResult = _dataFile.Update(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldValueCollection);
             _primaryKeyFile.UpdatePrimaryKey(primaryKey, updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset);
         }
     }

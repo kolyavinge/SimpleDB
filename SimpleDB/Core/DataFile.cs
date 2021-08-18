@@ -268,7 +268,7 @@ namespace SimpleDB.Core
         }
 
         private readonly byte[] _skipBuffer = new byte[1024 * 1024];
-        public void ReadFields(long startDataFileOffset, long endDataFileOffset, ISet<byte> fieldNumbers, Dictionary<byte, FieldValue> result)
+        public void ReadFields(long startDataFileOffset, long endDataFileOffset, ISet<byte> fieldNumbers, FieldValueCollection result)
         {
             var currentPosition = _fileStream.Position;
             if (currentPosition != startDataFileOffset)

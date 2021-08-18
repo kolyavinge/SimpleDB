@@ -34,7 +34,7 @@ namespace SimpleDB.Core
 
         private SelectQueryResult<TEntity> TryExecuteQuery(SelectQuery query)
         {
-            var fieldValueDictionaries = new List<FieldValueDictionary>();
+            var fieldValueCollections = new List<FieldValueCollection>();
             var allFieldNumbers = new HashSet<byte>();
             // where
             if (query.WhereClause != null)
@@ -43,12 +43,12 @@ namespace SimpleDB.Core
                 allFieldNumbers.AddRange(whereFieldNumbers);
                 foreach (var primaryKey in _primaryKeys.OrderBy(x => x.StartDataFileOffset))
                 {
-                    var fieldValueDictionary = new FieldValueDictionary { PrimaryKey = primaryKey };
-                    _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, whereFieldNumbers, fieldValueDictionary.FieldValues);
-                    var whereResult = query.WhereClause.GetValue(fieldValueDictionary);
+                    var fieldValueCollection = new FieldValueCollection { PrimaryKey = primaryKey };
+                    _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, whereFieldNumbers, fieldValueCollection);
+                    var whereResult = query.WhereClause.GetValue(fieldValueCollection);
                     if (whereResult)
                     {
-                        fieldValueDictionaries.Add(fieldValueDictionary);
+                        fieldValueCollections.Add(fieldValueCollection);
                     }
                 }
             }
@@ -56,14 +56,14 @@ namespace SimpleDB.Core
             {
                 foreach (var primaryKey in _primaryKeys.OrderBy(x => x.StartDataFileOffset))
                 {
-                    var fieldValueDictionary = new FieldValueDictionary { PrimaryKey = primaryKey };
-                    fieldValueDictionaries.Add(fieldValueDictionary);
+                    var fieldValueCollection = new FieldValueCollection { PrimaryKey = primaryKey };
+                    fieldValueCollections.Add(fieldValueCollection);
                 }
             }
             // aggregate functions
             if (query.SelectClause.SelectItems.Any(x => x is SelectClause.CountAggregate))
             {
-                var count = fieldValueDictionaries.Count - (query.Skip ?? 0);
+                var count = fieldValueCollections.Count - (query.Skip ?? 0);
                 if (query.Limit.HasValue)
                 {
                     count = Math.Min(count, query.Limit.Value);
@@ -78,30 +78,30 @@ namespace SimpleDB.Core
                 if (orderbyFieldNumbers.Any())
                 {
                     allFieldNumbers.AddRange(orderbyFieldNumbers);
-                    foreach (var fieldValueDictionary in fieldValueDictionaries)
+                    foreach (var fieldValueCollection in fieldValueCollections)
                     {
-                        var primaryKey = fieldValueDictionary.PrimaryKey;
-                        _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, orderbyFieldNumbers, fieldValueDictionary.FieldValues);
+                        var primaryKey = fieldValueCollection.PrimaryKey;
+                        _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, orderbyFieldNumbers, fieldValueCollection);
                     }
                 }
-                fieldValueDictionaries.Sort(query.OrderByClause);
+                fieldValueCollections.Sort(query.OrderByClause);
             }
             // skip
             if (query.Skip.HasValue)
             {
-                if (query.Skip.Value < fieldValueDictionaries.Count)
+                if (query.Skip.Value < fieldValueCollections.Count)
                 {
-                    fieldValueDictionaries.RemoveRange(0, query.Skip.Value);
+                    fieldValueCollections.RemoveRange(0, query.Skip.Value);
                 }
                 else
                 {
-                    fieldValueDictionaries.Clear();
+                    fieldValueCollections.Clear();
                 }
             }
             // limit
-            if (query.Limit.HasValue && query.Limit.Value < fieldValueDictionaries.Count)
+            if (query.Limit.HasValue && query.Limit.Value < fieldValueCollections.Count)
             {
-                fieldValueDictionaries.RemoveRange(query.Limit.Value, fieldValueDictionaries.Count - query.Limit.Value);
+                fieldValueCollections.RemoveRange(query.Limit.Value, fieldValueCollections.Count - query.Limit.Value);
             }
             // select
             var selectFieldNumbers = query.SelectClause.GetAllFieldNumbers().ToHashSet();
@@ -109,19 +109,19 @@ namespace SimpleDB.Core
             nonSelectedFieldNumbers.ExceptWith(allFieldNumbers);
             if (nonSelectedFieldNumbers.Any())
             {
-                foreach (var fieldValueDictionary in fieldValueDictionaries)
+                foreach (var fieldValueCollection in fieldValueCollections)
                 {
-                    var primaryKey = fieldValueDictionary.PrimaryKey;
-                    _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, nonSelectedFieldNumbers, fieldValueDictionary.FieldValues);
+                    var primaryKey = fieldValueCollection.PrimaryKey;
+                    _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, nonSelectedFieldNumbers, fieldValueCollection);
                 }
             }
             // result entities
             var includePrimaryKey = query.SelectClause.SelectItems.Any(x => x is SelectClause.PrimaryKey);
             var queryResultItems = new List<TEntity>();
-            foreach (var fieldValueDictionary in fieldValueDictionaries)
+            foreach (var fieldValueCollection in fieldValueCollections)
             {
-                var primaryKey = fieldValueDictionary.PrimaryKey;
-                var entity = _mapper.GetEntity(primaryKey.Value, fieldValueDictionary.FieldValues.Values, includePrimaryKey, selectFieldNumbers);
+                var primaryKey = fieldValueCollection.PrimaryKey;
+                var entity = _mapper.GetEntity(primaryKey.Value, fieldValueCollection, includePrimaryKey, selectFieldNumbers);
                 queryResultItems.Add(entity);
             }
 
