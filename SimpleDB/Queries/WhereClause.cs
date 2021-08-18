@@ -38,7 +38,7 @@ namespace SimpleDB.Queries
 
         public IEnumerable<byte> GetAllFieldNumbers()
         {
-            return ToEnumerable().Where(x => x is Field).Cast<Field>().Select(x => x.Number).Distinct();
+            return ToEnumerable().OfType<Field>().Select(x => x.Number).Distinct();
         }
 
         public abstract class WhereClauseItem

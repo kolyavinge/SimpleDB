@@ -10,7 +10,7 @@ namespace StartApp
     {
         static void Main(string[] args)
         {
-            var doInsert = 0;
+            var doInsert = 1;
             var doGet = 1;
             var doUpdate = 1;
             var doDelete = 1;

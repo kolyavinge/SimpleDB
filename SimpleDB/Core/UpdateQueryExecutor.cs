@@ -77,8 +77,7 @@ namespace SimpleDB.Core
                 var nonSelectedUpdateFieldNumbers = updateFieldNumbers.ToHashSet();
                 nonSelectedUpdateFieldNumbers.ExceptWith(allFieldNumbers);
                 allFieldNumbers.AddRange(nonSelectedUpdateFieldNumbers);
-                var fieldMetaDictionary = _mapper.FieldMetaCollection.ToDictionary(k => k.Number, v => v);
-                var remainingFieldNumbers = fieldMetaDictionary.Keys.ToHashSet();
+                var remainingFieldNumbers = _mapper.FieldMetaCollection.Select(x => x.Number).ToHashSet();
                 remainingFieldNumbers.ExceptWith(allFieldNumbers);
                 if (nonSelectedUpdateFieldNumbers.Any())
                 {
@@ -95,9 +94,9 @@ namespace SimpleDB.Core
                     foreach (var variableFieldNumber in variableFieldNumbers)
                     {
                         var currentValue = fieldValueDictionary.FieldValues[variableFieldNumber].Value;
-                        var currentValueByteArray = _dataFile.ToByteArray(fieldMetaDictionary[variableFieldNumber], currentValue);
+                        var currentValueByteArray = _dataFile.ToByteArray(variableFieldNumber, currentValue);
                         var newValue = updateFieldDictionary[variableFieldNumber].Value;
-                        var newValueByteArray = _dataFile.ToByteArray(fieldMetaDictionary[variableFieldNumber], newValue);
+                        var newValueByteArray = _dataFile.ToByteArray(variableFieldNumber, newValue);
                         // проверяем чтобы старое и новое значение в байтах равнялись по длине
                         if (currentValueByteArray.Length != newValueByteArray.Length)
                         {

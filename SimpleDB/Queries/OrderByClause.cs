@@ -42,7 +42,7 @@ namespace SimpleDB.Queries
 
         public IEnumerable<byte> GetAllFieldNumbers()
         {
-            return OrderedItems.Where(x => x is Field).Cast<Field>().Select(x => x.Number).Distinct();
+            return OrderedItems.OfType<Field>().Select(x => x.Number).Distinct();
         }
 
         public abstract class OrderByClauseItem

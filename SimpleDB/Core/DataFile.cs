@@ -431,8 +431,9 @@ namespace SimpleDB.Core
             return fieldValue;
         }
 
-        public byte[] ToByteArray(FieldMeta fieldMeta, object fieldValue)
+        public byte[] ToByteArray(byte fieldNumber, object fieldValue)
         {
+            var fieldMeta = _fieldMetaDictionary[fieldNumber];
             byte[] bytes;
             if (fieldMeta.Type == typeof(string))
             {

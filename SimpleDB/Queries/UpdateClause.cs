@@ -14,7 +14,7 @@ namespace SimpleDB.Queries
 
         public IEnumerable<byte> GetAllFieldNumbers()
         {
-            return UpdateItems.Where(x => x is Field).Cast<Field>().Select(x => x.Number).Distinct();
+            return UpdateItems.OfType<Field>().Select(x => x.Number).Distinct();
         }
 
         public abstract class UpdateClauseItem { }
