@@ -70,6 +70,7 @@ namespace SimpleDB
 
     internal class MapperBuilder<TEntity> : MapperBuilder, IMapperBuilder<TEntity>
     {
+        private readonly FieldMappingValidator _fieldMappingValidator = new FieldMappingValidator();
         private string _name;
         private PrimaryKeyMapping<TEntity> _primaryKeyMapping;
         private List<FieldMapping<TEntity>> _fieldMappings = new List<FieldMapping<TEntity>>();
@@ -91,7 +92,9 @@ namespace SimpleDB
 
         public IMapperBuilder<TEntity> Field(byte number, Expression<Func<TEntity, object>> fieldExpression, FieldSettings settings = default(FieldSettings))
         {
-            _fieldMappings.Add(new FieldMapping<TEntity>(number, fieldExpression) { Settings = settings });
+            var fieldMapping = new FieldMapping<TEntity>(number, fieldExpression) { Settings = settings };
+            _fieldMappingValidator.Validate(fieldMapping);
+            _fieldMappings.Add(fieldMapping);
             return this;
         }
 
