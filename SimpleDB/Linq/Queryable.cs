@@ -76,6 +76,19 @@ namespace SimpleDB.Linq
             return result;
         }
 
+        public IMergeQueryResult<TEntity> Merge(Expression<Func<TEntity, object>> mergeFieldsExpression, IEnumerable<TEntity> entities)
+        {
+            var queryBuilder = new MergeQueryBuilder<TEntity>(
+               _mapper,
+               mergeFieldsExpression,
+               entities);
+            var query = queryBuilder.BuildQuery();
+            var queryExecutor = _queryExecutorFactory.MakeMergeQueryExecutor();
+            var result = queryExecutor.ExecuteQuery(query);
+
+            return result;
+        }
+
         private IQueryableSelect<TEntity> MakeQueryableSelect(Expression<Func<TEntity, object>> selectExpression = null)
         {
             var queryExecutor = _queryExecutorFactory.MakeSelectQueryExecutor();

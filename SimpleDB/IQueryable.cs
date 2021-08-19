@@ -22,6 +22,13 @@ namespace SimpleDB
 
         int Delete(Expression<Func<TEntity, bool>> whereExpression = null);
 
+        IMergeQueryResult<TEntity> Merge(Expression<Func<TEntity, object>> mergeFieldsExpression, IEnumerable<TEntity> entities);
+
         int Count();
+    }
+
+    public interface IMergeQueryResult<TEntity>
+    {
+        List<TEntity> NewItems { get; }
     }
 }

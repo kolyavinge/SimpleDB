@@ -15,6 +15,7 @@ namespace StartApp
             var doUpdate = 1;
             var doDelete = 1;
             var doQuery = 1;
+            var doMerge = 1;
             var doGetAsync = 0;
 
             var workingDirectory = @"D:\Projects\SimpleDB\StartApp\bin\Debug\netcoreapp3.1\Database";
@@ -189,6 +190,26 @@ namespace StartApp
                 Console.WriteLine(collection.Exist(102));
                 sw.Stop();
                 Console.WriteLine(sw.Elapsed);
+            }
+
+            if (doMerge == 1)
+            {
+                Console.WriteLine("========== Merge ==========");
+                sw = System.Diagnostics.Stopwatch.StartNew();
+                var mergeResult = collection.Query().Merge(
+                    x => new { x.Name, x.Surname },
+                    new[]
+                    {
+                        new Person { Id = -1, Name = "Merged Name 1", Surname = "Merged Surname 1" },
+                        new Person { Id = -2, Name = "Merged Name 2", Surname = "Merged Surname 2" },
+                        new Person { Id = -3, Name = "Merged Name 3", Surname = "Merged Surname 3" }
+                    });
+                sw.Stop();
+                Console.WriteLine(sw.Elapsed);
+                Console.WriteLine("MergeResult: " + mergeResult.NewItems.Count);
+                Console.WriteLine("Exist -1: " + collection.Exist(-1));
+                Console.WriteLine("Exist -2: " + collection.Exist(-2));
+                Console.WriteLine("Exist -3: " + collection.Exist(-3));
             }
 
             if (doGetAsync == 1)

@@ -48,6 +48,11 @@ namespace SimpleDB.Core
             get { return _fieldValues.Count; }
         }
 
+        public void Clear()
+        {
+            _fieldValues.Clear();
+        }
+
         public IEnumerator<FieldValue> GetEnumerator()
         {
             return _fieldValues.Values.GetEnumerator();
@@ -86,7 +91,7 @@ namespace SimpleDB.Core
                     _hashCode = 1430287;
                     foreach (var fieldValue in _fieldValues.Values.OrderBy(x => x.Number))
                     {
-                        _hashCode = _hashCode * 7302013 ^ _fieldValues[fieldValue.Number].GetHashCode();
+                        _hashCode = _hashCode * 7302013 ^ _fieldValues[fieldValue.Number].Value.GetHashCode();
                     }
                 }
             }

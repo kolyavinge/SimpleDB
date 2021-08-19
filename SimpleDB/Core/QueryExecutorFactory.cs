@@ -35,5 +35,10 @@ namespace SimpleDB.Core
         {
             return new DeleteQueryExecutor<TEntity>(_primaryKeyFile, _primaryKeys, _dataFile);
         }
+
+        public MergeQueryExecutor<TEntity> MakeMergeQueryExecutor()
+        {
+            return new MergeQueryExecutor<TEntity>(_mapper, _primaryKeyFile, _dataFile, _primaryKeys);
+        }
     }
 }

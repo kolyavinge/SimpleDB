@@ -48,9 +48,14 @@ namespace SimpleDB.Core
             return PrimaryKeyMapping.Func.Invoke(entity);
         }
 
-        public IEnumerable<FieldValue> GetFieldValueCollection(TEntity entity)
+        public IEnumerable<FieldValue> GetFieldValueCollection(TEntity entity, ISet<byte> fieldNumbers = null)
         {
-            foreach (var fieldMapping in _fieldMappings.Values)
+            var fieldMappings = _fieldMappings.Values.ToList();
+            if (fieldNumbers != null)
+            {
+                fieldMappings.RemoveAll(x => !fieldNumbers.Contains(x.Number));
+            }
+            foreach (var fieldMapping in fieldMappings)
             {
                 yield return new FieldValue(fieldMapping.Number, fieldMapping.Func.Invoke(entity));
             }

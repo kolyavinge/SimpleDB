@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using SimpleDB.Core;
 
@@ -61,6 +62,18 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual((byte)45, result[0].Value);
             Assert.AreEqual(6.7f, result[1].Value);
             Assert.AreEqual("123", result[2].Value);
+        }
+
+        [Test]
+        public void GetFieldValueCollectionWithFieldNumbers()
+        {
+            var fieldNumbers = new HashSet<byte>(new byte[] { 1, 2 });
+            var result = _mapper.GetFieldValueCollection(_entity, fieldNumbers).ToList();
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(1, result[0].Number);
+            Assert.AreEqual(2, result[1].Number);
+            Assert.AreEqual(6.7f, result[0].Value);
+            Assert.AreEqual("123", result[1].Value);
         }
 
         [Test]
