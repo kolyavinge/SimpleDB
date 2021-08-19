@@ -121,7 +121,7 @@ namespace SimpleDB.Core
             foreach (var fieldValueCollection in fieldValueCollections)
             {
                 var primaryKey = fieldValueCollection.PrimaryKey;
-                var entity = _mapper.GetEntity(primaryKey.Value, fieldValueCollection, includePrimaryKey, selectFieldNumbers);
+                var entity = _mapper.MakeEntity(primaryKey.Value, fieldValueCollection, includePrimaryKey, selectFieldNumbers);
                 queryResultItems.Add(entity);
             }
 

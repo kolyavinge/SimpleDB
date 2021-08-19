@@ -72,7 +72,7 @@ namespace SimpleDB.Core
             insertedBytesCount = totalInsertedBytesCount;
         }
 
-        private static void InsertValue(IWriteableStream stream, FieldMeta fieldMeta, object fieldValue, out int insertedBytesCount)
+        private void InsertValue(IWriteableStream stream, FieldMeta fieldMeta, object fieldValue, out int insertedBytesCount)
         {
             stream.WriteByte((byte)fieldMeta.GetFieldType());
             insertedBytesCount = sizeof(byte);
@@ -155,12 +155,7 @@ namespace SimpleDB.Core
                 }
                 else if (fieldValue is string)
                 {
-                    var str = (string)fieldValue;
-                    var bytes = Encoding.UTF8.GetBytes(str);
-                    if (fieldMeta.Settings.Compressed)
-                    {
-                        bytes = ZipCompression.Compress(bytes);
-                    }
+                    var bytes = StringToByteArray(fieldMeta, (string)fieldValue);
                     stream.WriteInt(bytes.Length);
                     stream.WriteByteArray(bytes, 0, bytes.Length);
                     insertedBytesCount += sizeof(int) + bytes.Length;
@@ -184,16 +179,47 @@ namespace SimpleDB.Core
                 }
                 else
                 {
-                    var fieldValueJson = JsonSerialization.ToJson(fieldValue);
-                    var bytes = Encoding.UTF8.GetBytes(fieldValueJson);
-                    if (fieldMeta.Settings.Compressed)
-                    {
-                        bytes = ZipCompression.Compress(bytes);
-                    }
+                    var bytes = ObjectToByteArray(fieldMeta, fieldValue);
                     stream.WriteInt(bytes.Length);
                     stream.WriteByteArray(bytes, 0, bytes.Length);
                     insertedBytesCount += sizeof(int) + bytes.Length;
                 }
+            }
+        }
+
+        private byte[] StringToByteArray(FieldMeta fieldMeta, string fieldValue)
+        {
+            var bytes = Encoding.UTF8.GetBytes(fieldValue);
+            if (fieldMeta.Settings.Compressed)
+            {
+                bytes = ZipCompression.Compress(bytes);
+            }
+
+            return bytes;
+        }
+
+        private byte[] ObjectToByteArray(FieldMeta fieldMeta, object fieldValue)
+        {
+            var fieldValueJson = JsonSerialization.ToJson(fieldValue);
+            var bytes = Encoding.UTF8.GetBytes(fieldValueJson);
+            if (fieldMeta.Settings.Compressed)
+            {
+                bytes = ZipCompression.Compress(bytes);
+            }
+
+            return bytes;
+        }
+
+        public byte[] ToByteArray(byte fieldNumber, object fieldValue)
+        {
+            var fieldMeta = _fieldMetaDictionary[fieldNumber];
+            if (fieldMeta.Type == typeof(string))
+            {
+                return StringToByteArray(fieldMeta, (string)fieldValue);
+            }
+            else
+            {
+                return ObjectToByteArray(fieldMeta, fieldValue);
             }
         }
 
@@ -429,32 +455,6 @@ namespace SimpleDB.Core
             }
 
             return fieldValue;
-        }
-
-        public byte[] ToByteArray(byte fieldNumber, object fieldValue)
-        {
-            var fieldMeta = _fieldMetaDictionary[fieldNumber];
-            byte[] bytes;
-            if (fieldMeta.Type == typeof(string))
-            {
-                var str = (string)fieldValue;
-                bytes = Encoding.UTF8.GetBytes(str);
-                if (fieldMeta.Settings.Compressed)
-                {
-                    bytes = ZipCompression.Compress(bytes);
-                }
-            }
-            else
-            {
-                var fieldValueJson = JsonSerialization.ToJson(fieldValue);
-                bytes = Encoding.UTF8.GetBytes(fieldValueJson);
-                if (fieldMeta.Settings.Compressed)
-                {
-                    bytes = ZipCompression.Compress(bytes);
-                }
-            }
-
-            return bytes;
         }
 
         public struct InsertResult

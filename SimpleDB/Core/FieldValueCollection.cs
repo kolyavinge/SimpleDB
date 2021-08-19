@@ -89,9 +89,9 @@ namespace SimpleDB.Core
                 unchecked
                 {
                     _hashCode = 1430287;
-                    foreach (var fieldValue in _fieldValues.Values.OrderBy(x => x.Number))
+                    foreach (var kv in _fieldValues)
                     {
-                        _hashCode = _hashCode * 7302013 ^ _fieldValues[fieldValue.Number].Value.GetHashCode();
+                        _hashCode *= 7302013 ^ kv.Value.Value.GetHashCode();
                     }
                 }
             }

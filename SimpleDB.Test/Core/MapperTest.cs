@@ -85,7 +85,7 @@ namespace SimpleDB.Test.Core
                 new FieldValue(1, 6.7f),
                 new FieldValue(2, "123")
             };
-            var result = _mapper.GetEntity(123, fieldValueCollection, true);
+            var result = _mapper.MakeEntity(123, fieldValueCollection, true);
             Assert.AreEqual(123, result.Id);
             Assert.AreEqual((byte)45, result.Byte);
             Assert.AreEqual(6.7f, result.Float);
@@ -101,7 +101,7 @@ namespace SimpleDB.Test.Core
                 new FieldValue(1, 6.7f),
                 new FieldValue(2, "123")
             };
-            var result = _mapper.GetEntity(123, fieldValueCollection, false);
+            var result = _mapper.MakeEntity(123, fieldValueCollection, false);
             Assert.AreEqual(0, result.Id);
             Assert.AreEqual((byte)45, result.Byte);
             Assert.AreEqual(6.7f, result.Float);
@@ -135,7 +135,7 @@ namespace SimpleDB.Test.Core
                 new FieldValue(1, 6.7f),
                 new FieldValue(2, "123")
             };
-            var result = _mapper.GetEntity(123, fieldValueCollection, false);
+            var result = _mapper.MakeEntity(123, fieldValueCollection, false);
             Assert.AreEqual(0, result.Id);
             Assert.AreEqual((byte)45, result.Byte);
             Assert.AreEqual(6.7f, result.Float);

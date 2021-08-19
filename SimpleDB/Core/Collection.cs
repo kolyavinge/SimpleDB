@@ -53,7 +53,7 @@ namespace SimpleDB.Core
             try
             {
                 DataFile.BeginRead();
-                return GetInternal(id);
+                return EntityOperations.Get(id, Mapper, PrimaryKeys, DataFile);
             }
             finally
             {
@@ -68,7 +68,7 @@ namespace SimpleDB.Core
                 DataFile.BeginRead();
                 foreach (var id in idList)
                 {
-                    yield return GetInternal(id);
+                    yield return EntityOperations.Get(id, Mapper, PrimaryKeys, DataFile);
                 }
             }
             finally
@@ -77,25 +77,13 @@ namespace SimpleDB.Core
             }
         }
 
-        private TEntity GetInternal(object id)
-        {
-            if (Exist(id) == false) return default(TEntity);
-            var primaryKey = PrimaryKeys[id];
-            var fieldNumbers = Mapper.FieldMetaCollection.Select(x => x.Number).ToHashSet();
-            var fieldValueCollection = new FieldValueCollection();
-            DataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldNumbers, fieldValueCollection);
-            var entity = Mapper.GetEntity(primaryKey.Value, fieldValueCollection, true);
-
-            return entity;
-        }
-
         public void Insert(TEntity entity)
         {
             try
             {
                 DataFile.BeginWrite();
                 PrimaryKeyFile.BeginWrite();
-                InsertInternal(entity);
+                EntityOperations.Insert(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
             }
             finally
             {
@@ -112,7 +100,7 @@ namespace SimpleDB.Core
                 PrimaryKeyFile.BeginWrite();
                 foreach (var entity in entities)
                 {
-                    InsertInternal(entity);
+                    EntityOperations.Insert(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
                 }
             }
             finally
@@ -122,18 +110,9 @@ namespace SimpleDB.Core
             }
         }
 
-        private void InsertInternal(TEntity entity)
-        {
-            var fieldValueCollection = Mapper.GetFieldValueCollection(entity);
-            var insertResult = DataFile.Insert(fieldValueCollection);
-            var primaryKeyValue = Mapper.GetPrimaryKeyValue(entity);
-            var primaryKey = PrimaryKeyFile.Insert(primaryKeyValue, insertResult.StartDataFileOffset, insertResult.EndDataFileOffset);
-            PrimaryKeys.Add(primaryKeyValue, primaryKey);
-        }
-
         public void Update(TEntity entity)
         {
-            UpdateInternal(entity);
+            EntityOperations.Update(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
         }
 
         public void Update(IEnumerable<TEntity> entities)
@@ -144,7 +123,7 @@ namespace SimpleDB.Core
                 PrimaryKeyFile.BeginWrite();
                 foreach (var entity in entities)
                 {
-                    UpdateInternal(entity);
+                    EntityOperations.Update(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
                 }
             }
             finally
@@ -152,16 +131,6 @@ namespace SimpleDB.Core
                 DataFile.EndReadWrite();
                 PrimaryKeyFile.EndReadWrite();
             }
-        }
-
-        private void UpdateInternal(TEntity entity)
-        {
-            var primaryKeyValue = Mapper.GetPrimaryKeyValue(entity);
-            if (Exist(primaryKeyValue) == false) return;
-            var primaryKey = PrimaryKeys[primaryKeyValue];
-            var fieldValueCollection = Mapper.GetFieldValueCollection(entity);
-            var updateResult = DataFile.Update(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldValueCollection);
-            PrimaryKeyFile.UpdatePrimaryKey(primaryKey, updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset);
         }
 
         public void InsertOrUpdate(TEntity entity)
@@ -173,11 +142,11 @@ namespace SimpleDB.Core
                 var primaryKeyValue = Mapper.GetPrimaryKeyValue(entity);
                 if (Exist(primaryKeyValue))
                 {
-                    UpdateInternal(entity);
+                    EntityOperations.Update(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
                 }
                 else
                 {
-                    InsertInternal(entity);
+                    EntityOperations.Insert(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
                 }
             }
             finally
@@ -198,11 +167,11 @@ namespace SimpleDB.Core
                     var primaryKeyValue = Mapper.GetPrimaryKeyValue(entity);
                     if (Exist(primaryKeyValue))
                     {
-                        UpdateInternal(entity);
+                        EntityOperations.Update(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
                     }
                     else
                     {
-                        InsertInternal(entity);
+                        EntityOperations.Insert(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
                     }
                 }
             }
@@ -218,7 +187,7 @@ namespace SimpleDB.Core
             try
             {
                 PrimaryKeyFile.BeginWrite();
-                DeleteInternal(id);
+                EntityOperations.Delete(id, PrimaryKeyFile, PrimaryKeys);
             }
             finally
             {
@@ -233,20 +202,13 @@ namespace SimpleDB.Core
                 PrimaryKeyFile.BeginWrite();
                 foreach (var id in idList)
                 {
-                    DeleteInternal(id);
+                    EntityOperations.Delete(id, PrimaryKeyFile, PrimaryKeys);
                 }
             }
             finally
             {
                 PrimaryKeyFile.EndReadWrite();
             }
-        }
-
-        private void DeleteInternal(object id)
-        {
-            var primaryKey = PrimaryKeys[id];
-            PrimaryKeyFile.Delete(primaryKey.PrimaryKeyFileOffset);
-            PrimaryKeys.Remove(id);
         }
 
         public IQueryable<TEntity> Query()

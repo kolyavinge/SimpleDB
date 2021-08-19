@@ -11,10 +11,10 @@ namespace StartApp
         static void Main(string[] args)
         {
             var doInsert = 1;
-            var doGet = 1;
-            var doUpdate = 1;
-            var doDelete = 1;
-            var doQuery = 1;
+            var doGet = 0;
+            var doUpdate = 0;
+            var doDelete = 0;
+            var doQuery = 0;
             var doMerge = 1;
             var doGetAsync = 0;
 
@@ -195,15 +195,13 @@ namespace StartApp
             if (doMerge == 1)
             {
                 Console.WriteLine("========== Merge ==========");
+                var newEntities = Enumerable.Range(1, count)
+                    .Select(i => new Person { Id = -i, Name = "Merged Name " + i.ToString(), Surname = "Merged Surname " + i.ToString() })
+                    .ToList();
                 sw = System.Diagnostics.Stopwatch.StartNew();
                 var mergeResult = collection.Query().Merge(
                     x => new { x.Name, x.Surname },
-                    new[]
-                    {
-                        new Person { Id = -1, Name = "Merged Name 1", Surname = "Merged Surname 1" },
-                        new Person { Id = -2, Name = "Merged Name 2", Surname = "Merged Surname 2" },
-                        new Person { Id = -3, Name = "Merged Name 3", Surname = "Merged Surname 3" }
-                    });
+                    newEntities);
                 sw.Stop();
                 Console.WriteLine(sw.Elapsed);
                 Console.WriteLine("MergeResult: " + mergeResult.NewItems.Count);

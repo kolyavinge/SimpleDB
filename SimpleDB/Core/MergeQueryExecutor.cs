@@ -39,7 +39,7 @@ namespace SimpleDB.Core
                 {
                     foreach (var entity in newEntities)
                     {
-                        InsertInternal(entity);
+                        EntityOperations.Insert(entity, _mapper, _primaryKeyFile, _dataFile, _primaryKeys);
                     }
                 }
             }
@@ -69,15 +69,6 @@ namespace SimpleDB.Core
             }
 
             return newEntities.Values.ToList();
-        }
-
-        private void InsertInternal(TEntity entity)
-        {
-            var fieldValueCollection = _mapper.GetFieldValueCollection(entity);
-            var insertResult = _dataFile.Insert(fieldValueCollection);
-            var primaryKeyValue = _mapper.GetPrimaryKeyValue(entity);
-            var primaryKey = _primaryKeyFile.Insert(primaryKeyValue, insertResult.StartDataFileOffset, insertResult.EndDataFileOffset);
-            _primaryKeys.Add(primaryKeyValue, primaryKey);
         }
     }
 

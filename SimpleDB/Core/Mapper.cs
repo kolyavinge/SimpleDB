@@ -61,7 +61,7 @@ namespace SimpleDB.Core
             }
         }
 
-        public TEntity GetEntity(object primaryKeyValue, IEnumerable<FieldValue> fieldValueCollection, bool includePrimaryKey, ISet<byte> selectedFieldNumbers = null)
+        public TEntity MakeEntity(object primaryKeyValue, IEnumerable<FieldValue> fieldValueCollection, bool includePrimaryKey, ISet<byte> selectedFieldNumbers = null)
         {
             if (MakeFunction != null && PrimaryKeySetFunction != null && FieldSetFunction != null)
             {

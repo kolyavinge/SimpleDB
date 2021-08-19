@@ -108,7 +108,7 @@ namespace SimpleDB.Core
                                 fieldValueCollection[updateFieldValue.Number] = new FieldValue(updateFieldValue.Number, updateFieldValue.Value);
                             }
                             // делаем полное обновление всей записи
-                            UpdateAllFields(fieldValueCollection);
+                            EntityOperations.UpdateAllFields(fieldValueCollection, _primaryKeyFile, _dataFile);
                             break;
                         }
                     }
@@ -125,13 +125,6 @@ namespace SimpleDB.Core
             }
 
             return fieldValueCollections.Count;
-        }
-
-        private void UpdateAllFields(FieldValueCollection fieldValueCollection)
-        {
-            var primaryKey = fieldValueCollection.PrimaryKey;
-            var updateResult = _dataFile.Update(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldValueCollection);
-            _primaryKeyFile.UpdatePrimaryKey(primaryKey, updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset);
         }
     }
 }
