@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using System.Collections.Generic;
+using System.Linq;
+using NUnit.Framework;
 using SimpleDB.Core;
 using SimpleDB.Infrastructure;
 using SimpleDB.Test.Tools;
@@ -87,6 +89,42 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual(0, primaryKey.PrimaryKeyFileOffset);
             Assert.AreEqual(0, primaryKey.StartDataFileOffset);
             Assert.AreEqual(20, primaryKey.EndDataFileOffset);
+        }
+
+        [Test]
+        public void Update_NotNullToNull()
+        {
+            _entity.String = "1234567890";
+            _collection.Insert(_entity);
+            _entity.String = null;
+            _collection.Update(_entity);
+
+            var result = _collection.Get(123);
+            Assert.AreEqual(null, result.String);
+        }
+
+        [Test]
+        public void Update_NullToNotNull()
+        {
+            _entity.String = null;
+            _collection.Insert(_entity);
+            _entity.String = "0123456789";
+            _collection.Update(_entity);
+
+            var result = _collection.Get(123);
+            Assert.AreEqual("0123456789", result.String);
+        }
+
+        [Test]
+        public void Update_NullToNull()
+        {
+            _entity.String = null;
+            _collection.Insert(_entity);
+            _entity.String = null;
+            _collection.Update(_entity);
+
+            var result = _collection.Get(123);
+            Assert.AreEqual(null, result.String);
         }
 
         [Test]
@@ -281,6 +319,39 @@ namespace SimpleDB.Test.Core
             _collection.Insert(new TestEntity { Id = 5, Byte = 50 });
             var result = _collection.Query().Where(x => x.Byte >= 20).ToList();
             Assert.AreEqual(4, result.Count);
+        }
+
+        [Test]
+        public void Linq_Where_NotNullStringCompareWithNull()
+        {
+            _collection.Insert(new TestEntity { Id = 1, String = "123" });
+            var result = _collection.Query().Where(x => x.String == null).ToList();
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [Test]
+        public void Linq_Where_NullStringCompareWithNull()
+        {
+            _collection.Insert(new TestEntity { Id = 1, String = null });
+            var result = _collection.Query().Where(x => x.String == null).ToList();
+            Assert.AreEqual(1, result.Count);
+        }
+
+        [Test]
+        public void Linq_Where_NullStringCompareWithNotNull()
+        {
+            _collection.Insert(new TestEntity { Id = 1, String = null });
+            var result = _collection.Query().Where(x => x.String == "123").ToList();
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [Test]
+        public void Linq_Where_NullStringInSet()
+        {
+            var set = new List<string> { "123" };
+            _collection.Insert(new TestEntity { Id = 1, String = null });
+            var result = _collection.Query().Where(x => set.Contains(x.String)).ToList();
+            Assert.AreEqual(0, result.Count);
         }
 
         class TestEntity

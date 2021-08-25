@@ -183,7 +183,7 @@ namespace SimpleDB.Test.Linq
         }
 
         [Test]
-        public void Build_In_Field_1()
+        public void Build_In_Field_List()
         {
             var set = new List<string> { "12", "123" };
             Expression<Func<TestEntity, bool>> whereExpression = x => set.Contains(x.StringField);
@@ -197,7 +197,21 @@ namespace SimpleDB.Test.Linq
         }
 
         [Test]
-        public void Build_In_Field_2()
+        public void Build_In_Field_Array()
+        {
+            var set = new string[] { "12", "123" };
+            Expression<Func<TestEntity, bool>> whereExpression = x => set.Contains(x.StringField);
+            dynamic result = _builder.Build(_mapper, whereExpression).Root;
+            Assert.AreEqual(typeof(WhereClause.InOperation), result.GetType());
+            Assert.AreEqual(typeof(WhereClause.Field), result.Left.GetType());
+            Assert.AreEqual(typeof(WhereClause.Set), result.Right.GetType());
+            Assert.AreEqual(2, ((ISet<object>)result.Right.Value).Count);
+            Assert.True(((ISet<object>)result.Right.Value).Contains("12"));
+            Assert.True(((ISet<object>)result.Right.Value).Contains("123"));
+        }
+
+        [Test]
+        public void Build_In_Field_ArrayInline()
         {
             Expression<Func<TestEntity, bool>> whereExpression = x => new string[] { "12", "123" }.Contains(x.StringField);
             dynamic result = _builder.Build(_mapper, whereExpression).Root;

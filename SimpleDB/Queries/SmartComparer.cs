@@ -7,6 +7,8 @@ namespace SimpleDB.Queries
     {
         public static bool AreEquals(object x, object y)
         {
+            if (x == null && y == null) return true;
+            if (x == null && y != null || x != null && y == null) return false;
             if (x.GetType() != y.GetType() && x.IsStandartType() && y.IsStandartType())
             {
                 if (x.GetStandartTypeSize() > y.GetStandartTypeSize())

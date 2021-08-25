@@ -66,12 +66,25 @@ namespace SimpleDB.Linq
                     }
                 }
                 else if (methodCallExpression.Method.Name == "Contains"
+                    && methodCallExpression.Method.DeclaringType.FullName == "System.Linq.Enumerable"
                     && methodCallExpression.Arguments.Count == 2
                     && methodCallExpression.Arguments[0] is NewArrayExpression
                     && methodCallExpression.Arguments[1] is MemberExpression)
                 {
                     var left = methodCallExpression.Arguments[1];
                     var set = ((NewArrayExpression)methodCallExpression.Arguments[0]).Expressions.Cast<ConstantExpression>().Select(x => x.Value).ToList();
+                    return new WhereClause.InOperation(BuildItem(mapper, left), new WhereClause.Set(set));
+                }
+                else if (methodCallExpression.Method.Name == "Contains"
+                    && methodCallExpression.Method.DeclaringType.FullName == "System.Linq.Enumerable"
+                    && methodCallExpression.Arguments.Count == 2
+                    && methodCallExpression.Arguments[0] is MemberExpression
+                    && methodCallExpression.Arguments[1] is MemberExpression)
+                {
+                    var left = methodCallExpression.Arguments[1];
+                    var memberExpression = (MemberExpression)methodCallExpression.Arguments[0];
+                    var constantExpression = (ConstantExpression)memberExpression.Expression;
+                    var set = (IEnumerable)constantExpression.Value.GetType().GetField(memberExpression.Member.Name).GetValue(constantExpression.Value);
                     return new WhereClause.InOperation(BuildItem(mapper, left), new WhereClause.Set(set));
                 }
             }

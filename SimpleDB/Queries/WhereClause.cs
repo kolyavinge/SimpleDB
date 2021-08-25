@@ -62,7 +62,7 @@ namespace SimpleDB.Queries
             {
                 var leftValue = Left.GetValue(fieldValueCollection);
                 var rightValue = Right.GetValue(fieldValueCollection);
-                return SmartComparer.Compare(leftValue, rightValue) == 0;
+                return SmartComparer.AreEquals(leftValue, rightValue);
             }
         }
 

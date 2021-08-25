@@ -158,5 +158,18 @@ namespace SimpleDB.Test.Queries
                 }
             }
         }
+
+        [Test]
+        public void Equals_IntNull()
+        {
+            Assert.False(SmartComparer.AreEquals(123, null));
+            Assert.False(SmartComparer.AreEquals(null, 123));
+        }
+
+        [Test]
+        public void Equals_Null()
+        {
+            Assert.True(SmartComparer.AreEquals(null, null));
+        }
     }
 }
