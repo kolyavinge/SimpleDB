@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using SimpleDB.Infrastructure;
 using SimpleDB.Linq;
 
 namespace SimpleDB.Core
@@ -18,11 +19,12 @@ namespace SimpleDB.Core
         public Collection(string workingDirectory, Mapper<TEntity> mapper)
         {
             Mapper = mapper;
-            var primaryKeyFileFullPath = Path.Combine(workingDirectory, PrimaryKeyFileName.FromCollectionName(mapper.EntityName));
-            var dataFileFileFullPath = Path.Combine(workingDirectory, DataFileFileName.FromCollectionName(mapper.EntityName));
+            var primaryKeyFileFullPath = Path.Combine(workingDirectory, PrimaryKeyFileName.FromEntityName(mapper.EntityName));
+            var dataFileFileFullPath = Path.Combine(workingDirectory, DataFileFileName.FromEntityName(mapper.EntityName));
             PrimaryKeyFile = new PrimaryKeyFile(primaryKeyFileFullPath, mapper.PrimaryKeyMapping.PropertyType);
             DataFile = new DataFile(dataFileFileFullPath, mapper.FieldMetaCollection);
             PrimaryKeys = GetAllPrimaryKeys().Where(x => !x.IsDeleted()).ToDictionary(k => k.Value, v => v);
+            SaveMetaFileIfNeeded(workingDirectory);
         }
 
         private List<PrimaryKey> GetAllPrimaryKeys()
@@ -215,6 +217,24 @@ namespace SimpleDB.Core
         {
             var queryExecutorFactory = new QueryExecutorFactory<TEntity>(Mapper, PrimaryKeyFile, PrimaryKeys, DataFile);
             return new Queryable<TEntity>(queryExecutorFactory, Mapper);
+        }
+
+        private void SaveMetaFileIfNeeded(string workingDirectory)
+        {
+            var metaFileFullPath = Path.Combine(workingDirectory, MetaFileName.FromEntityName(Mapper.EntityName));
+            var metaFile = new MetaFile(metaFileFullPath);
+            if (IOC.Get<IFileSystem>().FileExists(metaFileFullPath))
+            {
+                var savedFieldMetaCollection = metaFile.GetFieldMetaCollection().ToHashSet();
+                if (!Mapper.FieldMetaCollection.All(savedFieldMetaCollection.Contains))
+                {
+                    metaFile.Save(Mapper.PrimaryKeyMapping.PropertyType, Mapper.FieldMetaCollection);
+                }
+            }
+            else
+            {
+                metaFile.Save(Mapper.PrimaryKeyMapping.PropertyType, Mapper.FieldMetaCollection);
+            }
         }
     }
 }

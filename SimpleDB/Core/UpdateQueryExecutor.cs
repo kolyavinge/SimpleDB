@@ -69,7 +69,8 @@ namespace SimpleDB.Core
             var variableFieldNumbers =
                 (from meta in _mapper.FieldMetaCollection
                  join fieldNumber in updateFieldNumbers on meta.Number equals fieldNumber
-                 where meta.GetFieldType() == FieldTypes.String || meta.GetFieldType() == FieldTypes.Object
+                 let fieldType = FieldTypesConverter.GetFieldType(meta.Type)
+                 where fieldType == FieldTypes.String || fieldType == FieldTypes.Object
                  select fieldNumber).ToList();
             // если среди обновляемых есть поля с переменной длиной
             if (variableFieldNumbers.Any())

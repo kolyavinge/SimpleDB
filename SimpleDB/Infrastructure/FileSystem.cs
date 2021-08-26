@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SimpleDB.Infrastructure
+﻿namespace SimpleDB.Infrastructure
 {
     internal interface IFileSystem
     {
+        bool FileExists(string fullFilePath);
+
         void CreateFileIfNeeded(string fullFilePath);
 
         IFileStream OpenFileRead(string fullPath);
@@ -17,6 +15,11 @@ namespace SimpleDB.Infrastructure
 
     internal class FileSystem : IFileSystem
     {
+        public bool FileExists(string fullFilePath)
+        {
+            return System.IO.File.Exists(fullFilePath);
+        }
+
         public void CreateFileIfNeeded(string fullFilePath)
         {
             if (!System.IO.File.Exists(fullFilePath))

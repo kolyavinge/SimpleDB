@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SimpleDB.Core
 {
@@ -14,26 +15,6 @@ namespace SimpleDB.Core
         {
             Number = number;
             Type = type;
-        }
-
-        public FieldTypes GetFieldType()
-        {
-            if (Type == typeof(bool)) return FieldTypes.Bool;
-            else if (Type == typeof(sbyte)) return FieldTypes.Sbyte;
-            else if (Type == typeof(byte)) return FieldTypes.Byte;
-            else if (Type == typeof(char)) return FieldTypes.Char;
-            else if (Type == typeof(short)) return FieldTypes.Short;
-            else if (Type == typeof(ushort)) return FieldTypes.UShort;
-            else if (Type == typeof(int)) return FieldTypes.Int;
-            else if (Type == typeof(uint)) return FieldTypes.UInt;
-            else if (Type == typeof(long)) return FieldTypes.Long;
-            else if (Type == typeof(ulong)) return FieldTypes.ULong;
-            else if (Type == typeof(float)) return FieldTypes.Float;
-            else if (Type == typeof(double)) return FieldTypes.Double;
-            else if (Type == typeof(decimal)) return FieldTypes.Decimal;
-            else if (Type == typeof(DateTime)) return FieldTypes.DateTime;
-            else if (Type == typeof(string)) return FieldTypes.String;
-            else return FieldTypes.Object;
         }
 
         public object GetDefaultValue()
@@ -53,6 +34,19 @@ namespace SimpleDB.Core
             else if (Type == typeof(decimal)) return default(decimal);
             else if (Type == typeof(DateTime)) return default(DateTime);
             else return null;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is FieldMeta meta &&
+                   Number == meta.Number &&
+                   EqualityComparer<Type>.Default.Equals(Type, meta.Type) &&
+                   EqualityComparer<FieldSettings>.Default.Equals(Settings, meta.Settings);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Number, Type, Settings);
         }
     }
 
@@ -95,6 +89,49 @@ namespace SimpleDB.Core
             if (type == FieldTypes.Decimal) return sizeof(decimal);
             if (type == FieldTypes.DateTime) return sizeof(long);
             else throw new UnsupportedFieldTypeException();
+        }
+    }
+
+    internal class FieldTypesConverter
+    {
+        public static Type GetType(FieldTypes type)
+        {
+            if (type == FieldTypes.Bool) return typeof(bool);
+            if (type == FieldTypes.Sbyte) return typeof(sbyte);
+            if (type == FieldTypes.Byte) return typeof(byte);
+            if (type == FieldTypes.Char) return typeof(char);
+            if (type == FieldTypes.Short) return typeof(short);
+            if (type == FieldTypes.UShort) return typeof(ushort);
+            if (type == FieldTypes.Int) return typeof(int);
+            if (type == FieldTypes.UInt) return typeof(uint);
+            if (type == FieldTypes.Long) return typeof(long);
+            if (type == FieldTypes.ULong) return typeof(ulong);
+            if (type == FieldTypes.Float) return typeof(float);
+            if (type == FieldTypes.Double) return typeof(double);
+            if (type == FieldTypes.Decimal) return typeof(decimal);
+            if (type == FieldTypes.DateTime) return typeof(DateTime);
+            if (type == FieldTypes.String) return typeof(string);
+            else throw new UnsupportedFieldTypeException();
+        }
+
+        public static FieldTypes GetFieldType(Type type)
+        {
+            if (type == typeof(bool)) return FieldTypes.Bool;
+            else if (type == typeof(sbyte)) return FieldTypes.Sbyte;
+            else if (type == typeof(byte)) return FieldTypes.Byte;
+            else if (type == typeof(char)) return FieldTypes.Char;
+            else if (type == typeof(short)) return FieldTypes.Short;
+            else if (type == typeof(ushort)) return FieldTypes.UShort;
+            else if (type == typeof(int)) return FieldTypes.Int;
+            else if (type == typeof(uint)) return FieldTypes.UInt;
+            else if (type == typeof(long)) return FieldTypes.Long;
+            else if (type == typeof(ulong)) return FieldTypes.ULong;
+            else if (type == typeof(float)) return FieldTypes.Float;
+            else if (type == typeof(double)) return FieldTypes.Double;
+            else if (type == typeof(decimal)) return FieldTypes.Decimal;
+            else if (type == typeof(DateTime)) return FieldTypes.DateTime;
+            else if (type == typeof(string)) return FieldTypes.String;
+            else return FieldTypes.Object;
         }
     }
 

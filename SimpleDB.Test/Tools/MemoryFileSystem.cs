@@ -16,6 +16,11 @@ namespace SimpleDB.Test.Tools
 
         public List<string> FullFilePathes { get; set; }
 
+        public bool FileExists(string fullPath)
+        {
+            return false;
+        }
+
         public void CreateFileIfNeeded(string fullFilePath)
         {
             FullFilePathes.Add(fullFilePath);
@@ -26,6 +31,7 @@ namespace SimpleDB.Test.Tools
             var fileStream = FileStreams.FirstOrDefault(x => x.FileFullPath == fullPath);
             if (fileStream != null)
             {
+                fileStream.Seek(0, System.IO.SeekOrigin.Begin);
                 return fileStream;
             }
             else

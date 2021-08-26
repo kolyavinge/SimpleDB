@@ -244,7 +244,7 @@ namespace SimpleDB.Core
 
     internal static class PrimaryKeyFileName
     {
-        public static string FromCollectionName(string collectionName)
+        public static string FromEntityName(string collectionName)
         {
             return String.Format("{0}.primary", collectionName);
         }

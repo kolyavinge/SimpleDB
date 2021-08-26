@@ -74,7 +74,7 @@ namespace SimpleDB.Core
 
         private void InsertValue(IWriteableStream stream, FieldMeta fieldMeta, object fieldValue, out int insertedBytesCount)
         {
-            stream.WriteByte((byte)fieldMeta.GetFieldType());
+            stream.WriteByte((byte)FieldTypesConverter.GetFieldType(fieldMeta.Type));
             insertedBytesCount = sizeof(byte);
             if (fieldMeta.Type == typeof(bool))
             {
@@ -472,7 +472,7 @@ namespace SimpleDB.Core
 
     internal static class DataFileFileName
     {
-        public static string FromCollectionName(string collectionName)
+        public static string FromEntityName(string collectionName)
         {
             return String.Format("{0}.data", collectionName);
         }
