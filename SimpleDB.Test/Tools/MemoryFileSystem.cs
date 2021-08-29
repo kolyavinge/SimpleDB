@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using SimpleDB.Infrastructure;
 
@@ -18,7 +19,7 @@ namespace SimpleDB.Test.Tools
 
         public bool FileExists(string fullPath)
         {
-            return false;
+            return FileStreams.Any(x => x.FileFullPath == fullPath);
         }
 
         public void CreateFileIfNeeded(string fullFilePath)
@@ -50,6 +51,20 @@ namespace SimpleDB.Test.Tools
         public IFileStream OpenFileReadWrite(string fullPath)
         {
             return OpenFileRead(fullPath);
+        }
+
+        public IEnumerable<string> GetFiles(string directory)
+        {
+            return FileStreams.Where(x => Path.GetDirectoryName(x.FileFullPath) == directory).Select(x => x.FileFullPath);
+        }
+
+        public void RenameFile(string fullPath, string renamedFullPath)
+        {
+        }
+
+        public void DeleteFile(string fullPath)
+        {
+            FileStreams.RemoveAll(x => x.FileFullPath == fullPath);
         }
     }
 }

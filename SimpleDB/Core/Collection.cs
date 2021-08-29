@@ -23,7 +23,7 @@ namespace SimpleDB.Core
             var dataFileFileFullPath = Path.Combine(workingDirectory, DataFileFileName.FromEntityName(mapper.EntityName));
             PrimaryKeyFile = new PrimaryKeyFile(primaryKeyFileFullPath, mapper.PrimaryKeyMapping.PropertyType);
             DataFile = new DataFile(dataFileFileFullPath, mapper.FieldMetaCollection);
-            PrimaryKeys = GetAllPrimaryKeys().Where(x => !x.IsDeleted()).ToDictionary(k => k.Value, v => v);
+            PrimaryKeys = GetAllPrimaryKeys().Where(x => !x.IsDeleted).ToDictionary(k => k.Value, v => v);
             SaveMetaFileIfNeeded(workingDirectory);
         }
 
@@ -226,8 +226,10 @@ namespace SimpleDB.Core
             if (IOC.Get<IFileSystem>().FileExists(metaFileFullPath))
             {
                 var savedFieldMetaCollection = metaFile.GetFieldMetaCollection().ToHashSet();
-                if (!Mapper.FieldMetaCollection.All(savedFieldMetaCollection.Contains))
+                if (Mapper.FieldMetaCollection.Count != savedFieldMetaCollection.Count ||
+                    !Mapper.FieldMetaCollection.All(savedFieldMetaCollection.Contains))
                 {
+                    IOC.Get<IFileSystem>().DeleteFile(metaFileFullPath);
                     metaFile.Save(Mapper.PrimaryKeyMapping.PropertyType, Mapper.FieldMetaCollection);
                 }
             }

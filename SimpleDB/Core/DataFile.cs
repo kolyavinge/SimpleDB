@@ -21,6 +21,8 @@ namespace SimpleDB.Core
             _memoryBuffer = IOC.Get<IMemory>().GetBuffer();
         }
 
+        public long SizeInBytes { get { return _fileStream.Length; } }
+
         public void BeginRead()
         {
             _fileStream = IOC.Get<IFileSystem>().OpenFileRead(_fileFullPath);
@@ -322,6 +324,15 @@ namespace SimpleDB.Core
             }
         }
 
+        public int CalculateSize(IEnumerable<FieldValue> fieldValueCollection)
+        {
+            _memoryBuffer.Seek(0, System.IO.SeekOrigin.Begin);
+            int size;
+            InsertValues(_memoryBuffer, fieldValueCollection, out size);
+
+            return size;
+        }
+
         private int SkipCurrentField(FieldTypes fieldType)
         {
             int skippedBytes = 0;
@@ -472,9 +483,11 @@ namespace SimpleDB.Core
 
     internal static class DataFileFileName
     {
+        public static string Extension = ".data";
+
         public static string FromEntityName(string collectionName)
         {
-            return String.Format("{0}.data", collectionName);
+            return collectionName + Extension;
         }
     }
 }

@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using SimpleDB;
+using SimpleDB.Maintenance;
 
 namespace StartApp
 {
@@ -10,12 +11,12 @@ namespace StartApp
     {
         static void Main(string[] args)
         {
-            var doInsert = 1;
+            var doInsert = 0;
             var doGet = 0;
             var doUpdate = 0;
             var doDelete = 0;
             var doQuery = 0;
-            var doMerge = 1;
+            var doMerge = 0;
             var doGetAsync = 0;
 
             var workingDirectory = @"D:\Projects\SimpleDB\StartApp\bin\Debug\netcoreapp3.1\Database";
@@ -213,6 +214,19 @@ namespace StartApp
             if (doGetAsync == 1)
             {
                 Parallel.For(0, 10, i => collection.Get(i));
+            }
+
+            Console.WriteLine("========== Statistics ==========");
+            var statistics = StatisticsFactory.MakeStatistics(workingDirectory);
+            foreach (var stat in statistics.GetPrimaryKeyFileStatistics())
+            {
+                var str = String.Format("{0}: fragment {1} of {2} ({3:F0}%)", stat.FileName, stat.FragmentationSizeInBytes, stat.TotalFileSizeInBytes, stat.FragmentationPercent);
+                Console.WriteLine(str);
+            }
+            foreach (var stat in statistics.GetDataFileStatistics())
+            {
+                var str = String.Format("{0}: fragment {1} of {2} ({3:F0}%)", stat.FileName, stat.FragmentationSizeInBytes, stat.TotalFileSizeInBytes, stat.FragmentationPercent);
+                Console.WriteLine(str);
             }
 
             Console.ReadKey();

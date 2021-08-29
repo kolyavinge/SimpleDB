@@ -16,6 +16,7 @@ namespace SimpleDB.Test.Core
             _fileSystem = new MemoryFileSystem();
             IOC.Reset();
             IOC.Set<IFileSystem>(_fileSystem);
+            IOC.Set<IMemory>(new Memory());
         }
 
         [Test]
@@ -112,8 +113,8 @@ namespace SimpleDB.Test.Core
             var second = primaryKeyFile.Insert(456, 30, 35);
             primaryKeyFile.Delete(second.PrimaryKeyFileOffset);
             var allPrimaryKeys = primaryKeyFile.GetAllPrimaryKeys().ToList();
-            Assert.False(allPrimaryKeys[0].IsDeleted());
-            Assert.True(allPrimaryKeys[1].IsDeleted());
+            Assert.False(allPrimaryKeys[0].IsDeleted);
+            Assert.True(allPrimaryKeys[1].IsDeleted);
         }
 
         class TestEntity

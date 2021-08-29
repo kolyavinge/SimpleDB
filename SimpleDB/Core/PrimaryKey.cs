@@ -25,10 +25,7 @@ namespace SimpleDB.Core
             Flags = flags;
         }
 
-        public bool IsDeleted()
-        {
-            return (Flags & 0x00000001) == 1;
-        }
+        public bool IsDeleted => (Flags & 0x00000001) == 1;
 
         public static byte SetDeleted(byte primaryKeyFlags)
         {
