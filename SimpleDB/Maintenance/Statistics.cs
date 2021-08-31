@@ -64,17 +64,14 @@ namespace SimpleDB.Maintenance
                     var fragmentationSizeInBytes = primaryKeys.Where(x => x.IsDeleted).Sum(primaryKey => primaryKey.EndDataFileOffset - primaryKey.StartDataFileOffset);
                     dataFile = new DataFile(Path.Combine(_workingDirectory, DataFileFileName.FromEntityName(entityName)), fieldMetaCollection);
                     dataFile.BeginRead();
-                    var fieldValueCollection = new FieldValueCollection();
                     long lastEndDataFileOffset = 0;
                     foreach (var primaryKey in primaryKeys.OrderBy(x => x.StartDataFileOffset))
                     {
                         // сумма байт неактуальных записей (которые были обновлены и помещены в конец файла)
                         fragmentationSizeInBytes += primaryKey.StartDataFileOffset - lastEndDataFileOffset;
                         lastEndDataFileOffset = primaryKey.EndDataFileOffset;
-                        dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldNumbers, fieldValueCollection);
                         // сумма байт удаленных полей
-                        fragmentationSizeInBytes += primaryKey.EndDataFileOffset - primaryKey.StartDataFileOffset - dataFile.CalculateSize(fieldValueCollection);
-                        fieldValueCollection.Clear();
+                        fragmentationSizeInBytes += dataFile.GetUnusedFieldsSize(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldNumbers);
                     }
                     yield return new FileStatistics
                     {

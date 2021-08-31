@@ -9,7 +9,7 @@ namespace StartApp
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             var doInsert = 0;
             var doGet = 0;
@@ -245,7 +245,6 @@ namespace StartApp
                 defragmentator.DefragmentDataFile("person.data");
                 sw.Stop();
                 Console.WriteLine(sw.Elapsed);
-                Console.WriteLine("well done");
             }
 
             Console.ReadKey();

@@ -46,8 +46,7 @@ namespace SimpleDB.Core
         public InsertResult Insert(IEnumerable<FieldValue> fieldValueCollection)
         {
             var startDataFileOffset = _fileStream.Seek(0, System.IO.SeekOrigin.End);
-            int insertedBytesCount;
-            InsertValues(_fileStream, fieldValueCollection, out insertedBytesCount);
+            InsertValues(_fileStream, fieldValueCollection, out int insertedBytesCount);
             var endDataFileOffset = startDataFileOffset + insertedBytesCount;
 
             return new InsertResult { StartDataFileOffset = startDataFileOffset, EndDataFileOffset = endDataFileOffset };
@@ -155,16 +154,15 @@ namespace SimpleDB.Core
                     stream.WriteInt(-1);
                     insertedBytesCount += sizeof(int);
                 }
-                else if (fieldValue is string)
+                else if (fieldValue is string fieldValueString)
                 {
-                    var bytes = StringToByteArray(fieldMeta, (string)fieldValue);
+                    var bytes = StringToByteArray(fieldMeta, fieldValueString);
                     stream.WriteInt(bytes.Length);
                     stream.WriteByteArray(bytes, 0, bytes.Length);
                     insertedBytesCount += sizeof(int) + bytes.Length;
                 }
-                else if (fieldValue is byte[])
+                else if (fieldValue is byte[] bytes)
                 {
-                    var bytes = (byte[])fieldValue;
                     stream.WriteInt(bytes.Length);
                     stream.WriteByteArray(bytes, 0, bytes.Length);
                     insertedBytesCount += sizeof(int) + bytes.Length;
@@ -228,8 +226,7 @@ namespace SimpleDB.Core
         public UpdateResult Update(long startDataFileOffset, long endDataFileOffset, IEnumerable<FieldValue> fieldValueCollection)
         {
             _memoryBuffer.Seek(0, System.IO.SeekOrigin.Begin);
-            int newLength;
-            InsertValues(_memoryBuffer, fieldValueCollection, out newLength);
+            InsertValues(_memoryBuffer, fieldValueCollection, out int newLength);
             if (newLength <= endDataFileOffset - startDataFileOffset)
             {
                 if (_fileStream.Position != startDataFileOffset)
@@ -263,8 +260,7 @@ namespace SimpleDB.Core
                 {
                     var fieldMeta = _fieldMetaDictionary[fieldNumber];
                     var fieldValue = fieldValueDictionary[fieldNumber].Value;
-                    int insertedBytesCount;
-                    InsertValue(_fileStream, fieldMeta, fieldValue, out insertedBytesCount);
+                    InsertValue(_fileStream, fieldMeta, fieldValue, out int insertedBytesCount);
                     currentPosition += insertedBytesCount;
                 }
                 else
@@ -310,8 +306,7 @@ namespace SimpleDB.Core
                 if (_fieldMetaDictionary.ContainsKey(fieldNumber) && fieldNumbers.Contains(fieldNumber))
                 {
                     var fieldMeta = _fieldMetaDictionary[fieldNumber];
-                    int readedBytesCount;
-                    object fieldValue = ReadValue(_fileStream, fieldMeta, out readedBytesCount);
+                    object fieldValue = ReadValue(_fileStream, fieldMeta, out int readedBytesCount);
                     result.Add(fieldNumber, new FieldValue(fieldNumber, fieldValue));
                     currentPosition += readedBytesCount;
                 }
@@ -324,13 +319,28 @@ namespace SimpleDB.Core
             }
         }
 
-        public int CalculateSize(IEnumerable<FieldValue> fieldValueCollection)
+        public int GetUnusedFieldsSize(long startDataFileOffset, long endDataFileOffset, ISet<byte> fieldNumbers)
         {
-            _memoryBuffer.Seek(0, System.IO.SeekOrigin.Begin);
-            int size;
-            InsertValues(_memoryBuffer, fieldValueCollection, out size);
+            var unusedFieldsSize = 0;
+            var currentPosition = _fileStream.Position;
+            if (currentPosition != startDataFileOffset)
+            {
+                currentPosition = _fileStream.Seek(startDataFileOffset, System.IO.SeekOrigin.Begin);
+            }
+            while (currentPosition < endDataFileOffset)
+            {
+                var fieldNumber = _fileStream.ReadByte();
+                var fieldType = (FieldTypes)_fileStream.ReadByte();
+                var fieldReadBytes = 2 * sizeof(byte);
+                fieldReadBytes += SkipCurrentField(fieldType);
+                if (!_fieldMetaDictionary.ContainsKey(fieldNumber) || !fieldNumbers.Contains(fieldNumber))
+                {
+                    unusedFieldsSize += fieldReadBytes;
+                }
+                currentPosition += fieldReadBytes;
+            }
 
-            return size;
+            return unusedFieldsSize;
         }
 
         private int SkipCurrentField(FieldTypes fieldType)
