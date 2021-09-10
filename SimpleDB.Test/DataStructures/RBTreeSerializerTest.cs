@@ -104,13 +104,29 @@ namespace SimpleDB.Test.DataStructures
             TreesAreEquals(originalNodes, resultNodes);
         }
 
-        class TestKey : IComparable<TestKey>
+        class TestKey : IComparable<TestKey>, IEquatable<TestKey>
         {
             public string Value { get; set; }
 
             public int CompareTo([AllowNull] TestKey x)
             {
                 return Value.CompareTo(x.Value);
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is TestKey key &&
+                       Value == key.Value;
+            }
+
+            public bool Equals([AllowNull] TestKey other)
+            {
+                return Equals((object)other);
+            }
+
+            public override int GetHashCode()
+            {
+                return HashCode.Combine(Value);
             }
         }
 
@@ -127,7 +143,7 @@ namespace SimpleDB.Test.DataStructures
             TreesAreEquals(originalNodes, resultNodes);
         }
 
-        private void TreesAreEquals(List<RBTree<int, int>.Node> originalNodes, List<RBTree<int, int>.Node> resultNodes)
+        private void TreesAreEquals<TKey, TValue>(List<RBTree<TKey, TValue>.Node> originalNodes, List<RBTree<TKey, TValue>.Node> resultNodes) where TKey : IComparable<TKey>
         {
             Assert.AreEqual(originalNodes.Count, resultNodes.Count);
             for (int i = 0; i < originalNodes.Count; i++)
@@ -146,60 +162,6 @@ namespace SimpleDB.Test.DataStructures
                 if (originalNodes[i].Right != null)
                 {
                     Assert.AreEqual(originalNodes[i].Right.Key, resultNodes[i].Right.Key);
-                }
-                else
-                {
-                    Assert.AreEqual(null, resultNodes[i].Right);
-                }
-            }
-        }
-
-        private void TreesAreEquals(List<RBTree<string, string>.Node> originalNodes, List<RBTree<string, string>.Node> resultNodes)
-        {
-            Assert.AreEqual(originalNodes.Count, resultNodes.Count);
-            for (int i = 0; i < originalNodes.Count; i++)
-            {
-                Assert.AreEqual(originalNodes[i].Key, resultNodes[i].Key);
-                Assert.AreEqual(originalNodes[i].Color, resultNodes[i].Color);
-                Assert.AreEqual(originalNodes[i].Value, resultNodes[i].Value);
-                if (originalNodes[i].Left != null)
-                {
-                    Assert.AreEqual(originalNodes[i].Left.Key, resultNodes[i].Left.Key);
-                }
-                else
-                {
-                    Assert.AreEqual(null, resultNodes[i].Left);
-                }
-                if (originalNodes[i].Right != null)
-                {
-                    Assert.AreEqual(originalNodes[i].Right.Key, resultNodes[i].Right.Key);
-                }
-                else
-                {
-                    Assert.AreEqual(null, resultNodes[i].Right);
-                }
-            }
-        }
-
-        private void TreesAreEquals(List<RBTree<TestKey, string>.Node> originalNodes, List<RBTree<TestKey, string>.Node> resultNodes)
-        {
-            Assert.AreEqual(originalNodes.Count, resultNodes.Count);
-            for (int i = 0; i < originalNodes.Count; i++)
-            {
-                Assert.AreEqual(originalNodes[i].Key.Value, resultNodes[i].Key.Value);
-                Assert.AreEqual(originalNodes[i].Color, resultNodes[i].Color);
-                Assert.AreEqual(originalNodes[i].Value, resultNodes[i].Value);
-                if (originalNodes[i].Left != null)
-                {
-                    Assert.AreEqual(originalNodes[i].Left.Key.Value, resultNodes[i].Left.Key.Value);
-                }
-                else
-                {
-                    Assert.AreEqual(null, resultNodes[i].Left);
-                }
-                if (originalNodes[i].Right != null)
-                {
-                    Assert.AreEqual(originalNodes[i].Right.Key.Value, resultNodes[i].Right.Key.Value);
                 }
                 else
                 {
