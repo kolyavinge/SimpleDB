@@ -192,5 +192,19 @@ namespace SimpleDB.Core
             }
             Func = Expression.Compile();
         }
+
+        public static string GetPropertyName<T>(Expression<Func<TEntity, T>> fieldExpression)
+        {
+            if (fieldExpression.Body is UnaryExpression)
+            {
+                return ((MemberExpression)((UnaryExpression)fieldExpression.Body).Operand).Member.Name;
+            }
+            else if (fieldExpression.Body is MemberExpression)
+            {
+                return ((MemberExpression)fieldExpression.Body).Member.Name;
+            }
+
+            return null;
+        }
     }
 }

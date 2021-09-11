@@ -20,7 +20,7 @@ namespace SimpleDB.Core
         {
             Mapper = mapper;
             var primaryKeyFileFullPath = Path.Combine(workingDirectory, PrimaryKeyFileName.FromEntityName(mapper.EntityName));
-            var dataFileFileFullPath = Path.Combine(workingDirectory, DataFileFileName.FromEntityName(mapper.EntityName));
+            var dataFileFileFullPath = Path.Combine(workingDirectory, DataFileName.FromEntityName(mapper.EntityName));
             PrimaryKeyFile = new PrimaryKeyFile(primaryKeyFileFullPath, mapper.PrimaryKeyMapping.PropertyType);
             DataFile = new DataFile(dataFileFileFullPath, mapper.FieldMetaCollection);
             PrimaryKeys = GetAllPrimaryKeys().Where(x => !x.IsDeleted).ToDictionary(k => k.Value, v => v);

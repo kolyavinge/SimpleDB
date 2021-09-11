@@ -264,9 +264,9 @@ namespace SimpleDB.Core
     {
         public static string Extension = ".primary";
 
-        public static string FromEntityName(string collectionName)
+        public static string FromEntityName(string entityName)
         {
-            return collectionName + Extension;
+            return entityName + Extension;
         }
     }
 }

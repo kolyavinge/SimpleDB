@@ -1,30 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using NUnit.Framework;
 using SimpleDB.DataStructures;
+using SimpleDB.Infrastructure;
 using SimpleDB.Test.Tools;
 
 namespace SimpleDB.Test.DataStructures
 {
+    class IntRBTreeSerializer : IRBTreeNodeSerializer<int, int>
+    {
+        public void SerializeKey(int nodeKey, IWriteableStream stream) { stream.WriteInt(nodeKey); }
+        public int DeserializeKey(IReadableStream stream) { return stream.ReadInt(); }
+        public void SerializeValue(int nodeValue, IWriteableStream stream) { stream.WriteInt(nodeValue); }
+        public int DeserializeValue(IReadableStream stream) { return stream.ReadInt(); }
+    }
+
     class RBTreeSerializerTest
     {
         private MemoryFileStream _stream;
         private RBTree<int, int> _tree;
+        private RBTreeSerializer<int, int> _serializer;
 
         [SetUp]
         public void Setup()
         {
             _stream = new MemoryFileStream();
             _tree = new RBTree<int, int>();
+            _serializer = new RBTreeSerializer<int, int>(new IntRBTreeSerializer());
         }
 
         [Test]
         public void SerializeDeserialize_EmptyTree()
         {
-            RBTreeSerializer.Serialize(_tree, _stream);
+            _serializer.Serialize(_tree, _stream);
             _stream.Seek(0, System.IO.SeekOrigin.Begin);
-            var result = RBTreeSerializer.Deserialize<int, int>(_stream);
+            var result = _serializer.Deserialize(_stream);
             Assert.AreEqual(null, result.Root);
         }
 
@@ -32,9 +42,9 @@ namespace SimpleDB.Test.DataStructures
         public void SerializeDeserialize_One()
         {
             _tree.Insert(new RBTree<int, int>.Node(1) { Value = 1 });
-            RBTreeSerializer.Serialize(_tree, _stream);
+            _serializer.Serialize(_tree, _stream);
             _stream.Seek(0, System.IO.SeekOrigin.Begin);
-            var result = RBTreeSerializer.Deserialize<int, int>(_stream);
+            var result = _serializer.Deserialize(_stream);
             var originalNodes = _tree.Root.GetAllChildren();
             var resultNodes = result.Root.GetAllChildren();
             TreesAreEquals(originalNodes, resultNodes);
@@ -45,9 +55,9 @@ namespace SimpleDB.Test.DataStructures
         {
             _tree.Insert(new RBTree<int, int>.Node(1) { Value = 1 });
             _tree.Insert(new RBTree<int, int>.Node(2) { Value = 2 });
-            RBTreeSerializer.Serialize(_tree, _stream);
+            _serializer.Serialize(_tree, _stream);
             _stream.Seek(0, System.IO.SeekOrigin.Begin);
-            var result = RBTreeSerializer.Deserialize<int, int>(_stream);
+            var result = _serializer.Deserialize(_stream);
             var originalNodes = _tree.Root.GetAllChildren();
             var resultNodes = result.Root.GetAllChildren();
             TreesAreEquals(originalNodes, resultNodes);
@@ -59,9 +69,9 @@ namespace SimpleDB.Test.DataStructures
             _tree.Insert(new RBTree<int, int>.Node(1) { Value = 1 });
             _tree.Insert(new RBTree<int, int>.Node(2) { Value = 2 });
             _tree.Insert(new RBTree<int, int>.Node(3) { Value = 3 });
-            RBTreeSerializer.Serialize(_tree, _stream);
+            _serializer.Serialize(_tree, _stream);
             _stream.Seek(0, System.IO.SeekOrigin.Begin);
-            var result = RBTreeSerializer.Deserialize<int, int>(_stream);
+            var result = _serializer.Deserialize(_stream);
             var originalNodes = _tree.Root.GetAllChildren();
             var resultNodes = result.Root.GetAllChildren();
             TreesAreEquals(originalNodes, resultNodes);
@@ -71,9 +81,9 @@ namespace SimpleDB.Test.DataStructures
         public void SerializeDeserialize_100()
         {
             for (int i = 0; i < 100; i++) _tree.Insert(new RBTree<int, int>.Node(i) { Value = i });
-            RBTreeSerializer.Serialize(_tree, _stream);
+            _serializer.Serialize(_tree, _stream);
             _stream.Seek(0, System.IO.SeekOrigin.Begin);
-            var result = RBTreeSerializer.Deserialize<int, int>(_stream);
+            var result = _serializer.Deserialize(_stream);
             var originalNodes = _tree.Root.GetAllChildren();
             var resultNodes = result.Root.GetAllChildren();
             TreesAreEquals(originalNodes, resultNodes);
@@ -83,62 +93,10 @@ namespace SimpleDB.Test.DataStructures
         public void SerializeDeserialize_1000()
         {
             for (int i = 0; i < 1000; i++) _tree.Insert(new RBTree<int, int>.Node(i) { Value = i });
-            RBTreeSerializer.Serialize(_tree, _stream);
+            _serializer.Serialize(_tree, _stream);
             _stream.Seek(0, System.IO.SeekOrigin.Begin);
-            var result = RBTreeSerializer.Deserialize<int, int>(_stream);
+            var result = _serializer.Deserialize(_stream);
             var originalNodes = _tree.Root.GetAllChildren();
-            var resultNodes = result.Root.GetAllChildren();
-            TreesAreEquals(originalNodes, resultNodes);
-        }
-
-        [Test]
-        public void SerializeDeserialize_KeyString_1000()
-        {
-            var tree = new RBTree<string, string>();
-            for (int i = 0; i < 1000; i++) tree.Insert(new RBTree<string, string>.Node(i.ToString()) { Value = i.ToString() });
-            RBTreeSerializer.Serialize(tree, _stream);
-            _stream.Seek(0, System.IO.SeekOrigin.Begin);
-            var result = RBTreeSerializer.Deserialize<string, string>(_stream);
-            var originalNodes = tree.Root.GetAllChildren();
-            var resultNodes = result.Root.GetAllChildren();
-            TreesAreEquals(originalNodes, resultNodes);
-        }
-
-        class TestKey : IComparable<TestKey>, IEquatable<TestKey>
-        {
-            public string Value { get; set; }
-
-            public int CompareTo([AllowNull] TestKey x)
-            {
-                return Value.CompareTo(x.Value);
-            }
-
-            public override bool Equals(object obj)
-            {
-                return obj is TestKey key &&
-                       Value == key.Value;
-            }
-
-            public bool Equals([AllowNull] TestKey other)
-            {
-                return Equals((object)other);
-            }
-
-            public override int GetHashCode()
-            {
-                return HashCode.Combine(Value);
-            }
-        }
-
-        [Test]
-        public void SerializeDeserialize_KeyObject_1000()
-        {
-            var tree = new RBTree<TestKey, string>();
-            for (int i = 0; i < 1000; i++) tree.Insert(new RBTree<TestKey, string>.Node(new TestKey { Value = i.ToString() }) { Value = i.ToString() });
-            RBTreeSerializer.Serialize(tree, _stream);
-            _stream.Seek(0, System.IO.SeekOrigin.Begin);
-            var result = RBTreeSerializer.Deserialize<TestKey, string>(_stream);
-            var originalNodes = tree.Root.GetAllChildren();
             var resultNodes = result.Root.GetAllChildren();
             TreesAreEquals(originalNodes, resultNodes);
         }

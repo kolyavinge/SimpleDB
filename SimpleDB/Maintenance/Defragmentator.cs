@@ -25,7 +25,7 @@ namespace SimpleDB.Maintenance
 
             var entityName = Path.GetFileNameWithoutExtension(dataFileName);
             var currentPrimaryKeyFileFullPath = Path.Combine(_workingDirectory, PrimaryKeyFileName.FromEntityName(entityName));
-            var currentDataFileFullPath = Path.Combine(_workingDirectory, DataFileFileName.FromEntityName(entityName));
+            var currentDataFileFullPath = Path.Combine(_workingDirectory, DataFileName.FromEntityName(entityName));
             var metaFile = _metaFileCollection.GetMetaFile(entityName);
             var primaryKeyType = metaFile.GetPrimaryKeyType();
             var fieldMetaCollection = metaFile.GetFieldMetaCollection().ToList();

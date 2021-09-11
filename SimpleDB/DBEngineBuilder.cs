@@ -11,6 +11,7 @@ namespace SimpleDB
     {
         private string _workingDirectory;
         private List<MapperBuilder> _mapperBuilders = new List<MapperBuilder>();
+        private List<IndexBuilder> _indexBuilders = new List<IndexBuilder>();
 
         static DBEngineBuilder()
         {
@@ -37,10 +38,20 @@ namespace SimpleDB
             return mapperBuilder;
         }
 
+        public IIndexBuilder<TEntity> Index<TEntity>()
+        {
+            var indexBuilder = new IndexBuilder<TEntity>();
+            _indexBuilders.Add(indexBuilder);
+            return indexBuilder;
+        }
+
         public IDBEngine BuildEngine()
         {
             var mappers = _mapperBuilders.Select(x => x.Build()).ToList();
-            return new DBEngine(_workingDirectory, new MapperHolder(mappers));
+            var mapperHolder = new MapperHolder(mappers);
+            var indexes = _indexBuilders.Select(x => x.BuildFunction(_workingDirectory, mapperHolder)).ToList();
+            var indexHolder = new IndexHolder(indexes);
+            return new DBEngine(_workingDirectory, mapperHolder, indexHolder);
         }
     }
 
@@ -124,6 +135,53 @@ namespace SimpleDB
                 PrimaryKeySetFunction = _primaryKeySetFunction,
                 FieldSetFunction = _fieldSetFunction
             };
+        }
+    }
+
+    public interface IIndexBuilder<TEntity>
+    {
+        IIndexBuilder<TEntity> Name(string indexName);
+
+        IIndexBuilder<TEntity> For<TField>(Expression<Func<TEntity, TField>> forExpression) where TField : IComparable<TField>;
+
+        IIndexBuilder<TEntity> Include(Expression<Func<TEntity, object>> includeExpression);
+    }
+
+    internal abstract class IndexBuilder
+    {
+        public Func<string, MapperHolder, AbstractIndex> BuildFunction { get; protected set; }
+    }
+
+    internal class IndexBuilder<TEntity> : IndexBuilder, IIndexBuilder<TEntity>
+    {
+        private string _name;
+        private List<Expression<Func<TEntity, object>>> _includeExpressions;
+
+        public IndexBuilder()
+        {
+            _includeExpressions = new List<Expression<Func<TEntity, object>>>();
+        }
+
+        public IIndexBuilder<TEntity> Name(string name)
+        {
+            _name = name;
+            return this;
+        }
+
+        public IIndexBuilder<TEntity> For<TField>(Expression<Func<TEntity, TField>> indexedFieldExpression) where TField : IComparable<TField>
+        {
+            BuildFunction = (workingDirectory, mapperHolder) =>
+            {
+                var initializer = new IndexInitializer<TEntity>(workingDirectory, mapperHolder);
+                return initializer.GetIndex(_name, indexedFieldExpression, _includeExpressions);
+            };
+            return this;
+        }
+
+        public IIndexBuilder<TEntity> Include(Expression<Func<TEntity, object>> includeExpression)
+        {
+            _includeExpressions.Add(includeExpression);
+            return this;
         }
     }
 }

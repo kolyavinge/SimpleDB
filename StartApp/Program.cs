@@ -30,6 +30,7 @@ namespace StartApp
             // build engine
             var builder = DBEngineBuilder.Make();
             builder.WorkingDirectory(workingDirectory);
+
             builder.Map<Person>()
                 .Name("person")
                 .PrimaryKey(x => x.Id)
@@ -48,6 +49,12 @@ namespace StartApp
                     else if (fieldNumber == 3) entity.BirthDay = (DateTime)fieldValue;
                     else if (fieldNumber == 4) entity.AdditionalInfo = (PersonAdditionalInfo)fieldValue;
                 });
+
+            builder.Index<Person>()
+                .Name("name")
+                .For(x => x.Name)
+                .Include(x => x.Surname)
+                .Include(x => x.Middlename);
 
             var engine = builder.BuildEngine();
             var collection = engine.GetCollection<Person>();

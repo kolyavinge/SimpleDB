@@ -29,10 +29,32 @@ namespace SimpleDB.Test.Tools
 
         public IFileStream OpenFileRead(string fullPath)
         {
+            var stream = GetStream(fullPath);
+            stream.ReadCount++;
+            return stream;
+        }
+
+        public IFileStream OpenFileWrite(string fullPath)
+        {
+            var stream = GetStream(fullPath);
+            stream.WriteCount++;
+            return stream;
+        }
+
+        public IFileStream OpenFileReadWrite(string fullPath)
+        {
+            var stream = GetStream(fullPath);
+            stream.ReadCount++;
+            stream.WriteCount++;
+            return stream;
+        }
+
+        private MemoryFileStream GetStream(string fullPath)
+        {
             var fileStream = FileStreams.FirstOrDefault(x => x.FileFullPath == fullPath);
             if (fileStream != null)
             {
-                fileStream.Seek(0, System.IO.SeekOrigin.Begin);
+                fileStream.Seek(0, SeekOrigin.Begin);
                 return fileStream;
             }
             else
@@ -41,16 +63,6 @@ namespace SimpleDB.Test.Tools
                 FileStreams.Add(fileStream);
                 return fileStream;
             }
-        }
-
-        public IFileStream OpenFileWrite(string fullPath)
-        {
-            return OpenFileRead(fullPath);
-        }
-
-        public IFileStream OpenFileReadWrite(string fullPath)
-        {
-            return OpenFileRead(fullPath);
         }
 
         public IEnumerable<string> GetFiles(string directory)

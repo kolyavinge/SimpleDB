@@ -23,6 +23,10 @@ namespace SimpleDB.Test.Tools
             _writer = new BinaryWriter(_stream);
         }
 
+        public int ReadCount { get; set; }
+
+        public int WriteCount { get; set; }
+
         public string FileFullPath { get; set; }
 
         public long Position { get { return _stream.Position; } }

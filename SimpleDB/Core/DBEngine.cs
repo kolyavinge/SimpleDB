@@ -1,21 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using SimpleDB.Infrastructure;
-
-namespace SimpleDB.Core
+﻿namespace SimpleDB.Core
 {
     internal class DBEngine : IDBEngine
     {
-        private string _workingDirectory;
-        private MapperHolder _mapperHolder;
-        private CollectionHolder _collectionHolder;
+        private readonly string _workingDirectory;
+        private readonly MapperHolder _mapperHolder;
+        private readonly CollectionHolder _collectionHolder;
+        private readonly IndexHolder _indexHolder;
 
-        public DBEngine(string workingDirectory, MapperHolder mapperHolder)
+        public DBEngine(string workingDirectory, MapperHolder mapperHolder, IndexHolder indexHolder)
         {
             _workingDirectory = workingDirectory;
             _mapperHolder = mapperHolder;
+            _indexHolder = indexHolder;
             _collectionHolder = new CollectionHolder();
         }
 

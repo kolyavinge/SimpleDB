@@ -491,13 +491,13 @@ namespace SimpleDB.Core
         }
     }
 
-    internal static class DataFileFileName
+    internal static class DataFileName
     {
         public static string Extension = ".data";
 
-        public static string FromEntityName(string collectionName)
+        public static string FromEntityName(string entityName)
         {
-            return collectionName + Extension;
+            return entityName + Extension;
         }
     }
 }
