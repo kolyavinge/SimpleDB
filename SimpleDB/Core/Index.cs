@@ -95,15 +95,10 @@ namespace SimpleDB.Core
                     SerializeObject(item.PrimaryKeyValue, stream);
                     if (item.IncludedFields != null)
                     {
-                        stream.WriteInt(item.IncludedFields.Length);
                         foreach (var includedField in item.IncludedFields)
                         {
                             SerializeObject(includedField, stream);
                         }
-                    }
-                    else
-                    {
-                        stream.WriteInt(0);
                     }
                 }
             }
@@ -123,15 +118,13 @@ namespace SimpleDB.Core
                 {
                     var indexItem = new IndexItem();
                     indexItem.PrimaryKeyValue = DeserializeObject(_primaryKeyType, stream);
-                    var includedFieldsLength = stream.ReadInt();
-                    indexItem.IncludedFields = new object[includedFieldsLength];
-                    for (int includedFieldIndex = 0; includedFieldIndex < includedFieldsLength; includedFieldIndex++)
+                    indexItem.IncludedFields = new object[_indexMeta.IncludedFieldNumbers.Length];
+                    for (int includedFieldIndex = 0; includedFieldIndex < _indexMeta.IncludedFieldNumbers.Length; includedFieldIndex++)
                     {
                         var includedFieldNumber = _indexMeta.IncludedFieldNumbers[includedFieldIndex];
                         var includedFieldType = _fieldTypes[includedFieldNumber];
                         indexItem.IncludedFields[includedFieldIndex] = DeserializeObject(includedFieldType, stream);
                     }
-
                     indexValue.Items.Add(indexItem);
                 }
 
