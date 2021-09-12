@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using SimpleDB.Core;
 using SimpleDB.Queries;
 
-namespace SimpleDB.Core
+namespace SimpleDB.QueryExecutors
 {
     internal class DeleteQueryExecutor<TEntity>
     {

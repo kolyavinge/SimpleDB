@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using SimpleDB.Core;
 using SimpleDB.Queries;
 using SimpleDB.Utils.EnumerableExtension;
 
-namespace SimpleDB.Core
+namespace SimpleDB.QueryExecutors
 {
     internal class SelectQueryExecutor<TEntity>
     {

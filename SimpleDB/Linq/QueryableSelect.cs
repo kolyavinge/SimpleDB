@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using SimpleDB.Core;
+using SimpleDB.QueryExecutors;
 
 namespace SimpleDB.Linq
 {

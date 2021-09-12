@@ -2,9 +2,10 @@
 using SimpleDB.Core;
 using SimpleDB.Infrastructure;
 using SimpleDB.Queries;
+using SimpleDB.QueryExecutors;
 using SimpleDB.Test.Tools;
 
-namespace SimpleDB.Test.Core
+namespace SimpleDB.Test.QueryExecutors
 {
     class DeleteQueryExecutorTest
     {

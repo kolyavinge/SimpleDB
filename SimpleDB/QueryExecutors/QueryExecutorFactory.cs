@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using SimpleDB.Core;
 
-namespace SimpleDB.Core
+namespace SimpleDB.QueryExecutors
 {
     internal class QueryExecutorFactory<TEntity>
     {

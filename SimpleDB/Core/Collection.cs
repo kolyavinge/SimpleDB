@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using SimpleDB.Infrastructure;
 using SimpleDB.Linq;
+using SimpleDB.QueryExecutors;
 
 namespace SimpleDB.Core
 {
