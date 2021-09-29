@@ -98,5 +98,64 @@ namespace SimpleDB.Core
 
             return _hashCode.Value;
         }
+
+        public FieldValueCollection Merge(FieldValueCollection x)
+        {
+            foreach (var xitem in x)
+            {
+                if (!Contains(xitem.Number))
+                {
+                    Add(xitem.Number, xitem);
+                }
+            }
+
+            return this;
+        }
+
+        public static IEnumerable<FieldValueCollection> Intersect(IEnumerable<FieldValueCollection> x, IEnumerable<FieldValueCollection> y)
+        {
+            x = x ?? Enumerable.Empty<FieldValueCollection>();
+            y = y ?? Enumerable.Empty<FieldValueCollection>();
+            return from xitem in x
+                   join yitem in y
+                   on xitem.PrimaryKey.Value equals yitem.PrimaryKey.Value
+                   select xitem.Merge(yitem);
+        }
+
+        public static IEnumerable<FieldValueCollection> Union(IEnumerable<FieldValueCollection> x, IEnumerable<FieldValueCollection> y)
+        {
+            x = x ?? Enumerable.Empty<FieldValueCollection>();
+            y = y ?? Enumerable.Empty<FieldValueCollection>();
+            var result = x.ToDictionary(k => k.PrimaryKey.Value, v => v);
+            foreach (var yitem in y)
+            {
+                if (result.ContainsKey(yitem.PrimaryKey.Value))
+                {
+                    result[yitem.PrimaryKey.Value].Merge(yitem);
+                }
+                else
+                {
+                    result.Add(yitem.PrimaryKey.Value, yitem);
+                }
+            }
+
+            return result.Values;
+        }
+
+        public static IEnumerable<FieldValueCollection> Merge(IEnumerable<FieldValueCollection> x, IEnumerable<FieldValueCollection> y)
+        {
+            x = x ?? Enumerable.Empty<FieldValueCollection>();
+            y = y ?? Enumerable.Empty<FieldValueCollection>();
+            var result = x.ToDictionary(k => k.PrimaryKey.Value, v => v);
+            foreach (var yitem in y)
+            {
+                if (result.ContainsKey(yitem.PrimaryKey.Value))
+                {
+                    result[yitem.PrimaryKey.Value].Merge(yitem);
+                }
+            }
+
+            return result.Values;
+        }
     }
 }

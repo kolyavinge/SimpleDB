@@ -7,6 +7,8 @@ namespace SimpleDB.Core
     {
         public Type EntityType { get; set; }
 
+        public Type IndexedFieldType { get; set; }
+
         public string Name { get; set; }
 
         public byte IndexedFieldNumber { get; set; }
@@ -17,6 +19,7 @@ namespace SimpleDB.Core
         {
             var meta = new IndexMeta();
             meta.EntityType = Type.GetType(stream.ReadString());
+            meta.IndexedFieldType = Type.GetType(stream.ReadString());
             meta.Name = stream.ReadString();
             meta.IndexedFieldNumber = stream.ReadByte();
             var includedFieldNumbersLength = stream.ReadByte();
@@ -28,6 +31,7 @@ namespace SimpleDB.Core
         public void Serialize(IWriteableStream stream)
         {
             stream.WriteString(EntityType.AssemblyQualifiedName);
+            stream.WriteString(IndexedFieldType.AssemblyQualifiedName);
             stream.WriteString(Name);
             stream.WriteByte(IndexedFieldNumber);
             stream.WriteByte((byte)IncludedFieldNumbers.Length);

@@ -20,5 +20,13 @@ namespace SimpleDB.Utils.EnumerableExtension
                 set.Add(item);
             }
         }
+
+        public static void RemoveRange<T>(this ISet<T> set, IEnumerable<T> range)
+        {
+            foreach (var item in range)
+            {
+                set.Remove(item);
+            }
+        }
     }
 }

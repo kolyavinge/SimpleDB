@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using SimpleDB.Core;
+using SimpleDB.Utils;
 
 namespace SimpleDB.Queries
 {
@@ -21,36 +22,57 @@ namespace SimpleDB.Queries
             return value;
         }
 
-        public IEnumerable<WhereClauseItem> ToEnumerable()
-        {
-            var items = new List<WhereClauseItem>();
-            Action<WhereClauseItem> rec = null;
-            rec = (WhereClauseItem parent) =>
-            {
-                items.Add(parent);
-                if (parent.Left != null) rec(parent.Left);
-                if (parent.Right != null) rec(parent.Right);
-            };
-            rec(Root);
-
-            return items;
-        }
-
         public IEnumerable<byte> GetAllFieldNumbers()
         {
-            return ToEnumerable().OfType<Field>().Select(x => x.Number).Distinct();
+            return Root.ToEnumerable().OfType<Field>().Select(x => x.Number).Distinct();
         }
 
         public abstract class WhereClauseItem
         {
-            public WhereClauseItem Left { get; protected set; }
+            private WhereClauseItem _left;
+            private WhereClauseItem _right;
 
-            public WhereClauseItem Right { get; protected set; }
+            public WhereClauseItem Parent { get; private set; }
+
+            public WhereClauseItem Left
+            {
+                get { return _left; }
+                set
+                {
+                    _left = value;
+                    _left.Parent = this;
+                }
+            }
+
+            public WhereClauseItem Right
+            {
+                get { return _right; }
+                set
+                {
+                    _right = value;
+                    _right.Parent = this;
+                }
+            }
+
+            public WhereClauseItem GetSibling()
+            {
+                if (Parent == null) return null;
+                return Parent.Left == this ? Parent.Right : Parent.Left;
+            }
+
+            public IEnumerable<WhereClauseItem> ToEnumerable()
+            {
+                return TreeUtils.ToEnumerable(this, n => n.Left, n => n.Right);
+            }
 
             public abstract object GetValue(FieldValueCollection fieldValueCollection);
         }
 
-        public class EqualsOperation : WhereClauseItem
+        public abstract class FieldOperation : WhereClauseItem
+        {
+        }
+
+        public class EqualsOperation : FieldOperation
         {
             public EqualsOperation(WhereClauseItem left, WhereClauseItem right)
             {
@@ -63,6 +85,11 @@ namespace SimpleDB.Queries
                 var leftValue = Left.GetValue(fieldValueCollection);
                 var rightValue = Right.GetValue(fieldValueCollection);
                 return SmartComparer.AreEquals(leftValue, rightValue);
+            }
+
+            public override string ToString()
+            {
+                return String.Format("Equals({0}, {1})", Left, Right);
             }
         }
 
@@ -77,6 +104,11 @@ namespace SimpleDB.Queries
             {
                 var leftValue = (bool)Left.GetValue(fieldValueCollection);
                 return leftValue == false;
+            }
+
+            public override string ToString()
+            {
+                return String.Format("Not({0})", Left);
             }
         }
 
@@ -94,6 +126,11 @@ namespace SimpleDB.Queries
                 var rightValue = (bool)Right.GetValue(fieldValueCollection);
                 return leftValue && rightValue;
             }
+
+            public override string ToString()
+            {
+                return String.Format("And({0}, {1})", Left, Right);
+            }
         }
 
         public class OrOperation : WhereClauseItem
@@ -110,9 +147,14 @@ namespace SimpleDB.Queries
                 var rightValue = (bool)Right.GetValue(fieldValueCollection);
                 return leftValue || rightValue;
             }
+
+            public override string ToString()
+            {
+                return String.Format("Or({0}, {1})", Left, Right);
+            }
         }
 
-        public class LessOperation : WhereClauseItem
+        public class LessOperation : FieldOperation
         {
             public LessOperation(WhereClauseItem left, WhereClauseItem right)
             {
@@ -126,9 +168,14 @@ namespace SimpleDB.Queries
                 var rightValue = Right.GetValue(fieldValueCollection);
                 return SmartComparer.Compare(leftValue, rightValue) < 0;
             }
+
+            public override string ToString()
+            {
+                return String.Format("Less({0}, {1})", Left, Right);
+            }
         }
 
-        public class GreatOperation : WhereClauseItem
+        public class GreatOperation : FieldOperation
         {
             public GreatOperation(WhereClauseItem left, WhereClauseItem right)
             {
@@ -142,9 +189,14 @@ namespace SimpleDB.Queries
                 var rightValue = Right.GetValue(fieldValueCollection);
                 return SmartComparer.Compare(leftValue, rightValue) > 0;
             }
+
+            public override string ToString()
+            {
+                return String.Format("Great({0}, {1})", Left, Right);
+            }
         }
 
-        public class LessOrEqualsOperation : WhereClauseItem
+        public class LessOrEqualsOperation : FieldOperation
         {
             public LessOrEqualsOperation(WhereClauseItem left, WhereClauseItem right)
             {
@@ -158,9 +210,14 @@ namespace SimpleDB.Queries
                 var rightValue = Right.GetValue(fieldValueCollection);
                 return SmartComparer.Compare(leftValue, rightValue) < 0 || SmartComparer.Compare(leftValue, rightValue) == 0;
             }
+
+            public override string ToString()
+            {
+                return String.Format("LessOrEquals({0}, {1})", Left, Right);
+            }
         }
 
-        public class GreatOrEqualsOperation : WhereClauseItem
+        public class GreatOrEqualsOperation : FieldOperation
         {
             public GreatOrEqualsOperation(WhereClauseItem left, WhereClauseItem right)
             {
@@ -174,9 +231,14 @@ namespace SimpleDB.Queries
                 var rightValue = Right.GetValue(fieldValueCollection);
                 return SmartComparer.Compare(leftValue, rightValue) > 0 || SmartComparer.Compare(leftValue, rightValue) == 0;
             }
+
+            public override string ToString()
+            {
+                return String.Format("GreatOrEquals({0}, {1})", Left, Right);
+            }
         }
 
-        public class LikeOperation : WhereClauseItem
+        public class LikeOperation : FieldOperation
         {
             public LikeOperation(WhereClauseItem left, Constant right)
             {
@@ -190,9 +252,14 @@ namespace SimpleDB.Queries
                 var rightValue = (string)Right.GetValue(fieldValueCollection);
                 return leftValue.Contains(rightValue);
             }
+
+            public override string ToString()
+            {
+                return String.Format("Like({0}, {1})", Left, Right);
+            }
         }
 
-        public class InOperation : WhereClauseItem
+        public class InOperation : FieldOperation
         {
             public InOperation(WhereClauseItem left, Set right)
             {
@@ -206,6 +273,11 @@ namespace SimpleDB.Queries
                 var set = (ISet<object>)Right.GetValue(fieldValueCollection);
                 return set.Contains(leftValue);
             }
+
+            public override string ToString()
+            {
+                return String.Format("In({0}, {1})", Left, Right);
+            }
         }
 
         public class PrimaryKey : WhereClauseItem
@@ -213,6 +285,11 @@ namespace SimpleDB.Queries
             public override object GetValue(FieldValueCollection fieldValueCollection)
             {
                 return fieldValueCollection.PrimaryKey.Value;
+            }
+
+            public override string ToString()
+            {
+                return String.Format("PrimaryKey()");
             }
         }
 
@@ -229,6 +306,11 @@ namespace SimpleDB.Queries
             {
                 return fieldValueCollection[Number].Value;
             }
+
+            public override string ToString()
+            {
+                return String.Format("Field({0})", Number);
+            }
         }
 
         public class Constant : WhereClauseItem
@@ -244,6 +326,18 @@ namespace SimpleDB.Queries
             {
                 return Value;
             }
+
+            public override string ToString()
+            {
+                if (Value is string)
+                {
+                    return String.Format("'{0}'", Value);
+                }
+                else
+                {
+                    return String.Format("{0}", Value);
+                }
+            }
         }
 
         public class Set : WhereClauseItem
@@ -258,6 +352,11 @@ namespace SimpleDB.Queries
             public override object GetValue(FieldValueCollection fieldValueCollection)
             {
                 return Value;
+            }
+
+            public override string ToString()
+            {
+                return String.Format("Set({0})", String.Join(",", Value));
             }
         }
     }
