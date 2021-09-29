@@ -30,7 +30,7 @@ namespace SimpleDB.Test.QueryExecutors
                     new FieldMapping<TestEntity>(2, entity => entity.String)
                 });
             _collection = new Collection<TestEntity>("working directory", _mapper);
-            _queryExecutor = new SelectQueryExecutor<TestEntity>(_mapper, _collection.DataFile, _collection.PrimaryKeys.Values);
+            _queryExecutor = new SelectQueryExecutor<TestEntity>(_mapper, _collection.DataFile, _collection.PrimaryKeys);
         }
 
         [Test]

@@ -9,22 +9,25 @@ namespace SimpleDB.QueryExecutors
         private readonly PrimaryKeyFile _primaryKeyFile;
         private readonly Dictionary<object, PrimaryKey> _primaryKeys;
         private readonly DataFile _dataFile;
+        private readonly IndexHolder _indexHolder;
 
         public QueryExecutorFactory(
             Mapper<TEntity> mapper,
             PrimaryKeyFile primaryKeyFile,
             Dictionary<object, PrimaryKey> primaryKeys,
-            DataFile dataFile)
+            DataFile dataFile,
+            IndexHolder indexHolder)
         {
             _mapper = mapper;
             _primaryKeyFile = primaryKeyFile;
             _primaryKeys = primaryKeys;
             _dataFile = dataFile;
+            _indexHolder = indexHolder;
         }
 
         public SelectQueryExecutor<TEntity> MakeSelectQueryExecutor()
         {
-            return new SelectQueryExecutor<TEntity>(_mapper, _dataFile, _primaryKeys.Values);
+            return new SelectQueryExecutor<TEntity>(_mapper, _dataFile, _primaryKeys, _indexHolder);
         }
 
         public UpdateQueryExecutor<TEntity> MakeUpdateQueryExecutor()

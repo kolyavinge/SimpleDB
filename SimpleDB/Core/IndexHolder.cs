@@ -38,6 +38,12 @@ namespace SimpleDB.Core
             _indexes = indexes.GroupBy(x => x.Meta.EntityType).ToDictionary(k => k.Key, v => v.ToList());
         }
 
+        public bool AnyIndexFor(Type entityType, ISet<byte> fieldNumbers)
+        {
+            if (!_indexes.ContainsKey(entityType)) return false;
+            return _indexes[entityType].Any(x => fieldNumbers.Contains(x.Meta.IndexedFieldNumber));
+        }
+
         public IEnumerable<IndexResult> GetIndexResult(Type operationType, bool isNotApplied, Type entityType, byte fieldNumber, object fieldValue)
         {
             if (!_indexes.ContainsKey(entityType)) return null;

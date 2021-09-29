@@ -21,7 +21,7 @@
             if (collection == null)
             {
                 var mapper = _mapperHolder.Get<TEntity>();
-                collection = new Collection<TEntity>(_workingDirectory, mapper);
+                collection = new Collection<TEntity>(_workingDirectory, mapper, _indexHolder);
                 _collectionHolder.Add(collection);
             }
 

@@ -9,6 +9,8 @@ namespace SimpleDB.Core
 {
     internal class Collection<TEntity> : ICollection<TEntity>
     {
+        private readonly IndexHolder _indexHolder;
+
         internal Mapper<TEntity> Mapper { get; private set; }
 
         internal PrimaryKeyFile PrimaryKeyFile { get; private set; }
@@ -17,9 +19,10 @@ namespace SimpleDB.Core
 
         internal Dictionary<object, PrimaryKey> PrimaryKeys { get; private set; }
 
-        public Collection(string workingDirectory, Mapper<TEntity> mapper)
+        public Collection(string workingDirectory, Mapper<TEntity> mapper, IndexHolder indexHolder = null)
         {
             Mapper = mapper;
+            _indexHolder = indexHolder ?? new IndexHolder(Enumerable.Empty<AbstractIndex>());
             var primaryKeyFileFullPath = Path.Combine(workingDirectory, PrimaryKeyFileName.FromEntityName(mapper.EntityName));
             var dataFileFileFullPath = Path.Combine(workingDirectory, DataFileName.FromEntityName(mapper.EntityName));
             PrimaryKeyFile = new PrimaryKeyFile(primaryKeyFileFullPath, mapper.PrimaryKeyMapping.PropertyType);
@@ -216,7 +219,7 @@ namespace SimpleDB.Core
 
         public IQueryable<TEntity> Query()
         {
-            var queryExecutorFactory = new QueryExecutorFactory<TEntity>(Mapper, PrimaryKeyFile, PrimaryKeys, DataFile);
+            var queryExecutorFactory = new QueryExecutorFactory<TEntity>(Mapper, PrimaryKeyFile, PrimaryKeys, DataFile, _indexHolder);
             return new Queryable<TEntity>(queryExecutorFactory, Mapper);
         }
 

@@ -12,13 +12,13 @@ namespace StartApp
         static void Main()
         {
             var doInsert = 0;
-            var doGet = 0;
+            var doGet = 1;
             var doUpdate = 0;
-            var doDelete = 1;
+            var doDelete = 0;
             var doQuery = 0;
             var doMerge = 0;
             var doGetAsync = 0;
-            var doStatistics = 1;
+            var doStatistics = 0;
             var doDefragmentation = 0;
 
             var workingDirectory = @"D:\Projects\SimpleDB\StartApp\bin\Debug\netcoreapp3.1\Database";
@@ -95,6 +95,15 @@ namespace StartApp
                 Console.WriteLine(result[1]);
                 Console.WriteLine(result[2]);
                 Console.WriteLine(result[3]);
+
+                Console.WriteLine("========== Get indexed ==========");
+                sw = System.Diagnostics.Stopwatch.StartNew();
+                result = collection.Query()
+                    .Select(x => new { x.Name, x.Surname, x.Middlename })
+                    .Where(x => x.Name == "Name 123")
+                    .ToList();
+                sw.Stop();
+                Console.WriteLine(sw.Elapsed);
             }
 
             if (doUpdate == 1)
@@ -118,6 +127,7 @@ namespace StartApp
 
             if (doGet == 1)
             {
+                Console.WriteLine("========== Get ==========");
                 var result = collection.Get(new object[] { 0, 1, count - 2, count - 1 }).ToList();
                 Console.WriteLine(result[0]);
                 Console.WriteLine(result[1]);
