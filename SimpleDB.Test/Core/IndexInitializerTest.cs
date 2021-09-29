@@ -46,12 +46,13 @@ namespace SimpleDB.Test.Core
             var index = _initializer.GetIndex<int>("test index", x => x.Int, new Expression<Func<TestEntity, object>>[] { x => x.Float, x => x.String });
 
             Assert.AreEqual(typeof(TestEntity), index.Meta.EntityType);
+            Assert.AreEqual(typeof(int), index.Meta.IndexedFieldType);
             Assert.AreEqual(0, index.Meta.IndexedFieldNumber);
             Assert.AreEqual(2, index.Meta.IncludedFieldNumbers.Length);
             Assert.AreEqual(1, index.Meta.IncludedFieldNumbers[0]);
             Assert.AreEqual(2, index.Meta.IncludedFieldNumbers[1]);
 
-            var indexValue = index.Get(10);
+            var indexValue = index.GetEquals(10);
             Assert.AreEqual(10, indexValue.IndexedFieldValue);
             Assert.AreEqual(2, indexValue.Items.Count);
             Assert.AreEqual(1, indexValue.Items[0].PrimaryKeyValue);
@@ -63,7 +64,7 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual(2.0f, indexValue.Items[1].IncludedFields[0]);
             Assert.AreEqual("2", indexValue.Items[1].IncludedFields[1]);
 
-            indexValue = index.Get(20);
+            indexValue = index.GetEquals(20);
             Assert.AreEqual(20, indexValue.IndexedFieldValue);
             Assert.AreEqual(3, indexValue.Items.Count);
             Assert.AreEqual(3, indexValue.Items[0].PrimaryKeyValue);
@@ -101,12 +102,13 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual(1, _memoryFileSystem.FileStreams.First(x => x.FileFullPath == "working directory\\test_test index.index").WriteCount);
 
             Assert.AreEqual(typeof(TestEntity), index.Meta.EntityType);
+            Assert.AreEqual(typeof(int), index.Meta.IndexedFieldType);
             Assert.AreEqual(0, index.Meta.IndexedFieldNumber);
             Assert.AreEqual(2, index.Meta.IncludedFieldNumbers.Length);
             Assert.AreEqual(1, index.Meta.IncludedFieldNumbers[0]);
             Assert.AreEqual(2, index.Meta.IncludedFieldNumbers[1]);
 
-            var indexValue = index.Get(10);
+            var indexValue = index.GetEquals(10);
             Assert.AreEqual(10, indexValue.IndexedFieldValue);
             Assert.AreEqual(2, indexValue.Items.Count);
             Assert.AreEqual(1, indexValue.Items[0].PrimaryKeyValue);
@@ -118,7 +120,7 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual(2.0f, indexValue.Items[1].IncludedFields[0]);
             Assert.AreEqual("2", indexValue.Items[1].IncludedFields[1]);
 
-            indexValue = index.Get(20);
+            indexValue = index.GetEquals(20);
             Assert.AreEqual(20, indexValue.IndexedFieldValue);
             Assert.AreEqual(3, indexValue.Items.Count);
             Assert.AreEqual(3, indexValue.Items[0].PrimaryKeyValue);
@@ -146,7 +148,7 @@ namespace SimpleDB.Test.Core
 
             var index = _initializer.GetIndex<int>("test index", x => x.Int, null);
 
-            var indexValue = index.Get(10);
+            var indexValue = index.GetEquals(10);
             Assert.AreEqual(10, indexValue.IndexedFieldValue);
             Assert.AreEqual(2, indexValue.Items.Count);
             Assert.AreEqual(1, indexValue.Items[0].PrimaryKeyValue);
@@ -154,7 +156,7 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual(2, indexValue.Items[1].PrimaryKeyValue);
             Assert.AreEqual(0, indexValue.Items[1].IncludedFields.Length);
 
-            indexValue = index.Get(20);
+            indexValue = index.GetEquals(20);
             Assert.AreEqual(20, indexValue.IndexedFieldValue);
             Assert.AreEqual(3, indexValue.Items.Count);
             Assert.AreEqual(3, indexValue.Items[0].PrimaryKeyValue);

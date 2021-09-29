@@ -47,7 +47,7 @@ namespace SimpleDB.Core
             var includedFieldNames = (includedExpressions ?? Enumerable.Empty<Expression<Func<TEntity, object>>>()).Select(FieldMapping<TEntity>.GetPropertyName).ToHashSet();
             var indexedFieldNumber = _mapper.FieldMappings.First(fm => fm.PropertyName == indexedFieldName).Number;
             var includedFieldNumbers = _mapper.FieldMappings.Where(fm => includedFieldNames.Contains(fm.PropertyName)).Select(x => x.Number).ToArray();
-            var meta = new IndexMeta { EntityType = typeof(TEntity), Name = indexName, IndexedFieldNumber = indexedFieldNumber, IncludedFieldNumbers = includedFieldNumbers };
+            var meta = new IndexMeta { EntityType = typeof(TEntity), IndexedFieldType = typeof(TField), Name = indexName, IndexedFieldNumber = indexedFieldNumber, IncludedFieldNumbers = includedFieldNumbers };
             var index = new Index<TField>(meta);
             PopulateIndex(index, indexedFieldNumber, includedFieldNumbers);
             var indexFile = new IndexFile(indexFileName, _mapper.PrimaryKeyMapping.PropertyType, _mapper.FieldMetaCollection);
@@ -76,7 +76,7 @@ namespace SimpleDB.Core
                     dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldNumbers, fieldValueCollection);
                     var indexedFieldValue = (TField)fieldValueCollection[indexedFieldNumber].Value;
                     var includedFieldValues = includedFieldNumbers.Select(fn => fieldValueCollection[fn].Value).ToArray();
-                    var indexValue = index.Get(indexedFieldValue);
+                    var indexValue = index.GetEquals(indexedFieldValue);
                     if (indexValue == null)
                     {
                         var indexItem = new IndexItem { PrimaryKeyValue = primaryKey.Value, IncludedFields = includedFieldValues };
