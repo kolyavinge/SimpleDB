@@ -251,50 +251,50 @@ namespace SimpleDB.Test.DataStructures
         }
 
         [Test]
-        public void Get_1()
+        public void Find_1()
         {
             _tree.Insert(new RBTree<int, int>.Node(1));
-            var node = _tree.Get(1);
+            var node = _tree.Find(1);
             Assert.AreEqual(1, node.Key);
         }
 
         [Test]
-        public void Get_2()
+        public void Find_2()
         {
             _tree.Insert(new RBTree<int, int>.Node(5));
             _tree.Insert(new RBTree<int, int>.Node(1));
             _tree.Insert(new RBTree<int, int>.Node(10));
 
-            var node = _tree.Get(10);
+            var node = _tree.Find(10);
             Assert.AreEqual(10, node.Key);
 
-            node = _tree.Get(1);
+            node = _tree.Find(1);
             Assert.AreEqual(1, node.Key);
 
-            node = _tree.Get(5);
+            node = _tree.Find(5);
             Assert.AreEqual(5, node.Key);
         }
 
         [Test]
-        public void Get_No()
+        public void Find_No()
         {
             _tree.Insert(new RBTree<int, int>.Node(5));
             _tree.Insert(new RBTree<int, int>.Node(1));
             _tree.Insert(new RBTree<int, int>.Node(10));
 
-            var node = _tree.Get(123);
+            var node = _tree.Find(123);
             Assert.AreEqual(null, node);
         }
 
         [Test]
-        public void Get_EmptyTree()
+        public void Find_EmptyTree()
         {
-            var node = _tree.Get(123);
+            var node = _tree.Find(123);
             Assert.AreEqual(null, node);
         }
 
         [Test]
-        public void Get_BigTree()
+        public void Find_BigTree()
         {
             var count = 1000;
             for (int i = 0; i < count; i++)
@@ -304,7 +304,7 @@ namespace SimpleDB.Test.DataStructures
             Assert.AreEqual(count, _tree.Root.GetAllChildren().Count());
             for (int i = 0; i < count; i++)
             {
-                var node = _tree.Get(i);
+                var node = _tree.Find(i);
                 Assert.AreEqual(i, node.Key);
             }
         }

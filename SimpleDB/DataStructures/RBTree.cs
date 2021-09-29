@@ -59,7 +59,7 @@ namespace SimpleDB.DataStructures
             Root = null;
         }
 
-        public Node Get(TKey key)
+        public Node Find(TKey key)
         {
             var node = Root;
             while (node != null)
@@ -182,7 +182,7 @@ namespace SimpleDB.DataStructures
 
         public Node Delete(TKey key)
         {
-            var deleted = Get(key);
+            var deleted = Find(key);
             if (deleted == null) return null;
             Node replacement, x;
             // no children
