@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using NUnit.Framework;
 using SimpleDB.Core;
 using SimpleDB.Infrastructure;
@@ -39,16 +38,16 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 20, A = 6, B = 7, C = 8, D = 9, S = "987" });
 
             var indexA = new Index<int>(new IndexMeta { EntityType = typeof(TestEntity), Name = "indexA", IndexedFieldType = typeof(int), IndexedFieldNumber = 0 });
-            indexA.Insert(new IndexValue { IndexedFieldValue = 1, Items = new List<IndexItem> { new IndexItem { PrimaryKeyValue = 10 } } });
-            indexA.Insert(new IndexValue { IndexedFieldValue = 6, Items = new List<IndexItem> { new IndexItem { PrimaryKeyValue = 20 } } });
+            indexA.Add(1, new IndexItem { PrimaryKeyValue = 10 });
+            indexA.Add(6, new IndexItem { PrimaryKeyValue = 20 });
 
             var indexB = new Index<int>(new IndexMeta { EntityType = typeof(TestEntity), Name = "indexB", IndexedFieldType = typeof(int), IndexedFieldNumber = 1 });
-            indexB.Insert(new IndexValue { IndexedFieldValue = 2, Items = new List<IndexItem> { new IndexItem { PrimaryKeyValue = 10 } } });
-            indexB.Insert(new IndexValue { IndexedFieldValue = 7, Items = new List<IndexItem> { new IndexItem { PrimaryKeyValue = 20 } } });
+            indexB.Add(2, new IndexItem { PrimaryKeyValue = 10 });
+            indexB.Add(7, new IndexItem { PrimaryKeyValue = 20 });
 
             var indexS = new Index<string>(new IndexMeta { EntityType = typeof(TestEntity), Name = "indexS", IndexedFieldType = typeof(string), IndexedFieldNumber = 4 });
-            indexS.Insert(new IndexValue { IndexedFieldValue = "123", Items = new List<IndexItem> { new IndexItem { PrimaryKeyValue = 10 } } });
-            indexS.Insert(new IndexValue { IndexedFieldValue = "987", Items = new List<IndexItem> { new IndexItem { PrimaryKeyValue = 20 } } });
+            indexS.Add("123", new IndexItem { PrimaryKeyValue = 10 });
+            indexS.Add("987", new IndexItem { PrimaryKeyValue = 20 });
 
             _indexHolder = new IndexHolder(new AbstractIndex[] { indexA, indexB, indexS });
 

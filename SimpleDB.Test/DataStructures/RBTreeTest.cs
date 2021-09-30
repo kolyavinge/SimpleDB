@@ -18,15 +18,15 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Insert_Root()
         {
-            _tree.Insert(new RBTree<int, int>.Node(1));
+            _tree.InsertOrGetExists(1);
             Assert.AreEqual("key: 1, color: Black, parent: -, left: -, right: -", AsString(_tree.Root));
         }
 
         [Test]
         public void Insert_LeftChild()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
 
             Assert.AreEqual("key: 5, color: Black, parent: -, left: 1, right: -", AsString(_tree.Root));
             Assert.AreEqual("key: 5, color: Black, parent: -, left: 1, right: -", AsString(node5));
@@ -36,8 +36,8 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Insert_RightChild()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node10 = _tree.InsertOrGetExists(10);
 
             Assert.AreEqual("key: 5, color: Black, parent: -, left: -, right: 10", AsString(_tree.Root));
             Assert.AreEqual("key: 5, color: Black, parent: -, left: -, right: 10", AsString(node5));
@@ -47,9 +47,9 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Insert_LeftRightChild()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node10 = _tree.InsertOrGetExists(10);
 
             Assert.AreEqual("key: 5, color: Black, parent: -, left: 1, right: 10", AsString(_tree.Root));
             Assert.AreEqual("key: 5, color: Black, parent: -, left: 1, right: 10", AsString(node5));
@@ -60,10 +60,10 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Insert_Fixup_UncleRed_1()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
-            var node2 = _tree.Insert(new RBTree<int, int>.Node(2));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node10 = _tree.InsertOrGetExists(10);
+            var node2 = _tree.InsertOrGetExists(2);
 
             Assert.AreEqual("key: 5, color: Black, parent: -, left: 1, right: 10", AsString(_tree.Root));
             Assert.AreEqual("key: 5, color: Black, parent: -, left: 1, right: 10", AsString(node5));
@@ -75,10 +75,10 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Insert_Fixup_UncleRed_2()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
-            var node9 = _tree.Insert(new RBTree<int, int>.Node(9));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node10 = _tree.InsertOrGetExists(10);
+            var node9 = _tree.InsertOrGetExists(9);
 
             Assert.AreEqual("key: 5, color: Black, parent: -, left: 1, right: 10", AsString(_tree.Root));
             Assert.AreEqual("key: 5, color: Black, parent: -, left: 1, right: 10", AsString(node5));
@@ -90,11 +90,11 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Insert_Fixup_UncleBlackTriangle_RightLeftRotation()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node10 = _tree.InsertOrGetExists(10);
             node1.Color = RBTree<int, int>.Color.Black;
-            var node9 = _tree.Insert(new RBTree<int, int>.Node(9));
+            var node9 = _tree.InsertOrGetExists(9);
 
             Assert.AreEqual("key: 9, color: Black, parent: -, left: 5, right: 10", AsString(_tree.Root));
             Assert.AreEqual("key: 9, color: Black, parent: -, left: 5, right: 10", AsString(node9));
@@ -106,11 +106,11 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Insert_Fixup_UncleBlackTriangle_LeftRightRotation()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node10 = _tree.InsertOrGetExists(10);
             node10.Color = RBTree<int, int>.Color.Black;
-            var node2 = _tree.Insert(new RBTree<int, int>.Node(2));
+            var node2 = _tree.InsertOrGetExists(2);
 
             Assert.AreEqual("key: 2, color: Black, parent: -, left: 1, right: 5", AsString(_tree.Root));
             Assert.AreEqual("key: 2, color: Black, parent: -, left: 1, right: 5", AsString(node2));
@@ -122,11 +122,11 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Insert_Fixup_UncleBlackLine_LeftRotation()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node9 = _tree.Insert(new RBTree<int, int>.Node(9));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node9 = _tree.InsertOrGetExists(9);
             node1.Color = RBTree<int, int>.Color.Black;
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
+            var node10 = _tree.InsertOrGetExists(10);
 
             Assert.AreEqual("key: 9, color: Black, parent: -, left: 5, right: 10", AsString(_tree.Root));
             Assert.AreEqual("key: 9, color: Black, parent: -, left: 5, right: 10", AsString(node9));
@@ -138,11 +138,11 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Insert_Fixup_UncleBlackLine_RightRotation()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node2 = _tree.Insert(new RBTree<int, int>.Node(2));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node2 = _tree.InsertOrGetExists(2);
+            var node10 = _tree.InsertOrGetExists(10);
             node10.Color = RBTree<int, int>.Color.Black;
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
+            var node1 = _tree.InsertOrGetExists(1);
 
             Assert.AreEqual("key: 2, color: Black, parent: -, left: 1, right: 5", AsString(_tree.Root));
             Assert.AreEqual("key: 2, color: Black, parent: -, left: 1, right: 5", AsString(node2));
@@ -152,36 +152,36 @@ namespace SimpleDB.Test.DataStructures
         }
 
         [Test]
-        public void Insert_1Twice_Null()
+        public void Insert_1Twice_SameNode()
         {
-            _tree.Insert(new RBTree<int, int>.Node(1));
-            var result = _tree.Insert(new RBTree<int, int>.Node(1));
-            Assert.AreEqual(null, result);
+            var node = _tree.InsertOrGetExists(1);
+            var result = _tree.InsertOrGetExists(1);
+            Assert.AreEqual(node, result);
         }
 
         [Test]
         public void Insert_20()
         {
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node2 = _tree.Insert(new RBTree<int, int>.Node(2));
-            var node3 = _tree.Insert(new RBTree<int, int>.Node(3));
-            var node4 = _tree.Insert(new RBTree<int, int>.Node(4));
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node6 = _tree.Insert(new RBTree<int, int>.Node(6));
-            var node7 = _tree.Insert(new RBTree<int, int>.Node(7));
-            var node8 = _tree.Insert(new RBTree<int, int>.Node(8));
-            var node9 = _tree.Insert(new RBTree<int, int>.Node(9));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
-            var node11 = _tree.Insert(new RBTree<int, int>.Node(11));
-            var node12 = _tree.Insert(new RBTree<int, int>.Node(12));
-            var node13 = _tree.Insert(new RBTree<int, int>.Node(13));
-            var node14 = _tree.Insert(new RBTree<int, int>.Node(14));
-            var node15 = _tree.Insert(new RBTree<int, int>.Node(15));
-            var node16 = _tree.Insert(new RBTree<int, int>.Node(16));
-            var node17 = _tree.Insert(new RBTree<int, int>.Node(17));
-            var node18 = _tree.Insert(new RBTree<int, int>.Node(18));
-            var node19 = _tree.Insert(new RBTree<int, int>.Node(19));
-            var node20 = _tree.Insert(new RBTree<int, int>.Node(20));
+            var node1 = _tree.InsertOrGetExists(1);
+            var node2 = _tree.InsertOrGetExists(2);
+            var node3 = _tree.InsertOrGetExists(3);
+            var node4 = _tree.InsertOrGetExists(4);
+            var node5 = _tree.InsertOrGetExists(5);
+            var node6 = _tree.InsertOrGetExists(6);
+            var node7 = _tree.InsertOrGetExists(7);
+            var node8 = _tree.InsertOrGetExists(8);
+            var node9 = _tree.InsertOrGetExists(9);
+            var node10 = _tree.InsertOrGetExists(10);
+            var node11 = _tree.InsertOrGetExists(11);
+            var node12 = _tree.InsertOrGetExists(12);
+            var node13 = _tree.InsertOrGetExists(13);
+            var node14 = _tree.InsertOrGetExists(14);
+            var node15 = _tree.InsertOrGetExists(15);
+            var node16 = _tree.InsertOrGetExists(16);
+            var node17 = _tree.InsertOrGetExists(17);
+            var node18 = _tree.InsertOrGetExists(18);
+            var node19 = _tree.InsertOrGetExists(19);
+            var node20 = _tree.InsertOrGetExists(20);
 
             // 1
             Assert.AreEqual(null, node8.Parent);
@@ -253,7 +253,7 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Find_1()
         {
-            _tree.Insert(new RBTree<int, int>.Node(1));
+            _tree.InsertOrGetExists(1);
             var node = _tree.Find(1);
             Assert.AreEqual(1, node.Key);
         }
@@ -261,9 +261,9 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Find_2()
         {
-            _tree.Insert(new RBTree<int, int>.Node(5));
-            _tree.Insert(new RBTree<int, int>.Node(1));
-            _tree.Insert(new RBTree<int, int>.Node(10));
+            _tree.InsertOrGetExists(5);
+            _tree.InsertOrGetExists(1);
+            _tree.InsertOrGetExists(10);
 
             var node = _tree.Find(10);
             Assert.AreEqual(10, node.Key);
@@ -278,9 +278,9 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Find_No()
         {
-            _tree.Insert(new RBTree<int, int>.Node(5));
-            _tree.Insert(new RBTree<int, int>.Node(1));
-            _tree.Insert(new RBTree<int, int>.Node(10));
+            _tree.InsertOrGetExists(5);
+            _tree.InsertOrGetExists(1);
+            _tree.InsertOrGetExists(10);
 
             var node = _tree.Find(123);
             Assert.AreEqual(null, node);
@@ -299,7 +299,7 @@ namespace SimpleDB.Test.DataStructures
             var count = 1000;
             for (int i = 0; i < count; i++)
             {
-                _tree.Insert(new RBTree<int, int>.Node(i));
+                _tree.InsertOrGetExists(i);
             }
             Assert.AreEqual(count, _tree.Root.GetAllChildren().Count());
             for (int i = 0; i < count; i++)
@@ -314,7 +314,7 @@ namespace SimpleDB.Test.DataStructures
         {
             var count = 1000;
             int i = 0;
-            while (i < count) _tree.Insert(new RBTree<int, int>.Node(i++));
+            while (i < count) _tree.InsertOrGetExists(i++);
             i = 0;
             foreach (var node in _tree.Root.GetAllChildren())
             {
@@ -326,25 +326,49 @@ namespace SimpleDB.Test.DataStructures
         public void Clear()
         {
             var count = 1000;
-            for (int i = 0; i < count; i++) _tree.Insert(new RBTree<int, int>.Node(i));
+            for (int i = 0; i < count; i++) _tree.InsertOrGetExists(i);
 
             _tree.Clear();
             Assert.AreEqual(null, _tree.Root);
 
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node10 = _tree.InsertOrGetExists(10);
             Assert.AreEqual("key: 5, color: Black, parent: -, left: 1, right: 10", AsString(node5));
             Assert.AreEqual("key: 1, color: Red, parent: 5, left: -, right: -", AsString(node1));
             Assert.AreEqual("key: 10, color: Red, parent: 5, left: -, right: -", AsString(node10));
         }
 
         [Test]
+        public void Delete_Root()
+        {
+            _tree.InsertOrGetExists(5);
+            _tree.Delete(5);
+            Assert.AreEqual(null, _tree.Root);
+        }
+
+        [Test]
+        public void Delete_AllNodes()
+        {
+            _tree.InsertOrGetExists(1);
+            _tree.InsertOrGetExists(2);
+            _tree.InsertOrGetExists(3);
+            _tree.InsertOrGetExists(4);
+            _tree.InsertOrGetExists(5);
+            _tree.Delete(1);
+            _tree.Delete(2);
+            _tree.Delete(3);
+            _tree.Delete(4);
+            _tree.Delete(5);
+            Assert.AreEqual(null, _tree.Root);
+        }
+
+        [Test]
         public void Delete_NoNode()
         {
-            _tree.Insert(new RBTree<int, int>.Node(5));
-            _tree.Insert(new RBTree<int, int>.Node(1));
-            _tree.Insert(new RBTree<int, int>.Node(10));
+            _tree.InsertOrGetExists(5);
+            _tree.InsertOrGetExists(1);
+            _tree.InsertOrGetExists(10);
 
             var node = _tree.Delete(123);
             Assert.AreEqual(null, node);
@@ -353,9 +377,9 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Delete_NoChildren_Left()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node10 = _tree.InsertOrGetExists(10);
 
             _tree.Delete(1);
 
@@ -369,9 +393,9 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Delete_NoChildren_Right()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node10 = _tree.InsertOrGetExists(10);
 
             _tree.Delete(10);
 
@@ -385,10 +409,10 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Delete_LeftChildWithOneLeftChild()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
-            var node0 = _tree.Insert(new RBTree<int, int>.Node(0));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node10 = _tree.InsertOrGetExists(10);
+            var node0 = _tree.InsertOrGetExists(0);
             node1.Color = RBTree<int, int>.Color.Black;
             node0.Color = RBTree<int, int>.Color.Red;
 
@@ -405,10 +429,10 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Delete_RightChildWithOneLeftChild()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
-            var node9 = _tree.Insert(new RBTree<int, int>.Node(9));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node10 = _tree.InsertOrGetExists(10);
+            var node9 = _tree.InsertOrGetExists(9);
             node10.Color = RBTree<int, int>.Color.Black;
             node9.Color = RBTree<int, int>.Color.Red;
 
@@ -425,10 +449,10 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Delete_LeftChildWithOneRightChild()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
-            var node2 = _tree.Insert(new RBTree<int, int>.Node(2));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node10 = _tree.InsertOrGetExists(10);
+            var node2 = _tree.InsertOrGetExists(2);
             node1.Color = RBTree<int, int>.Color.Black;
             node2.Color = RBTree<int, int>.Color.Red;
 
@@ -445,10 +469,10 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Delete_RightChildWithOneRightChild()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
-            var node11 = _tree.Insert(new RBTree<int, int>.Node(11));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node10 = _tree.InsertOrGetExists(10);
+            var node11 = _tree.InsertOrGetExists(11);
             node10.Color = RBTree<int, int>.Color.Black;
             node11.Color = RBTree<int, int>.Color.Red;
 
@@ -465,11 +489,11 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Delete_LeftChildWithTwoChildren()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
-            var node2 = _tree.Insert(new RBTree<int, int>.Node(2));
-            var node3 = _tree.Insert(new RBTree<int, int>.Node(3));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node10 = _tree.InsertOrGetExists(10);
+            var node2 = _tree.InsertOrGetExists(2);
+            var node3 = _tree.InsertOrGetExists(3);
 
             _tree.Delete(2);
 
@@ -485,11 +509,11 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Delete_RightChildWithTwoChildren()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
-            var node9 = _tree.Insert(new RBTree<int, int>.Node(9));
-            var node11 = _tree.Insert(new RBTree<int, int>.Node(11));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node10 = _tree.InsertOrGetExists(10);
+            var node9 = _tree.InsertOrGetExists(9);
+            var node11 = _tree.InsertOrGetExists(11);
 
             _tree.Delete(10);
 
@@ -505,20 +529,20 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Delete_Case_1_DeleteLastNode()
         {
-            _tree.Insert(new RBTree<int, int>.Node(5));
+            _tree.InsertOrGetExists(5);
             _tree.Delete(5);
             Assert.AreEqual(null, _tree.Root);
 
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
+            var node5 = _tree.InsertOrGetExists(5);
             Assert.AreEqual(node5, _tree.Root);
         }
 
         [Test]
         public void Delete_Case_1()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node3 = _tree.Insert(new RBTree<int, int>.Node(3));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node3 = _tree.InsertOrGetExists(3);
             node1.Color = RBTree<int, int>.Color.Black;
             node5.Color = RBTree<int, int>.Color.Black;
 
@@ -534,11 +558,11 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Delete_Case_2_4_LeftChild()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
-            var node11 = _tree.Insert(new RBTree<int, int>.Node(11));
-            var node12 = _tree.Insert(new RBTree<int, int>.Node(12));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node10 = _tree.InsertOrGetExists(10);
+            var node11 = _tree.InsertOrGetExists(11);
+            var node12 = _tree.InsertOrGetExists(12);
             node11.Color = RBTree<int, int>.Color.Red;
             node10.Color = RBTree<int, int>.Color.Black;
             node12.Color = RBTree<int, int>.Color.Black;
@@ -557,11 +581,11 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Delete_Case_2_4_RightChild()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node2 = _tree.Insert(new RBTree<int, int>.Node(2));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node3 = _tree.Insert(new RBTree<int, int>.Node(3));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node2 = _tree.InsertOrGetExists(2);
+            var node10 = _tree.InsertOrGetExists(10);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node3 = _tree.InsertOrGetExists(3);
             node2.Color = RBTree<int, int>.Color.Red;
             node1.Color = RBTree<int, int>.Color.Black;
             node3.Color = RBTree<int, int>.Color.Black;
@@ -580,9 +604,9 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Delete_Case_3_LeftChild()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node10 = _tree.InsertOrGetExists(10);
             node1.Color = RBTree<int, int>.Color.Black;
             node10.Color = RBTree<int, int>.Color.Black;
 
@@ -598,9 +622,9 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Delete_Case_3_RightChild()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node10 = _tree.InsertOrGetExists(10);
             node1.Color = RBTree<int, int>.Color.Black;
             node10.Color = RBTree<int, int>.Color.Black;
 
@@ -616,10 +640,10 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Delete_Case_5_LeftChild()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node11 = _tree.Insert(new RBTree<int, int>.Node(11));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node11 = _tree.InsertOrGetExists(11);
+            var node10 = _tree.InsertOrGetExists(10);
 
             _tree.Delete(1);
 
@@ -634,10 +658,10 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Delete_Case_5_RightChild()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
-            var node2 = _tree.Insert(new RBTree<int, int>.Node(2));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node10 = _tree.InsertOrGetExists(10);
+            var node2 = _tree.InsertOrGetExists(2);
 
             _tree.Delete(10);
 
@@ -652,11 +676,11 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Delete_Case_6_LeftChild()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node11 = _tree.Insert(new RBTree<int, int>.Node(11));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
-            var node12 = _tree.Insert(new RBTree<int, int>.Node(12));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node11 = _tree.InsertOrGetExists(11);
+            var node10 = _tree.InsertOrGetExists(10);
+            var node12 = _tree.InsertOrGetExists(12);
 
             _tree.Delete(1);
 
@@ -672,11 +696,11 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Delete_Case_6_RightChild()
         {
-            var node5 = _tree.Insert(new RBTree<int, int>.Node(5));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
-            var node2 = _tree.Insert(new RBTree<int, int>.Node(2));
-            var node0 = _tree.Insert(new RBTree<int, int>.Node(0));
+            var node5 = _tree.InsertOrGetExists(5);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node10 = _tree.InsertOrGetExists(10);
+            var node2 = _tree.InsertOrGetExists(2);
+            var node0 = _tree.InsertOrGetExists(0);
 
             _tree.Delete(10);
 
@@ -692,16 +716,16 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Delete_Hard_1()
         {
-            var node13 = _tree.Insert(new RBTree<int, int>.Node(13));
-            var node8 = _tree.Insert(new RBTree<int, int>.Node(8));
-            var node17 = _tree.Insert(new RBTree<int, int>.Node(17));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node11 = _tree.Insert(new RBTree<int, int>.Node(11));
-            var node15 = _tree.Insert(new RBTree<int, int>.Node(15));
-            var node25 = _tree.Insert(new RBTree<int, int>.Node(25));
-            var node6 = _tree.Insert(new RBTree<int, int>.Node(6));
-            var node22 = _tree.Insert(new RBTree<int, int>.Node(22));
-            var node27 = _tree.Insert(new RBTree<int, int>.Node(27));
+            var node13 = _tree.InsertOrGetExists(13);
+            var node8 = _tree.InsertOrGetExists(8);
+            var node17 = _tree.InsertOrGetExists(17);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node11 = _tree.InsertOrGetExists(11);
+            var node15 = _tree.InsertOrGetExists(15);
+            var node25 = _tree.InsertOrGetExists(25);
+            var node6 = _tree.InsertOrGetExists(6);
+            var node22 = _tree.InsertOrGetExists(22);
+            var node27 = _tree.InsertOrGetExists(27);
 
             _tree.Delete(8);
 
@@ -722,14 +746,14 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Delete_Hard_2()
         {
-            var node7 = _tree.Insert(new RBTree<int, int>.Node(7));
-            var node3 = _tree.Insert(new RBTree<int, int>.Node(3));
-            var node18 = _tree.Insert(new RBTree<int, int>.Node(18));
-            var node10 = _tree.Insert(new RBTree<int, int>.Node(10));
-            var node22 = _tree.Insert(new RBTree<int, int>.Node(22));
-            var node8 = _tree.Insert(new RBTree<int, int>.Node(8));
-            var node11 = _tree.Insert(new RBTree<int, int>.Node(11));
-            var node26 = _tree.Insert(new RBTree<int, int>.Node(26));
+            var node7 = _tree.InsertOrGetExists(7);
+            var node3 = _tree.InsertOrGetExists(3);
+            var node18 = _tree.InsertOrGetExists(18);
+            var node10 = _tree.InsertOrGetExists(10);
+            var node22 = _tree.InsertOrGetExists(22);
+            var node8 = _tree.InsertOrGetExists(8);
+            var node11 = _tree.InsertOrGetExists(11);
+            var node26 = _tree.InsertOrGetExists(26);
 
             _tree.Delete(3);
 
@@ -748,16 +772,16 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void Delete_Hard_3()
         {
-            var node13 = _tree.Insert(new RBTree<int, int>.Node(13));
-            var node8 = _tree.Insert(new RBTree<int, int>.Node(8));
-            var node17 = _tree.Insert(new RBTree<int, int>.Node(17));
-            var node1 = _tree.Insert(new RBTree<int, int>.Node(1));
-            var node11 = _tree.Insert(new RBTree<int, int>.Node(11));
-            var node15 = _tree.Insert(new RBTree<int, int>.Node(15));
-            var node25 = _tree.Insert(new RBTree<int, int>.Node(25));
-            var node6 = _tree.Insert(new RBTree<int, int>.Node(6));
-            var node22 = _tree.Insert(new RBTree<int, int>.Node(22));
-            var node27 = _tree.Insert(new RBTree<int, int>.Node(27));
+            var node13 = _tree.InsertOrGetExists(13);
+            var node8 = _tree.InsertOrGetExists(8);
+            var node17 = _tree.InsertOrGetExists(17);
+            var node1 = _tree.InsertOrGetExists(1);
+            var node11 = _tree.InsertOrGetExists(11);
+            var node15 = _tree.InsertOrGetExists(15);
+            var node25 = _tree.InsertOrGetExists(25);
+            var node6 = _tree.InsertOrGetExists(6);
+            var node22 = _tree.InsertOrGetExists(22);
+            var node27 = _tree.InsertOrGetExists(27);
 
             _tree.Delete(11);
 

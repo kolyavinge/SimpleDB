@@ -162,10 +162,30 @@ namespace SimpleDB.Core
             return _indexTree.Root.GetAllChildren().Where(x => !set.Contains(x.Key)).Select(x => x.Value);
         }
 
-        public void Insert(IndexValue indexValue)
+        public void Add(TField indexedFieldValue, IndexItem indexItem)
         {
-            var node = new RBTree<TField, IndexValue>.Node((TField)indexValue.IndexedFieldValue) { Value = indexValue };
-            _indexTree.Insert(node);
+            var node = _indexTree.InsertOrGetExists(indexedFieldValue);
+            if (node.Value == null)
+            {
+                node.Value = new IndexValue { IndexedFieldValue = indexedFieldValue, Items = new List<IndexItem> { indexItem } };
+            }
+            else
+            {
+                node.Value.Items.Add(indexItem);
+            }
+        }
+
+        public void Add(TField indexedFieldValue, List<IndexItem> indexItems)
+        {
+            var node = _indexTree.InsertOrGetExists(indexedFieldValue);
+            if (node.Value == null)
+            {
+                node.Value = new IndexValue { IndexedFieldValue = indexedFieldValue, Items = indexItems };
+            }
+            else
+            {
+                node.Value.Items.AddRange(indexItems);
+            }
         }
 
         public void Delete(TField fieldValue)

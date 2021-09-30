@@ -41,7 +41,7 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void SerializeDeserialize_One()
         {
-            _tree.Insert(new RBTree<int, int>.Node(1) { Value = 1 });
+            _tree.InsertOrGetExists(1).Value = 1;
             _serializer.Serialize(_tree, _stream);
             _stream.Seek(0, System.IO.SeekOrigin.Begin);
             var result = _serializer.Deserialize(_stream);
@@ -53,8 +53,8 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void SerializeDeserialize_Two()
         {
-            _tree.Insert(new RBTree<int, int>.Node(1) { Value = 1 });
-            _tree.Insert(new RBTree<int, int>.Node(2) { Value = 2 });
+            _tree.InsertOrGetExists(1).Value = 1;
+            _tree.InsertOrGetExists(2).Value = 2;
             _serializer.Serialize(_tree, _stream);
             _stream.Seek(0, System.IO.SeekOrigin.Begin);
             var result = _serializer.Deserialize(_stream);
@@ -66,9 +66,9 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void SerializeDeserialize_Three()
         {
-            _tree.Insert(new RBTree<int, int>.Node(1) { Value = 1 });
-            _tree.Insert(new RBTree<int, int>.Node(2) { Value = 2 });
-            _tree.Insert(new RBTree<int, int>.Node(3) { Value = 3 });
+            _tree.InsertOrGetExists(1).Value = 1;
+            _tree.InsertOrGetExists(2).Value = 2;
+            _tree.InsertOrGetExists(3).Value = 3;
             _serializer.Serialize(_tree, _stream);
             _stream.Seek(0, System.IO.SeekOrigin.Begin);
             var result = _serializer.Deserialize(_stream);
@@ -80,7 +80,7 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void SerializeDeserialize_100()
         {
-            for (int i = 0; i < 100; i++) _tree.Insert(new RBTree<int, int>.Node(i) { Value = i });
+            for (int i = 0; i < 100; i++) _tree.InsertOrGetExists(i).Value = i;
             _serializer.Serialize(_tree, _stream);
             _stream.Seek(0, System.IO.SeekOrigin.Begin);
             var result = _serializer.Deserialize(_stream);
@@ -92,7 +92,7 @@ namespace SimpleDB.Test.DataStructures
         [Test]
         public void SerializeDeserialize_1000()
         {
-            for (int i = 0; i < 1000; i++) _tree.Insert(new RBTree<int, int>.Node(i) { Value = i });
+            for (int i = 0; i < 1000; i++) _tree.InsertOrGetExists(i).Value = i;
             _serializer.Serialize(_tree, _stream);
             _stream.Seek(0, System.IO.SeekOrigin.Begin);
             var result = _serializer.Deserialize(_stream);

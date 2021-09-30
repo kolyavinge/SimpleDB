@@ -7,14 +7,14 @@ namespace SimpleDB.Test.DataStructures
     class RBTreeFindNodeEnumerableTest
     {
         [Test]
-        public void T()
+        public void RBTreeFindNodeEnumerable()
         {
             var tree = new RBTree<int, int>();
-            var node1 = tree.Insert(new RBTree<int, int>.Node(1));
-            var node2 = tree.Insert(new RBTree<int, int>.Node(2));
-            var node3 = tree.Insert(new RBTree<int, int>.Node(3));
-            var node4 = tree.Insert(new RBTree<int, int>.Node(4));
-            var node5 = tree.Insert(new RBTree<int, int>.Node(5));
+            var node1 = tree.InsertOrGetExists(1);
+            var node2 = tree.InsertOrGetExists(2);
+            var node3 = tree.InsertOrGetExists(3);
+            var node4 = tree.InsertOrGetExists(4);
+            var node5 = tree.InsertOrGetExists(5);
 
             var result = new RBTreeFindNodeEnumerable<int, int>(tree.Root, 3).ToList();
 

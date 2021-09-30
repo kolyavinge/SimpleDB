@@ -34,7 +34,7 @@ namespace SimpleDB.Test.Core
             _index = new Index<int>(meta);
             for (int i = 0; i < 100; i++)
             {
-                _index.Insert(new IndexValue { IndexedFieldValue = i });
+                _index.Add(i, (IndexItem)null);
             }
         }
 
@@ -42,31 +42,14 @@ namespace SimpleDB.Test.Core
         public void SerializeDeserialize_PrimitiveTypes()
         {
             _index.Clear();
-            _index.Insert(new IndexValue
+            _index.Add(10, new IndexItem { PrimaryKeyValue = 1, IncludedFields = new object[] { 101, 201 } });
+            _index.Add(20, new IndexItem { PrimaryKeyValue = 2, IncludedFields = new object[] { 102, 202 } });
+            _index.Add(30,
+            new List<IndexItem>
             {
-                IndexedFieldValue = 10,
-                Items = new List<IndexItem>
-                {
-                    new IndexItem { PrimaryKeyValue = 1, IncludedFields = new object[] { 101, 201 } }
-                }
-            });
-            _index.Insert(new IndexValue
-            {
-                IndexedFieldValue = 20,
-                Items = new List<IndexItem>
-                {
-                    new IndexItem { PrimaryKeyValue = 2, IncludedFields = new object[] { 102, 202 } }
-                }
-            });
-            _index.Insert(new IndexValue
-            {
-                IndexedFieldValue = 30,
-                Items = new List<IndexItem>
-                {
-                    new IndexItem { PrimaryKeyValue = 3, IncludedFields = new object[] { 103, 203 } },
-                    new IndexItem { PrimaryKeyValue = 4, IncludedFields = new object[] { 104, 204 } },
-                    new IndexItem { PrimaryKeyValue = 5, IncludedFields = new object[] { 105, 205 } }
-                }
+                new IndexItem { PrimaryKeyValue = 3, IncludedFields = new object[] { 103, 203 } },
+                new IndexItem { PrimaryKeyValue = 4, IncludedFields = new object[] { 104, 204 } },
+                new IndexItem { PrimaryKeyValue = 5, IncludedFields = new object[] { 105, 205 } }
             });
 
             _index.Serialize(_stream);
@@ -119,34 +102,28 @@ namespace SimpleDB.Test.Core
         {
             _index.Clear();
             _index.Meta.IncludedFieldNumbers = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
-            _index.Insert(new IndexValue
+            _index.Add(10,
+            new IndexItem
             {
-                IndexedFieldValue = 10,
-                Items = new List<IndexItem>
+                PrimaryKeyValue = 1,
+                IncludedFields = new object[]
                 {
-                    new IndexItem
-                    {
-                        PrimaryKeyValue = 1,
-                        IncludedFields = new object[]
-                        {
-                            false,
-                            (sbyte)1,
-                            (byte)2,
-                            'a',
-                            (short)4,
-                            (ushort)5,
-                            6,
-                            (uint)7,
-                            (long)8,
-                            (ulong)9,
-                            (float)1.2,
-                            3.4,
-                            (decimal)5.6,
-                            DateTime.Parse("2000-12-31"),
-                            "1234567890",
-                            new Inner { Value = "123" }
-                        }
-                    }
+                    false,
+                    (sbyte)1,
+                    (byte)2,
+                    'a',
+                    (short)4,
+                    (ushort)5,
+                    6,
+                    (uint)7,
+                    (long)8,
+                    (ulong)9,
+                    (float)1.2,
+                    3.4,
+                    (decimal)5.6,
+                    DateTime.Parse("2000-12-31"),
+                    "1234567890",
+                    new Inner { Value = "123" }
                 }
             });
 

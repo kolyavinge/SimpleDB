@@ -76,17 +76,8 @@ namespace SimpleDB.Core
                     dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldNumbers, fieldValueCollection);
                     var indexedFieldValue = (TField)fieldValueCollection[indexedFieldNumber].Value;
                     var includedFieldValues = includedFieldNumbers.Select(fn => fieldValueCollection[fn].Value).ToArray();
-                    var indexValue = index.GetEquals(indexedFieldValue);
-                    if (indexValue == null)
-                    {
-                        var indexItem = new IndexItem { PrimaryKeyValue = primaryKey.Value, IncludedFields = includedFieldValues };
-                        indexValue = new IndexValue { IndexedFieldValue = indexedFieldValue, Items = new List<IndexItem> { indexItem } };
-                        index.Insert(indexValue);
-                    }
-                    else
-                    {
-                        indexValue.Items.Add(new IndexItem { PrimaryKeyValue = primaryKey.Value, IncludedFields = includedFieldValues });
-                    }
+                    var indexItem = new IndexItem { PrimaryKeyValue = primaryKey.Value, IncludedFields = includedFieldValues };
+                    index.Add(indexedFieldValue, indexItem);
                     fieldValueCollection.Clear();
                 }
             }

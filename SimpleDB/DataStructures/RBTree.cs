@@ -7,7 +7,7 @@ namespace SimpleDB.DataStructures
     {
         public enum Color : byte { Red = 1, Black = 2 }
 
-        public class Node
+        public sealed class Node
         {
             public readonly TKey Key;
             public TValue Value;
@@ -37,13 +37,7 @@ namespace SimpleDB.DataStructures
             }
         }
 
-        class DummyNode : Node
-        {
-            public DummyNode() : base(default)
-            {
-                Color = Color.Black;
-            }
-        }
+        private static Node _dummyNode = new Node(default) { Color = Color.Black };
 
         public RBTree() { }
 
@@ -73,29 +67,30 @@ namespace SimpleDB.DataStructures
             return null;
         }
 
-        public Node Insert(Node node)
+        public Node InsertOrGetExists(TKey key)
         {
-            if (Root != null) return NodeInsert(node);
-            else return RootInsert(node);
+            if (Root != null) return NodeInsertOrGetExists(key);
+            else return RootInsert(key);
         }
 
-        private Node RootInsert(Node node)
+        private Node RootInsert(TKey key)
         {
-            node.Color = Color.Black;
-            return Root = node;
+            return Root = new Node(key) { Color = Color.Black };
         }
 
-        private Node NodeInsert(Node node)
+        private Node NodeInsertOrGetExists(TKey key)
         {
+            Node node;
             var parent = Root;
             while (true)
             {
-                var compareResult = node.Key.CompareTo(parent.Key);
+                var compareResult = key.CompareTo(parent.Key);
                 if (compareResult < 0)
                 {
                     if (parent.Left != null) parent = parent.Left;
                     else
                     {
+                        node = new Node(key);
                         parent.Left = node;
                         node.Parent = parent;
                         break;
@@ -106,12 +101,13 @@ namespace SimpleDB.DataStructures
                     if (parent.Right != null) parent = parent.Right;
                     else
                     {
+                        node = new Node(key);
                         parent.Right = node;
                         node.Parent = parent;
                         break;
                     }
                 }
-                else return null;
+                else return parent;
             }
 
             InsertFixup(node);
@@ -188,7 +184,7 @@ namespace SimpleDB.DataStructures
             // no children
             if (deleted.Left == null && deleted.Right == null)
             {
-                replacement = new DummyNode();
+                replacement = _dummyNode;
                 x = replacement;
             }
             // one child
@@ -201,7 +197,7 @@ namespace SimpleDB.DataStructures
             else
             {
                 replacement = GetHighestNode(deleted.Left);
-                x = replacement.Left ?? new DummyNode();
+                x = replacement.Left ?? _dummyNode;
                 ReplaceDeletedNode(replacement, x);
             }
             ReplaceDeletedNode(deleted, replacement);
@@ -221,7 +217,7 @@ namespace SimpleDB.DataStructures
 
         private void DeleteDummyIfNeeded(Node dummy)
         {
-            if (dummy is DummyNode && dummy.Parent != null)
+            if (dummy == _dummyNode && dummy.Parent != null)
             {
                 if (IsLeftChild(dummy)) dummy.Parent.Left = null;
                 else dummy.Parent.Right = null;
@@ -234,7 +230,7 @@ namespace SimpleDB.DataStructures
             // case 1
             if (node.Parent == null)
             {
-                if (Root is DummyNode) Root = null;
+                if (Root == _dummyNode) Root = null;
                 return;
             }
             // case 2
