@@ -51,7 +51,8 @@ namespace SimpleDB
             var mapperHolder = new MapperHolder(mappers);
             var indexes = _indexBuilders.Select(x => x.BuildFunction(_workingDirectory, mapperHolder)).ToList();
             var indexHolder = new IndexHolder(indexes);
-            return new DBEngine(_workingDirectory, mapperHolder, indexHolder);
+            var indexUpdater = new IndexUpdater(_workingDirectory, indexes, mapperHolder);
+            return new DBEngine(_workingDirectory, mapperHolder, indexHolder, indexUpdater);
         }
     }
 

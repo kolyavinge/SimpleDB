@@ -44,13 +44,9 @@ namespace SimpleDB.Test.Core
             _index.Clear();
             _index.Add(10, new IndexItem { PrimaryKeyValue = 1, IncludedFields = new object[] { 101, 201 } });
             _index.Add(20, new IndexItem { PrimaryKeyValue = 2, IncludedFields = new object[] { 102, 202 } });
-            _index.Add(30,
-            new List<IndexItem>
-            {
-                new IndexItem { PrimaryKeyValue = 3, IncludedFields = new object[] { 103, 203 } },
-                new IndexItem { PrimaryKeyValue = 4, IncludedFields = new object[] { 104, 204 } },
-                new IndexItem { PrimaryKeyValue = 5, IncludedFields = new object[] { 105, 205 } }
-            });
+            _index.Add(30, new IndexItem { PrimaryKeyValue = 3, IncludedFields = new object[] { 103, 203 } });
+            _index.Add(30, new IndexItem { PrimaryKeyValue = 4, IncludedFields = new object[] { 104, 204 } });
+            _index.Add(30, new IndexItem { PrimaryKeyValue = 5, IncludedFields = new object[] { 105, 205 } });
 
             _index.Serialize(_stream);
             _stream.Seek(0, System.IO.SeekOrigin.Begin);

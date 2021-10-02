@@ -10,6 +10,7 @@ namespace SimpleDB.Core
     internal class Collection<TEntity> : ICollection<TEntity>
     {
         private readonly IndexHolder _indexHolder;
+        private readonly IndexUpdater _indexUpdater;
 
         internal Mapper<TEntity> Mapper { get; private set; }
 
@@ -19,10 +20,11 @@ namespace SimpleDB.Core
 
         internal Dictionary<object, PrimaryKey> PrimaryKeys { get; private set; }
 
-        public Collection(string workingDirectory, Mapper<TEntity> mapper, IndexHolder indexHolder = null)
+        public Collection(string workingDirectory, Mapper<TEntity> mapper, IndexHolder indexHolder = null, IndexUpdater indexUpdater = null)
         {
             Mapper = mapper;
-            _indexHolder = indexHolder ?? new IndexHolder(Enumerable.Empty<AbstractIndex>());
+            _indexHolder = indexHolder ?? new IndexHolder();
+            _indexUpdater = indexUpdater;
             var primaryKeyFileFullPath = Path.Combine(workingDirectory, PrimaryKeyFileName.FromEntityName(mapper.EntityName));
             var dataFileFileFullPath = Path.Combine(workingDirectory, DataFileName.FromEntityName(mapper.EntityName));
             PrimaryKeyFile = new PrimaryKeyFile(primaryKeyFileFullPath, mapper.PrimaryKeyMapping.PropertyType);
@@ -108,6 +110,7 @@ namespace SimpleDB.Core
                 {
                     EntityOperations.Insert(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
                 }
+                _indexUpdater.AddToIndexes(entities);
             }
             finally
             {

@@ -49,7 +49,7 @@ namespace SimpleDB.QueryExecutors
         {
             foreach (var item in root.ToEnumerable().Where(x => x.IsFieldOperation))
             {
-                var indexResult = _indexHolder.GetIndexResult(item.OperationType, item.IsNotApplied, _entityType, item.FieldNumber, item.ConstantValue);
+                var indexResult = _indexHolder.GetIndexResults(item.OperationType, item.IsNotApplied, _entityType, item.FieldNumber, item.ConstantValue);
                 if (indexResult != null)
                 {
                     var fieldValueCollections = indexResult.SelectMany(x => x.ToFieldValueCollections(_primaryKeys)).ToList();

@@ -47,5 +47,9 @@ namespace SimpleDB.Core
         {
             Meta = meta;
         }
+
+        public abstract void Add(object indexedFieldValue, IndexItem indexItem);
+
+        public abstract void Serialize(IWriteableStream stream);
     }
 }

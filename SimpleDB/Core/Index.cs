@@ -162,9 +162,9 @@ namespace SimpleDB.Core
             return _indexTree.Root.GetAllChildren().Where(x => !set.Contains(x.Key)).Select(x => x.Value);
         }
 
-        public void Add(TField indexedFieldValue, IndexItem indexItem)
+        public override void Add(object indexedFieldValue, IndexItem indexItem)
         {
-            var node = _indexTree.InsertOrGetExists(indexedFieldValue);
+            var node = _indexTree.InsertOrGetExists((TField)indexedFieldValue);
             if (node.Value == null)
             {
                 node.Value = new IndexValue { IndexedFieldValue = indexedFieldValue, Items = new List<IndexItem> { indexItem } };
@@ -172,19 +172,6 @@ namespace SimpleDB.Core
             else
             {
                 node.Value.Items.Add(indexItem);
-            }
-        }
-
-        public void Add(TField indexedFieldValue, List<IndexItem> indexItems)
-        {
-            var node = _indexTree.InsertOrGetExists(indexedFieldValue);
-            if (node.Value == null)
-            {
-                node.Value = new IndexValue { IndexedFieldValue = indexedFieldValue, Items = indexItems };
-            }
-            else
-            {
-                node.Value.Items.AddRange(indexItems);
             }
         }
 
@@ -207,7 +194,7 @@ namespace SimpleDB.Core
             return new Index<TField>(indexMeta, indexTree);
         }
 
-        public void Serialize(IWriteableStream stream)
+        public override void Serialize(IWriteableStream stream)
         {
             Meta.Serialize(stream);
             var rbTreeSerializer = new RBTreeSerializer<TField, IndexValue>(new IndexNodeSerializer<TField>());

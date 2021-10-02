@@ -19,7 +19,7 @@ namespace SimpleDB.QueryExecutors
             _mapper = mapper;
             _dataFile = dataFile;
             _primaryKeys = primaryKeys;
-            _indexHolder = indexHolder ?? new IndexHolder(Enumerable.Empty<AbstractIndex>());
+            _indexHolder = indexHolder ?? new IndexHolder();
         }
 
         public SelectQueryResult<TEntity> ExecuteQuery(SelectQuery query)

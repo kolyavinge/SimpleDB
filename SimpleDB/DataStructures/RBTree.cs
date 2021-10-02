@@ -37,7 +37,7 @@ namespace SimpleDB.DataStructures
             }
         }
 
-        private static Node _dummyNode = new Node(default) { Color = Color.Black };
+        private static readonly Node _dummyNode = new Node(default) { Color = Color.Black };
 
         public RBTree() { }
 

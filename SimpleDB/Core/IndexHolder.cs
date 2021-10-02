@@ -31,11 +31,20 @@ namespace SimpleDB.Core
 
     internal class IndexHolder
     {
-        private Dictionary<Type, List<AbstractIndex>> _indexes;
+        private readonly Dictionary<Type, List<AbstractIndex>> _indexes;
+        //private readonly string _workingDirectory;
+        //private readonly MapperHolder _mapperHolder;
 
-        public IndexHolder(IEnumerable<AbstractIndex> indexes)
+        public IndexHolder(/*string workingDirectory, */IEnumerable<AbstractIndex> indexes/*, MapperHolder mapperHolder*/)
         {
             _indexes = indexes.GroupBy(x => x.Meta.EntityType).ToDictionary(k => k.Key, v => v.ToList());
+            //_workingDirectory = workingDirectory;
+            //_mapperHolder = mapperHolder;
+        }
+
+        public IndexHolder()
+        {
+            _indexes = new Dictionary<Type, List<AbstractIndex>>();
         }
 
         public bool AnyIndexFor(Type entityType, ISet<byte> fieldNumbers)
@@ -44,7 +53,7 @@ namespace SimpleDB.Core
             return _indexes[entityType].Any(x => fieldNumbers.Contains(x.Meta.IndexedFieldNumber));
         }
 
-        public IEnumerable<IndexResult> GetIndexResult(Type operationType, bool isNotApplied, Type entityType, byte fieldNumber, object fieldValue)
+        public IEnumerable<IndexResult> GetIndexResults(Type operationType, bool isNotApplied, Type entityType, byte fieldNumber, object fieldValue)
         {
             if (!_indexes.ContainsKey(entityType)) return null;
             foreach (var index in _indexes[entityType].Where(x => x.Meta.IndexedFieldNumber == fieldNumber))
@@ -125,5 +134,11 @@ namespace SimpleDB.Core
 
             return null;
         }
+
+        //public void AddToIndexes<TEntity>(IEnumerable<TEntity> entities)
+        //{
+        //    var indexUpdater = new IndexUpdater(_workingDirectory, _indexes, _mapperHolder);
+        //    indexUpdater.AddToIndexes(entities);
+        //}
     }
 }

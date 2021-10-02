@@ -28,7 +28,7 @@ namespace SimpleDB.Core
             }
         }
 
-        public void WriteIndex<TField>(Index<TField> index) where TField : IComparable<TField>
+        public void WriteIndex(AbstractIndex index)
         {
             using (var stream = _fileSystem.OpenFileWrite(_fileFullPath))
             {
