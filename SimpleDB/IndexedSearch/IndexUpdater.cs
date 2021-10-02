@@ -18,7 +18,7 @@ namespace SimpleDB.IndexedSearch
             _mapperHolder = mapperHolder;
         }
 
-        public void AddToIndexes<TEntity>(IEnumerable<TEntity> entities)
+        public void AddToIndexes<TEntity>(params TEntity[] entities)
         {
             if (!_indexes.ContainsKey(typeof(TEntity))) return;
             var entityIndexes = _indexes[typeof(TEntity)];

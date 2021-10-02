@@ -93,6 +93,7 @@ namespace SimpleDB.Core
                 DataFile.BeginWrite();
                 PrimaryKeyFile.BeginWrite();
                 EntityOperations.Insert(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
+                _indexUpdater.AddToIndexes(entity);
             }
             finally
             {
