@@ -55,75 +55,74 @@ namespace SimpleDB.IndexedSearch
             if (!_indexes.ContainsKey(entityType)) return null;
             foreach (var index in _indexes[entityType].Where(x => x.Meta.IndexedFieldNumber == fieldNumber))
             {
-                var indexAdapter = new IndexAdapter(index);
                 if (operationType == typeof(WhereClause.EqualsOperation) && !isNotApplied)
                 {
-                    var indexValue = indexAdapter.GetEquals(fieldValue);
+                    var indexValue = index.GetEquals(fieldValue);
                     return new[] { new IndexResult { IndexMeta = index.Meta, IndexValue = indexValue } };
                 }
                 else if (operationType == typeof(WhereClause.EqualsOperation) && isNotApplied)
                 {
-                    var indexValues = indexAdapter.GetNotEquals(fieldValue);
+                    var indexValues = index.GetNotEquals(fieldValue);
                     return indexValues.Select(indexValue => new IndexResult { IndexMeta = index.Meta, IndexValue = indexValue });
                 }
                 else if (operationType == typeof(WhereClause.LessOperation) && !isNotApplied)
                 {
-                    var indexValues = indexAdapter.GetLess(fieldValue);
+                    var indexValues = index.GetLess(fieldValue);
                     return indexValues.Select(indexValue => new IndexResult { IndexMeta = index.Meta, IndexValue = indexValue });
                 }
                 else if (operationType == typeof(WhereClause.LessOperation) && isNotApplied)
                 {
-                    var indexValues = indexAdapter.GetGreatOrEquals(fieldValue);
+                    var indexValues = index.GetGreatOrEquals(fieldValue);
                     return indexValues.Select(indexValue => new IndexResult { IndexMeta = index.Meta, IndexValue = indexValue });
                 }
                 else if (operationType == typeof(WhereClause.GreatOperation) && !isNotApplied)
                 {
-                    var indexValues = indexAdapter.GetGreat(fieldValue);
+                    var indexValues = index.GetGreat(fieldValue);
                     return indexValues.Select(indexValue => new IndexResult { IndexMeta = index.Meta, IndexValue = indexValue });
                 }
                 else if (operationType == typeof(WhereClause.GreatOperation) && isNotApplied)
                 {
-                    var indexValues = indexAdapter.GetLessOrEquals(fieldValue);
+                    var indexValues = index.GetLessOrEquals(fieldValue);
                     return indexValues.Select(indexValue => new IndexResult { IndexMeta = index.Meta, IndexValue = indexValue });
                 }
                 else if (operationType == typeof(WhereClause.LessOrEqualsOperation) && !isNotApplied)
                 {
-                    var indexValues = indexAdapter.GetLessOrEquals(fieldValue);
+                    var indexValues = index.GetLessOrEquals(fieldValue);
                     return indexValues.Select(indexValue => new IndexResult { IndexMeta = index.Meta, IndexValue = indexValue });
                 }
                 else if (operationType == typeof(WhereClause.LessOrEqualsOperation) && isNotApplied)
                 {
-                    var indexValues = indexAdapter.GetGreat(fieldValue);
+                    var indexValues = index.GetGreat(fieldValue);
                     return indexValues.Select(indexValue => new IndexResult { IndexMeta = index.Meta, IndexValue = indexValue });
                 }
                 else if (operationType == typeof(WhereClause.GreatOrEqualsOperation) && !isNotApplied)
                 {
-                    var indexValues = indexAdapter.GetGreatOrEquals(fieldValue);
+                    var indexValues = index.GetGreatOrEquals(fieldValue);
                     return indexValues.Select(indexValue => new IndexResult { IndexMeta = index.Meta, IndexValue = indexValue });
                 }
                 else if (operationType == typeof(WhereClause.GreatOrEqualsOperation) && isNotApplied)
                 {
-                    var indexValues = indexAdapter.GetLess(fieldValue);
+                    var indexValues = index.GetLess(fieldValue);
                     return indexValues.Select(indexValue => new IndexResult { IndexMeta = index.Meta, IndexValue = indexValue });
                 }
                 else if (operationType == typeof(WhereClause.LikeOperation) && !isNotApplied)
                 {
-                    var indexValues = indexAdapter.GetLike(fieldValue);
+                    var indexValues = index.GetLike(fieldValue);
                     return indexValues.Select(indexValue => new IndexResult { IndexMeta = index.Meta, IndexValue = indexValue });
                 }
                 else if (operationType == typeof(WhereClause.LikeOperation) && isNotApplied)
                 {
-                    var indexValues = indexAdapter.GetNotLike(fieldValue);
+                    var indexValues = index.GetNotLike(fieldValue);
                     return indexValues.Select(indexValue => new IndexResult { IndexMeta = index.Meta, IndexValue = indexValue });
                 }
                 else if (operationType == typeof(WhereClause.InOperation) && !isNotApplied)
                 {
-                    var indexValues = indexAdapter.GetIn((IEnumerable<object>)fieldValue);
+                    var indexValues = index.GetIn((IEnumerable<object>)fieldValue);
                     return indexValues.Select(indexValue => new IndexResult { IndexMeta = index.Meta, IndexValue = indexValue });
                 }
                 else if (operationType == typeof(WhereClause.InOperation) && isNotApplied)
                 {
-                    var indexValues = indexAdapter.GetNotIn((IEnumerable<object>)fieldValue);
+                    var indexValues = index.GetNotIn((IEnumerable<object>)fieldValue);
                     return indexValues.Select(indexValue => new IndexResult { IndexMeta = index.Meta, IndexValue = indexValue });
                 }
                 else throw new InvalidOperationException();

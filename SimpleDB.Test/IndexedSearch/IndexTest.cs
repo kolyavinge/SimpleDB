@@ -292,7 +292,7 @@ namespace SimpleDB.Test.IndexedSearch
         [Test]
         public void GetIn()
         {
-            var result = _index.GetIn(new[] { 21, 55, 68, 81 }).Select(x => x.IndexedFieldValue).ToHashSet();
+            var result = _index.GetIn(new object[] { 21, 55, 68, 81 }).Select(x => x.IndexedFieldValue).ToHashSet();
             Assert.AreEqual(4, result.Count);
             Assert.IsTrue(result.Contains(21));
             Assert.IsTrue(result.Contains(55));
@@ -303,7 +303,7 @@ namespace SimpleDB.Test.IndexedSearch
         [Test]
         public void GetNotIn()
         {
-            var result = _index.GetNotIn(new[] { 21, 55, 68, 81 }).Select(x => x.IndexedFieldValue).ToHashSet();
+            var result = _index.GetNotIn(new object[] { 21, 55, 68, 81 }).Select(x => x.IndexedFieldValue).ToHashSet();
             Assert.AreEqual(96, result.Count);
             Assert.IsTrue(!result.Contains(21));
             Assert.IsTrue(!result.Contains(55));

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using SimpleDB.Infrastructure;
 
 namespace SimpleDB.IndexedSearch
@@ -47,6 +48,26 @@ namespace SimpleDB.IndexedSearch
         {
             Meta = meta;
         }
+
+        public abstract IndexValue GetEquals(object fieldValue);
+
+        public abstract IEnumerable<IndexValue> GetNotEquals(object fieldValue);
+
+        public abstract IEnumerable<IndexValue> GetLess(object fieldValue);
+
+        public abstract IEnumerable<IndexValue> GetGreat(object fieldValue);
+
+        public abstract IEnumerable<IndexValue> GetLessOrEquals(object fieldValue);
+
+        public abstract IEnumerable<IndexValue> GetGreatOrEquals(object fieldValue);
+
+        public abstract IEnumerable<IndexValue> GetLike(object fieldValue);
+
+        public abstract IEnumerable<IndexValue> GetNotLike(object fieldValue);
+
+        public abstract IEnumerable<IndexValue> GetIn(IEnumerable<object> fieldValues);
+
+        public abstract IEnumerable<IndexValue> GetNotIn(IEnumerable<object> fieldValues);
 
         public abstract void Add(object indexedFieldValue, IndexItem indexItem);
 

@@ -32,16 +32,16 @@ namespace SimpleDB.IndexedSearch
             _indexTree = indexTree;
         }
 
-        public IndexValue GetEquals(TField fieldValue)
+        public override IndexValue GetEquals(object fieldValue)
         {
-            var node = _indexTree.Find(fieldValue);
+            var node = _indexTree.Find((TField)fieldValue);
             return node != null ? node.Value : null;
         }
 
-        public IEnumerable<IndexValue> GetNotEquals(TField fieldValue)
+        public override IEnumerable<IndexValue> GetNotEquals(object fieldValue)
         {
             var nodes = new List<RBTree<TField, IndexValue>.Node>();
-            foreach (var step in new RBTreeFindNodeEnumerable<TField, IndexValue>(_indexTree.Root, fieldValue))
+            foreach (var step in new RBTreeFindNodeEnumerable<TField, IndexValue>(_indexTree.Root, (TField)fieldValue))
             {
                 if (step.ToLeft)
                 {
@@ -63,10 +63,10 @@ namespace SimpleDB.IndexedSearch
             return nodes.Select(x => x.Value);
         }
 
-        public IEnumerable<IndexValue> GetLess(TField fieldValue)
+        public override IEnumerable<IndexValue> GetLess(object fieldValue)
         {
             var nodes = new List<RBTree<TField, IndexValue>.Node>();
-            foreach (var step in new RBTreeFindNodeEnumerable<TField, IndexValue>(_indexTree.Root, fieldValue))
+            foreach (var step in new RBTreeFindNodeEnumerable<TField, IndexValue>(_indexTree.Root, (TField)fieldValue))
             {
                 if (step.ToRight)
                 {
@@ -82,10 +82,10 @@ namespace SimpleDB.IndexedSearch
             return nodes.Select(x => x.Value);
         }
 
-        public IEnumerable<IndexValue> GetGreat(TField fieldValue)
+        public override IEnumerable<IndexValue> GetGreat(object fieldValue)
         {
             var nodes = new List<RBTree<TField, IndexValue>.Node>();
-            foreach (var step in new RBTreeFindNodeEnumerable<TField, IndexValue>(_indexTree.Root, fieldValue))
+            foreach (var step in new RBTreeFindNodeEnumerable<TField, IndexValue>(_indexTree.Root, (TField)fieldValue))
             {
                 if (step.ToLeft)
                 {
@@ -101,10 +101,10 @@ namespace SimpleDB.IndexedSearch
             return nodes.Select(x => x.Value);
         }
 
-        public IEnumerable<IndexValue> GetLessOrEquals(TField fieldValue)
+        public override IEnumerable<IndexValue> GetLessOrEquals(object fieldValue)
         {
             var nodes = new List<RBTree<TField, IndexValue>.Node>();
-            foreach (var step in new RBTreeFindNodeEnumerable<TField, IndexValue>(_indexTree.Root, fieldValue))
+            foreach (var step in new RBTreeFindNodeEnumerable<TField, IndexValue>(_indexTree.Root, (TField)fieldValue))
             {
                 if (step.ToRight)
                 {
@@ -121,10 +121,10 @@ namespace SimpleDB.IndexedSearch
             return nodes.Select(x => x.Value);
         }
 
-        public IEnumerable<IndexValue> GetGreatOrEquals(TField fieldValue)
+        public override IEnumerable<IndexValue> GetGreatOrEquals(object fieldValue)
         {
             var nodes = new List<RBTree<TField, IndexValue>.Node>();
-            foreach (var step in new RBTreeFindNodeEnumerable<TField, IndexValue>(_indexTree.Root, fieldValue))
+            foreach (var step in new RBTreeFindNodeEnumerable<TField, IndexValue>(_indexTree.Root, (TField)fieldValue))
             {
                 if (step.ToLeft)
                 {
@@ -141,22 +141,22 @@ namespace SimpleDB.IndexedSearch
             return nodes.Select(x => x.Value);
         }
 
-        public IEnumerable<IndexValue> GetLike(string fieldValue)
+        public override IEnumerable<IndexValue> GetLike(object fieldValue)
         {
-            return _indexTree.Root.GetAllChildren().Where(x => x.Key.ToString().Contains(fieldValue)).Select(x => x.Value);
+            return _indexTree.Root.GetAllChildren().Where(x => x.Key.ToString().Contains(fieldValue.ToString())).Select(x => x.Value);
         }
 
-        public IEnumerable<IndexValue> GetNotLike(string fieldValue)
+        public override IEnumerable<IndexValue> GetNotLike(object fieldValue)
         {
-            return _indexTree.Root.GetAllChildren().Where(x => !x.Key.ToString().Contains(fieldValue)).Select(x => x.Value);
+            return _indexTree.Root.GetAllChildren().Where(x => !x.Key.ToString().Contains(fieldValue.ToString())).Select(x => x.Value);
         }
 
-        public IEnumerable<IndexValue> GetIn(IEnumerable<TField> fieldValues)
+        public override IEnumerable<IndexValue> GetIn(IEnumerable<object> fieldValues)
         {
             return fieldValues.Select(GetEquals);
         }
 
-        public IEnumerable<IndexValue> GetNotIn(IEnumerable<TField> fieldValues)
+        public override IEnumerable<IndexValue> GetNotIn(IEnumerable<object> fieldValues)
         {
             var set = fieldValues.ToHashSet();
             return _indexTree.Root.GetAllChildren().Where(x => !set.Contains(x.Key)).Select(x => x.Value);
@@ -173,11 +173,6 @@ namespace SimpleDB.IndexedSearch
             {
                 node.Value.Items.Add(indexItem);
             }
-        }
-
-        public void Delete(TField fieldValue)
-        {
-            _indexTree.Delete(fieldValue);
         }
 
         public void Clear()
