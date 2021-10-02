@@ -8,7 +8,8 @@ namespace SimpleDB.Maintenance
     {
         public static IDefragmentator MakeDefragmentator(string workingDirectory)
         {
-            return new Defragmentator(workingDirectory);
+            GlobalSettings.WorkingDirectory = workingDirectory;
+            return new Defragmentator();
         }
     }
 }

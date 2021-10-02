@@ -5,12 +5,10 @@ namespace SimpleDB.Core
 {
     internal class MetaFileCollection
     {
-        private readonly string _workingDirectory;
         private readonly Dictionary<string, MetaFile> _metaFiles;
 
-        public MetaFileCollection(string workingDirectory)
+        public MetaFileCollection()
         {
-            _workingDirectory = workingDirectory;
             _metaFiles = new Dictionary<string, MetaFile>();
         }
 
@@ -18,7 +16,7 @@ namespace SimpleDB.Core
         {
             if (!_metaFiles.ContainsKey(entityName))
             {
-                var metaFile = new MetaFile(Path.Combine(_workingDirectory, MetaFileName.FromEntityName(entityName)));
+                var metaFile = new MetaFile(Path.Combine(GlobalSettings.WorkingDirectory, MetaFileName.FromEntityName(entityName)));
                 _metaFiles.Add(entityName, metaFile);
             }
 

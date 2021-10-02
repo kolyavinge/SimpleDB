@@ -30,7 +30,7 @@ namespace SimpleDB.Test.Maintenance
                     new FieldMapping<TestEntity>(2, entity => entity.String)
                 });
             _collection = new Collection<TestEntity>(_mapper);
-            _statistics = new Statistics("working directory");
+            _statistics = new Statistics();
         }
 
         [Test]

@@ -7,13 +7,11 @@ namespace SimpleDB.Maintenance
 {
     internal class Defragmentator : IDefragmentator
     {
-        private readonly string _workingDirectory;
         private readonly MetaFileCollection _metaFileCollection;
 
-        public Defragmentator(string workingDirectory)
+        public Defragmentator()
         {
-            _workingDirectory = workingDirectory;
-            _metaFileCollection = new MetaFileCollection(_workingDirectory);
+            _metaFileCollection = new MetaFileCollection();
         }
 
         public void DefragmentDataFile(string dataFileName)
@@ -24,8 +22,8 @@ namespace SimpleDB.Maintenance
             DataFile defragmentDataFile = null;
 
             var entityName = Path.GetFileNameWithoutExtension(dataFileName);
-            var currentPrimaryKeyFileFullPath = Path.Combine(_workingDirectory, PrimaryKeyFileName.FromEntityName(entityName));
-            var currentDataFileFullPath = Path.Combine(_workingDirectory, DataFileName.FromEntityName(entityName));
+            var currentPrimaryKeyFileFullPath = Path.Combine(GlobalSettings.WorkingDirectory, PrimaryKeyFileName.FromEntityName(entityName));
+            var currentDataFileFullPath = Path.Combine(GlobalSettings.WorkingDirectory, DataFileName.FromEntityName(entityName));
             var metaFile = _metaFileCollection.GetMetaFile(entityName);
             var primaryKeyType = metaFile.GetPrimaryKeyType();
             var fieldMetaCollection = metaFile.GetFieldMetaCollection().ToList();

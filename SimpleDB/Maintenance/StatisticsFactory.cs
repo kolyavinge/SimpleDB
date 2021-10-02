@@ -8,7 +8,8 @@ namespace SimpleDB.Maintenance
     {
         public static IStatistics MakeStatistics(string workingDirectory)
         {
-            return new Statistics(workingDirectory);
+            GlobalSettings.WorkingDirectory = workingDirectory;
+            return new Statistics();
         }
     }
 }
