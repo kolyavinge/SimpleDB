@@ -1,7 +1,7 @@
 ﻿using System;
 using SimpleDB.Infrastructure;
 
-namespace SimpleDB.Core
+namespace SimpleDB.IndexedSearch
 {
     internal class IndexMeta
     {

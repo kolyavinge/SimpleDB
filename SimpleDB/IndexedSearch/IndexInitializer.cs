@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using SimpleDB.Core;
 using SimpleDB.Infrastructure;
 
-namespace SimpleDB.Core
+namespace SimpleDB.IndexedSearch
 {
     internal class IndexInitializer<TEntity>
     {

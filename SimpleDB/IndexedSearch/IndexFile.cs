@@ -2,8 +2,9 @@
 using System.Linq;
 using System.Collections.Generic;
 using SimpleDB.Infrastructure;
+using SimpleDB.Core;
 
-namespace SimpleDB.Core
+namespace SimpleDB.IndexedSearch
 {
     internal class IndexFile
     {

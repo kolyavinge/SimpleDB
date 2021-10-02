@@ -3,10 +3,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using SimpleDB.Core;
+using SimpleDB.IndexedSearch;
 using SimpleDB.Infrastructure;
 using SimpleDB.Test.Tools;
 
-namespace SimpleDB.Test.Core
+namespace SimpleDB.Test.IndexedSearch
 {
     class IndexInitializerTest
     {

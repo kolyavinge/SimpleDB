@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using NUnit.Framework;
 using SimpleDB.Core;
+using SimpleDB.IndexedSearch;
 using SimpleDB.Infrastructure;
 using SimpleDB.Queries;
 using SimpleDB.QueryExecutors;

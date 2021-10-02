@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using SimpleDB.Core;
+using SimpleDB.IndexedSearch;
 
 namespace SimpleDB.QueryExecutors
 {

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using SimpleDB.Core;
 using SimpleDB.Queries;
 
-namespace SimpleDB.Core
+namespace SimpleDB.IndexedSearch
 {
     internal class IndexResult
     {
@@ -32,14 +33,10 @@ namespace SimpleDB.Core
     internal class IndexHolder
     {
         private readonly Dictionary<Type, List<AbstractIndex>> _indexes;
-        //private readonly string _workingDirectory;
-        //private readonly MapperHolder _mapperHolder;
 
-        public IndexHolder(/*string workingDirectory, */IEnumerable<AbstractIndex> indexes/*, MapperHolder mapperHolder*/)
+        public IndexHolder(IEnumerable<AbstractIndex> indexes)
         {
             _indexes = indexes.GroupBy(x => x.Meta.EntityType).ToDictionary(k => k.Key, v => v.ToList());
-            //_workingDirectory = workingDirectory;
-            //_mapperHolder = mapperHolder;
         }
 
         public IndexHolder()
@@ -134,11 +131,5 @@ namespace SimpleDB.Core
 
             return null;
         }
-
-        //public void AddToIndexes<TEntity>(IEnumerable<TEntity> entities)
-        //{
-        //    var indexUpdater = new IndexUpdater(_workingDirectory, _indexes, _mapperHolder);
-        //    indexUpdater.AddToIndexes(entities);
-        //}
     }
 }

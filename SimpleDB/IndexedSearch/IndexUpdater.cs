@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using SimpleDB.Core;
 using SimpleDB.Utils.EnumerableExtension;
 
-namespace SimpleDB.Core
+namespace SimpleDB.IndexedSearch
 {
     internal class IndexUpdater
     {

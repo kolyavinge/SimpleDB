@@ -4,7 +4,7 @@ using System.Linq;
 using SimpleDB.DataStructures;
 using SimpleDB.Infrastructure;
 
-namespace SimpleDB.Core
+namespace SimpleDB.IndexedSearch
 {
     internal class IndexValue
     {

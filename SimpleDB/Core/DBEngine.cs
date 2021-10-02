@@ -1,4 +1,6 @@
-﻿namespace SimpleDB.Core
+﻿using SimpleDB.IndexedSearch;
+
+namespace SimpleDB.Core
 {
     internal class DBEngine : IDBEngine
     {
