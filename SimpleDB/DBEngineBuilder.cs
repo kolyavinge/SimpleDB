@@ -10,7 +10,6 @@ namespace SimpleDB
 {
     public sealed class DBEngineBuilder
     {
-        private string _workingDirectory;
         private List<MapperBuilder> _mapperBuilders = new List<MapperBuilder>();
         private List<IndexBuilder> _indexBuilders = new List<IndexBuilder>();
 
@@ -29,7 +28,7 @@ namespace SimpleDB
 
         public void WorkingDirectory(string workingDirectory)
         {
-            _workingDirectory = workingDirectory;
+            GlobalSettings.WorkingDirectory = workingDirectory;
         }
 
         public IMapperBuilder<TEntity> Map<TEntity>()
@@ -50,10 +49,10 @@ namespace SimpleDB
         {
             var mappers = _mapperBuilders.Select(x => x.Build()).ToList();
             var mapperHolder = new MapperHolder(mappers);
-            var indexes = _indexBuilders.Select(x => x.BuildFunction(_workingDirectory, mapperHolder)).ToList();
+            var indexes = _indexBuilders.Select(x => x.BuildFunction(mapperHolder)).ToList();
             var indexHolder = new IndexHolder(indexes);
-            var indexUpdater = new IndexUpdater(_workingDirectory, indexes, mapperHolder);
-            return new DBEngine(_workingDirectory, mapperHolder, indexHolder, indexUpdater);
+            var indexUpdater = new IndexUpdater(indexes, mapperHolder);
+            return new DBEngine(mapperHolder, indexHolder, indexUpdater);
         }
     }
 
@@ -151,7 +150,7 @@ namespace SimpleDB
 
     internal abstract class IndexBuilder
     {
-        public Func<string, MapperHolder, AbstractIndex> BuildFunction { get; protected set; }
+        public Func<MapperHolder, AbstractIndex> BuildFunction { get; protected set; }
     }
 
     internal class IndexBuilder<TEntity> : IndexBuilder, IIndexBuilder<TEntity>
@@ -172,9 +171,9 @@ namespace SimpleDB
 
         public IIndexBuilder<TEntity> For<TField>(Expression<Func<TEntity, TField>> indexedFieldExpression) where TField : IComparable<TField>
         {
-            BuildFunction = (workingDirectory, mapperHolder) =>
+            BuildFunction = (mapperHolder) =>
             {
-                var initializer = new IndexInitializer<TEntity>(workingDirectory, mapperHolder);
+                var initializer = new IndexInitializer<TEntity>(mapperHolder);
                 return initializer.GetIndex(_name, indexedFieldExpression, _includeExpressions);
             };
             return this;

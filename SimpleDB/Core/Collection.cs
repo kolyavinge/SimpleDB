@@ -21,17 +21,17 @@ namespace SimpleDB.Core
 
         internal Dictionary<object, PrimaryKey> PrimaryKeys { get; private set; }
 
-        public Collection(string workingDirectory, Mapper<TEntity> mapper, IndexHolder indexHolder = null, IndexUpdater indexUpdater = null)
+        public Collection(Mapper<TEntity> mapper, IndexHolder indexHolder = null, IndexUpdater indexUpdater = null)
         {
             Mapper = mapper;
             _indexHolder = indexHolder ?? new IndexHolder();
             _indexUpdater = indexUpdater;
-            var primaryKeyFileFullPath = Path.Combine(workingDirectory, PrimaryKeyFileName.FromEntityName(mapper.EntityName));
-            var dataFileFileFullPath = Path.Combine(workingDirectory, DataFileName.FromEntityName(mapper.EntityName));
+            var primaryKeyFileFullPath = Path.Combine(GlobalSettings.WorkingDirectory, PrimaryKeyFileName.FromEntityName(mapper.EntityName));
+            var dataFileFileFullPath = Path.Combine(GlobalSettings.WorkingDirectory, DataFileName.FromEntityName(mapper.EntityName));
             PrimaryKeyFile = new PrimaryKeyFile(primaryKeyFileFullPath, mapper.PrimaryKeyMapping.PropertyType);
             DataFile = new DataFile(dataFileFileFullPath, mapper.FieldMetaCollection);
             PrimaryKeys = GetAllPrimaryKeys().Where(x => !x.IsDeleted).ToDictionary(k => k.Value, v => v);
-            SaveMetaFileIfNeeded(workingDirectory);
+            SaveMetaFileIfNeeded();
         }
 
         private List<PrimaryKey> GetAllPrimaryKeys()
@@ -227,9 +227,9 @@ namespace SimpleDB.Core
             return new Queryable<TEntity>(queryExecutorFactory, Mapper);
         }
 
-        private void SaveMetaFileIfNeeded(string workingDirectory)
+        private void SaveMetaFileIfNeeded()
         {
-            var metaFileFullPath = Path.Combine(workingDirectory, MetaFileName.FromEntityName(Mapper.EntityName));
+            var metaFileFullPath = Path.Combine(GlobalSettings.WorkingDirectory, MetaFileName.FromEntityName(Mapper.EntityName));
             var metaFile = new MetaFile(metaFileFullPath);
             if (IOC.Get<IFileSystem>().FileExists(metaFileFullPath))
             {

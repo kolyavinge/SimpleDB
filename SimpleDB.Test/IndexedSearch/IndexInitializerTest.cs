@@ -18,6 +18,7 @@ namespace SimpleDB.Test.IndexedSearch
         [SetUp]
         public void Setup()
         {
+            GlobalSettings.WorkingDirectory = "working directory";
             _memoryFileSystem = new MemoryFileSystem();
             IOC.Reset();
             IOC.Set<IFileSystem>(_memoryFileSystem);
@@ -30,9 +31,9 @@ namespace SimpleDB.Test.IndexedSearch
                     new FieldMapping<TestEntity>(1, x => x.Float),
                     new FieldMapping<TestEntity>(2, x => x.String),
                 });
-            _collection = new Collection<TestEntity>("working directory", mapper);
+            _collection = new Collection<TestEntity>(mapper);
             var mapperHolder = new MapperHolder(new[] { mapper });
-            _initializer = new IndexInitializer<TestEntity>("working directory", mapperHolder);
+            _initializer = new IndexInitializer<TestEntity>(mapperHolder);
         }
 
         [Test]

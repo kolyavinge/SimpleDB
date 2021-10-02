@@ -10,13 +10,11 @@ namespace SimpleDB.IndexedSearch
     internal class IndexUpdater
     {
         private readonly Dictionary<Type, List<AbstractIndex>> _indexes;
-        private readonly string _workingDirectory;
         private readonly MapperHolder _mapperHolder;
 
-        public IndexUpdater(string workingDirectory, IEnumerable<AbstractIndex> indexes, MapperHolder mapperHolder)
+        public IndexUpdater(IEnumerable<AbstractIndex> indexes, MapperHolder mapperHolder)
         {
             _indexes = indexes.GroupBy(x => x.Meta.EntityType).ToDictionary(k => k.Key, v => v.ToList());
-            _workingDirectory = workingDirectory;
             _mapperHolder = mapperHolder;
         }
 
@@ -41,7 +39,7 @@ namespace SimpleDB.IndexedSearch
                     var indexItem = new IndexItem { PrimaryKeyValue = fieldValueCollection.PrimaryKeyValue, IncludedFields = includedFieldValues };
                     index.Add(indexedFieldValue, indexItem);
                 }
-                var indexFileName = Path.Combine(_workingDirectory, IndexFileName.FromEntityName(mapper.EntityName, index.Meta.Name));
+                var indexFileName = Path.Combine(GlobalSettings.WorkingDirectory, IndexFileName.FromEntityName(mapper.EntityName, index.Meta.Name));
                 var indexFile = new IndexFile(indexFileName, mapper.PrimaryKeyMapping.PropertyType, mapper.FieldMetaCollection);
                 indexFile.WriteIndex(index);
             }
