@@ -60,7 +60,7 @@ namespace SimpleDB.Maintenance
                     var fieldNumbers = fieldMetaCollection.Select(x => x.Number).ToHashSet();
                     // сумма байт удаленных записей
                     var fragmentationSizeInBytes = primaryKeys.Where(x => x.IsDeleted).Sum(primaryKey => primaryKey.EndDataFileOffset - primaryKey.StartDataFileOffset);
-                    dataFile = new DataFile(Path.Combine(GlobalSettings.WorkingDirectory, DataFileName.FromEntityName(entityName)), fieldMetaCollection);
+                    dataFile = new DataFile(DataFileName.GetFullFileName(entityName), fieldMetaCollection);
                     dataFile.BeginRead();
                     long lastEndDataFileOffset = 0;
                     foreach (var primaryKey in primaryKeys.OrderBy(x => x.StartDataFileOffset))

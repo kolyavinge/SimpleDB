@@ -74,9 +74,9 @@ namespace SimpleDB.Core
 
     internal static class MetaFileName
     {
-        public static string FromEntityName(string collectionName)
+        public static string GetFullFileName(string collectionName)
         {
-            return String.Format("{0}.meta", collectionName);
+            return String.Format("{0}\\{1}.meta", GlobalSettings.WorkingDirectory, collectionName);
         }
     }
 }

@@ -16,7 +16,7 @@ namespace SimpleDB.Core
         {
             if (!_metaFiles.ContainsKey(entityName))
             {
-                var metaFile = new MetaFile(Path.Combine(GlobalSettings.WorkingDirectory, MetaFileName.FromEntityName(entityName)));
+                var metaFile = new MetaFile(MetaFileName.GetFullFileName(entityName));
                 _metaFiles.Add(entityName, metaFile);
             }
 

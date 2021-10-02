@@ -22,8 +22,8 @@ namespace SimpleDB.Maintenance
             DataFile defragmentDataFile = null;
 
             var entityName = Path.GetFileNameWithoutExtension(dataFileName);
-            var currentPrimaryKeyFileFullPath = Path.Combine(GlobalSettings.WorkingDirectory, PrimaryKeyFileName.FromEntityName(entityName));
-            var currentDataFileFullPath = Path.Combine(GlobalSettings.WorkingDirectory, DataFileName.FromEntityName(entityName));
+            var currentPrimaryKeyFileFullPath = PrimaryKeyFileName.GetFullFileName(entityName);
+            var currentDataFileFullPath = DataFileName.GetFullFileName(entityName);
             var metaFile = _metaFileCollection.GetMetaFile(entityName);
             var primaryKeyType = metaFile.GetPrimaryKeyType();
             var fieldMetaCollection = metaFile.GetFieldMetaCollection().ToList();

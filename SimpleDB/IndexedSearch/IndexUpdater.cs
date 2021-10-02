@@ -39,7 +39,7 @@ namespace SimpleDB.IndexedSearch
                     var indexItem = new IndexItem { PrimaryKeyValue = fieldValueCollection.PrimaryKeyValue, IncludedFields = includedFieldValues };
                     index.Add(indexedFieldValue, indexItem);
                 }
-                var indexFileName = Path.Combine(GlobalSettings.WorkingDirectory, IndexFileName.FromEntityName(mapper.EntityName, index.Meta.Name));
+                var indexFileName = IndexFileName.GetFullFileName(mapper.EntityName, index.Meta.Name);
                 var indexFile = new IndexFile(indexFileName, mapper.PrimaryKeyMapping.PropertyType, mapper.FieldMetaCollection);
                 indexFile.WriteIndex(index);
             }

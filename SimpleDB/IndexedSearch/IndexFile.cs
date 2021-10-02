@@ -42,9 +42,9 @@ namespace SimpleDB.IndexedSearch
     {
         public static string Extension = ".index";
 
-        public static string FromEntityName(string entityName, string indexName)
+        public static string GetFullFileName(string entityName, string indexName)
         {
-            return String.Format("{0}_{1}{2}", entityName, indexName, Extension);
+            return String.Format("{0}\\{1}_{2}{3}", GlobalSettings.WorkingDirectory, entityName, indexName, Extension);
         }
     }
 }

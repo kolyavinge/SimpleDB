@@ -26,8 +26,8 @@ namespace SimpleDB.Core
             Mapper = mapper;
             _indexHolder = indexHolder ?? new IndexHolder();
             _indexUpdater = indexUpdater;
-            var primaryKeyFileFullPath = Path.Combine(GlobalSettings.WorkingDirectory, PrimaryKeyFileName.FromEntityName(mapper.EntityName));
-            var dataFileFileFullPath = Path.Combine(GlobalSettings.WorkingDirectory, DataFileName.FromEntityName(mapper.EntityName));
+            var primaryKeyFileFullPath = PrimaryKeyFileName.GetFullFileName(mapper.EntityName);
+            var dataFileFileFullPath = DataFileName.GetFullFileName(mapper.EntityName);
             PrimaryKeyFile = new PrimaryKeyFile(primaryKeyFileFullPath, mapper.PrimaryKeyMapping.PropertyType);
             DataFile = new DataFile(dataFileFileFullPath, mapper.FieldMetaCollection);
             PrimaryKeys = GetAllPrimaryKeys().Where(x => !x.IsDeleted).ToDictionary(k => k.Value, v => v);
@@ -229,7 +229,7 @@ namespace SimpleDB.Core
 
         private void SaveMetaFileIfNeeded()
         {
-            var metaFileFullPath = Path.Combine(GlobalSettings.WorkingDirectory, MetaFileName.FromEntityName(Mapper.EntityName));
+            var metaFileFullPath = MetaFileName.GetFullFileName(Mapper.EntityName);
             var metaFile = new MetaFile(metaFileFullPath);
             if (IOC.Get<IFileSystem>().FileExists(metaFileFullPath))
             {

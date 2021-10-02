@@ -22,7 +22,7 @@ namespace SimpleDB.IndexedSearch
         public Index<TField> GetIndex<TField>(
             string indexName, Expression<Func<TEntity, TField>> indexedFieldExpression, IEnumerable<Expression<Func<TEntity, object>>> includedExpressions) where TField : IComparable<TField>
         {
-            var indexFileName = Path.Combine(GlobalSettings.WorkingDirectory, IndexFileName.FromEntityName(_mapper.EntityName, indexName));
+            var indexFileName = IndexFileName.GetFullFileName(_mapper.EntityName, indexName);
             if (_fileSystem.FileExists(indexFileName))
             {
                 return ReadIndexFromFile<TField>(indexFileName);
@@ -61,8 +61,8 @@ namespace SimpleDB.IndexedSearch
             DataFile dataFile = null;
             try
             {
-                var primaryKeyFileName = Path.Combine(GlobalSettings.WorkingDirectory, PrimaryKeyFileName.FromEntityName(_mapper.EntityName));
-                var dataFileName = Path.Combine(GlobalSettings.WorkingDirectory, DataFileName.FromEntityName(_mapper.EntityName));
+                var primaryKeyFileName = PrimaryKeyFileName.GetFullFileName(_mapper.EntityName);
+                var dataFileName = DataFileName.GetFullFileName(_mapper.EntityName);
                 primaryKeyFile = new PrimaryKeyFile(primaryKeyFileName, _mapper.PrimaryKeyMapping.PropertyType);
                 dataFile = new DataFile(dataFileName, _mapper.FieldMetaCollection);
                 primaryKeyFile.BeginRead();

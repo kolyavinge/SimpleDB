@@ -495,9 +495,14 @@ namespace SimpleDB.Core
     {
         public static string Extension = ".data";
 
+        public static string GetFullFileName(string entityName)
+        {
+            return String.Format("{0}\\{1}{2}", GlobalSettings.WorkingDirectory, entityName, Extension);
+        }
+
         public static string FromEntityName(string entityName)
         {
-            return entityName + Extension;
+            return String.Format("{0}{1}", entityName, Extension);
         }
     }
 }
