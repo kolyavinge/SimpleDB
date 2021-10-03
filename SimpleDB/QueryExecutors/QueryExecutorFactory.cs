@@ -11,19 +11,22 @@ namespace SimpleDB.QueryExecutors
         private readonly Dictionary<object, PrimaryKey> _primaryKeys;
         private readonly DataFile _dataFile;
         private readonly IndexHolder _indexHolder;
+        private readonly IndexUpdater _indexUpdater;
 
         public QueryExecutorFactory(
             Mapper<TEntity> mapper,
             PrimaryKeyFile primaryKeyFile,
             Dictionary<object, PrimaryKey> primaryKeys,
             DataFile dataFile,
-            IndexHolder indexHolder)
+            IndexHolder indexHolder,
+            IndexUpdater indexUpdater)
         {
             _mapper = mapper;
             _primaryKeyFile = primaryKeyFile;
             _primaryKeys = primaryKeys;
             _dataFile = dataFile;
             _indexHolder = indexHolder;
+            _indexUpdater = indexUpdater;
         }
 
         public SelectQueryExecutor<TEntity> MakeSelectQueryExecutor()
@@ -33,12 +36,12 @@ namespace SimpleDB.QueryExecutors
 
         public UpdateQueryExecutor<TEntity> MakeUpdateQueryExecutor()
         {
-            return new UpdateQueryExecutor<TEntity>(_mapper, _primaryKeyFile, _dataFile, _primaryKeys.Values);
+            return new UpdateQueryExecutor<TEntity>(_mapper, _primaryKeyFile, _dataFile, _primaryKeys.Values, _indexHolder, _indexUpdater);
         }
 
         public DeleteQueryExecutor<TEntity> MakeDeleteQueryExecutor()
         {
-            return new DeleteQueryExecutor<TEntity>(_primaryKeyFile, _primaryKeys, _dataFile);
+            return new DeleteQueryExecutor<TEntity>(_primaryKeyFile, _primaryKeys, _dataFile, _indexHolder, _indexUpdater);
         }
 
         public MergeQueryExecutor<TEntity> MakeMergeQueryExecutor()

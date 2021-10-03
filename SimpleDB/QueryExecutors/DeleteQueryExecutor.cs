@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using SimpleDB.Core;
+using SimpleDB.IndexedSearch;
 using SimpleDB.Queries;
 
 namespace SimpleDB.QueryExecutors
@@ -9,13 +10,18 @@ namespace SimpleDB.QueryExecutors
     {
         private readonly PrimaryKeyFile _primaryKeyFile;
         private readonly DataFile _dataFile;
+        private readonly IndexHolder _indexHolder;
+        private readonly IndexUpdater _indexUpdater;
         private readonly Dictionary<object, PrimaryKey> _primaryKeysDictionary;
 
-        public DeleteQueryExecutor(PrimaryKeyFile primaryKeyFile, Dictionary<object, PrimaryKey> primaryKeysDictionary, DataFile dataFile)
+        public DeleteQueryExecutor(
+            PrimaryKeyFile primaryKeyFile, Dictionary<object, PrimaryKey> primaryKeysDictionary, DataFile dataFile, IndexHolder indexHolder = null, IndexUpdater indexUpdater = null)
         {
             _primaryKeyFile = primaryKeyFile;
             _primaryKeysDictionary = primaryKeysDictionary;
             _dataFile = dataFile;
+            _indexHolder = indexHolder ?? new IndexHolder();
+            _indexUpdater = indexUpdater ?? new IndexUpdater();
         }
 
         public int ExecuteQuery(DeleteQuery query)

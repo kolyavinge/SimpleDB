@@ -34,6 +34,7 @@ namespace SimpleDB.IndexedSearch
             using (var stream = _fileSystem.OpenFileWrite(_fileFullPath))
             {
                 index.Serialize(stream);
+                stream.SetLength(stream.Position);
             }
         }
     }

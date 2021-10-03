@@ -5,6 +5,7 @@ namespace SimpleDB.Infrastructure
 {
     internal interface IFileStream : IReadableStream, IWriteableStream, IDisposable
     {
+        void SetLength(long length);
     }
 
     internal class FileStream : IFileStream
@@ -120,6 +121,11 @@ namespace SimpleDB.Infrastructure
         public long Seek(long offset, SeekOrigin origin)
         {
             return _buffered.Seek(offset, origin);
+        }
+
+        public void SetLength(long length)
+        {
+            _fileStream.SetLength(length);
         }
 
         public void WriteBool(bool value)

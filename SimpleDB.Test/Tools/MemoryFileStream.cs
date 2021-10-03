@@ -122,6 +122,11 @@ namespace SimpleDB.Test.Tools
             return _stream.Seek(offset, origin);
         }
 
+        public void SetLength(long length)
+        {
+            _stream.SetLength(length);
+        }
+
         public void WriteBool(bool value)
         {
             _writer.Write(value);

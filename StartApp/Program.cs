@@ -13,12 +13,12 @@ namespace StartApp
         {
             var doInsert = 1;
             var doGet = 1;
-            var doUpdate = 0;
-            var doDelete = 0;
+            var doUpdate = 1;
+            var doDelete = 1;
             var doQuery = 0;
             var doMerge = 0;
             var doGetAsync = 0;
-            var doStatistics = 0;
+            var doStatistics = 1;
             var doDefragmentation = 0;
 
             var workingDirectory = @"D:\Projects\SimpleDB\StartApp\bin\Debug\netcoreapp3.1\Database";
@@ -102,6 +102,7 @@ namespace StartApp
                     .Select(x => new { x.Name, x.Surname, x.Middlename })
                     .Where(x => x.Name == "Name 123")
                     .ToList();
+                Console.WriteLine(result.First().Name);
                 sw.Stop();
                 Console.WriteLine(sw.Elapsed);
             }
@@ -133,6 +134,15 @@ namespace StartApp
                 Console.WriteLine(result[1]);
                 Console.WriteLine(result[2]);
                 Console.WriteLine(result[3]);
+                Console.WriteLine("========== Get indexed updated ==========");
+                sw = System.Diagnostics.Stopwatch.StartNew();
+                result = collection.Query()
+                    .Select(x => new { x.Name, x.Surname, x.Middlename })
+                    .Where(x => x.Name == "Новое имя 123")
+                    .ToList();
+                Console.WriteLine(result.First().Name);
+                sw.Stop();
+                Console.WriteLine(sw.Elapsed);
             }
 
             if (doDelete == 1)

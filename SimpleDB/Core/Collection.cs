@@ -123,7 +123,18 @@ namespace SimpleDB.Core
 
         public void Update(TEntity entity)
         {
-            EntityOperations.Update(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
+            try
+            {
+                DataFile.BeginWrite();
+                PrimaryKeyFile.BeginWrite();
+                EntityOperations.Update(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
+                _indexUpdater.UpdateIndexes(entity);
+            }
+            finally
+            {
+                DataFile.EndReadWrite();
+                PrimaryKeyFile.EndReadWrite();
+            }
         }
 
         public void Update(IEnumerable<TEntity> entities)
@@ -136,6 +147,7 @@ namespace SimpleDB.Core
                 {
                     EntityOperations.Update(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
                 }
+                _indexUpdater.UpdateIndexes(entities);
             }
             finally
             {
@@ -154,10 +166,12 @@ namespace SimpleDB.Core
                 if (Exist(primaryKeyValue))
                 {
                     EntityOperations.Update(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
+                    _indexUpdater.UpdateIndexes(entity);
                 }
                 else
                 {
                     EntityOperations.Insert(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
+                    _indexUpdater.AddToIndexes(entity);
                 }
             }
             finally
@@ -179,10 +193,12 @@ namespace SimpleDB.Core
                     if (Exist(primaryKeyValue))
                     {
                         EntityOperations.Update(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
+                        _indexUpdater.UpdateIndexes(entity);
                     }
                     else
                     {
                         EntityOperations.Insert(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
+                        _indexUpdater.AddToIndexes(entity);
                     }
                 }
             }
@@ -199,6 +215,7 @@ namespace SimpleDB.Core
             {
                 PrimaryKeyFile.BeginWrite();
                 EntityOperations.Delete(id, PrimaryKeyFile, PrimaryKeys);
+                _indexUpdater.DeleteFromIndexes<TEntity>(id);
             }
             finally
             {
@@ -214,6 +231,7 @@ namespace SimpleDB.Core
                 foreach (var id in idList)
                 {
                     EntityOperations.Delete(id, PrimaryKeyFile, PrimaryKeys);
+                    _indexUpdater.DeleteFromIndexes<TEntity>(idList);
                 }
             }
             finally
@@ -224,7 +242,7 @@ namespace SimpleDB.Core
 
         public IQueryable<TEntity> Query()
         {
-            var queryExecutorFactory = new QueryExecutorFactory<TEntity>(Mapper, PrimaryKeyFile, PrimaryKeys, DataFile, _indexHolder);
+            var queryExecutorFactory = new QueryExecutorFactory<TEntity>(Mapper, PrimaryKeyFile, PrimaryKeys, DataFile, _indexHolder, _indexUpdater);
             return new Queryable<TEntity>(queryExecutorFactory, Mapper);
         }
 

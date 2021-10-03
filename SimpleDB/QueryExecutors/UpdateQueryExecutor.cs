@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using SimpleDB.Core;
+using SimpleDB.IndexedSearch;
 using SimpleDB.Queries;
 using SimpleDB.Utils.EnumerableExtension;
 
@@ -12,13 +13,18 @@ namespace SimpleDB.QueryExecutors
         private readonly PrimaryKeyFile _primaryKeyFile;
         private readonly DataFile _dataFile;
         private readonly IEnumerable<PrimaryKey> _primaryKeys;
+        private readonly IndexHolder _indexHolder;
+        private readonly IndexUpdater _indexUpdater;
 
-        public UpdateQueryExecutor(Mapper<TEntity> mapper, PrimaryKeyFile primaryKeyFile, DataFile dataFile, IEnumerable<PrimaryKey> primaryKeys)
+        public UpdateQueryExecutor(
+            Mapper<TEntity> mapper, PrimaryKeyFile primaryKeyFile, DataFile dataFile, IEnumerable<PrimaryKey> primaryKeys, IndexHolder indexHolder = null, IndexUpdater indexUpdater = null)
         {
             _mapper = mapper;
             _primaryKeyFile = primaryKeyFile;
             _dataFile = dataFile;
             _primaryKeys = primaryKeys;
+            _indexHolder = indexHolder ?? new IndexHolder();
+            _indexUpdater = indexUpdater ?? new IndexUpdater();
         }
 
         public int ExecuteQuery(UpdateQuery query)
