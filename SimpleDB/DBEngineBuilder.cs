@@ -150,7 +150,7 @@ namespace SimpleDB
 
     internal abstract class IndexBuilder
     {
-        public Func<MapperHolder, AbstractIndex> BuildFunction { get; protected set; }
+        public Func<MapperHolder, IIndex> BuildFunction { get; protected set; }
     }
 
     internal class IndexBuilder<TEntity> : IndexBuilder, IIndexBuilder<TEntity>

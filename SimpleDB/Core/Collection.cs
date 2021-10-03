@@ -25,7 +25,7 @@ namespace SimpleDB.Core
         {
             Mapper = mapper;
             _indexHolder = indexHolder ?? new IndexHolder();
-            _indexUpdater = indexUpdater;
+            _indexUpdater = indexUpdater ?? new IndexUpdater();
             var primaryKeyFileFullPath = PrimaryKeyFileName.GetFullFileName(mapper.EntityName);
             var dataFileFileFullPath = DataFileName.GetFullFileName(mapper.EntityName);
             PrimaryKeyFile = new PrimaryKeyFile(primaryKeyFileFullPath, mapper.PrimaryKeyMapping.PropertyType);

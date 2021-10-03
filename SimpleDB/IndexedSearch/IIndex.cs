@@ -40,37 +40,38 @@ namespace SimpleDB.IndexedSearch
         }
     }
 
-    internal abstract class AbstractIndex
+    internal interface IIndex
     {
-        public IndexMeta Meta { get; private set; }
+        IndexMeta Meta { get; }
 
-        public AbstractIndex(IndexMeta meta)
-        {
-            Meta = meta;
-        }
+        IndexValue GetEquals(object fieldValue);
 
-        public abstract IndexValue GetEquals(object fieldValue);
+        IEnumerable<IndexValue> GetNotEquals(object fieldValue);
 
-        public abstract IEnumerable<IndexValue> GetNotEquals(object fieldValue);
+        IEnumerable<IndexValue> GetLess(object fieldValue);
 
-        public abstract IEnumerable<IndexValue> GetLess(object fieldValue);
+        IEnumerable<IndexValue> GetGreat(object fieldValue);
 
-        public abstract IEnumerable<IndexValue> GetGreat(object fieldValue);
+        IEnumerable<IndexValue> GetLessOrEquals(object fieldValue);
 
-        public abstract IEnumerable<IndexValue> GetLessOrEquals(object fieldValue);
+        IEnumerable<IndexValue> GetGreatOrEquals(object fieldValue);
 
-        public abstract IEnumerable<IndexValue> GetGreatOrEquals(object fieldValue);
+        IEnumerable<IndexValue> GetLike(object fieldValue);
 
-        public abstract IEnumerable<IndexValue> GetLike(object fieldValue);
+        IEnumerable<IndexValue> GetNotLike(object fieldValue);
 
-        public abstract IEnumerable<IndexValue> GetNotLike(object fieldValue);
+        IEnumerable<IndexValue> GetIn(IEnumerable<object> fieldValues);
 
-        public abstract IEnumerable<IndexValue> GetIn(IEnumerable<object> fieldValues);
+        IEnumerable<IndexValue> GetNotIn(IEnumerable<object> fieldValues);
 
-        public abstract IEnumerable<IndexValue> GetNotIn(IEnumerable<object> fieldValues);
+        void Add(object indexedFieldValue, IndexItem indexItem);
 
-        public abstract void Add(object indexedFieldValue, IndexItem indexItem);
+        void Add(object indexedFieldValue, IEnumerable<IndexItem> indexItems);
 
-        public abstract void Serialize(IWriteableStream stream);
+        void Delete(object indexedFieldValue);
+
+        IEnumerable<IndexValue> GetAllIndexValues();
+
+        void Serialize(IWriteableStream stream);
     }
 }

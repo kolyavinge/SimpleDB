@@ -32,16 +32,16 @@ namespace SimpleDB.IndexedSearch
 
     internal class IndexHolder
     {
-        private readonly Dictionary<Type, List<AbstractIndex>> _indexes;
+        private readonly Dictionary<Type, List<IIndex>> _indexes;
 
-        public IndexHolder(IEnumerable<AbstractIndex> indexes)
+        public IndexHolder(IEnumerable<IIndex> indexes)
         {
             _indexes = indexes.GroupBy(x => x.Meta.EntityType).ToDictionary(k => k.Key, v => v.ToList());
         }
 
         public IndexHolder()
         {
-            _indexes = new Dictionary<Type, List<AbstractIndex>>();
+            _indexes = new Dictionary<Type, List<IIndex>>();
         }
 
         public bool AnyIndexFor(Type entityType, ISet<byte> fieldNumbers)

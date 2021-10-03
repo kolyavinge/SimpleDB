@@ -18,27 +18,31 @@ namespace SimpleDB.IndexedSearch
         public object[] IncludedFields { get; set; }
     }
 
-    internal class Index<TField> : AbstractIndex where TField : IComparable<TField>
+    internal class Index<TField> : IIndex where TField : IComparable<TField>
     {
         private RBTree<TField, IndexValue> _indexTree;
 
-        public Index(IndexMeta meta) : base(meta)
+        public Index(IndexMeta meta)
         {
             _indexTree = new RBTree<TField, IndexValue>();
+            Meta = meta;
         }
 
-        private Index(IndexMeta meta, RBTree<TField, IndexValue> indexTree) : base(meta)
+        private Index(IndexMeta meta, RBTree<TField, IndexValue> indexTree)
         {
             _indexTree = indexTree;
+            Meta = meta;
         }
 
-        public override IndexValue GetEquals(object fieldValue)
+        public IndexMeta Meta { get; private set; }
+
+        public IndexValue GetEquals(object fieldValue)
         {
             var node = _indexTree.Find((TField)fieldValue);
             return node != null ? node.Value : null;
         }
 
-        public override IEnumerable<IndexValue> GetNotEquals(object fieldValue)
+        public IEnumerable<IndexValue> GetNotEquals(object fieldValue)
         {
             var nodes = new List<RBTree<TField, IndexValue>.Node>();
             foreach (var step in new RBTreeFindNodeEnumerable<TField, IndexValue>(_indexTree.Root, (TField)fieldValue))
@@ -63,7 +67,7 @@ namespace SimpleDB.IndexedSearch
             return nodes.Select(x => x.Value);
         }
 
-        public override IEnumerable<IndexValue> GetLess(object fieldValue)
+        public IEnumerable<IndexValue> GetLess(object fieldValue)
         {
             var nodes = new List<RBTree<TField, IndexValue>.Node>();
             foreach (var step in new RBTreeFindNodeEnumerable<TField, IndexValue>(_indexTree.Root, (TField)fieldValue))
@@ -82,7 +86,7 @@ namespace SimpleDB.IndexedSearch
             return nodes.Select(x => x.Value);
         }
 
-        public override IEnumerable<IndexValue> GetGreat(object fieldValue)
+        public IEnumerable<IndexValue> GetGreat(object fieldValue)
         {
             var nodes = new List<RBTree<TField, IndexValue>.Node>();
             foreach (var step in new RBTreeFindNodeEnumerable<TField, IndexValue>(_indexTree.Root, (TField)fieldValue))
@@ -101,7 +105,7 @@ namespace SimpleDB.IndexedSearch
             return nodes.Select(x => x.Value);
         }
 
-        public override IEnumerable<IndexValue> GetLessOrEquals(object fieldValue)
+        public IEnumerable<IndexValue> GetLessOrEquals(object fieldValue)
         {
             var nodes = new List<RBTree<TField, IndexValue>.Node>();
             foreach (var step in new RBTreeFindNodeEnumerable<TField, IndexValue>(_indexTree.Root, (TField)fieldValue))
@@ -121,7 +125,7 @@ namespace SimpleDB.IndexedSearch
             return nodes.Select(x => x.Value);
         }
 
-        public override IEnumerable<IndexValue> GetGreatOrEquals(object fieldValue)
+        public IEnumerable<IndexValue> GetGreatOrEquals(object fieldValue)
         {
             var nodes = new List<RBTree<TField, IndexValue>.Node>();
             foreach (var step in new RBTreeFindNodeEnumerable<TField, IndexValue>(_indexTree.Root, (TField)fieldValue))
@@ -141,28 +145,28 @@ namespace SimpleDB.IndexedSearch
             return nodes.Select(x => x.Value);
         }
 
-        public override IEnumerable<IndexValue> GetLike(object fieldValue)
+        public IEnumerable<IndexValue> GetLike(object fieldValue)
         {
             return _indexTree.Root.GetAllChildren().Where(x => x.Key.ToString().Contains(fieldValue.ToString())).Select(x => x.Value);
         }
 
-        public override IEnumerable<IndexValue> GetNotLike(object fieldValue)
+        public IEnumerable<IndexValue> GetNotLike(object fieldValue)
         {
             return _indexTree.Root.GetAllChildren().Where(x => !x.Key.ToString().Contains(fieldValue.ToString())).Select(x => x.Value);
         }
 
-        public override IEnumerable<IndexValue> GetIn(IEnumerable<object> fieldValues)
+        public IEnumerable<IndexValue> GetIn(IEnumerable<object> fieldValues)
         {
             return fieldValues.Select(GetEquals);
         }
 
-        public override IEnumerable<IndexValue> GetNotIn(IEnumerable<object> fieldValues)
+        public IEnumerable<IndexValue> GetNotIn(IEnumerable<object> fieldValues)
         {
             var set = fieldValues.ToHashSet();
             return _indexTree.Root.GetAllChildren().Where(x => !set.Contains(x.Key)).Select(x => x.Value);
         }
 
-        public override void Add(object indexedFieldValue, IndexItem indexItem)
+        public void Add(object indexedFieldValue, IndexItem indexItem)
         {
             var node = _indexTree.InsertOrGetExists((TField)indexedFieldValue);
             if (node.Value == null)
@@ -173,6 +177,29 @@ namespace SimpleDB.IndexedSearch
             {
                 node.Value.Items.Add(indexItem);
             }
+        }
+
+        public void Add(object indexedFieldValue, IEnumerable<IndexItem> indexItems)
+        {
+            var node = _indexTree.InsertOrGetExists((TField)indexedFieldValue);
+            if (node.Value == null)
+            {
+                node.Value = new IndexValue { IndexedFieldValue = indexedFieldValue, Items = indexItems.ToList() };
+            }
+            else
+            {
+                node.Value.Items.AddRange(indexItems);
+            }
+        }
+
+        public IEnumerable<IndexValue> GetAllIndexValues()
+        {
+            return _indexTree.Root.GetAllChildren().Select(x => x.Value);
+        }
+
+        public void Delete(object indexedFieldValue)
+        {
+            _indexTree.Delete((TField)indexedFieldValue);
         }
 
         public void Clear()
@@ -189,7 +216,7 @@ namespace SimpleDB.IndexedSearch
             return new Index<TField>(indexMeta, indexTree);
         }
 
-        public override void Serialize(IWriteableStream stream)
+        public void Serialize(IWriteableStream stream)
         {
             Meta.Serialize(stream);
             var rbTreeSerializer = new RBTreeSerializer<TField, IndexValue>(new IndexNodeSerializer<TField>());

@@ -51,7 +51,7 @@ namespace SimpleDB.Test.QueryExecutors
             indexS.Add("123", new IndexItem { PrimaryKeyValue = 10 });
             indexS.Add("987", new IndexItem { PrimaryKeyValue = 20 });
 
-            _indexHolder = new IndexHolder(new AbstractIndex[] { indexA, indexB, indexS });
+            _indexHolder = new IndexHolder(new IIndex[] { indexA, indexB, indexS });
 
             _testFieldValueReader = new TestFieldValueReader(new FieldValueReader(_collection.DataFile));
             _analyzer = new WhereClauseAnalyzer(typeof(TestEntity), _collection.PrimaryKeys, _testFieldValueReader, _indexHolder);

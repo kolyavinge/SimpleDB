@@ -29,7 +29,7 @@ namespace SimpleDB.IndexedSearch
             }
         }
 
-        public void WriteIndex(AbstractIndex index)
+        public void WriteIndex(IIndex index)
         {
             using (var stream = _fileSystem.OpenFileWrite(_fileFullPath))
             {
