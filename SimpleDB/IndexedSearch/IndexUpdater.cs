@@ -112,7 +112,62 @@ namespace SimpleDB.IndexedSearch
             }
         }
 
-        public void DeleteFromIndexes<TEntity>(params object[] primaryKeyValues)
+        public void UpdateIndexes<TEntity>(IEnumerable<object> primaryKeyValues, IEnumerable<FieldValue> updatedFields)
+        {
+            if (!_indexes.ContainsKey(typeof(TEntity))) return;
+            var entityIndexes = _indexes[typeof(TEntity)];
+            var mapper = _mapperHolder.Get<TEntity>();
+            var fieldValueDictionary = primaryKeyValues.Select(primaryKeyValue => new
+            {
+                PrimaryKeyValue = primaryKeyValue,
+                FieldValues = updatedFields.ToDictionary(k => k.Number, v => v.Value)
+            }).ToDictionary(k => k.PrimaryKeyValue, v => v.FieldValues);
+            foreach (var index in entityIndexes)
+            {
+                var updatedIndexItems = new List<UpdatedIndexItem>();
+                foreach (var indexValue in index.GetAllIndexValues())
+                {
+                    foreach (var item in indexValue.Items)
+                    {
+                        if (!fieldValueDictionary.ContainsKey(item.PrimaryKeyValue)) continue;
+                        var fieldValueCollection = fieldValueDictionary[item.PrimaryKeyValue];
+                        item.IncludedFields = index.Meta.IncludedFieldNumbers.Select(fn => fieldValueCollection[fn]).ToArray();
+                        var updatedIndexedFieldValue = fieldValueCollection[index.Meta.IndexedFieldNumber];
+                        if (updatedIndexedFieldValue != indexValue.IndexedFieldValue)
+                        {
+                            updatedIndexItems.Add(new UpdatedIndexItem
+                            {
+                                UpdatedIndexedFieldValue = updatedIndexedFieldValue,
+                                IndexValue = indexValue,
+                                IndexItem = item
+                            });
+                        }
+                    }
+                }
+                foreach (var item in updatedIndexItems)
+                {
+                    item.IndexValue.Items.RemoveAll(x => x.PrimaryKeyValue == item.IndexItem.PrimaryKeyValue);
+                    if (!item.IndexValue.Items.Any())
+                    {
+                        index.Delete(item.IndexValue.IndexedFieldValue);
+                    }
+                }
+                foreach (var item in updatedIndexItems.GroupBy(x => x.UpdatedIndexedFieldValue))
+                {
+                    index.Add(item.Key, item.Select(x => x.IndexItem));
+                }
+                var indexFileName = IndexFileName.GetFullFileName(mapper.EntityName, index.Meta.Name);
+                var indexFile = new IndexFile(indexFileName, mapper.PrimaryKeyMapping.PropertyType, mapper.FieldMetaCollection);
+                indexFile.WriteIndex(index);
+            }
+        }
+
+        public void DeleteFromIndexes<TEntity>(object primaryKeyValue)
+        {
+            DeleteFromIndexes<TEntity>(new[] { primaryKeyValue });
+        }
+
+        public void DeleteFromIndexes<TEntity>(IEnumerable<object> primaryKeyValues)
         {
             if (!_indexes.ContainsKey(typeof(TEntity))) return;
             var entityIndexes = _indexes[typeof(TEntity)];

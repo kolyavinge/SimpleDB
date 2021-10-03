@@ -12,12 +12,12 @@ namespace SimpleDB.QueryExecutors
         private readonly Mapper<TEntity> _mapper;
         private readonly PrimaryKeyFile _primaryKeyFile;
         private readonly DataFile _dataFile;
-        private readonly IEnumerable<PrimaryKey> _primaryKeys;
+        private readonly IDictionary<object, PrimaryKey> _primaryKeys;
         private readonly IndexHolder _indexHolder;
         private readonly IndexUpdater _indexUpdater;
 
         public UpdateQueryExecutor(
-            Mapper<TEntity> mapper, PrimaryKeyFile primaryKeyFile, DataFile dataFile, IEnumerable<PrimaryKey> primaryKeys, IndexHolder indexHolder = null, IndexUpdater indexUpdater = null)
+            Mapper<TEntity> mapper, PrimaryKeyFile primaryKeyFile, DataFile dataFile, IDictionary<object, PrimaryKey> primaryKeys, IndexHolder indexHolder = null, IndexUpdater indexUpdater = null)
         {
             _mapper = mapper;
             _primaryKeyFile = primaryKeyFile;
@@ -50,21 +50,31 @@ namespace SimpleDB.QueryExecutors
             if (query.WhereClause != null)
             {
                 var whereFieldNumbers = query.WhereClause.GetAllFieldNumbers().ToHashSet();
-                allFieldNumbers.AddRange(whereFieldNumbers);
-                foreach (var primaryKey in _primaryKeys.OrderBy(x => x.StartDataFileOffset))
+                if (_indexHolder.AnyIndexFor(typeof(TEntity), whereFieldNumbers))
                 {
-                    var fieldValueCollection = new FieldValueCollection { PrimaryKey = primaryKey };
-                    _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, whereFieldNumbers, fieldValueCollection);
-                    var whereResult = query.WhereClause.GetValue(fieldValueCollection);
-                    if (whereResult)
+                    var analyzer = new WhereClauseAnalyzer(typeof(TEntity), _primaryKeys, new FieldValueReader(_dataFile), _indexHolder);
+                    fieldValueCollections.AddRange(analyzer.GetResult(query.WhereClause));
+                    allFieldNumbers.AddRange(fieldValueCollections.SelectMany(collection => collection.Select(field => field.Number)));
+                }
+                else
+                {
+
+                    allFieldNumbers.AddRange(whereFieldNumbers);
+                    foreach (var primaryKey in _primaryKeys.Values.OrderBy(x => x.StartDataFileOffset))
                     {
-                        fieldValueCollections.Add(fieldValueCollection);
+                        var fieldValueCollection = new FieldValueCollection { PrimaryKey = primaryKey };
+                        _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, whereFieldNumbers, fieldValueCollection);
+                        var whereResult = query.WhereClause.GetValue(fieldValueCollection);
+                        if (whereResult)
+                        {
+                            fieldValueCollections.Add(fieldValueCollection);
+                        }
                     }
                 }
             }
             else
             {
-                foreach (var primaryKey in _primaryKeys.OrderBy(x => x.StartDataFileOffset))
+                foreach (var primaryKey in _primaryKeys.Values.OrderBy(x => x.StartDataFileOffset))
                 {
                     var fieldValueCollection = new FieldValueCollection { PrimaryKey = primaryKey };
                     fieldValueCollections.Add(fieldValueCollection);
@@ -131,6 +141,8 @@ namespace SimpleDB.QueryExecutors
                     _dataFile.UpdateManual(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, updateFieldDictionary.Values);
                 }
             }
+
+            _indexUpdater.UpdateIndexes<TEntity>(fieldValueCollections.Select(x => x.PrimaryKey.Value), updateFieldDictionary.Values);
 
             return fieldValueCollections.Count;
         }

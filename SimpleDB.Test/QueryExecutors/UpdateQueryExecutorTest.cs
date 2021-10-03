@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using SimpleDB.Core;
+using SimpleDB.IndexedSearch;
 using SimpleDB.Infrastructure;
 using SimpleDB.Queries;
 using SimpleDB.QueryExecutors;
@@ -31,7 +32,7 @@ namespace SimpleDB.Test.QueryExecutors
                     new FieldMapping<TestEntity>(3, x => x.InnerObject)
                 });
             _collection = new Collection<TestEntity>(_mapper);
-            _queryExecutor = new UpdateQueryExecutor<TestEntity>(_mapper, _collection.PrimaryKeyFile, _collection.DataFile, _collection.PrimaryKeys.Values);
+            _queryExecutor = new UpdateQueryExecutor<TestEntity>(_mapper, _collection.PrimaryKeyFile, _collection.DataFile, _collection.PrimaryKeys);
         }
 
         [Test]
@@ -287,6 +288,31 @@ namespace SimpleDB.Test.QueryExecutors
             Assert.AreEqual(5.6f, entity3.Float);
             Assert.AreEqual("789", entity3.String);
             Assert.AreEqual(123456789, entity3.InnerObject.Value);
+        }
+
+        [Test]
+        public void ExecuteQuery_UpdateIndexes()
+        {
+            var index = new Index<byte>(new IndexMeta
+            {
+                EntityType = typeof(TestEntity),
+                Name = "index",
+                IndexedFieldType = typeof(byte),
+                IndexedFieldNumber = 0,
+                IncludedFieldNumbers = new byte[] { 1 }
+            });
+            var indexHolder = new IndexHolder(new IIndex[] { index });
+            var indexUpdater = new IndexUpdater(new IIndex[] { index }, new MapperHolder(new[] { _mapper }));
+
+            _collection = new Collection<TestEntity>(_mapper, indexHolder, indexUpdater);
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
+
+            var intResult = index.GetEquals((byte)10);
+            Assert.AreEqual((byte)10, intResult.IndexedFieldValue);
+            Assert.AreEqual(1, intResult.Items.Count);
+            Assert.AreEqual(1, intResult.Items[0].PrimaryKeyValue);
+            Assert.AreEqual(1, intResult.Items[0].IncludedFields.Length);
+            Assert.AreEqual(1.2f, intResult.Items[0].IncludedFields[0]);
         }
 
         class TestEntity
