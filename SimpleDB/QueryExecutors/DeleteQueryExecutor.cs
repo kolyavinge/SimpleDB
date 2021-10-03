@@ -42,20 +42,29 @@ namespace SimpleDB.QueryExecutors
         private int TryExecuteQuery(DeleteQuery query)
         {
             var result = 0;
+            var primaryKeysForDelete = new List<PrimaryKey>();
             // where
             if (query.WhereClause != null)
             {
                 var whereFieldNumbers = query.WhereClause.GetAllFieldNumbers().ToHashSet();
-                var primaryKeys = _primaryKeysDictionary.Values;
-                foreach (var primaryKey in primaryKeys.OrderBy(x => x.StartDataFileOffset))
+                if (_indexHolder.AnyIndexFor(typeof(TEntity), whereFieldNumbers))
                 {
-                    var fieldValueCollection = new FieldValueCollection { PrimaryKey = primaryKey };
-                    _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, whereFieldNumbers, fieldValueCollection);
-                    var whereResult = query.WhereClause.GetValue(fieldValueCollection);
-                    if (whereResult)
+                    var analyzer = new WhereClauseAnalyzer(typeof(TEntity), _primaryKeysDictionary, new FieldValueReader(_dataFile), _indexHolder);
+                    primaryKeysForDelete.AddRange(analyzer.GetResult(query.WhereClause).Select(x => x.PrimaryKey));
+                }
+                else
+                {
+                    var primaryKeys = _primaryKeysDictionary.Values;
+                    foreach (var primaryKey in primaryKeys.OrderBy(x => x.StartDataFileOffset))
                     {
-                        Delete(primaryKey);
-                        result++;
+                        var fieldValueCollection = new FieldValueCollection { PrimaryKey = primaryKey };
+                        _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, whereFieldNumbers, fieldValueCollection);
+                        var whereResult = query.WhereClause.GetValue(fieldValueCollection);
+                        if (whereResult)
+                        {
+                            primaryKeysForDelete.Add(primaryKey);
+                            result++;
+                        }
                     }
                 }
             }
@@ -63,10 +72,15 @@ namespace SimpleDB.QueryExecutors
             {
                 foreach (var primaryKey in _primaryKeysDictionary.Values)
                 {
-                    Delete(primaryKey);
+                    primaryKeysForDelete.Add(primaryKey);
                     result++;
                 }
             }
+            foreach (var primaryKey in primaryKeysForDelete)
+            {
+                Delete(primaryKey);
+            }
+            _indexUpdater.DeleteFromIndexes<TEntity>(primaryKeysForDelete);
 
             return result;
         }
