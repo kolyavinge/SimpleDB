@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using SimpleDB.Infrastructure;
 
 namespace SimpleDB.IndexedSearch
@@ -15,6 +16,34 @@ namespace SimpleDB.IndexedSearch
         public byte IndexedFieldNumber { get; set; }
 
         public byte[] IncludedFieldNumbers { get; set; }
+
+        public byte[] GetAllFieldNumbers()
+        {
+            byte[] result;
+            if (IncludedFieldNumbers != null)
+            {
+                result = new byte[IncludedFieldNumbers.Length + 1];
+                Array.Copy(IncludedFieldNumbers, 0, result, 1, IncludedFieldNumbers.Length);
+                result[0] = IndexedFieldNumber;
+            }
+            else
+            {
+                result = new byte[] { IndexedFieldNumber };
+            }
+
+            return result;
+        }
+
+        public bool IsContainAnyFields(ISet<byte> fieldNumberSet)
+        {
+            if (fieldNumberSet.Contains(IndexedFieldNumber)) return true;
+            if (IncludedFieldNumbers != null)
+            {
+                return IncludedFieldNumbers.Any(fieldNumberSet.Contains);
+            }
+
+            return false;
+        }
 
         public static IndexMeta Deserialize(IReadableStream stream)
         {

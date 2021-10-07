@@ -39,7 +39,7 @@ namespace SimpleDB.QueryExecutors
         private SelectQueryResult<TEntity> TryExecuteQuery(SelectQuery query)
         {
             var fieldValueCollections = new List<FieldValueCollection>();
-            var allFieldNumbers = new HashSet<byte>();
+            var alreadyReadedFieldNumbers = new HashSet<byte>();
             // where
             if (query.WhereClause != null)
             {
@@ -48,11 +48,11 @@ namespace SimpleDB.QueryExecutors
                 {
                     var analyzer = new WhereClauseAnalyzer(typeof(TEntity), _primaryKeys, new FieldValueReader(_dataFile), _indexHolder);
                     fieldValueCollections.AddRange(analyzer.GetResult(query.WhereClause));
-                    allFieldNumbers.AddRange(fieldValueCollections.SelectMany(collection => collection.Select(field => field.Number)));
+                    alreadyReadedFieldNumbers.AddRange(fieldValueCollections.SelectMany(collection => collection.Select(field => field.Number)));
                 }
                 else
                 {
-                    allFieldNumbers.AddRange(whereFieldNumbers);
+                    alreadyReadedFieldNumbers.AddRange(whereFieldNumbers);
                     foreach (var primaryKey in _primaryKeys.Values.OrderBy(x => x.StartDataFileOffset))
                     {
                         var fieldValueCollection = new FieldValueCollection { PrimaryKey = primaryKey };
@@ -83,14 +83,20 @@ namespace SimpleDB.QueryExecutors
                 }
                 return new SelectQueryResult<TEntity> { Scalar = count };
             }
+            // добираем из индексов недостающие поля
+            var allFieldNumbersInQuery = query.GetAllFieldNumbers().ToHashSet();
+            allFieldNumbersInQuery.ExceptWith(alreadyReadedFieldNumbers);
+            var remainingFieldValues = _indexHolder.GetScanResult(typeof(TEntity), fieldValueCollections.Select(x => x.PrimaryKey.Value), _primaryKeys, allFieldNumbersInQuery);
+            FieldValueCollection.Merge(fieldValueCollections, remainingFieldValues);
+            alreadyReadedFieldNumbers.AddRange(fieldValueCollections.SelectMany(collection => collection.Select(field => field.Number)));
             // order by
             if (query.OrderByClause != null)
             {
                 var orderbyFieldNumbers = query.OrderByClause.GetAllFieldNumbers().ToHashSet();
-                orderbyFieldNumbers.ExceptWith(allFieldNumbers);
+                orderbyFieldNumbers.ExceptWith(alreadyReadedFieldNumbers);
                 if (orderbyFieldNumbers.Any())
                 {
-                    allFieldNumbers.AddRange(orderbyFieldNumbers);
+                    alreadyReadedFieldNumbers.AddRange(orderbyFieldNumbers);
                     foreach (var fieldValueCollection in fieldValueCollections)
                     {
                         var primaryKey = fieldValueCollection.PrimaryKey;
@@ -119,7 +125,7 @@ namespace SimpleDB.QueryExecutors
             // select
             var selectFieldNumbers = query.SelectClause.GetAllFieldNumbers().ToHashSet();
             var nonSelectedFieldNumbers = selectFieldNumbers.ToHashSet();
-            nonSelectedFieldNumbers.ExceptWith(allFieldNumbers);
+            nonSelectedFieldNumbers.ExceptWith(alreadyReadedFieldNumbers);
             if (nonSelectedFieldNumbers.Any())
             {
                 foreach (var fieldValueCollection in fieldValueCollections)

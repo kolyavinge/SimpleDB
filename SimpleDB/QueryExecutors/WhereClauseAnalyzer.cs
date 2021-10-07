@@ -50,10 +50,23 @@ namespace SimpleDB.QueryExecutors
         {
             foreach (var item in root.ToEnumerable().Where(x => x.IsFieldOperation))
             {
-                var indexResult = _indexHolder.GetIndexResults(item.OperationType, item.IsNotApplied, _entityType, item.FieldNumber, item.ConstantValue);
+                List<FieldValueCollection> fieldValueCollections = null;
+                // ищем значение поля среди проиндексированных
+                var indexResult = _indexHolder.GetIndexResult(item.OperationType, item.IsNotApplied, _entityType, item.FieldNumber, item.ConstantValue);
                 if (indexResult != null)
                 {
-                    var fieldValueCollections = indexResult.SelectMany(x => x.ToFieldValueCollections(_primaryKeys)).ToList();
+                    fieldValueCollections = indexResult.SelectMany(x => x.ToFieldValueCollections(_primaryKeys)).ToList();
+                }
+                else
+                {
+                    // если нету таких, сканируем индекс целиком
+                    fieldValueCollections = _indexHolder
+                        .GetScanResult(_entityType, _primaryKeys.Keys, _primaryKeys, new[] { item.FieldNumber })
+                        .Where(item.GetValue)
+                        .ToList();
+                }
+                if (fieldValueCollections.Any())
+                {
                     item.IndexResult = fieldValueCollections;
                     item.PrimaryKeys = fieldValueCollections.Select(x => x.PrimaryKey.Value).ToHashSet();
                     _indexCache = FieldValueCollection.Union(_indexCache, fieldValueCollections).ToList();

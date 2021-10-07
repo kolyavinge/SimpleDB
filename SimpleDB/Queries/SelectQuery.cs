@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace SimpleDB.Queries
@@ -20,5 +21,20 @@ namespace SimpleDB.Queries
         public int? Skip { get; set; }
 
         public int? Limit { get; set; }
+
+        public IEnumerable<byte> GetAllFieldNumbers()
+        {
+            foreach (var x in SelectClause.GetAllFieldNumbers()) yield return x;
+
+            if (WhereClause != null)
+            {
+                foreach (var x in WhereClause.GetAllFieldNumbers()) yield return x;
+            }
+
+            if (OrderByClause != null)
+            {
+                foreach (var x in OrderByClause.GetAllFieldNumbers()) yield return x;
+            }
+        }
     }
 }

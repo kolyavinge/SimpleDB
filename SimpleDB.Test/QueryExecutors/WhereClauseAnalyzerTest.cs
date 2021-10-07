@@ -11,9 +11,6 @@ namespace SimpleDB.Test.QueryExecutors
 {
     class WhereClauseAnalyzerTest
     {
-        private Mapper<TestEntity> _mapper;
-        private Collection<TestEntity> _collection;
-        private IndexHolder _indexHolder;
         private WhereClauseAnalyzer _analyzer;
         private TestFieldValueReader _testFieldValueReader;
 
@@ -24,7 +21,7 @@ namespace SimpleDB.Test.QueryExecutors
             IOC.Reset();
             IOC.Set<IMemory>(new Memory());
             IOC.Set<IFileSystem>(new MemoryFileSystem());
-            _mapper = new Mapper<TestEntity>(
+            var mapper = new Mapper<TestEntity>(
                 "testEntity",
                 new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
                 new FieldMapping<TestEntity>[]
@@ -33,11 +30,12 @@ namespace SimpleDB.Test.QueryExecutors
                     new FieldMapping<TestEntity>(1, entity => entity.B),
                     new FieldMapping<TestEntity>(2, entity => entity.C),
                     new FieldMapping<TestEntity>(3, entity => entity.D),
-                    new FieldMapping<TestEntity>(4, entity => entity.S),
+                    new FieldMapping<TestEntity>(4, entity => entity.E),
+                    new FieldMapping<TestEntity>(5, entity => entity.S),
                 });
-            _collection = new Collection<TestEntity>(_mapper);
-            _collection.Insert(new TestEntity { Id = 10, A = 1, B = 2, C = 3, D = 4, S = "123" });
-            _collection.Insert(new TestEntity { Id = 20, A = 6, B = 7, C = 8, D = 9, S = "987" });
+            var collection = new Collection<TestEntity>(mapper);
+            collection.Insert(new TestEntity { Id = 10, A = 1, B = 2, C = 3, D = 4, E = 5, S = "123" });
+            collection.Insert(new TestEntity { Id = 20, A = 6, B = 7, C = 8, D = 9, E = 10, S = "987" });
 
             var indexA = new Index<int>(new IndexMeta { EntityType = typeof(TestEntity), Name = "indexA", IndexedFieldType = typeof(int), IndexedFieldNumber = 0 });
             indexA.Add(1, new IndexItem { PrimaryKeyValue = 10 });
@@ -47,14 +45,15 @@ namespace SimpleDB.Test.QueryExecutors
             indexB.Add(2, new IndexItem { PrimaryKeyValue = 10 });
             indexB.Add(7, new IndexItem { PrimaryKeyValue = 20 });
 
-            var indexS = new Index<string>(new IndexMeta { EntityType = typeof(TestEntity), Name = "indexS", IndexedFieldType = typeof(string), IndexedFieldNumber = 4 });
-            indexS.Add("123", new IndexItem { PrimaryKeyValue = 10 });
-            indexS.Add("987", new IndexItem { PrimaryKeyValue = 20 });
+            var indexS = new Index<string>(
+                new IndexMeta { EntityType = typeof(TestEntity), Name = "indexS", IndexedFieldType = typeof(string), IndexedFieldNumber = 5, IncludedFieldNumbers = new byte[] { 4 } });
+            indexS.Add("123", new IndexItem { PrimaryKeyValue = 10, IncludedFields = new object[] { 5 } });
+            indexS.Add("987", new IndexItem { PrimaryKeyValue = 20, IncludedFields = new object[] { 10 } });
 
-            _indexHolder = new IndexHolder(new IIndex[] { indexA, indexB, indexS });
+            var indexHolder = new IndexHolder(new IIndex[] { indexA, indexB, indexS });
 
-            _testFieldValueReader = new TestFieldValueReader(new FieldValueReader(_collection.DataFile));
-            _analyzer = new WhereClauseAnalyzer(typeof(TestEntity), _collection.PrimaryKeys, _testFieldValueReader, _indexHolder);
+            _testFieldValueReader = new TestFieldValueReader(new FieldValueReader(collection.DataFile));
+            _analyzer = new WhereClauseAnalyzer(typeof(TestEntity), collection.PrimaryKeys, _testFieldValueReader, indexHolder);
         }
 
         [Test]
@@ -420,7 +419,7 @@ namespace SimpleDB.Test.QueryExecutors
         {
             var where = new WhereClause(
                 new WhereClause.LikeOperation(
-                    new WhereClause.Field(4), new WhereClause.Constant("12")));
+                    new WhereClause.Field(5), new WhereClause.Constant("12")));
             var result = _analyzer.GetResult(where).ToList();
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(10, result[0].PrimaryKey.Value);
@@ -433,7 +432,7 @@ namespace SimpleDB.Test.QueryExecutors
             var where = new WhereClause(
                 new WhereClause.NotOperation(
                     new WhereClause.LikeOperation(
-                        new WhereClause.Field(4), new WhereClause.Constant("12"))));
+                        new WhereClause.Field(5), new WhereClause.Constant("12"))));
             var result = _analyzer.GetResult(where).ToList();
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(20, result[0].PrimaryKey.Value);
@@ -465,6 +464,17 @@ namespace SimpleDB.Test.QueryExecutors
             Assert.AreEqual(0, _testFieldValueReader.CallsCount);
         }
 
+        [Test]
+        public void GetScanResult()
+        {
+            var where = new WhereClause(
+                new WhereClause.EqualsOperation(new WhereClause.Field(4), new WhereClause.Constant(5)));
+            var result = _analyzer.GetResult(where).ToList();
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(10, result[0].PrimaryKey.Value);
+            Assert.AreEqual(0, _testFieldValueReader.CallsCount);
+        }
+
         class TestEntity
         {
             public int Id { get; set; }
@@ -472,6 +482,7 @@ namespace SimpleDB.Test.QueryExecutors
             public int B { get; set; }
             public int C { get; set; }
             public int D { get; set; }
+            public int E { get; set; }
             public string S { get; set; }
         }
     }

@@ -50,10 +50,11 @@ namespace SimpleDB.IndexedSearch
             return _indexes[entityType].Any(x => fieldNumbers.Contains(x.Meta.IndexedFieldNumber));
         }
 
-        public IEnumerable<IndexResult> GetIndexResults(Type operationType, bool isNotApplied, Type entityType, byte fieldNumber, object fieldValue)
+        public IEnumerable<IndexResult> GetIndexResult(Type operationType, bool isNotApplied, Type entityType, byte fieldNumber, object fieldValue)
         {
             if (!_indexes.ContainsKey(entityType)) return null;
-            foreach (var index in _indexes[entityType].Where(x => x.Meta.IndexedFieldNumber == fieldNumber))
+            var index = _indexes[entityType].FirstOrDefault(x => x.Meta.IndexedFieldNumber == fieldNumber);
+            if (index != null)
             {
                 if (operationType == typeof(WhereClause.EqualsOperation) && !isNotApplied)
                 {
@@ -129,6 +130,37 @@ namespace SimpleDB.IndexedSearch
             }
 
             return null;
+        }
+
+        public IEnumerable<FieldValueCollection> GetScanResult(Type entityType, IEnumerable<object> primaryKeyValues, IDictionary<object, PrimaryKey> primaryKeys, IEnumerable<byte> fieldNumbers)
+        {
+            if (!_indexes.ContainsKey(entityType)) return null;
+            var fieldNumbersSet = fieldNumbers.ToHashSet();
+            var result = primaryKeyValues.Select(pk => new FieldValueCollection { PrimaryKey = primaryKeys[pk] }).ToDictionary(k => k.PrimaryKey.Value, v => v);
+            foreach (var index in _indexes[entityType].Where(x => x.Meta.IsContainAnyFields(fieldNumbersSet)))
+            {
+                foreach (var indexValue in index.GetAllIndexValues())
+                {
+                    foreach (var item in indexValue.Items)
+                    {
+                        if (!result.ContainsKey(item.PrimaryKeyValue)) continue;
+                        var fieldValueCollection = result[item.PrimaryKeyValue];
+                        fieldValueCollection.Add(index.Meta.IndexedFieldNumber, new FieldValue(index.Meta.IndexedFieldNumber, indexValue.IndexedFieldValue));
+                        var includedFieldNumbers = index.Meta.IncludedFieldNumbers ?? new byte[0];
+                        for (int includedFieldNumberIndex = 0; includedFieldNumberIndex < includedFieldNumbers.Length; includedFieldNumberIndex++)
+                        {
+                            var number = includedFieldNumbers[includedFieldNumberIndex];
+                            if (fieldNumbersSet.Contains(number))
+                            {
+                                var value = item.IncludedFields[includedFieldNumberIndex];
+                                fieldValueCollection.Add(number, new FieldValue(number, value));
+                            }
+                        }
+                    }
+                }
+            }
+
+            return result.Values.Where(x => x.Any());
         }
     }
 }
