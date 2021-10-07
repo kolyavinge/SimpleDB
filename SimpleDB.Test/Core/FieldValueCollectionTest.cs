@@ -114,7 +114,7 @@ namespace SimpleDB.Test.Core
             var y = new FieldValueCollection(new[] { new FieldValue(0, 123), new FieldValue(1, 456) });
             Assert.False(x.Equals(y));
             Assert.False(y.Equals(x));
-            x.Add(1, new FieldValue(1, 456));
+            x.Add(new FieldValue(1, 456));
             Assert.True(x.Equals(y));
             Assert.True(y.Equals(x));
         }

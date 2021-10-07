@@ -69,6 +69,20 @@ namespace SimpleDB.IndexedSearch
         }
     }
 
+    internal class IndexValue
+    {
+        public object IndexedFieldValue { get; set; }
+
+        public List<IndexItem> Items { get; set; }
+    }
+
+    internal class IndexItem
+    {
+        public object PrimaryKeyValue { get; set; }
+
+        public object[] IncludedFields { get; set; }
+    }
+
     internal interface IIndex
     {
         IndexMeta Meta { get; }

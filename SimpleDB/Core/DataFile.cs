@@ -307,7 +307,7 @@ namespace SimpleDB.Core
                 {
                     var fieldMeta = _fieldMetaDictionary[fieldNumber];
                     object fieldValue = ReadValue(_fileStream, fieldMeta, out int readedBytesCount);
-                    result.Add(fieldNumber, new FieldValue(fieldNumber, fieldValue));
+                    result.Add(new FieldValue(fieldNumber, fieldValue));
                     currentPosition += readedBytesCount;
                 }
                 else

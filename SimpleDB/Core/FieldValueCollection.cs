@@ -37,10 +37,18 @@ namespace SimpleDB.Core
             }
         }
 
-        public void Add(byte fieldNumber, FieldValue fieldValue)
+        public void Add(FieldValue fieldValue)
         {
-            _fieldValues.Add(fieldNumber, fieldValue);
+            _fieldValues.Add(fieldValue.Number, fieldValue);
             _hashCode = null;
+        }
+
+        public void AddRange(IEnumerable<FieldValue> fieldValues)
+        {
+            foreach (var fieldValue in fieldValues)
+            {
+                Add(fieldValue);
+            }
         }
 
         public int Count
@@ -103,10 +111,7 @@ namespace SimpleDB.Core
         {
             foreach (var xitem in x)
             {
-                if (!Contains(xitem.Number))
-                {
-                    Add(xitem.Number, xitem);
-                }
+                if (!Contains(xitem.Number)) Add(xitem);
             }
 
             return this;
