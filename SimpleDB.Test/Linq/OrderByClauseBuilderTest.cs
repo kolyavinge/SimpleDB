@@ -18,7 +18,11 @@ namespace SimpleDB.Test.Linq
             _mapper = new Mapper<TestEntity>(
                 "testEntity",
                 new PrimaryKeyMapping<TestEntity>(x => x.Id),
-                new[] { new FieldMapping<TestEntity>(0, x => x.Int) });
+                new[]
+                {
+                    new FieldMapping<TestEntity>(0, x => x.Int),
+                    new FieldMapping<TestEntity>(1, x => x.String)
+                });
             _builder = new OrderByClauseBuilder();
         }
 
@@ -37,7 +41,7 @@ namespace SimpleDB.Test.Linq
         }
 
         [Test]
-        public void Build()
+        public void Build_1()
         {
             var items = new List<OrderByExpressionItem<TestEntity>>
             {
@@ -53,10 +57,28 @@ namespace SimpleDB.Test.Linq
             Assert.AreEqual(0, ((OrderByClause.Field)result[1]).Number);
         }
 
+        [Test]
+        public void Build_2()
+        {
+            var items = new List<OrderByExpressionItem<TestEntity>>
+            {
+                new OrderByExpressionItem<TestEntity> { Expression = x => x.Id, Direction = SortDirection.Asc },
+                new OrderByExpressionItem<TestEntity> { Expression = x => x.String, Direction = SortDirection.Desc }
+            };
+            var result = _builder.Build(_mapper, items).OrderedItems.ToList();
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(typeof(OrderByClause.PrimaryKey), result[0].GetType());
+            Assert.AreEqual(typeof(OrderByClause.Field), result[1].GetType());
+            Assert.AreEqual(SortDirection.Asc, ((OrderByClause.PrimaryKey)result[0]).Direction);
+            Assert.AreEqual(SortDirection.Desc, ((OrderByClause.Field)result[1]).Direction);
+            Assert.AreEqual(1, ((OrderByClause.Field)result[1]).Number);
+        }
+
         class TestEntity
         {
             public int Id { get; set; }
             public int Int { get; set; }
+            public string String { get; set; }
         }
     }
 }

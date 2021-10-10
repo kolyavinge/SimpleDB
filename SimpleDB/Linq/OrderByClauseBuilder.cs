@@ -14,7 +14,21 @@ namespace SimpleDB.Linq
             var orderbyClauseFields = new List<OrderByClause.OrderByClauseItem>();
             foreach (var item in orderbyExpressionItems)
             {
-                if (item.Expression.Body is UnaryExpression)
+                if (item.Expression.Body is MemberExpression)
+                {
+                    var body = (MemberExpression)item.Expression.Body;
+                    var fieldName = body.Member.Name;
+                    if (fieldName == mapper.PrimaryKeyMapping.PropertyName)
+                    {
+                        orderbyClauseFields.Add(new OrderByClause.PrimaryKey(item.Direction));
+                    }
+                    else
+                    {
+                        var fieldNumber = mapper.FieldMappings.First(x => x.PropertyName == fieldName).Number;
+                        orderbyClauseFields.Add(new OrderByClause.Field(fieldNumber, item.Direction));
+                    }
+                }
+                else if (item.Expression.Body is UnaryExpression)
                 {
                     var body = (UnaryExpression)item.Expression.Body;
                     var operand = (MemberExpression)body.Operand;
@@ -28,6 +42,10 @@ namespace SimpleDB.Linq
                         var fieldNumber = mapper.FieldMappings.First(x => x.PropertyName == fieldName).Number;
                         orderbyClauseFields.Add(new OrderByClause.Field(fieldNumber, item.Direction));
                     }
+                }
+                else
+                {
+                    throw new UnsupportedQueryException();
                 }
             }
             var orderbyClause = new OrderByClause(orderbyClauseFields);
