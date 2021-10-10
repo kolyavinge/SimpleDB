@@ -23,23 +23,5 @@ namespace SimpleDB.IndexedSearch
                 yield return new FieldValue(number, value);
             }
         }
-
-        public IEnumerable<FieldValue> GetFieldValues(IndexValue indexValue, IndexItem indexItem, ISet<byte> fieldNumbersSet)
-        {
-            if (fieldNumbersSet.Contains(_indexMeta.IndexedFieldNumber))
-            {
-                yield return new FieldValue(_indexMeta.IndexedFieldNumber, indexValue.IndexedFieldValue);
-            }
-            var includedFieldNumbers = _indexMeta.IncludedFieldNumbers ?? new byte[0];
-            for (int includedFieldNumberIndex = 0; includedFieldNumberIndex < includedFieldNumbers.Length; includedFieldNumberIndex++)
-            {
-                var number = includedFieldNumbers[includedFieldNumberIndex];
-                if (fieldNumbersSet.Contains(number))
-                {
-                    var value = indexItem.IncludedFields[includedFieldNumberIndex];
-                    yield return new FieldValue(number, value);
-                }
-            }
-        }
     }
 }

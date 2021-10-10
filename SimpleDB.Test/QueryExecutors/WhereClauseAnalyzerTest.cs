@@ -57,6 +57,15 @@ namespace SimpleDB.Test.QueryExecutors
         }
 
         [Test]
+        public void NoIndexes()
+        {
+            var where = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(3), new WhereClause.Constant(12345)));
+            var result = _analyzer.GetResult(where).ToList();
+            Assert.AreEqual(0, result.Count);
+            Assert.AreEqual(1, _testFieldValueReader.CallsCount);
+        }
+
+        [Test]
         public void OneIndexed()
         {
             var where = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(0), new WhereClause.Constant(1)));

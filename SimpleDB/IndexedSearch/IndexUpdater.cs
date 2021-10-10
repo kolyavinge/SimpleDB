@@ -92,16 +92,26 @@ namespace SimpleDB.IndexedSearch
                     {
                         if (!fieldValueDictionary.ContainsKey(item.PrimaryKeyValue)) continue;
                         var fieldValueCollection = fieldValueDictionary[item.PrimaryKeyValue];
-                        item.IncludedFields = index.Meta.IncludedFieldNumbers.Select(fn => fieldValueCollection[fn]).ToArray();
-                        var updatedIndexedFieldValue = fieldValueCollection[index.Meta.IndexedFieldNumber];
-                        if (updatedIndexedFieldValue != indexValue.IndexedFieldValue)
+                        for (int includedFieldNumberIndex = 0; includedFieldNumberIndex < index.Meta.IncludedFieldNumbers.Length; includedFieldNumberIndex++)
                         {
-                            updatedIndexItems.Add(new UpdatedIndexItem
+                            var includedFieldNumber = index.Meta.IncludedFieldNumbers[includedFieldNumberIndex];
+                            if (fieldValueCollection.ContainsKey(includedFieldNumber))
                             {
-                                UpdatedIndexedFieldValue = updatedIndexedFieldValue,
-                                IndexValue = indexValue,
-                                IndexItem = item
-                            });
+                                item.IncludedFields[includedFieldNumberIndex] = fieldValueCollection[includedFieldNumber];
+                            }
+                        }
+                        if (fieldValueCollection.ContainsKey(index.Meta.IndexedFieldNumber))
+                        {
+                            var updatedIndexedFieldValue = fieldValueCollection[index.Meta.IndexedFieldNumber];
+                            if (updatedIndexedFieldValue != indexValue.IndexedFieldValue)
+                            {
+                                updatedIndexItems.Add(new UpdatedIndexItem
+                                {
+                                    UpdatedIndexedFieldValue = updatedIndexedFieldValue,
+                                    IndexValue = indexValue,
+                                    IndexItem = item
+                                });
+                            }
                         }
                     }
                 }

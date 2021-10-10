@@ -69,7 +69,7 @@ namespace SimpleDB.Test.IndexedSearch
         }
 
         [Test]
-        public void UpdateIndexes()
+        public void UpdateIndexes_Entity()
         {
             _indexInt.Add(10, new IndexItem { PrimaryKeyValue = 1, IncludedFields = new object[] { 1.2 } });
             _indexDouble.Add(1.2, new IndexItem { PrimaryKeyValue = 1, IncludedFields = new object[] { 10 } });
@@ -88,6 +88,55 @@ namespace SimpleDB.Test.IndexedSearch
 
             var doubleResult = _indexDouble.GetEquals(10.2);
             Assert.AreEqual(10.2, doubleResult.IndexedFieldValue);
+            Assert.AreEqual(1, doubleResult.Items.Count);
+            Assert.AreEqual(1, doubleResult.Items[0].PrimaryKeyValue);
+            Assert.AreEqual(1, doubleResult.Items[0].IncludedFields.Length);
+            Assert.AreEqual(100, doubleResult.Items[0].IncludedFields[0]);
+        }
+
+        [Test]
+        public void UpdateIndexes_Fields()
+        {
+            _indexInt.Add(10, new IndexItem { PrimaryKeyValue = 1, IncludedFields = new object[] { 1.2 } });
+            _indexDouble.Add(1.2, new IndexItem { PrimaryKeyValue = 1, IncludedFields = new object[] { 10 } });
+            _indexUpdater.UpdateIndexes<TestEntity>(new object[] { 1 }, new FieldValue[] { new FieldValue(0, 100), new FieldValue(1, 10.2) });
+
+            Assert.AreEqual(null, _indexInt.GetEquals(10));
+            Assert.AreEqual(null, _indexDouble.GetEquals(1.2));
+
+            var intResult = _indexInt.GetEquals(100);
+            Assert.AreEqual(100, intResult.IndexedFieldValue);
+            Assert.AreEqual(1, intResult.Items.Count);
+            Assert.AreEqual(1, intResult.Items[0].PrimaryKeyValue);
+            Assert.AreEqual(1, intResult.Items[0].IncludedFields.Length);
+            Assert.AreEqual(10.2, intResult.Items[0].IncludedFields[0]);
+
+            var doubleResult = _indexDouble.GetEquals(10.2);
+            Assert.AreEqual(10.2, doubleResult.IndexedFieldValue);
+            Assert.AreEqual(1, doubleResult.Items.Count);
+            Assert.AreEqual(1, doubleResult.Items[0].PrimaryKeyValue);
+            Assert.AreEqual(1, doubleResult.Items[0].IncludedFields.Length);
+            Assert.AreEqual(100, doubleResult.Items[0].IncludedFields[0]);
+        }
+
+        [Test]
+        public void UpdateIndexes_Fields_NoIncluded()
+        {
+            _indexInt.Add(10, new IndexItem { PrimaryKeyValue = 1, IncludedFields = new object[] { 1.2 } });
+            _indexDouble.Add(1.2, new IndexItem { PrimaryKeyValue = 1, IncludedFields = new object[] { 10 } });
+            _indexUpdater.UpdateIndexes<TestEntity>(new object[] { 1 }, new FieldValue[] { new FieldValue(0, 100) });
+
+            Assert.AreEqual(null, _indexInt.GetEquals(10));
+
+            var intResult = _indexInt.GetEquals(100);
+            Assert.AreEqual(100, intResult.IndexedFieldValue);
+            Assert.AreEqual(1, intResult.Items.Count);
+            Assert.AreEqual(1, intResult.Items[0].PrimaryKeyValue);
+            Assert.AreEqual(1, intResult.Items[0].IncludedFields.Length);
+            Assert.AreEqual(1.2, intResult.Items[0].IncludedFields[0]);
+
+            var doubleResult = _indexDouble.GetEquals(1.2);
+            Assert.AreEqual(1.2, doubleResult.IndexedFieldValue);
             Assert.AreEqual(1, doubleResult.Items.Count);
             Assert.AreEqual(1, doubleResult.Items[0].PrimaryKeyValue);
             Assert.AreEqual(1, doubleResult.Items[0].IncludedFields.Length);
