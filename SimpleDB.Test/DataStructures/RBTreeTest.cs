@@ -301,7 +301,7 @@ namespace SimpleDB.Test.DataStructures
             {
                 _tree.InsertOrGetExists(i);
             }
-            Assert.AreEqual(count, _tree.Root.GetAllChildren().Count());
+            Assert.AreEqual(count, _tree.Root.GetAllNodesAsc().Count());
             for (int i = 0; i < count; i++)
             {
                 var node = _tree.Find(i);
@@ -310,13 +310,13 @@ namespace SimpleDB.Test.DataStructures
         }
 
         [Test]
-        public void GetAllChildren()
+        public void GetAllNodesAsc()
         {
             var count = 1000;
             int i = 0;
             while (i < count) _tree.InsertOrGetExists(i++);
             i = 0;
-            foreach (var node in _tree.Root.GetAllChildren())
+            foreach (var node in _tree.Root.GetAllNodesAsc())
             {
                 Assert.AreEqual(i++, node.Key);
             }

@@ -45,8 +45,8 @@ namespace SimpleDB.Test.DataStructures
             _serializer.Serialize(_tree, _stream);
             _stream.Seek(0, System.IO.SeekOrigin.Begin);
             var result = _serializer.Deserialize(_stream);
-            var originalNodes = _tree.Root.GetAllChildren();
-            var resultNodes = result.Root.GetAllChildren();
+            var originalNodes = _tree.Root.GetAllNodesAsc();
+            var resultNodes = result.Root.GetAllNodesAsc();
             TreesAreEquals(originalNodes, resultNodes);
         }
 
@@ -58,8 +58,8 @@ namespace SimpleDB.Test.DataStructures
             _serializer.Serialize(_tree, _stream);
             _stream.Seek(0, System.IO.SeekOrigin.Begin);
             var result = _serializer.Deserialize(_stream);
-            var originalNodes = _tree.Root.GetAllChildren();
-            var resultNodes = result.Root.GetAllChildren();
+            var originalNodes = _tree.Root.GetAllNodesAsc();
+            var resultNodes = result.Root.GetAllNodesAsc();
             TreesAreEquals(originalNodes, resultNodes);
         }
 
@@ -72,8 +72,8 @@ namespace SimpleDB.Test.DataStructures
             _serializer.Serialize(_tree, _stream);
             _stream.Seek(0, System.IO.SeekOrigin.Begin);
             var result = _serializer.Deserialize(_stream);
-            var originalNodes = _tree.Root.GetAllChildren();
-            var resultNodes = result.Root.GetAllChildren();
+            var originalNodes = _tree.Root.GetAllNodesAsc();
+            var resultNodes = result.Root.GetAllNodesAsc();
             TreesAreEquals(originalNodes, resultNodes);
         }
 
@@ -84,8 +84,8 @@ namespace SimpleDB.Test.DataStructures
             _serializer.Serialize(_tree, _stream);
             _stream.Seek(0, System.IO.SeekOrigin.Begin);
             var result = _serializer.Deserialize(_stream);
-            var originalNodes = _tree.Root.GetAllChildren();
-            var resultNodes = result.Root.GetAllChildren();
+            var originalNodes = _tree.Root.GetAllNodesAsc();
+            var resultNodes = result.Root.GetAllNodesAsc();
             TreesAreEquals(originalNodes, resultNodes);
         }
 
@@ -96,8 +96,8 @@ namespace SimpleDB.Test.DataStructures
             _serializer.Serialize(_tree, _stream);
             _stream.Seek(0, System.IO.SeekOrigin.Begin);
             var result = _serializer.Deserialize(_stream);
-            var originalNodes = _tree.Root.GetAllChildren();
-            var resultNodes = result.Root.GetAllChildren();
+            var originalNodes = _tree.Root.GetAllNodesAsc();
+            var resultNodes = result.Root.GetAllNodesAsc();
             TreesAreEquals(originalNodes, resultNodes);
         }
 

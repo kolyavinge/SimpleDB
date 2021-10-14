@@ -22,18 +22,32 @@ namespace SimpleDB.DataStructures
                 Color = Color.Red;
             }
 
-            public List<Node> GetAllChildren()
+            public List<Node> GetAllNodesAsc()
             {
                 var result = new List<Node>();
-                GetAllChildrenRec(this, result);
+                GetAllNodesAscRec(this, result);
                 return result;
             }
 
-            private void GetAllChildrenRec(Node node, List<Node> result)
+            public List<Node> GetAllNodesDesc()
             {
-                if (node.Left != null) GetAllChildrenRec(node.Left, result);
+                var result = new List<Node>();
+                GetAllNodesDescRec(this, result);
+                return result;
+            }
+
+            private void GetAllNodesAscRec(Node node, List<Node> result)
+            {
+                if (node.Left != null) GetAllNodesAscRec(node.Left, result);
                 result.Add(node);
-                if (node.Right != null) GetAllChildrenRec(node.Right, result);
+                if (node.Right != null) GetAllNodesAscRec(node.Right, result);
+            }
+
+            private void GetAllNodesDescRec(Node node, List<Node> result)
+            {
+                if (node.Right != null) GetAllNodesDescRec(node.Right, result);
+                result.Add(node);
+                if (node.Left != null) GetAllNodesDescRec(node.Left, result);
             }
         }
 

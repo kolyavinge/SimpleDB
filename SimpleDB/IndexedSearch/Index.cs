@@ -38,17 +38,17 @@ namespace SimpleDB.IndexedSearch
                 if (step.ToLeft)
                 {
                     nodes.Add(step.Node);
-                    if (step.Node.Right != null) nodes.AddRange(step.Node.Right.GetAllChildren());
+                    if (step.Node.Right != null) nodes.AddRange(step.Node.Right.GetAllNodesAsc());
                 }
                 else if (step.ToRight)
                 {
                     nodes.Add(step.Node);
-                    if (step.Node.Left != null) nodes.AddRange(step.Node.Left.GetAllChildren());
+                    if (step.Node.Left != null) nodes.AddRange(step.Node.Left.GetAllNodesAsc());
                 }
                 else if (step.Finded)
                 {
-                    if (step.Node.Left != null) nodes.AddRange(step.Node.Left.GetAllChildren());
-                    if (step.Node.Right != null) nodes.AddRange(step.Node.Right.GetAllChildren());
+                    if (step.Node.Left != null) nodes.AddRange(step.Node.Left.GetAllNodesAsc());
+                    if (step.Node.Right != null) nodes.AddRange(step.Node.Right.GetAllNodesAsc());
                 }
             }
 
@@ -63,11 +63,11 @@ namespace SimpleDB.IndexedSearch
                 if (step.ToRight)
                 {
                     nodes.Add(step.Node);
-                    if (step.Node.Left != null) nodes.AddRange(step.Node.Left.GetAllChildren());
+                    if (step.Node.Left != null) nodes.AddRange(step.Node.Left.GetAllNodesAsc());
                 }
                 else if (step.Finded)
                 {
-                    if (step.Node.Left != null) nodes.AddRange(step.Node.Left.GetAllChildren());
+                    if (step.Node.Left != null) nodes.AddRange(step.Node.Left.GetAllNodesAsc());
                 }
             }
 
@@ -82,11 +82,11 @@ namespace SimpleDB.IndexedSearch
                 if (step.ToLeft)
                 {
                     nodes.Add(step.Node);
-                    if (step.Node.Right != null) nodes.AddRange(step.Node.Right.GetAllChildren());
+                    if (step.Node.Right != null) nodes.AddRange(step.Node.Right.GetAllNodesAsc());
                 }
                 else if (step.Finded)
                 {
-                    if (step.Node.Right != null) nodes.AddRange(step.Node.Right.GetAllChildren());
+                    if (step.Node.Right != null) nodes.AddRange(step.Node.Right.GetAllNodesAsc());
                 }
             }
 
@@ -101,12 +101,12 @@ namespace SimpleDB.IndexedSearch
                 if (step.ToRight)
                 {
                     nodes.Add(step.Node);
-                    if (step.Node.Left != null) nodes.AddRange(step.Node.Left.GetAllChildren());
+                    if (step.Node.Left != null) nodes.AddRange(step.Node.Left.GetAllNodesAsc());
                 }
                 else if (step.Finded)
                 {
                     nodes.Add(step.Node);
-                    if (step.Node.Left != null) nodes.AddRange(step.Node.Left.GetAllChildren());
+                    if (step.Node.Left != null) nodes.AddRange(step.Node.Left.GetAllNodesAsc());
                 }
             }
 
@@ -121,12 +121,12 @@ namespace SimpleDB.IndexedSearch
                 if (step.ToLeft)
                 {
                     nodes.Add(step.Node);
-                    if (step.Node.Right != null) nodes.AddRange(step.Node.Right.GetAllChildren());
+                    if (step.Node.Right != null) nodes.AddRange(step.Node.Right.GetAllNodesAsc());
                 }
                 else if (step.Finded)
                 {
                     nodes.Add(step.Node);
-                    if (step.Node.Right != null) nodes.AddRange(step.Node.Right.GetAllChildren());
+                    if (step.Node.Right != null) nodes.AddRange(step.Node.Right.GetAllNodesAsc());
                 }
             }
 
@@ -135,12 +135,12 @@ namespace SimpleDB.IndexedSearch
 
         public IEnumerable<IndexValue> GetLike(object fieldValue)
         {
-            return _indexTree.Root.GetAllChildren().Where(x => x.Key.ToString().Contains(fieldValue.ToString())).Select(x => x.Value);
+            return _indexTree.Root.GetAllNodesAsc().Where(x => x.Key.ToString().Contains(fieldValue.ToString())).Select(x => x.Value);
         }
 
         public IEnumerable<IndexValue> GetNotLike(object fieldValue)
         {
-            return _indexTree.Root.GetAllChildren().Where(x => !x.Key.ToString().Contains(fieldValue.ToString())).Select(x => x.Value);
+            return _indexTree.Root.GetAllNodesAsc().Where(x => !x.Key.ToString().Contains(fieldValue.ToString())).Select(x => x.Value);
         }
 
         public IEnumerable<IndexValue> GetIn(IEnumerable<object> fieldValues)
@@ -151,7 +151,7 @@ namespace SimpleDB.IndexedSearch
         public IEnumerable<IndexValue> GetNotIn(IEnumerable<object> fieldValues)
         {
             var set = fieldValues.ToHashSet();
-            return _indexTree.Root.GetAllChildren().Where(x => !set.Contains(x.Key)).Select(x => x.Value);
+            return _indexTree.Root.GetAllNodesAsc().Where(x => !set.Contains(x.Key)).Select(x => x.Value);
         }
 
         public void Add(object indexedFieldValue, IndexItem indexItem)
@@ -180,9 +180,16 @@ namespace SimpleDB.IndexedSearch
             }
         }
 
-        public IEnumerable<IndexValue> GetAllIndexValues()
+        public IEnumerable<IndexValue> GetAllIndexValues(SortDirection sortDirection = SortDirection.Asc)
         {
-            return _indexTree.Root.GetAllChildren().Select(x => x.Value);
+            if (sortDirection == SortDirection.Asc)
+            {
+                return _indexTree.Root.GetAllNodesAsc().Select(x => x.Value);
+            }
+            else
+            {
+                return _indexTree.Root.GetAllNodesDesc().Select(x => x.Value);
+            }
         }
 
         public void Delete(object indexedFieldValue)
