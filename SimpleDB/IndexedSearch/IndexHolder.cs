@@ -38,10 +38,16 @@ namespace SimpleDB.IndexedSearch
             _indexes = new Dictionary<Type, List<IIndex>>();
         }
 
-        public bool AnyIndexFor(Type entityType, ISet<byte> fieldNumbers)
+        public bool AnyIndexContainsFields(Type entityType, ISet<byte> fieldNumbers)
         {
             if (!_indexes.ContainsKey(entityType)) return false;
             return _indexes[entityType].Any(x => x.Meta.IsContainAnyFields(fieldNumbers));
+        }
+
+        public bool AnyIndexFor(Type entityType, byte indexedFieldNumber)
+        {
+            if (!_indexes.ContainsKey(entityType)) return false;
+            return _indexes[entityType].Any(x => x.Meta.IndexedFieldNumber == indexedFieldNumber);
         }
 
         public IEnumerable<IndexResult> GetIndexResult(Type operationType, bool isNotApplied, Type entityType, byte fieldNumber, object fieldValue)
@@ -120,6 +126,21 @@ namespace SimpleDB.IndexedSearch
             }
         }
 
+        public IEnumerable<IndexResult> GetIndexResult(Type entityType, byte indexedFieldNumber, SortDirection sortDirection)
+        {
+            if (!_indexes.ContainsKey(entityType)) return Enumerable.Empty<IndexResult>();
+            var index = _indexes[entityType].FirstOrDefault(x => x.Meta.IndexedFieldNumber == indexedFieldNumber);
+            if (index != null)
+            {
+                var indexValues = index.GetAllIndexValues(sortDirection);
+                return indexValues.Select(indexValue => new IndexResult { IndexMeta = index.Meta, IndexValue = indexValue });
+            }
+            else
+            {
+                return Enumerable.Empty<IndexResult>();
+            }
+        }
+
         public IEnumerable<FieldValueCollection> GetScanResult(Type entityType, IEnumerable<object> primaryKeyValues, IDictionary<object, PrimaryKey> primaryKeys, IEnumerable<byte> fieldNumbers)
         {
             if (!_indexes.ContainsKey(entityType)) return null;
@@ -134,7 +155,7 @@ namespace SimpleDB.IndexedSearch
                     {
                         if (!fieldValueDictionary.ContainsKey(indexItem.PrimaryKeyValue)) continue;
                         var fieldValueCollection = fieldValueDictionary[indexItem.PrimaryKeyValue];
-                        fieldValueCollection.AddRange(converter.GetFieldValues(indexValue, indexItem));
+                        fieldValueCollection.AddRange(converter.GetFieldValues(indexValue, indexItem).Where(f => !fieldValueCollection.Contains(f.Number)));
                     }
                 }
             }

@@ -18,17 +18,18 @@ namespace SimpleDB.Queries
         {
             foreach (var orderedItem in OrderedItems)
             {
-                IComparable xComparable = null, yComparable = null;
+                IComparable xComparable = null;
+                object yComparable = null;
                 if (orderedItem is Field)
                 {
                     var orderedField = (Field)orderedItem;
                     xComparable = (IComparable)x[orderedField.Number].Value;
-                    yComparable = (IComparable)y[orderedField.Number].Value;
+                    yComparable = y[orderedField.Number].Value;
                 }
                 else if (orderedItem is PrimaryKey)
                 {
                     xComparable = (IComparable)x.PrimaryKey.Value;
-                    yComparable = (IComparable)y.PrimaryKey.Value;
+                    yComparable = y.PrimaryKey.Value;
                 }
                 var compareResult = xComparable.CompareTo(yComparable);
                 if (compareResult == 0) continue;

@@ -113,7 +113,7 @@ namespace SimpleDB.IndexedSearch
 
         void Delete(object indexedFieldValue);
 
-        IEnumerable<IndexValue> GetAllIndexValues();
+        IEnumerable<IndexValue> GetAllIndexValues(SortDirection sortDirection = SortDirection.Asc);
 
         void Serialize(IWriteableStream stream);
     }

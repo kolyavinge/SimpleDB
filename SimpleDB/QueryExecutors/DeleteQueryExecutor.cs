@@ -47,7 +47,7 @@ namespace SimpleDB.QueryExecutors
             if (query.WhereClause != null)
             {
                 var whereFieldNumbers = query.WhereClause.GetAllFieldNumbers().ToHashSet();
-                if (_indexHolder.AnyIndexFor(typeof(TEntity), whereFieldNumbers))
+                if (_indexHolder.AnyIndexContainsFields(typeof(TEntity), whereFieldNumbers))
                 {
                     var analyzer = new WhereClauseAnalyzer(typeof(TEntity), _primaryKeysDictionary, new FieldValueReader(_dataFile), _indexHolder);
                     primaryKeysForDelete.AddRange(analyzer.GetResult(query.WhereClause).Select(x => x.PrimaryKey));

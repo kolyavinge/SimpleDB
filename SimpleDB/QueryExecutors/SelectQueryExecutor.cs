@@ -40,11 +40,12 @@ namespace SimpleDB.QueryExecutors
         {
             var fieldValueCollections = new List<FieldValueCollection>();
             var alreadyReadedFieldNumbers = new HashSet<byte>();
+            bool isResultOrdered = false;
             // where
             if (query.WhereClause != null)
             {
                 var whereFieldNumbers = query.WhereClause.GetAllFieldNumbers().ToHashSet();
-                if (_indexHolder.AnyIndexFor(typeof(TEntity), whereFieldNumbers))
+                if (_indexHolder.AnyIndexContainsFields(typeof(TEntity), whereFieldNumbers))
                 {
                     var analyzer = new WhereClauseAnalyzer(typeof(TEntity), _primaryKeys, new FieldValueReader(_dataFile), _indexHolder);
                     fieldValueCollections.AddRange(analyzer.GetResult(query.WhereClause));
@@ -56,7 +57,10 @@ namespace SimpleDB.QueryExecutors
                     foreach (var primaryKey in _primaryKeys.Values.OrderBy(x => x.StartDataFileOffset))
                     {
                         var fieldValueCollection = new FieldValueCollection { PrimaryKey = primaryKey };
-                        _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, whereFieldNumbers, fieldValueCollection);
+                        if (whereFieldNumbers.Any())
+                        {
+                            _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, whereFieldNumbers, fieldValueCollection);
+                        }
                         var whereResult = query.WhereClause.GetValue(fieldValueCollection);
                         if (whereResult)
                         {
@@ -64,6 +68,15 @@ namespace SimpleDB.QueryExecutors
                         }
                     }
                 }
+            }
+            else if (query.OrderByClause != null
+                && query.OrderByClause.OrderedItems.OfType<OrderByClause.Field>().Any()
+                && query.OrderByClause.GetAllFieldNumbers().All(fieldNumber => _indexHolder.AnyIndexFor(typeof(TEntity), fieldNumber)))
+            {
+                var analyzer = new OrderByClauseAnalyzer(typeof(TEntity), _primaryKeys, _indexHolder);
+                fieldValueCollections.AddRange(analyzer.GetResult(query.OrderByClause));
+                alreadyReadedFieldNumbers.AddRange(query.OrderByClause.GetAllFieldNumbers());
+                isResultOrdered = true;
             }
             else
             {
@@ -90,7 +103,7 @@ namespace SimpleDB.QueryExecutors
             FieldValueCollection.Merge(fieldValueCollections, remainingFieldValues);
             alreadyReadedFieldNumbers.AddRange(fieldValueCollections.SelectMany(collection => collection.Select(field => field.Number)));
             // order by
-            if (query.OrderByClause != null)
+            if (!isResultOrdered && query.OrderByClause != null)
             {
                 var orderbyFieldNumbers = query.OrderByClause.GetAllFieldNumbers().ToHashSet();
                 orderbyFieldNumbers.ExceptWith(alreadyReadedFieldNumbers);
