@@ -168,7 +168,22 @@ namespace SimpleDB.Core
                     insertedBytesCount += sizeof(int) + bytes.Length;
                 }
             }
-            else
+            else if (fieldValue is byte[] fieldValueBytes)
+            {
+                if (fieldValue == null)
+                {
+                    stream.WriteInt(-1);
+                    insertedBytesCount += sizeof(int);
+                }
+                else
+                {
+                    var bytes = ToByteArray(fieldMeta, fieldValueBytes);
+                    stream.WriteInt(bytes.Length);
+                    stream.WriteByteArray(bytes, 0, bytes.Length);
+                    insertedBytesCount += sizeof(int) + bytes.Length;
+                }
+            }
+            else // object
             {
                 if (fieldValue is byte[])
                 {
@@ -198,6 +213,16 @@ namespace SimpleDB.Core
             return bytes;
         }
 
+        private byte[] ToByteArray(FieldMeta fieldMeta, byte[] fieldValue)
+        {
+            if (fieldMeta.Settings.Compressed)
+            {
+                fieldValue = ZipCompression.Compress(fieldValue);
+            }
+
+            return fieldValue;
+        }
+
         private byte[] ObjectToByteArray(FieldMeta fieldMeta, object fieldValue)
         {
             var fieldValueJson = JsonSerialization.ToJson(fieldValue);
@@ -216,6 +241,10 @@ namespace SimpleDB.Core
             if (fieldMeta.Type == typeof(string))
             {
                 return StringToByteArray(fieldMeta, (string)fieldValue);
+            }
+            else if (fieldMeta.Type == typeof(byte[]))
+            {
+                return ToByteArray(fieldMeta, (byte[])fieldValue);
             }
             else
             {
@@ -346,7 +375,7 @@ namespace SimpleDB.Core
         private int SkipCurrentField(FieldTypes fieldType)
         {
             int skippedBytes = 0;
-            if (fieldType == FieldTypes.String || fieldType == FieldTypes.Object)
+            if (fieldType == FieldTypes.String || fieldType == FieldTypes.ByteArray || fieldType == FieldTypes.Object)
             {
                 var length = _fileStream.ReadInt();
                 skippedBytes += sizeof(int);
@@ -461,6 +490,18 @@ namespace SimpleDB.Core
                     fieldValue = Encoding.UTF8.GetString(bytes);
                     readedBytesCount += length;
                 }
+            }
+            else if (fieldMeta.Type == typeof(byte[]))
+            {
+                var length = stream.ReadInt();
+                readedBytesCount += sizeof(int);
+                var bytes = stream.ReadByteArray(length);
+                if (fieldMeta.Settings.Compressed)
+                {
+                    bytes = ZipCompression.Decompress(bytes);
+                }
+                fieldValue = bytes;
+                readedBytesCount += length;
             }
             else
             {

@@ -67,6 +67,7 @@ namespace SimpleDB.Core
         Decimal = 13,
         DateTime = 14,
         String = 15,
+        ByteArray = 16,
         Object = 255
     }
 
@@ -111,6 +112,7 @@ namespace SimpleDB.Core
             if (type == FieldTypes.Decimal) return typeof(decimal);
             if (type == FieldTypes.DateTime) return typeof(DateTime);
             if (type == FieldTypes.String) return typeof(string);
+            if (type == FieldTypes.ByteArray) return typeof(byte[]);
             else throw new UnsupportedFieldTypeException();
         }
 
@@ -131,6 +133,7 @@ namespace SimpleDB.Core
             else if (type == typeof(decimal)) return FieldTypes.Decimal;
             else if (type == typeof(DateTime)) return FieldTypes.DateTime;
             else if (type == typeof(string)) return FieldTypes.String;
+            else if (type == typeof(byte[])) return FieldTypes.ByteArray;
             else return FieldTypes.Object;
         }
     }

@@ -36,7 +36,8 @@ namespace SimpleDB.Test.Core
                 new FieldMeta(11, typeof(double)),
                 new FieldMeta(12, typeof(decimal)),
                 new FieldMeta(13, typeof(DateTime)),
-                new FieldMeta(14, typeof(string))
+                new FieldMeta(14, typeof(string)),
+                new FieldMeta(15, typeof(byte[]))
             };
             _fieldNumbers = _fieldMetaCollection.Select(x => x.Number).ToHashSet();
         }
@@ -74,12 +75,13 @@ namespace SimpleDB.Test.Core
                 new FieldValue(12, (decimal)5.6),
                 new FieldValue(13, DateTime.Parse("2000-12-31")),
                 new FieldValue(14, "1234567890"),
+                new FieldValue(15, new byte[] { 1, 2, 3 })
             };
             var insertResult = dataFile.Insert(fieldValueCollection);
 
             var readFieldsResult = new FieldValueCollection();
             dataFile.ReadFields(0, insertResult.EndDataFileOffset, _fieldNumbers, readFieldsResult);
-            Assert.AreEqual(15, readFieldsResult.Count);
+            Assert.AreEqual(16, readFieldsResult.Count);
 
             Assert.AreEqual(0, readFieldsResult[0].Number);
             Assert.AreEqual(1, readFieldsResult[1].Number);
@@ -96,6 +98,7 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual(12, readFieldsResult[12].Number);
             Assert.AreEqual(13, readFieldsResult[13].Number);
             Assert.AreEqual(14, readFieldsResult[14].Number);
+            Assert.AreEqual(15, readFieldsResult[15].Number);
 
             Assert.AreEqual(false, readFieldsResult[0].Value);
             Assert.AreEqual((sbyte)1, readFieldsResult[1].Value);
@@ -112,6 +115,9 @@ namespace SimpleDB.Test.Core
             Assert.AreEqual((decimal)5.6, readFieldsResult[12].Value);
             Assert.AreEqual(DateTime.Parse("2000-12-31"), readFieldsResult[13].Value);
             Assert.AreEqual("1234567890", readFieldsResult[14].Value);
+            Assert.AreEqual((byte)1, ((byte[])readFieldsResult[15].Value)[0]);
+            Assert.AreEqual((byte)2, ((byte[])readFieldsResult[15].Value)[1]);
+            Assert.AreEqual((byte)3, ((byte[])readFieldsResult[15].Value)[2]);
         }
 
         [Test]

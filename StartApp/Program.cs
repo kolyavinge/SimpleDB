@@ -77,6 +77,7 @@ namespace StartApp
                     Surname = "Surname " + i,
                     Middlename = "Middlename " + i,
                     BirthDay = DateTime.Today.AddYears(-10).AddDays(i),
+                    Bytes = new byte[] { 1, 2, 3 },
                     AdditionalInfo = new PersonAdditionalInfo { Value = i }
                 }).ToList();
                 sw = System.Diagnostics.Stopwatch.StartNew();
@@ -129,6 +130,7 @@ namespace StartApp
                     Surname = "Новая фамилия " + i,
                     Middlename = "Новое отчество " + i,
                     BirthDay = DateTime.Today.AddDays(i),
+                    Bytes = new byte[] { 1, 2, 3 },
                     AdditionalInfo = new PersonAdditionalInfo { Value = -i }
                 }).ToList();
                 sw = System.Diagnostics.Stopwatch.StartNew();
@@ -314,6 +316,8 @@ namespace StartApp
         public string Middlename { get; set; }
 
         public DateTime BirthDay { get; set; }
+
+        public byte[] Bytes { get; set; }
 
         public PersonAdditionalInfo AdditionalInfo { get; set; }
 

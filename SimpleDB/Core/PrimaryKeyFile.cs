@@ -116,6 +116,12 @@ namespace SimpleDB.Core
                     var bytes = _fileStream.ReadByteArray(length);
                     primaryKeyValue = Encoding.UTF8.GetString(bytes);
                 }
+                else if (_primaryKeyType == typeof(byte[]))
+                {
+                    var length = _fileStream.ReadInt();
+                    currentPosition += sizeof(int) + length;
+                    primaryKeyValue = _fileStream.ReadByteArray(length);
+                }
                 else
                 {
                     var length = _fileStream.ReadInt();
@@ -194,6 +200,19 @@ namespace SimpleDB.Core
                 if (str != null)
                 {
                     var bytes = Encoding.UTF8.GetBytes(str);
+                    stream.WriteInt(bytes.Length);
+                    stream.WriteByteArray(bytes, 0, bytes.Length);
+                }
+                else
+                {
+                    throw new PrimaryKeyException();
+                }
+            }
+            else if (_primaryKeyType == typeof(byte[]))
+            {
+                var bytes = (byte[])value;
+                if (bytes != null)
+                {
                     stream.WriteInt(bytes.Length);
                     stream.WriteByteArray(bytes, 0, bytes.Length);
                 }
