@@ -11,6 +11,7 @@ namespace SimpleDB.Core
 {
     internal class Collection<TEntity> : ICollection<TEntity>
     {
+        private readonly string _workingDirectory;
         private readonly IndexHolder _indexHolder;
         private readonly IndexUpdater _indexUpdater;
 
@@ -22,13 +23,14 @@ namespace SimpleDB.Core
 
         internal Dictionary<object, PrimaryKey> PrimaryKeys { get; private set; }
 
-        public Collection(Mapper<TEntity> mapper, IndexHolder indexHolder = null, IndexUpdater indexUpdater = null)
+        public Collection(string workingDirectory, Mapper<TEntity> mapper, IndexHolder indexHolder = null, IndexUpdater indexUpdater = null)
         {
+            _workingDirectory = workingDirectory;
             Mapper = mapper;
             _indexHolder = indexHolder ?? new IndexHolder();
-            _indexUpdater = indexUpdater ?? new IndexUpdater();
-            var primaryKeyFileFullPath = PrimaryKeyFileName.GetFullFileName(mapper.EntityName);
-            var dataFileFileFullPath = DataFileName.GetFullFileName(mapper.EntityName);
+            _indexUpdater = indexUpdater ?? new IndexUpdater(workingDirectory);
+            var primaryKeyFileFullPath = PrimaryKeyFileName.GetFullFileName(workingDirectory, mapper.EntityName);
+            var dataFileFileFullPath = DataFileName.GetFullFileName(workingDirectory, mapper.EntityName);
             PrimaryKeyFile = new PrimaryKeyFile(primaryKeyFileFullPath, mapper.PrimaryKeyMapping.PropertyType);
             DataFile = new DataFile(dataFileFileFullPath, mapper.FieldMetaCollection);
             PrimaryKeys = GetAllPrimaryKeys().Where(x => !x.IsDeleted).ToDictionary(k => k.Value, v => v);
@@ -243,13 +245,13 @@ namespace SimpleDB.Core
 
         public IQueryable<TEntity> Query()
         {
-            var queryExecutorFactory = new QueryExecutorFactory<TEntity>(Mapper, PrimaryKeyFile, PrimaryKeys, DataFile, _indexHolder, _indexUpdater);
+            var queryExecutorFactory = new QueryExecutorFactory<TEntity>(_workingDirectory, Mapper, PrimaryKeyFile, PrimaryKeys, DataFile, _indexHolder, _indexUpdater);
             return new Queryable<TEntity>(queryExecutorFactory, Mapper);
         }
 
         private void SaveMetaFileIfNeeded()
         {
-            var metaFileFullPath = MetaFileName.GetFullFileName(Mapper.EntityName);
+            var metaFileFullPath = MetaFileName.GetFullFileName(_workingDirectory, Mapper.EntityName);
             var metaFile = new MetaFile(metaFileFullPath);
             if (IOC.Get<IFileSystem>().FileExists(metaFileFullPath))
             {

@@ -16,7 +16,6 @@ namespace SimpleDB.Test.IndexedSearch
         [SetUp]
         public void Setup()
         {
-            GlobalSettings.WorkingDirectory = "working directory";
             IOC.Reset();
             IOC.Set<IMemory>(new Memory());
             IOC.Set<IFileSystem>(new MemoryFileSystem());
@@ -44,7 +43,7 @@ namespace SimpleDB.Test.IndexedSearch
                 IndexedFieldNumber = 1,
                 IncludedFieldNumbers = new byte[] { 0 }
             });
-            _indexUpdater = new IndexUpdater(new IIndex[] { _indexInt, _indexDouble }, new MapperHolder(new[] { _mapper }));
+            _indexUpdater = new IndexUpdater("working directory", new IIndex[] { _indexInt, _indexDouble }, new MapperHolder(new[] { _mapper }));
         }
 
         [Test]

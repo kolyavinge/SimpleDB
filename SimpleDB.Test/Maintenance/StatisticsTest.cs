@@ -16,7 +16,6 @@ namespace SimpleDB.Test.Maintenance
         [SetUp]
         public void Setup()
         {
-            GlobalSettings.WorkingDirectory = "working directory";
             IOC.Reset();
             IOC.Set<IMemory>(new Memory());
             IOC.Set<IFileSystem>(new MemoryFileSystem());
@@ -29,8 +28,8 @@ namespace SimpleDB.Test.Maintenance
                     new FieldMapping<TestEntity>(1, entity => entity.Float),
                     new FieldMapping<TestEntity>(2, entity => entity.String)
                 });
-            _collection = new Collection<TestEntity>(_mapper);
-            _statistics = new Statistics();
+            _collection = new Collection<TestEntity>("working directory", _mapper);
+            _statistics = new Statistics("working directory");
         }
 
         [Test]
@@ -100,7 +99,7 @@ namespace SimpleDB.Test.Maintenance
                     new FieldMapping<TestEntity>(1, entity => entity.Float)
                     // убрали поле String
                });
-            _collection = new Collection<TestEntity>(_mapper); // пересохранили meta файл
+            _collection = new Collection<TestEntity>("working directory", _mapper); // пересохранили meta файл
 
             var result = _statistics.GetDataFileStatistics().ToList();
             Assert.AreEqual(16, result.First().FragmentationSizeInBytes);

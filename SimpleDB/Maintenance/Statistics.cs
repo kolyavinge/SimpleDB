@@ -10,10 +10,12 @@ namespace SimpleDB.Maintenance
     internal class Statistics : IStatistics
     {
         private readonly MetaFileCollection _metaFileCollection;
+        private readonly string _workingDirectory;
 
-        public Statistics()
+        public Statistics(string workingDirectory)
         {
-            _metaFileCollection = new MetaFileCollection();
+            _metaFileCollection = new MetaFileCollection(workingDirectory);
+            _workingDirectory = workingDirectory;
         }
 
         public IEnumerable<FileStatistics> GetPrimaryKeyFileStatistics()
@@ -61,7 +63,7 @@ namespace SimpleDB.Maintenance
                     var fieldNumbers = fieldMetaCollection.Select(x => x.Number).ToHashSet();
                     // сумма байт удаленных записей
                     var fragmentationSizeInBytes = primaryKeys.Where(x => x.IsDeleted).Sum(primaryKey => primaryKey.EndDataFileOffset - primaryKey.StartDataFileOffset);
-                    dataFile = new DataFile(DataFileName.GetFullFileName(entityName), fieldMetaCollection);
+                    dataFile = new DataFile(DataFileName.GetFullFileName(_workingDirectory, entityName), fieldMetaCollection);
                     dataFile.BeginRead();
                     long lastEndDataFileOffset = 0;
                     foreach (var primaryKey in primaryKeys.OrderBy(x => x.StartDataFileOffset))
@@ -90,7 +92,7 @@ namespace SimpleDB.Maintenance
         private IEnumerable<string> GetPrimaryKeyFileFullPathes()
         {
             return IOC.Get<IFileSystem>()
-                .GetFiles(GlobalSettings.WorkingDirectory).Where(file => Path.GetExtension(file) == PrimaryKeyFileName.Extension)
+                .GetFiles(_workingDirectory).Where(file => Path.GetExtension(file) == PrimaryKeyFileName.Extension)
                 .ToList();
         }
     }

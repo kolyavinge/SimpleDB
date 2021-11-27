@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using SimpleDB.Core;
@@ -13,17 +12,19 @@ namespace SimpleDB.IndexedSearch
     {
         private readonly IFileSystem _fileSystem;
         private readonly Mapper<TEntity> _mapper;
+        private readonly string _workingDirectory;
 
-        public IndexInitializer(MapperHolder mapperHolder)
+        public IndexInitializer(string workingDirectory, MapperHolder mapperHolder)
         {
             _mapper = mapperHolder.Get<TEntity>();
             _fileSystem = IOC.Get<IFileSystem>();
+            _workingDirectory = workingDirectory;
         }
 
         public Index<TField> GetIndex<TField>(
             string indexName, Expression<Func<TEntity, TField>> indexedFieldExpression, IEnumerable<Expression<Func<TEntity, object>>> includedExpressions) where TField : IComparable<TField>
         {
-            var indexFileName = IndexFileName.GetFullFileName(_mapper.EntityName, indexName);
+            var indexFileName = IndexFileName.GetFullFileName(_workingDirectory, _mapper.EntityName, indexName);
             if (_fileSystem.FileExists(indexFileName))
             {
                 return ReadIndexFromFile<TField>(indexFileName);
@@ -62,8 +63,8 @@ namespace SimpleDB.IndexedSearch
             DataFile dataFile = null;
             try
             {
-                var primaryKeyFileName = PrimaryKeyFileName.GetFullFileName(_mapper.EntityName);
-                var dataFileName = DataFileName.GetFullFileName(_mapper.EntityName);
+                var primaryKeyFileName = PrimaryKeyFileName.GetFullFileName(_workingDirectory, _mapper.EntityName);
+                var dataFileName = DataFileName.GetFullFileName(_workingDirectory, _mapper.EntityName);
                 primaryKeyFile = new PrimaryKeyFile(primaryKeyFileName, _mapper.PrimaryKeyMapping.PropertyType);
                 dataFile = new DataFile(dataFileName, _mapper.FieldMetaCollection);
                 primaryKeyFile.BeginRead();

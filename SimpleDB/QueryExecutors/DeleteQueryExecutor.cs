@@ -16,13 +16,13 @@ namespace SimpleDB.QueryExecutors
         private readonly Dictionary<object, PrimaryKey> _primaryKeysDictionary;
 
         public DeleteQueryExecutor(
-            PrimaryKeyFile primaryKeyFile, Dictionary<object, PrimaryKey> primaryKeysDictionary, DataFile dataFile, IndexHolder indexHolder = null, IndexUpdater indexUpdater = null)
+            string workingDirectory, PrimaryKeyFile primaryKeyFile, Dictionary<object, PrimaryKey> primaryKeysDictionary, DataFile dataFile, IndexHolder indexHolder = null, IndexUpdater indexUpdater = null)
         {
             _primaryKeyFile = primaryKeyFile;
             _primaryKeysDictionary = primaryKeysDictionary;
             _dataFile = dataFile;
             _indexHolder = indexHolder ?? new IndexHolder();
-            _indexUpdater = indexUpdater ?? new IndexUpdater();
+            _indexUpdater = indexUpdater ?? new IndexUpdater(workingDirectory);
         }
 
         public int ExecuteQuery(DeleteQuery query)

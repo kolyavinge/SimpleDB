@@ -6,6 +6,7 @@ namespace SimpleDB.QueryExecutors
 {
     internal class QueryExecutorFactory<TEntity>
     {
+        private readonly string _workingDirectory;
         private readonly Mapper<TEntity> _mapper;
         private readonly PrimaryKeyFile _primaryKeyFile;
         private readonly Dictionary<object, PrimaryKey> _primaryKeys;
@@ -14,6 +15,7 @@ namespace SimpleDB.QueryExecutors
         private readonly IndexUpdater _indexUpdater;
 
         public QueryExecutorFactory(
+            string workingDirectory,
             Mapper<TEntity> mapper,
             PrimaryKeyFile primaryKeyFile,
             Dictionary<object, PrimaryKey> primaryKeys,
@@ -21,6 +23,7 @@ namespace SimpleDB.QueryExecutors
             IndexHolder indexHolder,
             IndexUpdater indexUpdater)
         {
+            _workingDirectory = workingDirectory;
             _mapper = mapper;
             _primaryKeyFile = primaryKeyFile;
             _primaryKeys = primaryKeys;
@@ -36,12 +39,12 @@ namespace SimpleDB.QueryExecutors
 
         public UpdateQueryExecutor<TEntity> MakeUpdateQueryExecutor()
         {
-            return new UpdateQueryExecutor<TEntity>(_mapper, _primaryKeyFile, _dataFile, _primaryKeys, _indexHolder, _indexUpdater);
+            return new UpdateQueryExecutor<TEntity>(_workingDirectory, _mapper, _primaryKeyFile, _dataFile, _primaryKeys, _indexHolder, _indexUpdater);
         }
 
         public DeleteQueryExecutor<TEntity> MakeDeleteQueryExecutor()
         {
-            return new DeleteQueryExecutor<TEntity>(_primaryKeyFile, _primaryKeys, _dataFile, _indexHolder, _indexUpdater);
+            return new DeleteQueryExecutor<TEntity>(_workingDirectory, _primaryKeyFile, _primaryKeys, _dataFile, _indexHolder, _indexUpdater);
         }
 
         public MergeQueryExecutor<TEntity> MakeMergeQueryExecutor()

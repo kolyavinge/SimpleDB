@@ -17,14 +17,14 @@ namespace SimpleDB.QueryExecutors
         private readonly IndexUpdater _indexUpdater;
 
         public UpdateQueryExecutor(
-            Mapper<TEntity> mapper, PrimaryKeyFile primaryKeyFile, DataFile dataFile, IDictionary<object, PrimaryKey> primaryKeys, IndexHolder indexHolder = null, IndexUpdater indexUpdater = null)
+            string workingDirectory, Mapper<TEntity> mapper, PrimaryKeyFile primaryKeyFile, DataFile dataFile, IDictionary<object, PrimaryKey> primaryKeys, IndexHolder indexHolder = null, IndexUpdater indexUpdater = null)
         {
             _mapper = mapper;
             _primaryKeyFile = primaryKeyFile;
             _dataFile = dataFile;
             _primaryKeys = primaryKeys;
             _indexHolder = indexHolder ?? new IndexHolder();
-            _indexUpdater = indexUpdater ?? new IndexUpdater();
+            _indexUpdater = indexUpdater ?? new IndexUpdater(workingDirectory);
         }
 
         public int ExecuteQuery(UpdateQuery query)

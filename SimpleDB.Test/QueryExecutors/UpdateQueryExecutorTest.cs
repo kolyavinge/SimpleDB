@@ -17,7 +17,6 @@ namespace SimpleDB.Test.QueryExecutors
         [SetUp]
         public void Setup()
         {
-            GlobalSettings.WorkingDirectory = "working directory";
             IOC.Reset();
             IOC.Set<IMemory>(new Memory());
             IOC.Set<IFileSystem>(new MemoryFileSystem());
@@ -31,8 +30,8 @@ namespace SimpleDB.Test.QueryExecutors
                     new FieldMapping<TestEntity>(2, x => x.String),
                     new FieldMapping<TestEntity>(3, x => x.InnerObject)
                 });
-            _collection = new Collection<TestEntity>(_mapper);
-            _queryExecutor = new UpdateQueryExecutor<TestEntity>(_mapper, _collection.PrimaryKeyFile, _collection.DataFile, _collection.PrimaryKeys);
+            _collection = new Collection<TestEntity>("working directory", _mapper);
+            _queryExecutor = new UpdateQueryExecutor<TestEntity>("working directory", _mapper, _collection.PrimaryKeyFile, _collection.DataFile, _collection.PrimaryKeys);
         }
 
         [Test]
@@ -302,9 +301,9 @@ namespace SimpleDB.Test.QueryExecutors
                 IncludedFieldNumbers = new byte[] { 1 }
             });
             var indexHolder = new IndexHolder(new IIndex[] { index });
-            var indexUpdater = new IndexUpdater(new IIndex[] { index }, new MapperHolder(new[] { _mapper }));
+            var indexUpdater = new IndexUpdater("working directory", new IIndex[] { index }, new MapperHolder(new[] { _mapper }));
 
-            _collection = new Collection<TestEntity>(_mapper, indexHolder, indexUpdater);
+            _collection = new Collection<TestEntity>("working directory", _mapper, indexHolder, indexUpdater);
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
 
             var intResult = index.GetEquals((byte)10);

@@ -17,7 +17,6 @@ namespace SimpleDB.Test.QueryExecutors
         [SetUp]
         public void Setup()
         {
-            GlobalSettings.WorkingDirectory = "working directory";
             IOC.Reset();
             IOC.Set<IMemory>(new Memory());
             IOC.Set<IFileSystem>(new MemoryFileSystem());
@@ -33,7 +32,7 @@ namespace SimpleDB.Test.QueryExecutors
                     new FieldMapping<TestEntity>(4, entity => entity.E),
                     new FieldMapping<TestEntity>(5, entity => entity.S),
                 });
-            var collection = new Collection<TestEntity>(mapper);
+            var collection = new Collection<TestEntity>("working directory", mapper);
             collection.Insert(new TestEntity { Id = 10, A = 1, B = 2, C = 3, D = 4, E = 5, S = "123" });
             collection.Insert(new TestEntity { Id = 20, A = 6, B = 7, C = 8, D = 9, E = 10, S = "987" });
 
