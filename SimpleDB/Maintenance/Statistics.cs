@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using SimpleDB.Core;
 using SimpleDB.Infrastructure;
+using SimpleDB.Utils.EnumerableExtension;
 
 namespace SimpleDB.Maintenance
 {

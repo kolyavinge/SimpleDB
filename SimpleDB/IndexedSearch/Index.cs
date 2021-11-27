@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SimpleDB.DataStructures;
 using SimpleDB.Infrastructure;
+using SimpleDB.Utils.EnumerableExtension;
 
 namespace SimpleDB.IndexedSearch
 {

@@ -2,6 +2,7 @@
 using System.Linq;
 using SimpleDB.Core;
 using SimpleDB.Queries;
+using SimpleDB.Utils.EnumerableExtension;
 
 namespace SimpleDB.QueryExecutors
 {

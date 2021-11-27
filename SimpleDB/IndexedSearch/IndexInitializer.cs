@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using SimpleDB.Core;
 using SimpleDB.Infrastructure;
+using SimpleDB.Utils.EnumerableExtension;
 
 namespace SimpleDB.IndexedSearch
 {

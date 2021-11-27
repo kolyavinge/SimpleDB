@@ -46,7 +46,14 @@ namespace SimpleDB.Core
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Number, Type, Settings);
+            unchecked
+            {
+                int hash = (int)2166136261;
+                hash = (hash * 16777619) ^ Number.GetHashCode();
+                hash = (hash * 16777619) ^ Type.GetHashCode();
+                hash = (hash * 16777619) ^ Settings.GetHashCode();
+                return hash;
+            }
         }
     }
 
