@@ -32,8 +32,7 @@ namespace SimpleDB.Test.Core
                 _mapper,
                 new PrimaryKeyFileFactory(_workingDirectory, fileSystem, memory),
                 new DataFileFactory(_workingDirectory, fileSystem, memory),
-                new MetaFileFactory(_workingDirectory, fileSystem),
-                fileSystem);
+                new MetaFileFactory(_workingDirectory, fileSystem));
         }
 
         [Test]

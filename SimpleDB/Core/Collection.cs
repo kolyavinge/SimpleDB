@@ -27,7 +27,6 @@ namespace SimpleDB.Core
             IPrimaryKeyFileFactory primaryKeyFileFactory,
             IDataFileFactory dataFileFactory,
             IMetaFileFactory metaFileFactory,
-            IFileSystem fileSystem,
             IndexHolder indexHolder = null,
             IndexUpdater indexUpdater = null)
         {
@@ -37,7 +36,7 @@ namespace SimpleDB.Core
             PrimaryKeyFile = primaryKeyFileFactory.MakeFromEntityName(mapper.EntityName, mapper.PrimaryKeyMapping.PropertyType);
             DataFile = dataFileFactory.MakeFromEntityName(mapper.EntityName, mapper.FieldMetaCollection);
             PrimaryKeys = GetAllPrimaryKeys().Where(x => !x.IsDeleted).ToDictionary(k => k.Value, v => v);
-            SaveMetaFileIfNeeded(metaFileFactory, fileSystem);
+            SaveMetaFileIfNeeded(metaFileFactory);
         }
 
         private List<PrimaryKey> GetAllPrimaryKeys()
@@ -252,16 +251,16 @@ namespace SimpleDB.Core
             return new Queryable<TEntity>(queryExecutorFactory, Mapper);
         }
 
-        private void SaveMetaFileIfNeeded(IMetaFileFactory metaFileFactory, IFileSystem fileSystem)
+        private void SaveMetaFileIfNeeded(IMetaFileFactory metaFileFactory)
         {
             var metaFile = metaFileFactory.Make(Mapper.EntityName);
-            if (fileSystem.FileExists(metaFile.FileFullPath))
+            if (metaFile.IsExist())
             {
                 var savedFieldMetaCollection = metaFile.GetFieldMetaCollection().ToHashSet();
                 if (Mapper.FieldMetaCollection.Count != savedFieldMetaCollection.Count ||
                     !Mapper.FieldMetaCollection.All(savedFieldMetaCollection.Contains))
                 {
-                    fileSystem.DeleteFile(metaFile.FileFullPath);
+                    metaFile.Delete();
                     metaFile.Save(Mapper.PrimaryKeyMapping.PropertyType, Mapper.FieldMetaCollection);
                 }
             }
@@ -297,7 +296,6 @@ namespace SimpleDB.Core
                 new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, _memory),
                 new DataFileFactory(_workingDirectory, _fileSystem, _memory),
                 new MetaFileFactory(_workingDirectory, _fileSystem),
-                _fileSystem,
                 indexHolder,
                 indexUpdater);
         }

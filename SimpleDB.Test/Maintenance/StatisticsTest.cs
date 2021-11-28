@@ -34,8 +34,7 @@ namespace SimpleDB.Test.Maintenance
                 _mapper,
                 new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, _memory),
                 new DataFileFactory(_workingDirectory, _fileSystem, _memory),
-                new MetaFileFactory(_workingDirectory, _fileSystem),
-                _fileSystem);
+                new MetaFileFactory(_workingDirectory, _fileSystem));
             _statistics = new Statistics(
                 _workingDirectory,
                 new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, _memory),
@@ -115,8 +114,7 @@ namespace SimpleDB.Test.Maintenance
                 _mapper,
                 new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, _memory),
                 new DataFileFactory(_workingDirectory, _fileSystem, _memory),
-                new MetaFileFactory(_workingDirectory, _fileSystem),
-                _fileSystem); // пересохранили meta файл
+                new MetaFileFactory(_workingDirectory, _fileSystem)); // пересохранили meta файл
 
             var result = _statistics.GetDataFileStatistics().ToList();
             Assert.AreEqual(16, result.First().FragmentationSizeInBytes);

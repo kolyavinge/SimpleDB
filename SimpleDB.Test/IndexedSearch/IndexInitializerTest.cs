@@ -33,8 +33,7 @@ namespace SimpleDB.Test.IndexedSearch
                 mapper,
                 new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, memory),
                 new DataFileFactory(_workingDirectory, _fileSystem, memory),
-                new MetaFileFactory(_workingDirectory, _fileSystem),
-                _fileSystem);
+                new MetaFileFactory(_workingDirectory, _fileSystem));
             var mapperHolder = new MapperHolder(new[] { mapper });
             _initializer = new IndexInitializer<TestEntity>(
                 _workingDirectory,

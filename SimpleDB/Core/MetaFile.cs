@@ -48,6 +48,11 @@ namespace SimpleDB.Core
             }
         }
 
+        public bool IsExist()
+        {
+            return _fileSystem.FileExists(FileFullPath);
+        }
+
         public void Save(Type primaryKeyType, IEnumerable<FieldMeta> fieldMetaCollection)
         {
             using (var fs = _fileSystem.OpenFileWrite(FileFullPath))
@@ -72,6 +77,11 @@ namespace SimpleDB.Core
                     fs.WriteBool(fieldMeta.Settings.Compressed);
                 }
             }
+        }
+
+        public void Delete()
+        {
+            _fileSystem.DeleteFile(FileFullPath);
         }
     }
 

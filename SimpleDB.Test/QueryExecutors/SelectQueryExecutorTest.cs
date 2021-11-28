@@ -33,8 +33,7 @@ namespace SimpleDB.Test.QueryExecutors
                 _mapper,
                 new PrimaryKeyFileFactory(_workingDirectory, fileSystem, memory),
                 new DataFileFactory(_workingDirectory, fileSystem, memory),
-                new MetaFileFactory(_workingDirectory, fileSystem),
-                fileSystem);
+                new MetaFileFactory(_workingDirectory, fileSystem));
             _queryExecutor = new SelectQueryExecutor<TestEntity>(_mapper, _collection.DataFile, _collection.PrimaryKeys);
         }
 

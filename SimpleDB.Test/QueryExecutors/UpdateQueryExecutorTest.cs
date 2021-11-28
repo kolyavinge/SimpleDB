@@ -36,8 +36,7 @@ namespace SimpleDB.Test.QueryExecutors
                 _mapper,
                 new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, _memory),
                 new DataFileFactory(_workingDirectory, _fileSystem, _memory),
-                new MetaFileFactory(_workingDirectory, _fileSystem),
-                _fileSystem);
+                new MetaFileFactory(_workingDirectory, _fileSystem));
             _queryExecutor = new UpdateQueryExecutor<TestEntity>( _mapper, _collection.PrimaryKeyFile, _collection.DataFile, _collection.PrimaryKeys, new IndexHolder(), new IndexUpdater());
         }
 
@@ -318,7 +317,6 @@ namespace SimpleDB.Test.QueryExecutors
                 new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, _memory),
                 new DataFileFactory(_workingDirectory, _fileSystem, _memory),
                 new MetaFileFactory(_workingDirectory, _fileSystem),
-                _fileSystem,
                 indexHolder,
                 indexUpdater);
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
