@@ -11,6 +11,7 @@ namespace SimpleDB.Test.IndexedSearch
 {
     class IndexInitializerTest
     {
+        private readonly string _workingDirectory = "working directory";
         private MemoryFileSystem _fileSystem;
         private Collection<TestEntity> _collection;
         private IndexInitializer<TestEntity> _initializer;
@@ -30,16 +31,16 @@ namespace SimpleDB.Test.IndexedSearch
                 });
             _collection = new Collection<TestEntity>(
                 mapper,
-                new PrimaryKeyFileFactory("working directory", _fileSystem, memory),
-                new DataFileFactory("working directory", _fileSystem, memory),
-                new MetaFileFactory("working directory", _fileSystem),
+                new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, memory),
+                new DataFileFactory(_workingDirectory, _fileSystem, memory),
+                new MetaFileFactory(_workingDirectory, _fileSystem),
                 _fileSystem);
             var mapperHolder = new MapperHolder(new[] { mapper });
             _initializer = new IndexInitializer<TestEntity>(
-                "working directory",
+                _workingDirectory,
                 mapperHolder,
-                new PrimaryKeyFileFactory("working directory", _fileSystem, memory),
-                new DataFileFactory("working directory", _fileSystem, memory),
+                new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, memory),
+                new DataFileFactory(_workingDirectory, _fileSystem, memory),
                 _fileSystem);
         }
 

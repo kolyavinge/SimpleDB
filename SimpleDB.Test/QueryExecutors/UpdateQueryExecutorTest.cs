@@ -10,6 +10,7 @@ namespace SimpleDB.Test.QueryExecutors
 {
     class UpdateQueryExecutorTest
     {
+        private readonly string _workingDirectory = "working directory";
         private MemoryFileSystem _fileSystem;
         private Memory _memory;
         private Mapper<TestEntity> _mapper;
@@ -33,9 +34,9 @@ namespace SimpleDB.Test.QueryExecutors
                 });
             _collection = new Collection<TestEntity>(
                 _mapper,
-                new PrimaryKeyFileFactory("working directory", _fileSystem, _memory),
-                new DataFileFactory("working directory", _fileSystem, _memory),
-                new MetaFileFactory("working directory", _fileSystem),
+                new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, _memory),
+                new DataFileFactory(_workingDirectory, _fileSystem, _memory),
+                new MetaFileFactory(_workingDirectory, _fileSystem),
                 _fileSystem);
             _queryExecutor = new UpdateQueryExecutor<TestEntity>( _mapper, _collection.PrimaryKeyFile, _collection.DataFile, _collection.PrimaryKeys, new IndexHolder(), new IndexUpdater());
         }
@@ -310,13 +311,13 @@ namespace SimpleDB.Test.QueryExecutors
             var indexUpdater = new IndexUpdater(
                 new IIndex[] { index },
                 new MapperHolder(new[] { _mapper }),
-                new IndexFileFactory("working directory", _fileSystem));
+                new IndexFileFactory(_workingDirectory, _fileSystem));
 
             _collection = new Collection<TestEntity>(
                 _mapper,
-                new PrimaryKeyFileFactory("working directory", _fileSystem, _memory),
-                new DataFileFactory("working directory", _fileSystem, _memory),
-                new MetaFileFactory("working directory", _fileSystem),
+                new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, _memory),
+                new DataFileFactory(_workingDirectory, _fileSystem, _memory),
+                new MetaFileFactory(_workingDirectory, _fileSystem),
                 _fileSystem,
                 indexHolder,
                 indexUpdater);

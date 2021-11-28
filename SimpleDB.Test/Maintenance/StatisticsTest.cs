@@ -9,6 +9,7 @@ namespace SimpleDB.Test.Maintenance
 {
     class StatisticsTest
     {
+        private readonly string _workingDirectory = "working directory";
         private MemoryFileSystem _fileSystem;
         private Memory _memory;
         private Mapper<TestEntity> _mapper;
@@ -31,15 +32,15 @@ namespace SimpleDB.Test.Maintenance
                 });
             _collection = new Collection<TestEntity>(
                 _mapper,
-                new PrimaryKeyFileFactory("working directory", _fileSystem, _memory),
-                new DataFileFactory("working directory", _fileSystem, _memory),
-                new MetaFileFactory("working directory", _fileSystem),
+                new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, _memory),
+                new DataFileFactory(_workingDirectory, _fileSystem, _memory),
+                new MetaFileFactory(_workingDirectory, _fileSystem),
                 _fileSystem);
             _statistics = new Statistics(
-                "working directory",
-                new PrimaryKeyFileFactory("working directory", _fileSystem, _memory),
-                new DataFileFactory("working directory", _fileSystem, _memory),
-                new MetaFileFactory("working directory", _fileSystem),
+                _workingDirectory,
+                new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, _memory),
+                new DataFileFactory(_workingDirectory, _fileSystem, _memory),
+                new MetaFileFactory(_workingDirectory, _fileSystem),
                 _fileSystem);
         }
 
@@ -112,9 +113,9 @@ namespace SimpleDB.Test.Maintenance
                });
             _collection = new Collection<TestEntity>(
                 _mapper,
-                new PrimaryKeyFileFactory("working directory", _fileSystem, _memory),
-                new DataFileFactory("working directory", _fileSystem, _memory),
-                new MetaFileFactory("working directory", _fileSystem),
+                new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, _memory),
+                new DataFileFactory(_workingDirectory, _fileSystem, _memory),
+                new MetaFileFactory(_workingDirectory, _fileSystem),
                 _fileSystem); // пересохранили meta файл
 
             var result = _statistics.GetDataFileStatistics().ToList();
