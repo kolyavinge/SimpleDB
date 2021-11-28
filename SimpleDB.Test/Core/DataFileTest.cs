@@ -11,15 +11,16 @@ namespace SimpleDB.Test.Core
 {
     class DataFileTest
     {
+        private MemoryFileSystem _fileSystem;
+        private Memory _memory;
         private FieldMeta[] _fieldMetaCollection;
         private HashSet<byte> _fieldNumbers;
 
         [SetUp]
         public void Setup()
         {
-            IOC.Reset();
-            IOC.Set<IFileSystem>(new MemoryFileSystem());
-            IOC.Set<IMemory>(new Memory());
+            _fileSystem = new MemoryFileSystem();
+            _memory = Memory.Instance;
             _fieldMetaCollection = new FieldMeta[]
             {
                 new FieldMeta(0, typeof(bool)),
@@ -45,18 +46,14 @@ namespace SimpleDB.Test.Core
         [Test]
         public void CreateFile()
         {
-            IOC.Reset();
-            IOC.Set<IMemory>(new Memory());
-            var fileSystem = new MemoryFileSystem();
-            IOC.Set<IFileSystem>(fileSystem);
-            new DataFile(@"working directory\testEntity.data", Enumerable.Empty<FieldMeta>());
-            Assert.True(fileSystem.FullFilePathes.Contains(@"working directory\testEntity.data"));
+            new DataFile(@"working directory\testEntity.data", Enumerable.Empty<FieldMeta>(), _fileSystem, _memory);
+            Assert.True(_fileSystem.FullFilePathes.Contains(@"working directory\testEntity.data"));
         }
 
         [Test]
         public void InsertAndReadFields()
         {
-            var dataFile = new DataFile("", _fieldMetaCollection);
+            var dataFile = new DataFile("", _fieldMetaCollection, _fileSystem, _memory);
             dataFile.BeginWrite();
             var fieldValueCollection = new FieldValue[]
             {
@@ -127,7 +124,7 @@ namespace SimpleDB.Test.Core
             {
                 new FieldMeta(0, typeof(TestEntity))
             };
-            var dataFile = new DataFile("", fieldMetaCollection);
+            var dataFile = new DataFile("", fieldMetaCollection, _fileSystem, _memory);
             dataFile.BeginWrite();
             var obj = new TestEntity
             {
@@ -178,7 +175,7 @@ namespace SimpleDB.Test.Core
         [Test]
         public void InsertManyEntities()
         {
-            var dataFile = new DataFile("", _fieldMetaCollection);
+            var dataFile = new DataFile("", _fieldMetaCollection, _fileSystem, _memory);
             dataFile.BeginWrite();
             var fieldValueCollection = new FieldValue[]
             {
@@ -211,7 +208,7 @@ namespace SimpleDB.Test.Core
         [Test]
         public void UpdateLengthEqual()
         {
-            var dataFile = new DataFile("", _fieldMetaCollection);
+            var dataFile = new DataFile("", _fieldMetaCollection, _fileSystem, _memory);
             dataFile.BeginWrite();
             var fieldValueCollection = new FieldValue[]
             {
@@ -279,7 +276,7 @@ namespace SimpleDB.Test.Core
         [Test]
         public void UpdateLengthLess()
         {
-            var dataFile = new DataFile("", _fieldMetaCollection);
+            var dataFile = new DataFile("", _fieldMetaCollection, _fileSystem, _memory);
             dataFile.BeginWrite();
             var fieldValueCollection = new FieldValue[]
             {
@@ -345,7 +342,7 @@ namespace SimpleDB.Test.Core
         [Test]
         public void UpdateLengthChange()
         {
-            var dataFile = new DataFile("", _fieldMetaCollection);
+            var dataFile = new DataFile("", _fieldMetaCollection, _fileSystem, _memory);
             dataFile.BeginWrite();
             var fieldValueCollection = new FieldValue[]
             {
@@ -411,7 +408,7 @@ namespace SimpleDB.Test.Core
         [Test]
         public void UpdateManual()
         {
-            var dataFile = new DataFile("", _fieldMetaCollection);
+            var dataFile = new DataFile("", _fieldMetaCollection, _fileSystem, _memory);
             dataFile.BeginWrite();
             var fieldValueCollection = new FieldValue[]
             {
@@ -473,7 +470,7 @@ namespace SimpleDB.Test.Core
         [Test]
         public void UpdateManual_Skip()
         {
-            var dataFile = new DataFile("", _fieldMetaCollection);
+            var dataFile = new DataFile("", _fieldMetaCollection, _fileSystem, _memory);
             dataFile.BeginWrite();
             var fieldValueCollection = new FieldValue[]
             {
@@ -528,7 +525,7 @@ namespace SimpleDB.Test.Core
         [Test]
         public void UpdateManual_StringAsByteArray()
         {
-            var dataFile = new DataFile("", _fieldMetaCollection);
+            var dataFile = new DataFile("", _fieldMetaCollection, _fileSystem, _memory);
             dataFile.BeginWrite();
             var fieldValueCollection = new FieldValue[]
             {
@@ -552,7 +549,7 @@ namespace SimpleDB.Test.Core
             {
                 new FieldMeta(0, typeof(InnerObject))
             };
-            var dataFile = new DataFile("", fieldMetaCollection);
+            var dataFile = new DataFile("", fieldMetaCollection, _fileSystem, _memory);
             dataFile.BeginWrite();
             var fieldValueCollection = new FieldValue[]
             {
@@ -572,7 +569,7 @@ namespace SimpleDB.Test.Core
         [Test]
         public void InsertNullString()
         {
-            var dataFile = new DataFile("", _fieldMetaCollection);
+            var dataFile = new DataFile("", _fieldMetaCollection, _fileSystem, _memory);
             dataFile.BeginWrite();
             var fieldValueCollection = new FieldValue[]
             {
@@ -595,7 +592,7 @@ namespace SimpleDB.Test.Core
             {
                 new FieldValue(0, null)
             };
-            var dataFile = new DataFile("", fieldMetaCollection);
+            var dataFile = new DataFile("", fieldMetaCollection, _fileSystem, _memory);
             dataFile.BeginWrite();
             var insertResult = dataFile.Insert(fieldValueCollection);
             var readFieldsResult = new FieldValueCollection();
@@ -616,7 +613,7 @@ namespace SimpleDB.Test.Core
                 new FieldValue(0, "йцукенгшщзхъфывапролджэячсмитьбю 1234567890"),
                 new FieldValue(1, 10),
             };
-            var dataFile = new DataFile("", fieldMetaCollection);
+            var dataFile = new DataFile("", fieldMetaCollection, _fileSystem, _memory);
             dataFile.BeginRead();
             var insertResult = dataFile.Insert(fieldValueCollection);
             var fieldNumbers = new HashSet<byte> { 1 };
@@ -638,7 +635,7 @@ namespace SimpleDB.Test.Core
                 new FieldValue(0, ""),
                 new FieldValue(1, 10),
             };
-            var dataFile = new DataFile("", fieldMetaCollection);
+            var dataFile = new DataFile("", fieldMetaCollection, _fileSystem, _memory);
             dataFile.BeginRead();
             var insertResult = dataFile.Insert(fieldValueCollection);
             var fieldNumbers = new HashSet<byte> { 1 };
@@ -660,7 +657,7 @@ namespace SimpleDB.Test.Core
                 new FieldValue(0, null),
                 new FieldValue(1, 10),
             };
-            var dataFile = new DataFile("", fieldMetaCollection);
+            var dataFile = new DataFile("", fieldMetaCollection, _fileSystem, _memory);
             dataFile.BeginRead();
             var insertResult = dataFile.Insert(fieldValueCollection);
             var fieldNumbers = new HashSet<byte> { 1 };
@@ -690,7 +687,7 @@ namespace SimpleDB.Test.Core
                 new FieldValue(13, DateTime.Parse("2000-01-10")),
                 new FieldValue(14, "0987654321098765432109876543210987654321"),
             };
-            var dataFile = new DataFile("", _fieldMetaCollection);
+            var dataFile = new DataFile("", _fieldMetaCollection, _fileSystem, _memory);
             dataFile.BeginWrite();
             var insertResult = dataFile.Insert(fieldValueCollection);
             var result = new Dictionary<byte, int>();
@@ -733,7 +730,7 @@ namespace SimpleDB.Test.Core
                 new FieldValue(13, DateTime.Parse("2000-01-10")),
                 new FieldValue(14, "0987654321098765432109876543210987654321"),
             };
-            var dataFile = new DataFile("", _fieldMetaCollection);
+            var dataFile = new DataFile("", _fieldMetaCollection, _fileSystem, _memory);
             dataFile.BeginWrite();
             var insertResult = dataFile.Insert(fieldValueCollection);
             var result = new Dictionary<byte, int>();
@@ -759,7 +756,7 @@ namespace SimpleDB.Test.Core
             {
                 new FieldValue(0, new string('*', 100)),
             };
-            var dataFile = new DataFile("", fieldMetaCollection);
+            var dataFile = new DataFile("", fieldMetaCollection, _fileSystem, _memory);
             dataFile.BeginWrite();
             var insertResult = dataFile.Insert(fieldValueCollection);
             var readFieldsResult = new FieldValueCollection();
@@ -778,7 +775,7 @@ namespace SimpleDB.Test.Core
             {
                 new FieldValue(0, new InnerObject { Value = 123 }),
             };
-            var dataFile = new DataFile("", fieldMetaCollection);
+            var dataFile = new DataFile("", fieldMetaCollection, _fileSystem, _memory);
             dataFile.BeginWrite();
             var insertResult = dataFile.Insert(fieldValueCollection);
             var readFieldsResult = new FieldValueCollection();

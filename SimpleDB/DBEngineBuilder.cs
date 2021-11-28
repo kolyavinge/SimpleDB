@@ -10,15 +10,10 @@ namespace SimpleDB
 {
     public sealed class DBEngineBuilder
     {
-        private List<MapperBuilder> _mapperBuilders = new List<MapperBuilder>();
-        private List<IndexBuilder> _indexBuilders = new List<IndexBuilder>();
+        private readonly List<MapperBuilder> _mapperBuilders = new List<MapperBuilder>();
+        private readonly List<IndexBuilder> _indexBuilders = new List<IndexBuilder>();
         private string _workingDirectory;
-
-        static DBEngineBuilder()
-        {
-            IOC.Set<IFileSystem>(new FileSystem());
-            IOC.Set<IMemory>(new Memory());
-        }
+        internal CollectionFactory _collectionFactory;
 
         public static DBEngineBuilder Make()
         {
@@ -30,6 +25,7 @@ namespace SimpleDB
         public void WorkingDirectory(string workingDirectory)
         {
             _workingDirectory = workingDirectory;
+            _collectionFactory = new CollectionFactory(workingDirectory);
         }
 
         public IMapperBuilder<TEntity> Map<TEntity>()
@@ -52,8 +48,9 @@ namespace SimpleDB
             var mapperHolder = new MapperHolder(mappers);
             var indexes = _indexBuilders.Select(x => x.BuildFunction(mapperHolder)).ToList();
             var indexHolder = new IndexHolder(indexes);
-            var indexUpdater = new IndexUpdater(_workingDirectory, indexes, mapperHolder);
-            return new DBEngine(_workingDirectory, mapperHolder, indexHolder, indexUpdater);
+            var indexUpdater = new IndexUpdater(indexes, mapperHolder, new IndexFileFactory(_workingDirectory));
+
+            return new DBEngine(_collectionFactory, mapperHolder, indexHolder, indexUpdater);
         }
     }
 
@@ -63,7 +60,7 @@ namespace SimpleDB
 
         IMapperBuilder<TEntity> PrimaryKey(Expression<Func<TEntity, object>> primaryKeyExpression);
 
-        IMapperBuilder<TEntity> Field(byte number, Expression<Func<TEntity, object>> fieldExpression, FieldSettings settings = default(FieldSettings));
+        IMapperBuilder<TEntity> Field(byte number, Expression<Func<TEntity, object>> fieldExpression, FieldSettings settings = default);
 
         IMapperBuilder<TEntity> MakeFunction(Func<TEntity> func);
 
@@ -86,7 +83,7 @@ namespace SimpleDB
         private readonly FieldMappingValidator _fieldMappingValidator = new FieldMappingValidator();
         private string _name;
         private PrimaryKeyMapping<TEntity> _primaryKeyMapping;
-        private List<FieldMapping<TEntity>> _fieldMappings = new List<FieldMapping<TEntity>>();
+        private readonly List<FieldMapping<TEntity>> _fieldMappings = new List<FieldMapping<TEntity>>();
         private Func<TEntity> _makeFunction;
         private PrimaryKeySetFunctionDelegate<TEntity> _primaryKeySetFunction;
         private FieldSetFunctionDelegate<TEntity> _fieldSetFunction;
@@ -103,7 +100,7 @@ namespace SimpleDB
             return this;
         }
 
-        public IMapperBuilder<TEntity> Field(byte number, Expression<Func<TEntity, object>> fieldExpression, FieldSettings settings = default(FieldSettings))
+        public IMapperBuilder<TEntity> Field(byte number, Expression<Func<TEntity, object>> fieldExpression, FieldSettings settings = default)
         {
             var fieldMapping = new FieldMapping<TEntity>(number, fieldExpression) { Settings = settings };
             _fieldMappingValidator.Validate(fieldMapping);
@@ -157,7 +154,7 @@ namespace SimpleDB
     internal class IndexBuilder<TEntity> : IndexBuilder, IIndexBuilder<TEntity>
     {
         private string _name;
-        private List<Expression<Func<TEntity, object>>> _includeExpressions;
+        private readonly List<Expression<Func<TEntity, object>>> _includeExpressions;
         private readonly string _workingDirectory;
 
         public IndexBuilder(string workingDirectory)
@@ -176,7 +173,7 @@ namespace SimpleDB
         {
             BuildFunction = (mapperHolder) =>
             {
-                var initializer = new IndexInitializer<TEntity>(_workingDirectory, mapperHolder);
+                var initializer = new IndexInitializer<TEntity>(_workingDirectory, mapperHolder, new PrimaryKeyFileFactory(_workingDirectory), new DataFileFactory(_workingDirectory), FileSystem.Instance);
                 return initializer.GetIndex(_name, indexedFieldExpression, _includeExpressions);
             };
             return this;

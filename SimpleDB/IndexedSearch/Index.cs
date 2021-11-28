@@ -9,7 +9,7 @@ namespace SimpleDB.IndexedSearch
 {
     internal class Index<TField> : IIndex where TField : IComparable<TField>
     {
-        private RBTree<TField, IndexValue> _indexTree;
+        private readonly RBTree<TField, IndexValue> _indexTree;
 
         public Index(IndexMeta meta)
         {
@@ -27,8 +27,7 @@ namespace SimpleDB.IndexedSearch
 
         public IndexValue GetEquals(object fieldValue)
         {
-            var node = _indexTree.Find((TField)fieldValue);
-            return node != null ? node.Value : null;
+            return _indexTree.Find((TField)fieldValue)?.Value;
         }
 
         public IEnumerable<IndexValue> GetNotEquals(object fieldValue)

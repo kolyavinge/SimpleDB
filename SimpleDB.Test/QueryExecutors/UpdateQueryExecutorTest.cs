@@ -10,6 +10,8 @@ namespace SimpleDB.Test.QueryExecutors
 {
     class UpdateQueryExecutorTest
     {
+        private MemoryFileSystem _fileSystem;
+        private Memory _memory;
         private Mapper<TestEntity> _mapper;
         private Collection<TestEntity> _collection;
         private UpdateQueryExecutor<TestEntity> _queryExecutor;
@@ -17,9 +19,8 @@ namespace SimpleDB.Test.QueryExecutors
         [SetUp]
         public void Setup()
         {
-            IOC.Reset();
-            IOC.Set<IMemory>(new Memory());
-            IOC.Set<IFileSystem>(new MemoryFileSystem());
+            _fileSystem = new MemoryFileSystem();
+            _memory = Memory.Instance;
             _mapper = new Mapper<TestEntity>(
                 "testEntity",
                 new PrimaryKeyMapping<TestEntity>(x => x.Id),
@@ -30,8 +31,13 @@ namespace SimpleDB.Test.QueryExecutors
                     new FieldMapping<TestEntity>(2, x => x.String),
                     new FieldMapping<TestEntity>(3, x => x.InnerObject)
                 });
-            _collection = new Collection<TestEntity>("working directory", _mapper);
-            _queryExecutor = new UpdateQueryExecutor<TestEntity>("working directory", _mapper, _collection.PrimaryKeyFile, _collection.DataFile, _collection.PrimaryKeys);
+            _collection = new Collection<TestEntity>(
+                _mapper,
+                new PrimaryKeyFileFactory("working directory", _fileSystem, _memory),
+                new DataFileFactory("working directory", _fileSystem, _memory),
+                new MetaFileFactory("working directory", _fileSystem),
+                _fileSystem);
+            _queryExecutor = new UpdateQueryExecutor<TestEntity>( _mapper, _collection.PrimaryKeyFile, _collection.DataFile, _collection.PrimaryKeys, new IndexHolder(), new IndexUpdater());
         }
 
         [Test]
@@ -301,9 +307,19 @@ namespace SimpleDB.Test.QueryExecutors
                 IncludedFieldNumbers = new byte[] { 1 }
             });
             var indexHolder = new IndexHolder(new IIndex[] { index });
-            var indexUpdater = new IndexUpdater("working directory", new IIndex[] { index }, new MapperHolder(new[] { _mapper }));
+            var indexUpdater = new IndexUpdater(
+                new IIndex[] { index },
+                new MapperHolder(new[] { _mapper }),
+                new IndexFileFactory("working directory", _fileSystem));
 
-            _collection = new Collection<TestEntity>("working directory", _mapper, indexHolder, indexUpdater);
+            _collection = new Collection<TestEntity>(
+                _mapper,
+                new PrimaryKeyFileFactory("working directory", _fileSystem, _memory),
+                new DataFileFactory("working directory", _fileSystem, _memory),
+                new MetaFileFactory("working directory", _fileSystem),
+                _fileSystem,
+                indexHolder,
+                indexUpdater);
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
 
             var intResult = index.GetEquals((byte)10);

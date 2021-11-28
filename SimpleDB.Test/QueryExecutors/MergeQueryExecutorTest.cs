@@ -16,9 +16,8 @@ namespace SimpleDB.Test.QueryExecutors
         [SetUp]
         public void Setup()
         {
-            IOC.Reset();
-            IOC.Set<IMemory>(new Memory());
-            IOC.Set<IFileSystem>(new MemoryFileSystem());
+            var fileSystem = new MemoryFileSystem();
+            var memory = Memory.Instance;
             _mapper = new Mapper<TestEntity>(
                 "testEntity",
                 new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
@@ -28,7 +27,12 @@ namespace SimpleDB.Test.QueryExecutors
                     new FieldMapping<TestEntity>(1, entity => entity.Float),
                     new FieldMapping<TestEntity>(2, entity => entity.String)
                 });
-            _collection = new Collection<TestEntity>("working directory", _mapper);
+            _collection = new Collection<TestEntity>(
+                _mapper,
+                new PrimaryKeyFileFactory("working directory", fileSystem, memory),
+                new DataFileFactory("working directory", fileSystem, memory),
+                new MetaFileFactory("working directory", fileSystem),
+                fileSystem);
             _queryExecutor = new MergeQueryExecutor<TestEntity>(_mapper, _collection.PrimaryKeyFile, _collection.DataFile, _collection.PrimaryKeys);
         }
 

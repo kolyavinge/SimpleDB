@@ -24,6 +24,10 @@ namespace SimpleDB.Infrastructure
 
     internal class FileSystem : IFileSystem
     {
+        public static readonly FileSystem Instance = new FileSystem();
+
+        private FileSystem() { }
+
         public bool FileExists(string fullPath)
         {
             return System.IO.File.Exists(fullPath);

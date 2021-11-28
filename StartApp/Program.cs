@@ -11,12 +11,12 @@ namespace StartApp
     {
         static void Main()
         {
-            var doInsert = 0;
-            var doGet = 0;
-            var doUpdate = 0;
-            var doDelete = 0;
+            var doInsert = 1;
+            var doGet = 1;
+            var doUpdate = 1;
+            var doDelete = 1;
             var doQuery = 1;
-            var doMerge = 0;
+            var doMerge = 1;
             var doGetAsync = 0;
             var doStatistics = 0;
             var doDefragmentation = 0;

@@ -8,34 +8,37 @@ namespace SimpleDB.Core
 {
     internal class DataFile
     {
-        private readonly string _fileFullPath;
+        private readonly IFileSystem _fileSystem;
         private readonly Dictionary<byte, FieldMeta> _fieldMetaDictionary;
-        private IFileStream _fileStream;
         private readonly IMemoryBuffer _memoryBuffer;
+        private IFileStream _fileStream;
+        
+        public string FileFullPath { get; }
 
-        public DataFile(string fileFullPath, IEnumerable<FieldMeta> fieldMetaCollection)
+        public DataFile(string fileFullPath, IEnumerable<FieldMeta> fieldMetaCollection, IFileSystem fileSystem, IMemory memory)
         {
-            _fileFullPath = fileFullPath;
+            FileFullPath = fileFullPath;
+            _fileSystem = fileSystem;
             _fieldMetaDictionary = fieldMetaCollection.ToDictionary(k => k.Number, v => v);
-            IOC.Get<IFileSystem>().CreateFileIfNeeded(_fileFullPath);
-            _memoryBuffer = IOC.Get<IMemory>().GetBuffer();
+            fileSystem.CreateFileIfNeeded(FileFullPath);
+            _memoryBuffer = memory.GetBuffer();
         }
 
         public long SizeInBytes { get { return _fileStream.Length; } }
 
         public void BeginRead()
         {
-            _fileStream = IOC.Get<IFileSystem>().OpenFileRead(_fileFullPath);
+            _fileStream = _fileSystem.OpenFileRead(FileFullPath);
         }
 
         public void BeginWrite()
         {
-            _fileStream = IOC.Get<IFileSystem>().OpenFileWrite(_fileFullPath);
+            _fileStream = _fileSystem.OpenFileWrite(FileFullPath);
         }
 
         public void BeginReadWrite()
         {
-            _fileStream = IOC.Get<IFileSystem>().OpenFileReadWrite(_fileFullPath);
+            _fileStream = _fileSystem.OpenFileReadWrite(FileFullPath);
         }
 
         public void EndReadWrite()
@@ -529,6 +532,36 @@ namespace SimpleDB.Core
         {
             public long NewStartDataFileOffset;
             public long NewEndDataFileOffset;
+        }
+    }
+
+    internal interface IDataFileFactory
+    {
+        DataFile MakeFromFileFullPath(string fileFullPath, IEnumerable<FieldMeta> fieldMetaCollection);
+        DataFile MakeFromEntityName(string entityName, IEnumerable<FieldMeta> fieldMetaCollection);
+    }
+
+    internal class DataFileFactory : IDataFileFactory
+    {
+        private readonly string _workingDirectory;
+        private readonly IFileSystem _fileSystem;
+        private readonly IMemory _memory;
+
+        public DataFileFactory(string workingDirectory, IFileSystem fileSystem = null, IMemory memory = null)
+        {
+            _workingDirectory = workingDirectory;
+            _fileSystem = fileSystem ?? FileSystem.Instance;
+            _memory = memory ?? Memory.Instance;
+        }
+
+        public DataFile MakeFromFileFullPath(string fileFullPath, IEnumerable<FieldMeta> fieldMetaCollection)
+        {
+            return new DataFile(fileFullPath, fieldMetaCollection, _fileSystem, _memory);
+        }
+
+        public DataFile MakeFromEntityName(string entityName, IEnumerable<FieldMeta> fieldMetaCollection)
+        {
+            return MakeFromFileFullPath(DataFileName.GetFullFileName(_workingDirectory, entityName), fieldMetaCollection);
         }
     }
 

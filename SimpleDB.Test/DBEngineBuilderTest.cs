@@ -1,23 +1,17 @@
 ﻿using NUnit.Framework;
-using SimpleDB.Infrastructure;
+using SimpleDB.Core;
 using SimpleDB.Test.Tools;
 
 namespace SimpleDB.Test
 {
     class DBEngineBuilderTest
     {
-        [SetUp]
-        public void Setup()
-        {
-            IOC.Reset();
-            IOC.Set<IFileSystem>(new MemoryFileSystem());
-        }
-
         [Test]
         public void BuildEngine()
         {
             var builder = DBEngineBuilder.Make();
             builder.WorkingDirectory("WorkingDirectory");
+            builder._collectionFactory = new CollectionFactory("WorkingDirectory", new MemoryFileSystem());
             builder.Map<TestEntity>()
                 .Name("test entity")
                 .PrimaryKey(x => x.Id)
@@ -53,7 +47,6 @@ namespace SimpleDB.Test
         [Test]
         public void BuildEngine_ValueTypeNotCompressed_Error()
         {
-
             var builder = DBEngineBuilder.Make();
             builder.WorkingDirectory("WorkingDirectory");
             builder.Map<TestEntity>()

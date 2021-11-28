@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using SimpleDB.Core;
+using SimpleDB.Infrastructure;
 
 namespace SimpleDB.Maintenance
 {
@@ -8,7 +7,12 @@ namespace SimpleDB.Maintenance
     {
         public static IStatistics MakeStatistics(string workingDirectory)
         {
-            return new Statistics(workingDirectory);
+            return new Statistics(
+                workingDirectory,
+                new PrimaryKeyFileFactory(workingDirectory),
+                new DataFileFactory(workingDirectory),
+                new MetaFileFactory(workingDirectory),
+                FileSystem.Instance);
         }
     }
 }

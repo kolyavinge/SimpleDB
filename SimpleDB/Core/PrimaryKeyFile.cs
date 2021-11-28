@@ -7,29 +7,32 @@ namespace SimpleDB.Core
 {
     internal class PrimaryKeyFile
     {
-        private readonly string _fileFullPath;
         private readonly Type _primaryKeyType;
-        private IFileStream _fileStream;
+        private readonly IFileSystem _fileSystem;
         private readonly IMemoryBuffer _memoryBuffer;
+        private IFileStream _fileStream;
 
-        public PrimaryKeyFile(string fileFullPath, Type primaryKeyType)
+        public string FileFullPath { get; }
+
+        public PrimaryKeyFile(string fileFullPath, Type primaryKeyType, IFileSystem fileSystem, IMemory memory)
         {
-            _fileFullPath = fileFullPath;
+            FileFullPath = fileFullPath;
             _primaryKeyType = primaryKeyType;
-            IOC.Get<IFileSystem>().CreateFileIfNeeded(_fileFullPath);
-            _memoryBuffer = IOC.Get<IMemory>().GetBuffer();
+            _fileSystem = fileSystem;
+            _fileSystem.CreateFileIfNeeded(FileFullPath);
+            _memoryBuffer = memory.GetBuffer();
         }
 
         public long SizeInBytes { get { return _fileStream.Length; } }
 
         public void BeginRead()
         {
-            _fileStream = IOC.Get<IFileSystem>().OpenFileRead(_fileFullPath);
+            _fileStream = _fileSystem.OpenFileRead(FileFullPath);
         }
 
         public void BeginWrite()
         {
-            _fileStream = IOC.Get<IFileSystem>().OpenFileWrite(_fileFullPath);
+            _fileStream = _fileSystem.OpenFileWrite(FileFullPath);
         }
 
         public void EndReadWrite()
@@ -276,6 +279,36 @@ namespace SimpleDB.Core
             var size = _memoryBuffer.Position;
 
             return (int)size;
+        }
+    }
+
+    internal interface IPrimaryKeyFileFactory
+    {
+        PrimaryKeyFile MakeFromFileFullPath(string fileFullPath, Type primaryKeyType);
+        PrimaryKeyFile MakeFromEntityName(string entityName, Type primaryKeyType);
+    }
+
+    internal class PrimaryKeyFileFactory : IPrimaryKeyFileFactory
+    {
+        private readonly string _workingDirectory;
+        private readonly IFileSystem _fileSystem;
+        private readonly IMemory _memory;
+
+        public PrimaryKeyFileFactory(string workingDirectory, IFileSystem fileSystem = null, IMemory memory = null)
+        {
+            _workingDirectory = workingDirectory;
+            _fileSystem = fileSystem ?? FileSystem.Instance;
+            _memory = memory ?? Memory.Instance;
+        }
+
+        public PrimaryKeyFile MakeFromFileFullPath(string fileFullPath, Type primaryKeyType)
+        {
+            return new PrimaryKeyFile(fileFullPath, primaryKeyType, _fileSystem, _memory);
+        }
+
+        public PrimaryKeyFile MakeFromEntityName(string entityName, Type primaryKeyType)
+        {
+            return MakeFromFileFullPath(PrimaryKeyFileName.GetFullFileName(_workingDirectory, entityName), primaryKeyType);
         }
     }
 

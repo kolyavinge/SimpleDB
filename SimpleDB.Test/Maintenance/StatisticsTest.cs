@@ -9,6 +9,8 @@ namespace SimpleDB.Test.Maintenance
 {
     class StatisticsTest
     {
+        private MemoryFileSystem _fileSystem;
+        private Memory _memory;
         private Mapper<TestEntity> _mapper;
         private Collection<TestEntity> _collection;
         private Statistics _statistics;
@@ -16,9 +18,8 @@ namespace SimpleDB.Test.Maintenance
         [SetUp]
         public void Setup()
         {
-            IOC.Reset();
-            IOC.Set<IMemory>(new Memory());
-            IOC.Set<IFileSystem>(new MemoryFileSystem());
+            _fileSystem = new MemoryFileSystem();
+            _memory = Memory.Instance;
             _mapper = new Mapper<TestEntity>(
                 "testEntity",
                 new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
@@ -28,8 +29,18 @@ namespace SimpleDB.Test.Maintenance
                     new FieldMapping<TestEntity>(1, entity => entity.Float),
                     new FieldMapping<TestEntity>(2, entity => entity.String)
                 });
-            _collection = new Collection<TestEntity>("working directory", _mapper);
-            _statistics = new Statistics("working directory");
+            _collection = new Collection<TestEntity>(
+                _mapper,
+                new PrimaryKeyFileFactory("working directory", _fileSystem, _memory),
+                new DataFileFactory("working directory", _fileSystem, _memory),
+                new MetaFileFactory("working directory", _fileSystem),
+                _fileSystem);
+            _statistics = new Statistics(
+                "working directory",
+                new PrimaryKeyFileFactory("working directory", _fileSystem, _memory),
+                new DataFileFactory("working directory", _fileSystem, _memory),
+                new MetaFileFactory("working directory", _fileSystem),
+                _fileSystem);
         }
 
         [Test]
@@ -99,7 +110,12 @@ namespace SimpleDB.Test.Maintenance
                     new FieldMapping<TestEntity>(1, entity => entity.Float)
                     // убрали поле String
                });
-            _collection = new Collection<TestEntity>("working directory", _mapper); // пересохранили meta файл
+            _collection = new Collection<TestEntity>(
+                _mapper,
+                new PrimaryKeyFileFactory("working directory", _fileSystem, _memory),
+                new DataFileFactory("working directory", _fileSystem, _memory),
+                new MetaFileFactory("working directory", _fileSystem),
+                _fileSystem); // пересохранили meta файл
 
             var result = _statistics.GetDataFileStatistics().ToList();
             Assert.AreEqual(16, result.First().FragmentationSizeInBytes);

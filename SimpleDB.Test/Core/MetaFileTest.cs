@@ -9,11 +9,12 @@ namespace SimpleDB.Test.Core
 {
     class MetaFileTest
     {
+        private MemoryFileSystem _fileSystem;
+
         [SetUp]
         public void Setup()
         {
-            IOC.Reset();
-            IOC.Set<IFileSystem>(new MemoryFileSystem());
+            _fileSystem = new MemoryFileSystem();
         }
 
         [Test]
@@ -38,7 +39,7 @@ namespace SimpleDB.Test.Core
                 new FieldMeta(14, typeof(string)),
                 new FieldMeta(15, typeof(Inner)),
             };
-            var metaFile = new MetaFile("full path");
+            var metaFile = new MetaFile("full path", _fileSystem);
             metaFile.Save(typeof(Inner), fieldMetaCollection);
 
             Assert.AreEqual(typeof(Inner), metaFile.GetPrimaryKeyType());

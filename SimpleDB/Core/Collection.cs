@@ -11,7 +11,6 @@ namespace SimpleDB.Core
 {
     internal class Collection<TEntity> : ICollection<TEntity>
     {
-        private readonly string _workingDirectory;
         private readonly IndexHolder _indexHolder;
         private readonly IndexUpdater _indexUpdater;
 
@@ -23,18 +22,22 @@ namespace SimpleDB.Core
 
         internal Dictionary<object, PrimaryKey> PrimaryKeys { get; private set; }
 
-        public Collection(string workingDirectory, Mapper<TEntity> mapper, IndexHolder indexHolder = null, IndexUpdater indexUpdater = null)
+        public Collection(
+            Mapper<TEntity> mapper,
+            IPrimaryKeyFileFactory primaryKeyFileFactory,
+            IDataFileFactory dataFileFactory,
+            IMetaFileFactory metaFileFactory,
+            IFileSystem fileSystem,
+            IndexHolder indexHolder = null,
+            IndexUpdater indexUpdater = null)
         {
-            _workingDirectory = workingDirectory;
             Mapper = mapper;
             _indexHolder = indexHolder ?? new IndexHolder();
-            _indexUpdater = indexUpdater ?? new IndexUpdater(workingDirectory);
-            var primaryKeyFileFullPath = PrimaryKeyFileName.GetFullFileName(workingDirectory, mapper.EntityName);
-            var dataFileFileFullPath = DataFileName.GetFullFileName(workingDirectory, mapper.EntityName);
-            PrimaryKeyFile = new PrimaryKeyFile(primaryKeyFileFullPath, mapper.PrimaryKeyMapping.PropertyType);
-            DataFile = new DataFile(dataFileFileFullPath, mapper.FieldMetaCollection);
+            _indexUpdater = indexUpdater ?? new IndexUpdater();
+            PrimaryKeyFile = primaryKeyFileFactory.MakeFromEntityName(mapper.EntityName, mapper.PrimaryKeyMapping.PropertyType);
+            DataFile = dataFileFactory.MakeFromEntityName(mapper.EntityName, mapper.FieldMetaCollection);
             PrimaryKeys = GetAllPrimaryKeys().Where(x => !x.IsDeleted).ToDictionary(k => k.Value, v => v);
-            SaveMetaFileIfNeeded();
+            SaveMetaFileIfNeeded(metaFileFactory, fileSystem);
         }
 
         private List<PrimaryKey> GetAllPrimaryKeys()
@@ -245,21 +248,20 @@ namespace SimpleDB.Core
 
         public IQueryable<TEntity> Query()
         {
-            var queryExecutorFactory = new QueryExecutorFactory<TEntity>(_workingDirectory, Mapper, PrimaryKeyFile, PrimaryKeys, DataFile, _indexHolder, _indexUpdater);
+            var queryExecutorFactory = new QueryExecutorFactory<TEntity>(Mapper, PrimaryKeyFile, PrimaryKeys, DataFile, _indexHolder, _indexUpdater);
             return new Queryable<TEntity>(queryExecutorFactory, Mapper);
         }
 
-        private void SaveMetaFileIfNeeded()
+        private void SaveMetaFileIfNeeded(IMetaFileFactory metaFileFactory, IFileSystem fileSystem)
         {
-            var metaFileFullPath = MetaFileName.GetFullFileName(_workingDirectory, Mapper.EntityName);
-            var metaFile = new MetaFile(metaFileFullPath);
-            if (IOC.Get<IFileSystem>().FileExists(metaFileFullPath))
+            var metaFile = metaFileFactory.Make(Mapper.EntityName);
+            if (fileSystem.FileExists(metaFile.FileFullPath))
             {
                 var savedFieldMetaCollection = metaFile.GetFieldMetaCollection().ToHashSet();
                 if (Mapper.FieldMetaCollection.Count != savedFieldMetaCollection.Count ||
                     !Mapper.FieldMetaCollection.All(savedFieldMetaCollection.Contains))
                 {
-                    IOC.Get<IFileSystem>().DeleteFile(metaFileFullPath);
+                    fileSystem.DeleteFile(metaFile.FileFullPath);
                     metaFile.Save(Mapper.PrimaryKeyMapping.PropertyType, Mapper.FieldMetaCollection);
                 }
             }
@@ -267,6 +269,37 @@ namespace SimpleDB.Core
             {
                 metaFile.Save(Mapper.PrimaryKeyMapping.PropertyType, Mapper.FieldMetaCollection);
             }
+        }
+    }
+
+    internal interface ICollectionFactory
+    {
+        Collection<TEntity> Make<TEntity>(Mapper<TEntity> mapper, IndexHolder indexHolder = null, IndexUpdater indexUpdater = null);
+    }
+
+    internal class CollectionFactory : ICollectionFactory
+    {
+        private readonly string _workingDirectory;
+        private readonly IFileSystem _fileSystem;
+        private readonly IMemory _memory;
+
+        public CollectionFactory(string workingDirectory, IFileSystem fileSystem = null, IMemory memory = null)
+        {
+            _workingDirectory = workingDirectory;
+            _fileSystem = fileSystem ?? FileSystem.Instance;
+            _memory = memory ?? Memory.Instance;
+        }
+
+        public Collection<TEntity> Make<TEntity>(Mapper<TEntity> mapper, IndexHolder indexHolder = null, IndexUpdater indexUpdater = null)
+        {
+            return new Collection<TEntity>(
+                mapper,
+                new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, _memory),
+                new DataFileFactory(_workingDirectory, _fileSystem, _memory),
+                new MetaFileFactory(_workingDirectory, _fileSystem),
+                _fileSystem,
+                indexHolder,
+                indexUpdater);
         }
     }
 }

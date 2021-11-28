@@ -6,16 +6,19 @@ namespace SimpleDB.Core
 {
     internal class MetaFile
     {
-        private readonly string _fileFullPath;
+        private readonly IFileSystem _fileSystem;
+        
+        public string FileFullPath { get; }
 
-        public MetaFile(string fileFullPath)
+        public MetaFile(string fileFullPath, IFileSystem fileSystem)
         {
-            _fileFullPath = fileFullPath;
+            FileFullPath = fileFullPath;
+            _fileSystem = fileSystem;
         }
 
         public Type GetPrimaryKeyType()
         {
-            using (var fs = IOC.Get<IFileSystem>().OpenFileRead(_fileFullPath))
+            using (var fs = _fileSystem.OpenFileRead(FileFullPath))
             {
                 return ReadPrimaryKeyType(fs);
             }
@@ -30,7 +33,7 @@ namespace SimpleDB.Core
 
         public IEnumerable<FieldMeta> GetFieldMetaCollection()
         {
-            using (var fs = IOC.Get<IFileSystem>().OpenFileRead(_fileFullPath))
+            using (var fs = _fileSystem.OpenFileRead(FileFullPath))
             {
                 var length = fs.Length;
                 ReadPrimaryKeyType(fs); // skip
@@ -47,7 +50,7 @@ namespace SimpleDB.Core
 
         public void Save(Type primaryKeyType, IEnumerable<FieldMeta> fieldMetaCollection)
         {
-            using (var fs = IOC.Get<IFileSystem>().OpenFileWrite(_fileFullPath))
+            using (var fs = _fileSystem.OpenFileWrite(FileFullPath))
             {
                 // save primary key
                 var primaryKeyFieldType = FieldTypesConverter.GetFieldType(primaryKeyType);
@@ -69,6 +72,29 @@ namespace SimpleDB.Core
                     fs.WriteBool(fieldMeta.Settings.Compressed);
                 }
             }
+        }
+    }
+
+    internal interface IMetaFileFactory
+    {
+        MetaFile Make(string entityName);
+    }
+
+    internal class MetaFileFactory : IMetaFileFactory
+    {
+        private readonly string _workingDirectory;
+        private readonly IFileSystem _fileSystem;
+
+        public MetaFileFactory(string workingDirectory, IFileSystem fileSystem = null)
+        {
+            _workingDirectory = workingDirectory;
+            _fileSystem = fileSystem ?? FileSystem.Instance;
+        }
+
+        public MetaFile Make(string entityName)
+        {
+            var fileFullPath = MetaFileName.GetFullFileName(_workingDirectory, entityName);
+            return new MetaFile(fileFullPath, _fileSystem);
         }
     }
 

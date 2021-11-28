@@ -9,12 +9,20 @@ namespace SimpleDB.Maintenance
     internal class Defragmentator : IDefragmentator
     {
         private readonly MetaFileCollection _metaFileCollection;
-        private readonly string _workingDirectory;
+        private readonly IPrimaryKeyFileFactory _primaryKeyFileFactory;
+        private readonly IDataFileFactory _dataFileFactory;
+        private readonly IFileSystem _fileSystem;
 
-        public Defragmentator(string workingDirectory)
+        public Defragmentator(
+            IPrimaryKeyFileFactory primaryKeyFileFactory,
+            IDataFileFactory dataFileFactory,
+            IMetaFileFactory metaFileFactory,
+            IFileSystem fileSystem)
         {
-            _workingDirectory = workingDirectory;
-            _metaFileCollection = new MetaFileCollection(workingDirectory);
+            _primaryKeyFileFactory = primaryKeyFileFactory;
+            _dataFileFactory = dataFileFactory;
+            _fileSystem = fileSystem;
+            _metaFileCollection = new MetaFileCollection(metaFileFactory);
         }
 
         public void DefragmentDataFile(string dataFileName)
@@ -25,26 +33,24 @@ namespace SimpleDB.Maintenance
             DataFile defragmentDataFile = null;
 
             var entityName = Path.GetFileNameWithoutExtension(dataFileName);
-            var currentPrimaryKeyFileFullPath = PrimaryKeyFileName.GetFullFileName(_workingDirectory, entityName);
-            var currentDataFileFullPath = DataFileName.GetFullFileName(_workingDirectory, entityName);
             var metaFile = _metaFileCollection.GetMetaFile(entityName);
             var primaryKeyType = metaFile.GetPrimaryKeyType();
             var fieldMetaCollection = metaFile.GetFieldMetaCollection().ToList();
             var fieldNumbers = fieldMetaCollection.Select(x => x.Number).ToHashSet();
 
-            currentPrimaryKeyFile = new PrimaryKeyFile(currentPrimaryKeyFileFullPath, primaryKeyType);
+            currentPrimaryKeyFile = _primaryKeyFileFactory.MakeFromEntityName(entityName, primaryKeyType);
             currentPrimaryKeyFile.BeginRead();
             var primaryKeys = currentPrimaryKeyFile.GetAllPrimaryKeys().Where(x => !x.IsDeleted).OrderBy(x => x.Value).ToList();
 
-            var defragmentPrimaryKeyFileFullPath = GetDefragmentedFullFileName(currentPrimaryKeyFileFullPath);
-            defragmentPrimaryKeyFile = new PrimaryKeyFile(defragmentPrimaryKeyFileFullPath, primaryKeyType);
+            var defragmentPrimaryKeyFileFullPath = GetDefragmentedFullFileName(currentPrimaryKeyFile.FileFullPath);
+            defragmentPrimaryKeyFile = _primaryKeyFileFactory.MakeFromFileFullPath(defragmentPrimaryKeyFileFullPath, primaryKeyType);
             defragmentPrimaryKeyFile.BeginWrite();
 
-            currentDataFile = new DataFile(currentDataFileFullPath, fieldMetaCollection);
+            currentDataFile = _dataFileFactory.MakeFromEntityName(entityName, fieldMetaCollection);
             currentDataFile.BeginRead();
 
-            var defragmentDataFileFullPath = GetDefragmentedFullFileName(currentDataFileFullPath);
-            defragmentDataFile = new DataFile(defragmentDataFileFullPath, fieldMetaCollection);
+            var defragmentDataFileFullPath = GetDefragmentedFullFileName(currentDataFile.FileFullPath);
+            defragmentDataFile = _dataFileFactory.MakeFromFileFullPath(defragmentDataFileFullPath, fieldMetaCollection);
             defragmentDataFile.BeginWrite();
 
             var fieldValueCollection = new FieldValueCollection();
@@ -63,10 +69,10 @@ namespace SimpleDB.Maintenance
             defragmentPrimaryKeyFile.EndReadWrite();
             defragmentDataFile.EndReadWrite();
 
-            IOC.Get<IFileSystem>().DeleteFile(currentPrimaryKeyFileFullPath);
-            IOC.Get<IFileSystem>().DeleteFile(currentDataFileFullPath);
-            IOC.Get<IFileSystem>().RenameFile(defragmentPrimaryKeyFileFullPath, currentPrimaryKeyFileFullPath);
-            IOC.Get<IFileSystem>().RenameFile(defragmentDataFileFullPath, currentDataFileFullPath);
+            _fileSystem.DeleteFile(currentPrimaryKeyFile.FileFullPath);
+            _fileSystem.DeleteFile(currentDataFile.FileFullPath);
+            _fileSystem.RenameFile(defragmentPrimaryKeyFileFullPath, currentPrimaryKeyFile.FileFullPath);
+            _fileSystem.RenameFile(defragmentDataFileFullPath, currentDataFile.FileFullPath);
         }
 
         private string GetDefragmentedFullFileName(string currentFile)

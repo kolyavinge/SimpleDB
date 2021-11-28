@@ -9,27 +9,26 @@ namespace SimpleDB.Test.Core
     public class PrimaryKeyFileTest
     {
         private MemoryFileSystem _fileSystem;
+        private Memory _memory;
 
         [SetUp]
         public void Setup()
         {
             _fileSystem = new MemoryFileSystem();
-            IOC.Reset();
-            IOC.Set<IFileSystem>(_fileSystem);
-            IOC.Set<IMemory>(new Memory());
+            _memory = Memory.Instance;
         }
 
         [Test]
         public void CreateFile()
         {
-            new PrimaryKeyFile(@"working directory\testEntity.primary", typeof(int));
+            new PrimaryKeyFile(@"working directory\testEntity.primary", typeof(int), _fileSystem, _memory);
             Assert.True(_fileSystem.FullFilePathes.Contains(@"working directory\testEntity.primary"));
         }
 
         [Test]
         public void Insert()
         {
-            var primaryKeyFile = new PrimaryKeyFile("", typeof(int));
+            var primaryKeyFile = new PrimaryKeyFile("", typeof(int), _fileSystem, _memory);
             primaryKeyFile.BeginWrite();
             var primaryKey1 = primaryKeyFile.Insert(123, 0, 45);
             var primaryKey2 = primaryKeyFile.Insert(456, 45, 60);
@@ -46,7 +45,7 @@ namespace SimpleDB.Test.Core
         [Test]
         public void InsertAndGetAllPrimaryKeys()
         {
-            var primaryKeyFile = new PrimaryKeyFile("", typeof(int));
+            var primaryKeyFile = new PrimaryKeyFile("", typeof(int), _fileSystem, _memory);
             primaryKeyFile.BeginWrite();
             primaryKeyFile.Insert(123, 0, 45);
             var allPrimaryKeys = primaryKeyFile.GetAllPrimaryKeys().ToList();
@@ -59,7 +58,7 @@ namespace SimpleDB.Test.Core
         [Test]
         public void InsertAndGetAllPrimaryKeys_Object()
         {
-            var primaryKeyFile = new PrimaryKeyFile("", typeof(TestEntity));
+            var primaryKeyFile = new PrimaryKeyFile("", typeof(TestEntity), _fileSystem, _memory);
             primaryKeyFile.BeginWrite();
             var obj = new TestEntity { Int = 123, Float = 4.56f, String = "123" };
             primaryKeyFile.Insert(obj, 0, 45);
@@ -77,7 +76,7 @@ namespace SimpleDB.Test.Core
         [Test]
         public void UpdateStartEndDataFileOffset()
         {
-            var primaryKeyFile = new PrimaryKeyFile("", typeof(int));
+            var primaryKeyFile = new PrimaryKeyFile("", typeof(int), _fileSystem, _memory);
             primaryKeyFile.BeginWrite();
             primaryKeyFile.Insert(123, 10, 20);
             var second = primaryKeyFile.Insert(456, 30, 35);
@@ -92,7 +91,7 @@ namespace SimpleDB.Test.Core
         [Test]
         public void UpdateEndDataFileOffset()
         {
-            var primaryKeyFile = new PrimaryKeyFile("", typeof(int));
+            var primaryKeyFile = new PrimaryKeyFile("", typeof(int), _fileSystem, _memory);
             primaryKeyFile.BeginWrite();
             primaryKeyFile.Insert(123, 10, 20);
             var second = primaryKeyFile.Insert(456, 30, 35);
@@ -107,7 +106,7 @@ namespace SimpleDB.Test.Core
         [Test]
         public void Delete()
         {
-            var primaryKeyFile = new PrimaryKeyFile("", typeof(int));
+            var primaryKeyFile = new PrimaryKeyFile("", typeof(int), _fileSystem, _memory);
             primaryKeyFile.BeginWrite();
             primaryKeyFile.Insert(123, 10, 20);
             var second = primaryKeyFile.Insert(456, 30, 35);

@@ -16,9 +16,7 @@ namespace SimpleDB.Test.IndexedSearch
         [SetUp]
         public void Setup()
         {
-            IOC.Reset();
-            IOC.Set<IMemory>(new Memory());
-            IOC.Set<IFileSystem>(new MemoryFileSystem());
+            var fileSystem = new MemoryFileSystem();
             _mapper = new Mapper<TestEntity>(
                 "testEntity",
                 new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
@@ -43,7 +41,10 @@ namespace SimpleDB.Test.IndexedSearch
                 IndexedFieldNumber = 1,
                 IncludedFieldNumbers = new byte[] { 0 }
             });
-            _indexUpdater = new IndexUpdater("working directory", new IIndex[] { _indexInt, _indexDouble }, new MapperHolder(new[] { _mapper }));
+            _indexUpdater = new IndexUpdater(
+                new IIndex[] { _indexInt, _indexDouble },
+                new MapperHolder(new[] { _mapper }),
+                new IndexFileFactory("working directory", fileSystem));
         }
 
         [Test]

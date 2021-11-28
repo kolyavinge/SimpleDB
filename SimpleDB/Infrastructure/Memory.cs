@@ -12,6 +12,10 @@ namespace SimpleDB.Infrastructure
 
     internal class Memory : IMemory
     {
+        public static readonly Memory Instance = new Memory();
+
+        private Memory() { }
+
         public IMemoryBuffer GetBuffer()
         {
             return new MemoryBuffer();

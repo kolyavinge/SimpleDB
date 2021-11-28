@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using SimpleDB.Core;
+using SimpleDB.IndexedSearch;
 using SimpleDB.Infrastructure;
 using SimpleDB.Queries;
 using SimpleDB.QueryExecutors;
@@ -15,9 +16,8 @@ namespace SimpleDB.Test.QueryExecutors
         [SetUp]
         public void Setup()
         {
-            IOC.Reset();
-            IOC.Set<IMemory>(new Memory());
-            IOC.Set<IFileSystem>(new MemoryFileSystem());
+            var fileSystem = new MemoryFileSystem();
+            var memory = Memory.Instance;
             var mapper = new Mapper<TestEntity>(
                 "testEntity",
                 new PrimaryKeyMapping<TestEntity>(x => x.Id),
@@ -27,8 +27,13 @@ namespace SimpleDB.Test.QueryExecutors
                     new FieldMapping<TestEntity>(1, x => x.Float),
                     new FieldMapping<TestEntity>(2, x => x.String)
                 });
-            _collection = new Collection<TestEntity>("working directory", mapper);
-            _queryExecutor = new DeleteQueryExecutor<TestEntity>("working directory", _collection.PrimaryKeyFile, _collection.PrimaryKeys, _collection.DataFile);
+            _collection = new Collection<TestEntity>(
+                mapper,
+                new PrimaryKeyFileFactory("working directory", fileSystem, memory),
+                new DataFileFactory("working directory", fileSystem, memory),
+                new MetaFileFactory("working directory", fileSystem),
+                fileSystem);
+            _queryExecutor = new DeleteQueryExecutor<TestEntity>(_collection.PrimaryKeyFile, _collection.PrimaryKeys, _collection.DataFile, new IndexHolder(), new IndexUpdater());
         }
 
         [Test]

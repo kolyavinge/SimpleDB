@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-using SimpleDB.Infrastructure;
+using System.Linq;
 using SimpleDB.Core;
+using SimpleDB.Infrastructure;
 
 namespace SimpleDB.IndexedSearch
 {
@@ -13,11 +13,11 @@ namespace SimpleDB.IndexedSearch
         private readonly IFileSystem _fileSystem;
         private readonly IDictionary<byte, Type> _fieldTypes;
 
-        public IndexFile(string fileFullPath, Type primaryKeyType, IEnumerable<FieldMeta> fieldMetaCollection)
+        public IndexFile(string fileFullPath, Type primaryKeyType, IEnumerable<FieldMeta> fieldMetaCollection, IFileSystem fileSystem)
         {
             _fileFullPath = fileFullPath;
             _primaryKeyType = primaryKeyType;
-            _fileSystem = IOC.Get<IFileSystem>();
+            _fileSystem = fileSystem;
             _fieldTypes = fieldMetaCollection.ToDictionary(k => k.Number, v => v.Type);
         }
 
@@ -36,6 +36,29 @@ namespace SimpleDB.IndexedSearch
                 index.Serialize(stream);
                 stream.SetLength(stream.Position);
             }
+        }
+    }
+
+    internal interface IIndexFileFactory
+    {
+        IndexFile Make(string entityName, string indexName, Type primaryKeyType, IEnumerable<FieldMeta> fieldMetaCollection);
+    }
+
+    internal class IndexFileFactory : IIndexFileFactory
+    {
+        private readonly string _workingDirectory;
+        private readonly IFileSystem _fileSystem;
+
+        public IndexFileFactory(string workingDirectory, IFileSystem fileSystem = null)
+        {
+            _workingDirectory = workingDirectory;
+            _fileSystem = fileSystem ?? FileSystem.Instance;
+        }
+
+        public IndexFile Make(string entityName, string indexName, Type primaryKeyType, IEnumerable<FieldMeta> fieldMetaCollection)
+        {
+            var fileFullPath = IndexFileName.GetFullFileName(_workingDirectory, entityName, indexName);
+            return new IndexFile(fileFullPath, primaryKeyType, fieldMetaCollection, _fileSystem);
         }
     }
 

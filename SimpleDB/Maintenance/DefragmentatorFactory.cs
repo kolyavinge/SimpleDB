@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using SimpleDB.Core;
+using SimpleDB.Infrastructure;
 
 namespace SimpleDB.Maintenance
 {
@@ -8,7 +7,11 @@ namespace SimpleDB.Maintenance
     {
         public static IDefragmentator MakeDefragmentator(string workingDirectory)
         {
-            return new Defragmentator(workingDirectory);
+            return new Defragmentator(
+                new PrimaryKeyFileFactory(workingDirectory),
+                new DataFileFactory(workingDirectory),
+                new MetaFileFactory(workingDirectory),
+                FileSystem.Instance);
         }
     }
 }

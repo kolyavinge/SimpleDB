@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using SimpleDB.Core;
 using SimpleDB.Infrastructure;
@@ -16,9 +15,8 @@ namespace SimpleDB.Test.Core
         [SetUp]
         public void Setup()
         {
-            IOC.Reset();
-            IOC.Set<IMemory>(new Memory());
-            IOC.Set<IFileSystem>(new MemoryFileSystem());
+            var fileSystem = new MemoryFileSystem();
+            var memory = Memory.Instance;
             _entity = new TestEntity { Id = 123, Byte = 45, Float = 6.7f };
             _mapper = new Mapper<TestEntity>(
                 "testEntity",
@@ -29,7 +27,12 @@ namespace SimpleDB.Test.Core
                     new FieldMapping<TestEntity>(1, entity => entity.Float),
                     new FieldMapping<TestEntity>(2, entity => entity.String)
                 });
-            _collection = new Collection<TestEntity>("working directory", _mapper);
+            _collection = new Collection<TestEntity>(
+                _mapper,
+                new PrimaryKeyFileFactory("working directory", fileSystem, memory),
+                new DataFileFactory("working directory", fileSystem, memory),
+                new MetaFileFactory("working directory", fileSystem),
+                fileSystem);
         }
 
         [Test]

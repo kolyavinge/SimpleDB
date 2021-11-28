@@ -13,12 +13,21 @@ namespace SimpleDB.IndexedSearch
         private readonly IFileSystem _fileSystem;
         private readonly Mapper<TEntity> _mapper;
         private readonly string _workingDirectory;
+        private readonly IPrimaryKeyFileFactory _primaryKeyFileFactory;
+        private readonly IDataFileFactory _dataFileFactory;
 
-        public IndexInitializer(string workingDirectory, MapperHolder mapperHolder)
+        public IndexInitializer(
+            string workingDirectory,
+            MapperHolder mapperHolder,
+            IPrimaryKeyFileFactory primaryKeyFileFactory,
+            IDataFileFactory dataFileFactory,
+            IFileSystem fileSystem)
         {
             _mapper = mapperHolder.Get<TEntity>();
-            _fileSystem = IOC.Get<IFileSystem>();
+            _fileSystem = fileSystem;
             _workingDirectory = workingDirectory;
+            _primaryKeyFileFactory = primaryKeyFileFactory;
+            _dataFileFactory = dataFileFactory;
         }
 
         public Index<TField> GetIndex<TField>(
@@ -37,7 +46,7 @@ namespace SimpleDB.IndexedSearch
 
         private Index<TField> ReadIndexFromFile<TField>(string indexFileName) where TField : IComparable<TField>
         {
-            var indexFile = new IndexFile(indexFileName, _mapper.PrimaryKeyMapping.PropertyType, _mapper.FieldMetaCollection);
+            var indexFile = new IndexFile(indexFileName, _mapper.PrimaryKeyMapping.PropertyType, _mapper.FieldMetaCollection, _fileSystem);
             return indexFile.ReadIndex<TField>();
         }
 
@@ -51,7 +60,7 @@ namespace SimpleDB.IndexedSearch
             var meta = new IndexMeta { EntityType = typeof(TEntity), IndexedFieldType = typeof(TField), Name = indexName, IndexedFieldNumber = indexedFieldNumber, IncludedFieldNumbers = includedFieldNumbers };
             var index = new Index<TField>(meta);
             PopulateIndex(index, indexedFieldNumber, includedFieldNumbers);
-            var indexFile = new IndexFile(indexFileName, _mapper.PrimaryKeyMapping.PropertyType, _mapper.FieldMetaCollection);
+            var indexFile = new IndexFile(indexFileName, _mapper.PrimaryKeyMapping.PropertyType, _mapper.FieldMetaCollection, _fileSystem);
             indexFile.WriteIndex(index);
 
             return index;
@@ -63,14 +72,11 @@ namespace SimpleDB.IndexedSearch
             DataFile dataFile = null;
             try
             {
-                var primaryKeyFileName = PrimaryKeyFileName.GetFullFileName(_workingDirectory, _mapper.EntityName);
-                var dataFileName = DataFileName.GetFullFileName(_workingDirectory, _mapper.EntityName);
-                primaryKeyFile = new PrimaryKeyFile(primaryKeyFileName, _mapper.PrimaryKeyMapping.PropertyType);
-                dataFile = new DataFile(dataFileName, _mapper.FieldMetaCollection);
+                primaryKeyFile = _primaryKeyFileFactory.MakeFromEntityName(_mapper.EntityName, _mapper.PrimaryKeyMapping.PropertyType);
+                dataFile = _dataFileFactory.MakeFromEntityName(_mapper.EntityName, _mapper.FieldMetaCollection);
                 primaryKeyFile.BeginRead();
                 dataFile.BeginRead();
-                var fieldNumbers = new HashSet<byte>(includedFieldNumbers);
-                fieldNumbers.Add(indexedFieldNumber);
+                var fieldNumbers = new HashSet<byte>(includedFieldNumbers) { indexedFieldNumber };
                 var fieldValueCollection = new FieldValueCollection();
                 foreach (var primaryKey in primaryKeyFile.GetAllPrimaryKeys().Where(x => !x.IsDeleted).OrderBy(x => x.StartDataFileOffset))
                 {
