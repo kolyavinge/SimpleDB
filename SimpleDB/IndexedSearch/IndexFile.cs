@@ -8,14 +8,15 @@ namespace SimpleDB.IndexedSearch
 {
     internal class IndexFile
     {
-        private readonly string _fileFullPath;
         private readonly Type _primaryKeyType;
         private readonly IFileSystem _fileSystem;
         private readonly IDictionary<byte, Type> _fieldTypes;
 
+        public string FileFullPath { get; }
+
         public IndexFile(string fileFullPath, Type primaryKeyType, IEnumerable<FieldMeta> fieldMetaCollection, IFileSystem fileSystem)
         {
-            _fileFullPath = fileFullPath;
+            FileFullPath = fileFullPath;
             _primaryKeyType = primaryKeyType;
             _fileSystem = fileSystem;
             _fieldTypes = fieldMetaCollection.ToDictionary(k => k.Number, v => v.Type);
@@ -23,7 +24,7 @@ namespace SimpleDB.IndexedSearch
 
         public Index<TField> ReadIndex<TField>() where TField : IComparable<TField>
         {
-            using (var stream = _fileSystem.OpenFileRead(_fileFullPath))
+            using (var stream = _fileSystem.OpenFileRead(FileFullPath))
             {
                 return Index<TField>.Deserialize(stream, _primaryKeyType, _fieldTypes);
             }
@@ -31,11 +32,16 @@ namespace SimpleDB.IndexedSearch
 
         public void WriteIndex(IIndex index)
         {
-            using (var stream = _fileSystem.OpenFileWrite(_fileFullPath))
+            using (var stream = _fileSystem.OpenFileWrite(FileFullPath))
             {
                 index.Serialize(stream);
                 stream.SetLength(stream.Position);
             }
+        }
+
+        public bool IsExist()
+        {
+            return _fileSystem.FileExists(FileFullPath);
         }
     }
 

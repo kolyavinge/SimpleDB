@@ -3,55 +3,45 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using SimpleDB.Core;
-using SimpleDB.Infrastructure;
 using SimpleDB.Utils.EnumerableExtension;
 
 namespace SimpleDB.IndexedSearch
 {
     internal class IndexInitializer<TEntity>
     {
-        private readonly IFileSystem _fileSystem;
         private readonly Mapper<TEntity> _mapper;
-        private readonly string _workingDirectory;
         private readonly IPrimaryKeyFileFactory _primaryKeyFileFactory;
         private readonly IDataFileFactory _dataFileFactory;
+        private readonly IIndexFileFactory _indexFileFactory;
 
         public IndexInitializer(
-            string workingDirectory,
             MapperHolder mapperHolder,
             IPrimaryKeyFileFactory primaryKeyFileFactory,
             IDataFileFactory dataFileFactory,
-            IFileSystem fileSystem)
+            IIndexFileFactory indexFileFactory)
         {
             _mapper = mapperHolder.Get<TEntity>();
-            _fileSystem = fileSystem;
-            _workingDirectory = workingDirectory;
             _primaryKeyFileFactory = primaryKeyFileFactory;
             _dataFileFactory = dataFileFactory;
+            _indexFileFactory = indexFileFactory;
         }
 
         public Index<TField> GetIndex<TField>(
             string indexName, Expression<Func<TEntity, TField>> indexedFieldExpression, IEnumerable<Expression<Func<TEntity, object>>> includedExpressions) where TField : IComparable<TField>
         {
-            var indexFileName = IndexFileName.GetFullFileName(_workingDirectory, _mapper.EntityName, indexName);
-            if (_fileSystem.FileExists(indexFileName))
+            var indexFile = _indexFileFactory.Make(_mapper.EntityName, indexName, _mapper.PrimaryKeyMapping.PropertyType, _mapper.FieldMetaCollection);
+            if (indexFile.IsExist())
             {
-                return ReadIndexFromFile<TField>(indexFileName);
+                return indexFile.ReadIndex<TField>();
             }
             else
             {
-                return MakeNewIndex(indexFileName, indexName, indexedFieldExpression, includedExpressions);
+                return MakeNewIndex(indexFile, indexName, indexedFieldExpression, includedExpressions);
             }
         }
 
-        private Index<TField> ReadIndexFromFile<TField>(string indexFileName) where TField : IComparable<TField>
-        {
-            var indexFile = new IndexFile(indexFileName, _mapper.PrimaryKeyMapping.PropertyType, _mapper.FieldMetaCollection, _fileSystem);
-            return indexFile.ReadIndex<TField>();
-        }
-
         private Index<TField> MakeNewIndex<TField>(
-            string indexFileName, string indexName, Expression<Func<TEntity, TField>> indexedFieldExpression, IEnumerable<Expression<Func<TEntity, object>>> includedExpressions) where TField : IComparable<TField>
+            IndexFile indexFile, string indexName, Expression<Func<TEntity, TField>> indexedFieldExpression, IEnumerable<Expression<Func<TEntity, object>>> includedExpressions) where TField : IComparable<TField>
         {
             var indexedFieldName = FieldMapping<TEntity>.GetPropertyName(indexedFieldExpression);
             var includedFieldNames = (includedExpressions ?? Enumerable.Empty<Expression<Func<TEntity, object>>>()).Select(FieldMapping<TEntity>.GetPropertyName).ToHashSet();
@@ -60,7 +50,6 @@ namespace SimpleDB.IndexedSearch
             var meta = new IndexMeta { EntityType = typeof(TEntity), IndexedFieldType = typeof(TField), Name = indexName, IndexedFieldNumber = indexedFieldNumber, IncludedFieldNumbers = includedFieldNumbers };
             var index = new Index<TField>(meta);
             PopulateIndex(index, indexedFieldNumber, includedFieldNumbers);
-            var indexFile = new IndexFile(indexFileName, _mapper.PrimaryKeyMapping.PropertyType, _mapper.FieldMetaCollection, _fileSystem);
             indexFile.WriteIndex(index);
 
             return index;

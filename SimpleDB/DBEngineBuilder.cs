@@ -173,7 +173,9 @@ namespace SimpleDB
         {
             BuildFunction = (mapperHolder) =>
             {
-                var initializer = new IndexInitializer<TEntity>(_workingDirectory, mapperHolder, new PrimaryKeyFileFactory(_workingDirectory), new DataFileFactory(_workingDirectory), FileSystem.Instance);
+                var initializer = new IndexInitializer<TEntity>(
+                    mapperHolder, new PrimaryKeyFileFactory(_workingDirectory), new DataFileFactory(_workingDirectory), new IndexFileFactory(_workingDirectory));
+
                 return initializer.GetIndex(_name, indexedFieldExpression, _includeExpressions);
             };
             return this;
