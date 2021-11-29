@@ -253,7 +253,7 @@ namespace SimpleDB.Core
 
         private void SaveMetaFileIfNeeded(IMetaFileFactory metaFileFactory)
         {
-            var metaFile = metaFileFactory.Make(Mapper.EntityName);
+            var metaFile = metaFileFactory.MakeFromEntityName(Mapper.EntityName);
             if (metaFile.IsExist())
             {
                 var savedFieldMetaCollection = metaFile.GetFieldMetaCollection().ToHashSet();

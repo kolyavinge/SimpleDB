@@ -7,7 +7,7 @@ namespace SimpleDB.Core
     internal class MetaFile
     {
         private readonly IFileSystem _fileSystem;
-        
+
         public string FileFullPath { get; }
 
         public MetaFile(string fileFullPath, IFileSystem fileSystem)
@@ -87,7 +87,8 @@ namespace SimpleDB.Core
 
     internal interface IMetaFileFactory
     {
-        MetaFile Make(string entityName);
+        MetaFile MakeFromFileFullPath(string fileFullPath);
+        MetaFile MakeFromEntityName(string entityName);
     }
 
     internal class MetaFileFactory : IMetaFileFactory
@@ -101,10 +102,14 @@ namespace SimpleDB.Core
             _fileSystem = fileSystem ?? FileSystem.Instance;
         }
 
-        public MetaFile Make(string entityName)
+        public MetaFile MakeFromFileFullPath(string fileFullPath)
         {
-            var fileFullPath = MetaFileName.GetFullFileName(_workingDirectory, entityName);
             return new MetaFile(fileFullPath, _fileSystem);
+        }
+
+        public MetaFile MakeFromEntityName(string entityName)
+        {
+            return MakeFromFileFullPath(MetaFileName.GetFullFileName(_workingDirectory, entityName));
         }
     }
 
