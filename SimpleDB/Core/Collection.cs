@@ -253,20 +253,20 @@ namespace SimpleDB.Core
 
         private void SaveMetaFileIfNeeded(IMetaFileFactory metaFileFactory)
         {
+            var currentMetaData = MetaData.MakeFromMapper(Mapper);
             var metaFile = metaFileFactory.MakeFromEntityName(Mapper.EntityName);
             if (metaFile.IsExist())
             {
-                var savedFieldMetaCollection = metaFile.GetFieldMetaCollection().ToHashSet();
-                if (Mapper.FieldMetaCollection.Count != savedFieldMetaCollection.Count ||
-                    !Mapper.FieldMetaCollection.All(savedFieldMetaCollection.Contains))
+                var savedMetaData = metaFile.GetMetaData();
+                if (!currentMetaData.Equals(savedMetaData))
                 {
                     metaFile.Delete();
-                    metaFile.Save(Mapper.PrimaryKeyMapping.PropertyType, Mapper.FieldMetaCollection);
+                    metaFile.Save(currentMetaData);
                 }
             }
             else
             {
-                metaFile.Save(Mapper.PrimaryKeyMapping.PropertyType, Mapper.FieldMetaCollection);
+                metaFile.Save(currentMetaData);
             }
         }
     }

@@ -38,7 +38,8 @@ namespace SimpleDB.Maintenance
                 {
                     var entityName = Path.GetFileNameWithoutExtension(primaryKeyFileFullPath);
                     var metaFile = _metaFileCollection.GetMetaFile(entityName);
-                    primaryKeyFile = _primaryKeyFileFactory.MakeFromFileFullPath(primaryKeyFileFullPath, metaFile.GetPrimaryKeyType());
+                    var metaData = metaFile.GetMetaData();
+                    primaryKeyFile = _primaryKeyFileFactory.MakeFromFileFullPath(primaryKeyFileFullPath, metaData.PrimaryKeyType);
                     primaryKeyFile.BeginRead();
                     var primaryKeys = primaryKeyFile.GetAllPrimaryKeys().ToList();
                     // сумма байт удаленных ключей
@@ -67,10 +68,11 @@ namespace SimpleDB.Maintenance
                 {
                     var entityName = Path.GetFileNameWithoutExtension(primaryKeyFileFullPath);
                     var metaFile = _metaFileCollection.GetMetaFile(entityName);
-                    primaryKeyFile = _primaryKeyFileFactory.MakeFromFileFullPath(primaryKeyFileFullPath, metaFile.GetPrimaryKeyType());
+                    var metaData = metaFile.GetMetaData();
+                    primaryKeyFile = _primaryKeyFileFactory.MakeFromFileFullPath(primaryKeyFileFullPath, metaData.PrimaryKeyType);
                     primaryKeyFile.BeginRead();
                     var primaryKeys = primaryKeyFile.GetAllPrimaryKeys().ToList();
-                    var fieldMetaCollection = metaFile.GetFieldMetaCollection().ToList();
+                    var fieldMetaCollection = metaData.FieldMetaCollection.ToList();
                     var fieldNumbers = fieldMetaCollection.Select(x => x.Number).ToHashSet();
                     // сумма байт удаленных записей
                     var fragmentationSizeInBytes = primaryKeys.Where(x => x.IsDeleted).Sum(primaryKey => primaryKey.EndDataFileOffset - primaryKey.StartDataFileOffset);

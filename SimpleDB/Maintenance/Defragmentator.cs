@@ -34,8 +34,9 @@ namespace SimpleDB.Maintenance
 
             var entityName = Path.GetFileNameWithoutExtension(dataFileName);
             var metaFile = _metaFileCollection.GetMetaFile(entityName);
-            var primaryKeyType = metaFile.GetPrimaryKeyType();
-            var fieldMetaCollection = metaFile.GetFieldMetaCollection().ToList();
+            var metaData = metaFile.GetMetaData();
+            var primaryKeyType = metaData.PrimaryKeyType;
+            var fieldMetaCollection = metaData.FieldMetaCollection.ToList();
             var fieldNumbers = fieldMetaCollection.Select(x => x.Number).ToHashSet();
 
             currentPrimaryKeyFile = _primaryKeyFileFactory.MakeFromEntityName(entityName, primaryKeyType);

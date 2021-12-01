@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using SimpleDB.Infrastructure;
+using SimpleDB.Utils.EnumerableExtension;
 
 namespace SimpleDB.Core
 {
@@ -16,56 +18,65 @@ namespace SimpleDB.Core
             _fileSystem = fileSystem;
         }
 
-        public Type GetPrimaryKeyType()
+        public MetaData GetMetaData()
         {
             using (var fs = _fileSystem.OpenFileRead(FileFullPath))
             {
-                return ReadPrimaryKeyType(fs);
-            }
-        }
+                var entityTypeName = fs.ReadString();
 
-        private Type ReadPrimaryKeyType(IReadableStream stream)
-        {
-            var fieldType = (FieldTypes)stream.ReadByte();
-            var type = fieldType == FieldTypes.Object ? Type.GetType(stream.ReadString()) : FieldTypesConverter.GetType(fieldType);
-            return type;
-        }
+                var primaryKeyFieldType = (FieldTypes)fs.ReadByte();
+                var primaryKeyType = primaryKeyFieldType == FieldTypes.Object ? Type.GetType(fs.ReadString()) : FieldTypesConverter.GetType(primaryKeyFieldType);
 
-        public IEnumerable<FieldMeta> GetFieldMetaCollection()
-        {
-            using (var fs = _fileSystem.OpenFileRead(FileFullPath))
-            {
-                var length = fs.Length;
-                ReadPrimaryKeyType(fs); // skip
-                while (fs.Position < length)
+                var primaryKeyName = fs.ReadString();
+
+                var fieldMetaCollection = new List<FieldMeta>();
+                int fieldMetaCollectionCount = fs.ReadInt();
+                for (int i = 0; i < fieldMetaCollectionCount; i++)
                 {
                     var number = fs.ReadByte();
                     var fieldType = (FieldTypes)fs.ReadByte();
                     var type = fieldType == FieldTypes.Object ? Type.GetType(fs.ReadString()) : FieldTypesConverter.GetType(fieldType);
                     var compressed = fs.ReadBool();
-                    yield return new FieldMeta(number, type) { Settings = new FieldSettings { Compressed = compressed } };
+                    fieldMetaCollection.Add(new FieldMeta(number, type) { Settings = new FieldSettings { Compressed = compressed } });
                 }
+
+                var fieldNameCollection = new List<FieldName>();
+                var fieldNameCollectionCount = fs.ReadInt();
+                for (int i = 0; i < fieldNameCollectionCount; i++)
+                {
+                    var number = fs.ReadByte();
+                    var name = fs.ReadString();
+                    fieldNameCollection.Add(new FieldName(number, name));
+                }
+
+                return new MetaData
+                {
+                    EntityTypeName = entityTypeName,
+                    PrimaryKeyType = primaryKeyType,
+                    PrimaryKeyName = primaryKeyName,
+                    FieldMetaCollection = fieldMetaCollection,
+                    FieldNameCollection = fieldNameCollection
+                };
             }
         }
 
-        public bool IsExist()
-        {
-            return _fileSystem.FileExists(FileFullPath);
-        }
-
-        public void Save(Type primaryKeyType, IEnumerable<FieldMeta> fieldMetaCollection)
+        public void Save(MetaData metaData)
         {
             using (var fs = _fileSystem.OpenFileWrite(FileFullPath))
             {
-                // save primary key
-                var primaryKeyFieldType = FieldTypesConverter.GetFieldType(primaryKeyType);
+                fs.WriteString(metaData.EntityTypeName);
+
+                var primaryKeyFieldType = FieldTypesConverter.GetFieldType(metaData.PrimaryKeyType);
                 fs.WriteByte((byte)primaryKeyFieldType);
                 if (primaryKeyFieldType == FieldTypes.Object)
                 {
-                    fs.WriteString(primaryKeyType.AssemblyQualifiedName);
+                    fs.WriteString(metaData.PrimaryKeyType.AssemblyQualifiedName);
                 }
-                // save fields
-                foreach (var fieldMeta in fieldMetaCollection)
+
+                fs.WriteString(metaData.PrimaryKeyName);
+
+                fs.WriteInt(metaData.FieldMetaCollection.Count());
+                foreach (var fieldMeta in metaData.FieldMetaCollection)
                 {
                     fs.WriteByte(fieldMeta.Number);
                     var fieldType = FieldTypesConverter.GetFieldType(fieldMeta.Type);
@@ -76,12 +87,107 @@ namespace SimpleDB.Core
                     }
                     fs.WriteBool(fieldMeta.Settings.Compressed);
                 }
+
+                fs.WriteInt(metaData.FieldNameCollection.Count());
+                foreach (var fieldName in metaData.FieldNameCollection)
+                {
+                    fs.WriteByte(fieldName.Number);
+                    fs.WriteString(fieldName.Name);
+                }
             }
+        }
+
+        public bool IsExist()
+        {
+            return _fileSystem.FileExists(FileFullPath);
         }
 
         public void Delete()
         {
             _fileSystem.DeleteFile(FileFullPath);
+        }
+    }
+
+    internal class MetaData
+    {
+        public string EntityTypeName { get; set; }
+        public Type PrimaryKeyType { get; set; }
+        public string PrimaryKeyName { get; set; }
+        public IEnumerable<FieldMeta> FieldMetaCollection { get; set; }
+        public IEnumerable<FieldName> FieldNameCollection { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return obj is MetaData data &&
+                   EntityTypeName == data.EntityTypeName &&
+                   PrimaryKeyType == data.PrimaryKeyType &&
+                   PrimaryKeyName == data.PrimaryKeyName &&
+                   (FieldMetaCollection == null && data.FieldMetaCollection == null ||
+                   FieldMetaCollection.ToHashSet().IsSubsetOf(data.FieldMetaCollection) && data.FieldMetaCollection.ToHashSet().IsSubsetOf(FieldMetaCollection)) &&
+                   (FieldNameCollection == null && data.FieldNameCollection == null ||
+                   FieldNameCollection.ToHashSet().IsSubsetOf(data.FieldNameCollection) && data.FieldNameCollection.ToHashSet().IsSubsetOf(FieldNameCollection));
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -860317296;
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(EntityTypeName);
+            hashCode = hashCode * -1521134295 + EqualityComparer<Type>.Default.GetHashCode(PrimaryKeyType);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(PrimaryKeyName);
+            hashCode = hashCode * -1521134295 + EqualityComparer<IEnumerable<FieldMeta>>.Default.GetHashCode(FieldMetaCollection);
+            hashCode = hashCode * -1521134295 + EqualityComparer<IEnumerable<FieldName>>.Default.GetHashCode(FieldNameCollection);
+            return hashCode;
+        }
+
+        public static MetaData MakeFromMapper<TEntity>(Mapper<TEntity> mapper)
+        {
+            return Make(
+                mapper.GetType().GenericTypeArguments[0].Name,
+                mapper.PrimaryKeyMapping.PropertyType,
+                mapper.PrimaryKeyMapping.PropertyName,
+                mapper.FieldMetaCollection,
+                mapper.FieldMappings.Select(x => new FieldName(x.Number, x.PropertyName)));
+        }
+
+        public static MetaData Make(
+            string entityTypeName, Type primaryKeyType, string primaryKeyName, IEnumerable<FieldMeta> fieldMetaCollection, IEnumerable<FieldName> fieldNameCollection)
+        {
+            return new MetaData
+            {
+                EntityTypeName = entityTypeName,
+                PrimaryKeyType = primaryKeyType,
+                PrimaryKeyName = primaryKeyName,
+                FieldMetaCollection = fieldMetaCollection,
+                FieldNameCollection = fieldNameCollection
+            };
+        }
+    }
+
+    internal class FieldName
+    {
+        public byte Number { get; }
+
+        public string Name { get; }
+
+        public FieldName(byte number, string name)
+        {
+            Name = name;
+            Number = number;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is FieldName name &&
+                   Number == name.Number &&
+                   Name == name.Name;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 453561286;
+            hashCode = hashCode * -1521134295 + Number.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
+            return hashCode;
         }
     }
 
