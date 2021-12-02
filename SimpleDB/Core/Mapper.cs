@@ -15,6 +15,8 @@ namespace SimpleDB.Core
 
         public List<FieldMeta> FieldMetaCollection { get; private set; }
 
+        public Type EntityType { get { return GetType().GenericTypeArguments[0]; } }
+
         public string EntityName { get; private set; }
 
         public Func<TEntity> MakeFunction { get; set; }
@@ -22,6 +24,7 @@ namespace SimpleDB.Core
         public PrimaryKeySetFunctionDelegate<TEntity> PrimaryKeySetFunction { get; set; }
 
         public FieldSetFunctionDelegate<TEntity> FieldSetFunction { get; set; }
+
 
         public Mapper(
             string entityName,

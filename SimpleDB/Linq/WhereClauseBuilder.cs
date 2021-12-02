@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using SimpleDB.Core;
 using SimpleDB.Queries;
 
@@ -140,14 +141,31 @@ namespace SimpleDB.Linq
             else if (expression is MemberExpression)
             {
                 var memberExpression = (MemberExpression)expression;
-                if (mapper.PrimaryKeyMapping.PropertyName == memberExpression.Member.Name)
+                if (memberExpression.Member.DeclaringType == mapper.EntityType && memberExpression.Member.MemberType == MemberTypes.Property)
                 {
-                    return new WhereClause.PrimaryKey();
+                    if (mapper.PrimaryKeyMapping.PropertyName == memberExpression.Member.Name)
+                    {
+                        return new WhereClause.PrimaryKey();
+                    }
+                    else
+                    {
+                        var fieldNumber = mapper.FieldMappings.First(x => x.PropertyName == memberExpression.Member.Name).Number;
+                        return new WhereClause.Field(fieldNumber);
+                    }
                 }
-                else
+                else if (memberExpression.Member.DeclaringType != mapper.EntityType && memberExpression.Member.MemberType == MemberTypes.Property)
                 {
-                    var fieldNumber = mapper.FieldMappings.First(x => x.PropertyName == memberExpression.Member.Name).Number;
-                    return new WhereClause.Field(fieldNumber);
+                    var innerMemberExpression = (MemberExpression)memberExpression.Expression;
+                    var constantExpression = (ConstantExpression)innerMemberExpression.Expression;
+                    var obj = constantExpression.Value.GetType().GetField(innerMemberExpression.Member.Name).GetValue(constantExpression.Value);
+                    var value = obj.GetType().GetProperty(memberExpression.Member.Name).GetValue(obj);
+                    return new WhereClause.Constant(value);
+                }
+                else if (memberExpression.Member.MemberType == MemberTypes.Field)
+                {
+                    var constantExpression = (ConstantExpression)memberExpression.Expression;
+                    var value = constantExpression.Value.GetType().GetField(memberExpression.Member.Name).GetValue(constantExpression.Value);
+                    return new WhereClause.Constant(value);
                 }
             }
             else if (expression is ConstantExpression)
