@@ -11,31 +11,29 @@ namespace SimpleDB.Infrastructure
     internal class FileStream : IFileStream
     {
         private readonly System.IO.FileStream _fileStream;
-        private readonly System.IO.BufferedStream _buffered;
         private readonly BinaryReader _reader;
         private readonly BinaryWriter _writer;
 
-        public long Position { get { return _buffered.Position; } }
+        public long Position { get { return _fileStream.Position; } }
 
-        public long Length { get { return _buffered.Length; } }
+        public long Length { get { return _fileStream.Length; } }
 
         public FileStream(System.IO.FileStream fileStream)
         {
             _fileStream = fileStream;
-            _buffered = new BufferedStream(_fileStream, 10 * 1024 * 1024);
             if (_fileStream.CanRead)
             {
-                _reader = new BinaryReader(_buffered);
+                _reader = new BinaryReader(_fileStream);
             }
             if (_fileStream.CanWrite)
             {
-                _writer = new BinaryWriter(_buffered);
+                _writer = new BinaryWriter(_fileStream);
             }
         }
 
         public void Dispose()
         {
-            _buffered.Dispose();
+            _fileStream.Dispose();
         }
 
         public bool ReadBool()
@@ -120,7 +118,7 @@ namespace SimpleDB.Infrastructure
 
         public long Seek(long offset, SeekOrigin origin)
         {
-            return _buffered.Seek(offset, origin);
+            return _fileStream.Seek(offset, origin);
         }
 
         public void SetLength(long length)

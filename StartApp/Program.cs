@@ -57,6 +57,7 @@ namespace StartApp
                 .Include(x => x.Middlename);
 
             Console.WriteLine("========== Build engine ==========");
+            var total = System.Diagnostics.Stopwatch.StartNew();
             var sw = System.Diagnostics.Stopwatch.StartNew();
             var engine = builder.BuildEngine();
             sw.Stop();
@@ -300,7 +301,8 @@ namespace StartApp
                 Console.WriteLine(sw.Elapsed);
             }
 
-            Console.WriteLine("done");
+            total.Stop();
+            Console.WriteLine("Done. Total: " + total.Elapsed);
             Console.ReadKey();
         }
     }
