@@ -7,11 +7,11 @@ namespace SimpleDB.Core
 {
     internal class MapperHolder
     {
-        private readonly Dictionary<Type, object> _mappers;
+        private readonly Dictionary<Type, IMapper> _mappers;
 
-        public MapperHolder(IEnumerable<object> mappers)
+        public MapperHolder(IEnumerable<IMapper> mappers)
         {
-            _mappers = mappers.ToDictionary(k => k.GetType().GenericTypeArguments[0], v => v);
+            _mappers = mappers.ToDictionary(k => k.EntityType, v => v);
         }
 
         public Mapper<TEntity> Get<TEntity>()

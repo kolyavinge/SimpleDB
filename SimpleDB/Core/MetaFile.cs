@@ -142,7 +142,7 @@ namespace SimpleDB.Core
         public static MetaData MakeFromMapper<TEntity>(Mapper<TEntity> mapper)
         {
             return Make(
-                mapper.GetType().GenericTypeArguments[0].Name,
+                mapper.EntityType.Name,
                 mapper.PrimaryKeyMapping.PropertyType,
                 mapper.PrimaryKeyMapping.PropertyName,
                 mapper.FieldMetaCollection,

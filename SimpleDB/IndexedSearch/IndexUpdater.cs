@@ -22,7 +22,7 @@ namespace SimpleDB.IndexedSearch
         public IndexUpdater()
         {
             _indexes = new Dictionary<Type, List<IIndex>>();
-            _mapperHolder = new MapperHolder(Enumerable.Empty<object>());
+            _mapperHolder = new MapperHolder(Enumerable.Empty<IMapper>());
         }
 
         public void AddToIndexes<TEntity>(TEntity entity)

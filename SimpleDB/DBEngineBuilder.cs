@@ -75,7 +75,7 @@ namespace SimpleDB
 
     internal abstract class MapperBuilder
     {
-        public abstract object Build();
+        public abstract IMapper Build();
     }
 
     internal class MapperBuilder<TEntity> : MapperBuilder, IMapperBuilder<TEntity>
@@ -126,7 +126,7 @@ namespace SimpleDB
             return this;
         }
 
-        public override object Build()
+        public override IMapper Build()
         {
             return new Mapper<TEntity>(_name, _primaryKeyMapping, _fieldMappings)
             {

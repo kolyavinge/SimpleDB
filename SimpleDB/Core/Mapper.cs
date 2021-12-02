@@ -5,7 +5,13 @@ using System.Linq.Expressions;
 
 namespace SimpleDB.Core
 {
-    internal class Mapper<TEntity>
+    internal interface IMapper
+    {
+        Type EntityType { get; }
+        string EntityName { get; }
+    }
+
+    internal class Mapper<TEntity> : IMapper
     {
         private readonly Dictionary<byte, FieldMapping<TEntity>> _fieldMappings;
 
