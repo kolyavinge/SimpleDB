@@ -601,6 +601,26 @@ namespace SimpleDB.Test.Core
         }
 
         [Test]
+        public void InsertObjectWithoutType()
+        {
+            var fieldMetaCollection = new FieldMeta[]
+            {
+                new FieldMeta(0, null)
+            };
+            var fieldValueCollection = new FieldValue[]
+            {
+                new FieldValue(0, new InnerObject { Value = 123 })
+            };
+            var dataFile = new DataFile("", fieldMetaCollection, _fileSystem, _memory);
+            dataFile.BeginWrite();
+            var insertResult = dataFile.Insert(fieldValueCollection);
+            var readFieldsResult = new FieldValueCollection();
+            dataFile.ReadFields(insertResult.StartDataFileOffset, insertResult.EndDataFileOffset, _fieldNumbers, readFieldsResult);
+            Assert.AreEqual(typeof(ObjectContainer), readFieldsResult[0].Value.GetType());
+            Assert.AreEqual("{\"Value\":123}", readFieldsResult[0].Value.ToString());
+        }
+
+        [Test]
         public void SkipString()
         {
             var fieldMetaCollection = new FieldMeta[]

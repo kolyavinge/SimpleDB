@@ -12,7 +12,7 @@ namespace SimpleDB.Core
         private readonly Dictionary<byte, FieldMeta> _fieldMetaDictionary;
         private readonly IMemoryBuffer _memoryBuffer;
         private IFileStream _fileStream;
-        
+
         public string FileFullPath { get; }
 
         public DataFile(string fileFullPath, IEnumerable<FieldMeta> fieldMetaCollection, IFileSystem fileSystem, IMemory memory)
@@ -188,20 +188,22 @@ namespace SimpleDB.Core
             }
             else // object
             {
+                byte[] bytes;
                 if (fieldValue is byte[])
                 {
-                    var bytes = (byte[])fieldValue;
-                    stream.WriteInt(bytes.Length);
-                    stream.WriteByteArray(bytes, 0, bytes.Length);
-                    insertedBytesCount += sizeof(int) + bytes.Length;
+                    bytes = (byte[])fieldValue;
+                }
+                else if (fieldValue is ObjectContainer)
+                {
+                    bytes = StringToByteArray(fieldMeta, fieldValue.ToString());
                 }
                 else
                 {
-                    var bytes = ObjectToByteArray(fieldMeta, fieldValue);
-                    stream.WriteInt(bytes.Length);
-                    stream.WriteByteArray(bytes, 0, bytes.Length);
-                    insertedBytesCount += sizeof(int) + bytes.Length;
+                    bytes = ObjectToByteArray(fieldMeta, fieldValue);
                 }
+                stream.WriteInt(bytes.Length);
+                stream.WriteByteArray(bytes, 0, bytes.Length);
+                insertedBytesCount += sizeof(int) + bytes.Length;
             }
         }
 
@@ -516,7 +518,14 @@ namespace SimpleDB.Core
                     bytes = ZipCompression.Decompress(bytes);
                 }
                 var fieldValueJson = Encoding.UTF8.GetString(bytes);
-                fieldValue = JsonSerialization.FromJson(fieldMeta.Type, fieldValueJson);
+                if (fieldMeta.Type != null)
+                {
+                    fieldValue = JsonSerialization.FromJson(fieldMeta.Type, fieldValueJson);
+                }
+                else
+                {
+                    fieldValue = new ObjectContainer(fieldValueJson);
+                }
             }
 
             return fieldValue;
