@@ -4,9 +4,9 @@ using System.Text;
 
 namespace SimpleDB.Queries
 {
-    internal class UpdateQuery
+    internal class UpdateQuery : AbstractQuery
     {
-        public UpdateQuery(UpdateClause updateClause)
+        public UpdateQuery(Type entityType, UpdateClause updateClause) : base(entityType)
         {
             UpdateClause = updateClause;
         }

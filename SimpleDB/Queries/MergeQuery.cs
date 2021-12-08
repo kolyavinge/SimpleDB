@@ -4,9 +4,9 @@ using System.Text;
 
 namespace SimpleDB.Queries
 {
-    internal class MergeQuery<TEntity>
+    internal class MergeQuery<TEntity> : AbstractQuery
     {
-        public MergeQuery(MergeClause mergeClause, IEnumerable<TEntity> entities)
+        public MergeQuery(MergeClause mergeClause, IEnumerable<TEntity> entities) : base(typeof(TEntity))
         {
             MergeClause = mergeClause;
             Entities = entities;

@@ -36,7 +36,7 @@ namespace SimpleDB.Linq
             var selectClauseBuilder = new SelectClauseBuilder();
             var whereClauseBuilder = new WhereClauseBuilder();
             var orderbyClauseBuilder = new OrderByClauseBuilder();
-            var query = new SelectQuery(selectClauseBuilder.Build(_mapper, _selectExpression));
+            var query = new SelectQuery(typeof(TEntity), selectClauseBuilder.Build(_mapper, _selectExpression));
             query.WhereClause = whereClauseBuilder.Build(_mapper, _whereExpression);
             query.OrderByClause = orderbyClauseBuilder.Build(_mapper, _orderbyExpressionItems);
             query.Skip = _skipValue;
@@ -49,7 +49,7 @@ namespace SimpleDB.Linq
         {
             var selectClauseBuilder = new SelectClauseBuilder();
             var whereClauseBuilder = new WhereClauseBuilder();
-            var query = new SelectQuery(selectClauseBuilder.BuildCountAggregate());
+            var query = new SelectQuery(typeof(TEntity), selectClauseBuilder.BuildCountAggregate());
             query.WhereClause = whereClauseBuilder.Build(_mapper, _whereExpression);
             query.Skip = _skipValue;
             query.Limit = _limitValue;

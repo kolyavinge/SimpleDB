@@ -5,9 +5,9 @@ using System.Text;
 
 namespace SimpleDB.Queries
 {
-    internal class SelectQuery
+    internal class SelectQuery : AbstractQuery
     {
-        public SelectQuery(SelectClause selectClause)
+        public SelectQuery(Type entityType, SelectClause selectClause) : base(entityType)
         {
             SelectClause = selectClause;
         }

@@ -21,7 +21,7 @@ namespace SimpleDB.Linq
         public DeleteQuery BuildQuery()
         {
             var whereClauseBuilder = new WhereClauseBuilder();
-            var query = new DeleteQuery();
+            var query = new DeleteQuery(typeof(TEntity));
             query.WhereClause = whereClauseBuilder.Build(_mapper, _whereExpression);
 
             return query;
