@@ -20,7 +20,6 @@ namespace SimpleDB.Test.QueryExecutors
             var fileSystem = new MemoryFileSystem();
             var memory = Memory.Instance;
             var mapper = new Mapper<TestEntity>(
-                "testEntity",
                 new PrimaryKeyMapping<TestEntity>(x => x.Id),
                 new FieldMapping<TestEntity>[]
                 {

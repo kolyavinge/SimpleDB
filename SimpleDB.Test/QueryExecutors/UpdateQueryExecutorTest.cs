@@ -23,7 +23,6 @@ namespace SimpleDB.Test.QueryExecutors
             _fileSystem = new MemoryFileSystem();
             _memory = Memory.Instance;
             _mapper = new Mapper<TestEntity>(
-                "testEntity",
                 new PrimaryKeyMapping<TestEntity>(x => x.Id),
                 new FieldMapping<TestEntity>[]
                 {

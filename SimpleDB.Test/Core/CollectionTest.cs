@@ -20,7 +20,6 @@ namespace SimpleDB.Test.Core
             var memory = Memory.Instance;
             _entity = new TestEntity { Id = 123, Byte = 45, Float = 6.7f };
             _mapper = new Mapper<TestEntity>(
-                "testEntity",
                 new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
                 new FieldMapping<TestEntity>[]
                 {

@@ -22,7 +22,7 @@ namespace SimpleDB.Core
         {
             using (var fs = _fileSystem.OpenFileRead(FileFullPath))
             {
-                var entityTypeName = fs.ReadString();
+                var entityName = fs.ReadString();
 
                 var primaryKeyFieldType = (FieldTypes)fs.ReadByte();
                 var primaryKeyType = primaryKeyFieldType == FieldTypes.Object ? Type.GetType(fs.ReadString()) : FieldTypesConverter.GetType(primaryKeyFieldType);
@@ -43,7 +43,7 @@ namespace SimpleDB.Core
 
                 return new MetaData
                 {
-                    EntityTypeName = entityTypeName,
+                    EntityName = entityName,
                     PrimaryKeyType = primaryKeyType,
                     PrimaryKeyName = primaryKeyName,
                     FieldMetaCollection = fieldMetaCollection
@@ -55,7 +55,7 @@ namespace SimpleDB.Core
         {
             using (var fs = _fileSystem.OpenFileWrite(FileFullPath))
             {
-                fs.WriteString(metaData.EntityTypeName);
+                fs.WriteString(metaData.EntityName);
 
                 var primaryKeyFieldType = FieldTypesConverter.GetFieldType(metaData.PrimaryKeyType);
                 fs.WriteByte((byte)primaryKeyFieldType);
@@ -95,7 +95,7 @@ namespace SimpleDB.Core
 
     internal class MetaData
     {
-        public string EntityTypeName { get; set; }
+        public string EntityName { get; set; }
         public Type PrimaryKeyType { get; set; }
         public string PrimaryKeyName { get; set; }
         public IEnumerable<FieldMeta> FieldMetaCollection { get; set; }
@@ -103,7 +103,7 @@ namespace SimpleDB.Core
         public override bool Equals(object obj)
         {
             return obj is MetaData data &&
-                   EntityTypeName == data.EntityTypeName &&
+                   EntityName == data.EntityName &&
                    PrimaryKeyType == data.PrimaryKeyType &&
                    PrimaryKeyName == data.PrimaryKeyName &&
                    (FieldMetaCollection == null && data.FieldMetaCollection == null ||
@@ -113,7 +113,7 @@ namespace SimpleDB.Core
         public override int GetHashCode()
         {
             int hashCode = -860317296;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(EntityTypeName);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(EntityName);
             hashCode = hashCode * -1521134295 + EqualityComparer<Type>.Default.GetHashCode(PrimaryKeyType);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(PrimaryKeyName);
             hashCode = hashCode * -1521134295 + EqualityComparer<IEnumerable<FieldMeta>>.Default.GetHashCode(FieldMetaCollection);
@@ -123,17 +123,17 @@ namespace SimpleDB.Core
         public static MetaData MakeFromMapper<TEntity>(Mapper<TEntity> mapper)
         {
             return Make(
-                mapper.EntityType.Name,
+                mapper.EntityName,
                 mapper.PrimaryKeyMapping.PropertyType,
                 mapper.PrimaryKeyMapping.PropertyName,
                 mapper.FieldMetaCollection);
         }
 
-        public static MetaData Make(string entityTypeName, Type primaryKeyType, string primaryKeyName, IEnumerable<FieldMeta> fieldMetaCollection)
+        public static MetaData Make(string entityName, Type primaryKeyType, string primaryKeyName, IEnumerable<FieldMeta> fieldMetaCollection)
         {
             return new MetaData
             {
-                EntityTypeName = entityTypeName,
+                EntityName = entityName,
                 PrimaryKeyType = primaryKeyType,
                 PrimaryKeyName = primaryKeyName,
                 FieldMetaCollection = fieldMetaCollection

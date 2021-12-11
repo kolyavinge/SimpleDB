@@ -9,21 +9,22 @@ namespace SimpleDB.Core
     {
         Type EntityType { get; }
         string EntityName { get; }
+        List<FieldMeta> FieldMetaCollection { get; }
     }
 
     internal class Mapper<TEntity> : IMapper
     {
         private readonly Dictionary<byte, FieldMapping<TEntity>> _fieldMappings;
 
-        public PrimaryKeyMapping<TEntity> PrimaryKeyMapping { get; private set; }
+        public Type EntityType => GetType().GenericTypeArguments[0];
 
-        public List<FieldMapping<TEntity>> FieldMappings { get; private set; }
+        public string EntityName => EntityType.Name;
 
-        public List<FieldMeta> FieldMetaCollection { get; private set; }
+        public PrimaryKeyMapping<TEntity> PrimaryKeyMapping { get; }
 
-        public Type EntityType { get { return GetType().GenericTypeArguments[0]; } }
+        public List<FieldMapping<TEntity>> FieldMappings { get; }
 
-        public string EntityName { get; private set; }
+        public List<FieldMeta> FieldMetaCollection { get; }
 
         public Func<TEntity> MakeFunction { get; set; }
 
@@ -31,13 +32,8 @@ namespace SimpleDB.Core
 
         public FieldSetFunctionDelegate<TEntity> FieldSetFunction { get; set; }
 
-
-        public Mapper(
-            string entityName,
-            PrimaryKeyMapping<TEntity> primaryKeyMapping,
-            IEnumerable<FieldMapping<TEntity>> fieldMappings)
+        public Mapper(PrimaryKeyMapping<TEntity> primaryKeyMapping, IEnumerable<FieldMapping<TEntity>> fieldMappings)
         {
-            EntityName = entityName;
             PrimaryKeyMapping = primaryKeyMapping;
             _fieldMappings = fieldMappings.ToDictionary(k => k.Number, v => v);
             FieldMappings = _fieldMappings.Values.ToList();

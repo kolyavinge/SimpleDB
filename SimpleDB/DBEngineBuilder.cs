@@ -56,8 +56,6 @@ namespace SimpleDB
 
     public interface IMapperBuilder<TEntity>
     {
-        IMapperBuilder<TEntity> Name(string name);
-
         IMapperBuilder<TEntity> PrimaryKey(Expression<Func<TEntity, object>> primaryKeyExpression);
 
         IMapperBuilder<TEntity> Field(byte number, Expression<Func<TEntity, object>> fieldExpression, FieldSettings settings = default);
@@ -81,18 +79,11 @@ namespace SimpleDB
     internal class MapperBuilder<TEntity> : MapperBuilder, IMapperBuilder<TEntity>
     {
         private readonly FieldMappingValidator _fieldMappingValidator = new FieldMappingValidator();
-        private string _name;
         private PrimaryKeyMapping<TEntity> _primaryKeyMapping;
         private readonly List<FieldMapping<TEntity>> _fieldMappings = new List<FieldMapping<TEntity>>();
         private Func<TEntity> _makeFunction;
         private PrimaryKeySetFunctionDelegate<TEntity> _primaryKeySetFunction;
         private FieldSetFunctionDelegate<TEntity> _fieldSetFunction;
-
-        public IMapperBuilder<TEntity> Name(string name)
-        {
-            _name = name;
-            return this;
-        }
 
         public IMapperBuilder<TEntity> PrimaryKey(Expression<Func<TEntity, object>> primaryKeyExpression)
         {
@@ -128,7 +119,7 @@ namespace SimpleDB
 
         public override IMapper Build()
         {
-            return new Mapper<TEntity>(_name, _primaryKeyMapping, _fieldMappings)
+            return new Mapper<TEntity>(_primaryKeyMapping, _fieldMappings)
             {
                 MakeFunction = _makeFunction,
                 PrimaryKeySetFunction = _primaryKeySetFunction,

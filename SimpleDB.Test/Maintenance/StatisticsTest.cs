@@ -22,7 +22,6 @@ namespace SimpleDB.Test.Maintenance
             _fileSystem = new MemoryFileSystem();
             _memory = Memory.Instance;
             _mapper = new Mapper<TestEntity>(
-                "testEntity",
                 new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
                 new FieldMapping<TestEntity>[]
                 {
@@ -102,7 +101,6 @@ namespace SimpleDB.Test.Maintenance
             _collection.Insert(new TestEntity { Id = 1, String = "0123456789" });
 
             _mapper = new Mapper<TestEntity>(
-               "testEntity",
                new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
                new FieldMapping<TestEntity>[]
                {

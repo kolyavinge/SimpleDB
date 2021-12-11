@@ -16,7 +16,6 @@ namespace SimpleDB.Test.Core
             _entity = new TestEntity { Id = 123, Byte = 45, Float = 6.7f, String = "123" };
 
             _mapper = new Mapper<TestEntity>(
-                "testEntity",
                 new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
                 new FieldMapping<TestEntity>[]
                 {
@@ -112,7 +111,6 @@ namespace SimpleDB.Test.Core
         public void GetEntity_SetFunctions()
         {
             _mapper = new Mapper<TestEntity>(
-                "testEntity",
                 new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
                 new FieldMapping<TestEntity>[]
                 {
@@ -148,7 +146,6 @@ namespace SimpleDB.Test.Core
             var entity = new TestEntityPrimaryKeyObject { Id = new TestPrimaryKey() };
 
             var mapper = new Mapper<TestEntityPrimaryKeyObject>(
-                "testEntity",
                 new PrimaryKeyMapping<TestEntityPrimaryKeyObject>(entity => entity.Id),
                 new FieldMapping<TestEntityPrimaryKeyObject>[0]);
         }

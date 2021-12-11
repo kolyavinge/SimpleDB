@@ -11,15 +11,15 @@ namespace StartApp
     {
         static void Main()
         {
-            var doInsert = 1;
-            var doGet = 1;
-            var doUpdate = 1;
-            var doDelete = 1;
-            var doQuery = 1;
-            var doMerge = 1;
+            var doInsert = 0;
+            var doGet = 0;
+            var doUpdate = 0;
+            var doDelete = 0;
+            var doQuery = 0;
+            var doMerge = 0;
             var doGetAsync = 0;
             var doStatistics = 0;
-            var doDefragmentation = 0;
+            var doDefragmentation = 1;
 
             var workingDirectory = @"D:\Projects\SimpleDB\StartApp\bin\Debug\netcoreapp3.1\Database";
             if (doInsert == 1)
@@ -32,7 +32,6 @@ namespace StartApp
             builder.WorkingDirectory(workingDirectory);
 
             builder.Map<Person>()
-                .Name("person")
                 .PrimaryKey(x => x.Id)
                 .Field(0, x => x.Name)
                 .Field(1, x => x.Surname)
@@ -296,7 +295,7 @@ namespace StartApp
                 Console.WriteLine("========== Defragmentation ==========");
                 sw = System.Diagnostics.Stopwatch.StartNew();
                 var defragmentator = DefragmentatorFactory.MakeDefragmentator(workingDirectory);
-                defragmentator.DefragmentDataFile("person.data");
+                defragmentator.DefragmentDataFile("Person.data");
                 sw.Stop();
                 Console.WriteLine(sw.Elapsed);
             }

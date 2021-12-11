@@ -18,7 +18,6 @@ namespace SimpleDB.Test.Linq
         public void Setup()
         {
             _mapper = new Mapper<TestEntity>(
-                "testEntity",
                 new PrimaryKeyMapping<TestEntity>(x => x.Id),
                 new[]
                 {

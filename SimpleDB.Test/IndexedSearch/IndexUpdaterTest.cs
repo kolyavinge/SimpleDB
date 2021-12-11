@@ -19,7 +19,6 @@ namespace SimpleDB.Test.IndexedSearch
         {
             var fileSystem = new MemoryFileSystem();
             _mapper = new Mapper<TestEntity>(
-                "testEntity",
                 new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
                 new FieldMapping<TestEntity>[]
                 {

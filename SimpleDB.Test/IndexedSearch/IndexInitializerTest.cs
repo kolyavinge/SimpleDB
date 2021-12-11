@@ -21,7 +21,7 @@ namespace SimpleDB.Test.IndexedSearch
         {
             _fileSystem = new MemoryFileSystem();
             var memory = Memory.Instance;
-            var mapper = new Mapper<TestEntity>("test",
+            var mapper = new Mapper<TestEntity>(
                 new PrimaryKeyMapping<TestEntity>(x => x.Id),
                 new FieldMapping<TestEntity>[]
                 {
@@ -99,15 +99,15 @@ namespace SimpleDB.Test.IndexedSearch
             _collection.Insert(new TestEntity { Id = 5, Int = 20, Float = 5.0f, String = "5" });
 
             _initializer.GetIndex<int>("test index", x => x.Int, new Expression<Func<TestEntity, object>>[] { x => x.Float, x => x.String });
-            Assert.AreEqual(2, _fileSystem.FileStreams.First(x => x.FileFullPath == "working directory\\test.primary").ReadCount);
-            Assert.AreEqual(1, _fileSystem.FileStreams.First(x => x.FileFullPath == "working directory\\test.data").ReadCount);
-            Assert.AreEqual(0, _fileSystem.FileStreams.First(x => x.FileFullPath == "working directory\\test_test index.index").ReadCount);
-            Assert.AreEqual(1, _fileSystem.FileStreams.First(x => x.FileFullPath == "working directory\\test_test index.index").WriteCount);
+            Assert.AreEqual(2, _fileSystem.FileStreams.First(x => x.FileFullPath == "working directory\\TestEntity.primary").ReadCount);
+            Assert.AreEqual(1, _fileSystem.FileStreams.First(x => x.FileFullPath == "working directory\\TestEntity.data").ReadCount);
+            Assert.AreEqual(0, _fileSystem.FileStreams.First(x => x.FileFullPath == "working directory\\TestEntity_test index.index").ReadCount);
+            Assert.AreEqual(1, _fileSystem.FileStreams.First(x => x.FileFullPath == "working directory\\TestEntity_test index.index").WriteCount);
             var index = _initializer.GetIndex<int>("test index", x => x.Int, new Expression<Func<TestEntity, object>>[] { x => x.Float, x => x.String });
-            Assert.AreEqual(2, _fileSystem.FileStreams.First(x => x.FileFullPath == "working directory\\test.primary").ReadCount);
-            Assert.AreEqual(1, _fileSystem.FileStreams.First(x => x.FileFullPath == "working directory\\test.data").ReadCount);
-            Assert.AreEqual(1, _fileSystem.FileStreams.First(x => x.FileFullPath == "working directory\\test_test index.index").ReadCount);
-            Assert.AreEqual(1, _fileSystem.FileStreams.First(x => x.FileFullPath == "working directory\\test_test index.index").WriteCount);
+            Assert.AreEqual(2, _fileSystem.FileStreams.First(x => x.FileFullPath == "working directory\\TestEntity.primary").ReadCount);
+            Assert.AreEqual(1, _fileSystem.FileStreams.First(x => x.FileFullPath == "working directory\\TestEntity.data").ReadCount);
+            Assert.AreEqual(1, _fileSystem.FileStreams.First(x => x.FileFullPath == "working directory\\TestEntity_test index.index").ReadCount);
+            Assert.AreEqual(1, _fileSystem.FileStreams.First(x => x.FileFullPath == "working directory\\TestEntity_test index.index").WriteCount);
 
             Assert.AreEqual(typeof(TestEntity), index.Meta.EntityType);
             Assert.AreEqual(typeof(int), index.Meta.IndexedFieldType);
