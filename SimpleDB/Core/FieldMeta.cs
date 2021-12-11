@@ -7,15 +7,20 @@ namespace SimpleDB.Core
     {
         public byte Number { get; private set; }
 
+        public string Name { get; private set; }
+
         public Type Type { get; private set; }
 
         public FieldSettings Settings { get; set; }
 
-        public FieldMeta(byte number, Type type)
+        public FieldMeta(byte number, string name, Type type)
         {
             Number = number;
+            Name = name;
             Type = type;
         }
+
+        public FieldMeta(byte number, Type type) : this(number, null, type) { }
 
         public object GetDefaultValue()
         {

@@ -48,7 +48,7 @@ namespace SimpleDB.Core
         {
             foreach (var fieldMapping in fieldMappings)
             {
-                yield return new FieldMeta(fieldMapping.Number, fieldMapping.PropertyType) { Settings = fieldMapping.Settings };
+                yield return new FieldMeta(fieldMapping.Number, fieldMapping.PropertyName, fieldMapping.PropertyType) { Settings = fieldMapping.Settings };
             }
         }
 
