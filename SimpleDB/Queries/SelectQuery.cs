@@ -7,7 +7,7 @@ namespace SimpleDB.Queries
 {
     internal class SelectQuery : AbstractQuery
     {
-        public SelectQuery(Type entityType, SelectClause selectClause) : base(entityType)
+        public SelectQuery(SelectClause selectClause)
         {
             SelectClause = selectClause;
         }

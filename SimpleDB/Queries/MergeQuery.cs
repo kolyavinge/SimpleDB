@@ -6,7 +6,7 @@ namespace SimpleDB.Queries
 {
     internal class MergeQuery<TEntity> : AbstractQuery
     {
-        public MergeQuery(MergeClause mergeClause, IEnumerable<TEntity> entities) : base(typeof(TEntity))
+        public MergeQuery(MergeClause mergeClause, IEnumerable<TEntity> entities)
         {
             MergeClause = mergeClause;
             Entities = entities;
