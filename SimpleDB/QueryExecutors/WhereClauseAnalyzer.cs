@@ -10,15 +10,15 @@ namespace SimpleDB.QueryExecutors
 {
     internal class WhereClauseAnalyzer
     {
-        private readonly Type _entityType;
+        private readonly string _entityName;
         private readonly IDictionary<object, PrimaryKey> _primaryKeys;
         private readonly IFieldValueReader _fieldValueReader;
         private readonly IndexHolder _indexHolder;
         private List<FieldValueCollection> _indexCache;
 
-        public WhereClauseAnalyzer(Type entityType, IDictionary<object, PrimaryKey> primaryKeys, IFieldValueReader fieldValueReader, IndexHolder indexHolder)
+        public WhereClauseAnalyzer(string entityName, IDictionary<object, PrimaryKey> primaryKeys, IFieldValueReader fieldValueReader, IndexHolder indexHolder)
         {
-            _entityType = entityType;
+            _entityName = entityName;
             _primaryKeys = primaryKeys;
             _fieldValueReader = fieldValueReader;
             _indexHolder = indexHolder;
@@ -52,7 +52,7 @@ namespace SimpleDB.QueryExecutors
             {
                 List<FieldValueCollection> fieldValueCollections = null;
                 // ищем значение поля среди проиндексированных
-                var indexResult = _indexHolder.GetIndexResult(item.OperationType, item.IsNotApplied, _entityType, item.FieldNumber, item.ConstantValue);
+                var indexResult = _indexHolder.GetIndexResult(item.OperationType, item.IsNotApplied, _entityName, item.FieldNumber, item.ConstantValue);
                 if (indexResult != null)
                 {
                     fieldValueCollections = indexResult.SelectMany(x => x.ToFieldValueCollections(_primaryKeys)).ToList();
@@ -61,7 +61,7 @@ namespace SimpleDB.QueryExecutors
                 {
                     // если нету таких, сканируем индекс целиком
                     fieldValueCollections = _indexHolder
-                        .GetScanResult(_entityType, _primaryKeys.Keys, _primaryKeys, new[] { item.FieldNumber })
+                        .GetScanResult(_entityName, _primaryKeys.Keys, _primaryKeys, new[] { item.FieldNumber })
                         .Where(item.GetValue)
                         .ToList();
                 }

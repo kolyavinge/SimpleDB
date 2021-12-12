@@ -9,13 +9,13 @@ namespace SimpleDB.QueryExecutors
 {
     internal class OrderByClauseAnalyzer
     {
-        private readonly Type _entityType;
+        private readonly string _entityName;
         private readonly IDictionary<object, PrimaryKey> _primaryKeys;
         private readonly IndexHolder _indexHolder;
 
-        public OrderByClauseAnalyzer(Type entityType, IDictionary<object, PrimaryKey> primaryKeys, IndexHolder indexHolder)
+        public OrderByClauseAnalyzer(string entityName, IDictionary<object, PrimaryKey> primaryKeys, IndexHolder indexHolder)
         {
-            _entityType = entityType;
+            _entityName = entityName;
             _primaryKeys = primaryKeys;
             _indexHolder = indexHolder;
         }
@@ -25,7 +25,7 @@ namespace SimpleDB.QueryExecutors
             var fieldNumbers = orderByClause.GetAllFieldNumbers().ToList();
             if (fieldNumbers.Count == 1)
             {
-                var indexValues = _indexHolder.GetIndexResult(_entityType, fieldNumbers.First(), orderByClause.OrderedItems.First().Direction);
+                var indexValues = _indexHolder.GetIndexResult(_entityName, fieldNumbers.First(), orderByClause.OrderedItems.First().Direction);
                 return indexValues.SelectMany(x => x.ToFieldValueCollections(_primaryKeys));
             }
             else
@@ -33,7 +33,7 @@ namespace SimpleDB.QueryExecutors
                 var indexItemDictionaries = GetIndexItemDictionaries(orderByClause).ToList();
                 var resultComparer = new OrderByFieldValueCollectionComparer(indexItemDictionaries);
                 var firstField = orderByClause.OrderedItems.OfType<OrderByClause.Field>().First();
-                var firstFieldIndexResults = _indexHolder.GetIndexResult(_entityType, firstField.Number, firstField.Direction).ToList();
+                var firstFieldIndexResults = _indexHolder.GetIndexResult(_entityName, firstField.Number, firstField.Direction).ToList();
                 var result = new FieldValueCollection[firstFieldIndexResults.Sum(x => x.IndexValue.Items.Count)];
                 int resultPosition = 0;
                 foreach (var firstFieldIndexResult in firstFieldIndexResults)
@@ -66,7 +66,7 @@ namespace SimpleDB.QueryExecutors
         {
             foreach (var orderedField in orderByClause.OrderedItems.OfType<OrderByClause.Field>().Skip(1))
             {
-                var indexResults = _indexHolder.GetIndexResult(_entityType, orderedField.Number, orderedField.Direction).ToArray();
+                var indexResults = _indexHolder.GetIndexResult(_entityName, orderedField.Number, orderedField.Direction).ToArray();
                 var indexItemDictionary = new IndexItemDictionary();
                 for (int position = 0; position < indexResults.Length; position++)
                 {

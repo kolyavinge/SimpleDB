@@ -6,7 +6,7 @@ namespace SimpleDB.Queries
 {
     internal class UpdateQuery : AbstractQuery
     {
-        public UpdateQuery(UpdateClause updateClause)
+        public UpdateQuery(string entityName, UpdateClause updateClause) : base(entityName)
         {
             UpdateClause = updateClause;
         }

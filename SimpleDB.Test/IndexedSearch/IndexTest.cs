@@ -26,7 +26,7 @@ namespace SimpleDB.Test.IndexedSearch
             _stream = new MemoryFileStream();
             var meta = new IndexMeta
             {
-                EntityType = typeof(TestEntity),
+                EntityName = "TestEntity",
                 IndexedFieldType = typeof(int),
                 Name = "test index",
                 IndexedFieldNumber = 0,
@@ -53,7 +53,7 @@ namespace SimpleDB.Test.IndexedSearch
             _stream.Seek(0, System.IO.SeekOrigin.Begin);
             var result = Index<int>.Deserialize(_stream, typeof(int), new Dictionary<byte, Type> { { 1, typeof(int) }, { 2, typeof(int) } });
 
-            Assert.AreEqual(typeof(TestEntity), result.Meta.EntityType);
+            Assert.AreEqual("TestEntity", result.Meta.EntityName);
             Assert.AreEqual(typeof(int), result.Meta.IndexedFieldType);
             Assert.AreEqual("test index", result.Meta.Name);
             Assert.AreEqual(0, result.Meta.IndexedFieldNumber);
@@ -146,7 +146,7 @@ namespace SimpleDB.Test.IndexedSearch
                  { 16, typeof(Inner) },
             });
 
-            Assert.AreEqual(typeof(TestEntity), result.Meta.EntityType);
+            Assert.AreEqual("TestEntity", result.Meta.EntityName);
             Assert.AreEqual(typeof(int), result.Meta.IndexedFieldType);
             Assert.AreEqual("test index", result.Meta.Name);
             Assert.AreEqual(0, result.Meta.IndexedFieldNumber);

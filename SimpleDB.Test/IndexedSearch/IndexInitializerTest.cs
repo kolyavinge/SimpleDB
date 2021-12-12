@@ -53,7 +53,7 @@ namespace SimpleDB.Test.IndexedSearch
 
             var index = _initializer.GetIndex<int>("test index", x => x.Int, new Expression<Func<TestEntity, object>>[] { x => x.Float, x => x.String });
 
-            Assert.AreEqual(typeof(TestEntity), index.Meta.EntityType);
+            Assert.AreEqual("TestEntity", index.Meta.EntityName);
             Assert.AreEqual(typeof(int), index.Meta.IndexedFieldType);
             Assert.AreEqual(0, index.Meta.IndexedFieldNumber);
             Assert.AreEqual(2, index.Meta.IncludedFieldNumbers.Length);
@@ -109,7 +109,7 @@ namespace SimpleDB.Test.IndexedSearch
             Assert.AreEqual(1, _fileSystem.FileStreams.First(x => x.FileFullPath == "working directory\\TestEntity_test index.index").ReadCount);
             Assert.AreEqual(1, _fileSystem.FileStreams.First(x => x.FileFullPath == "working directory\\TestEntity_test index.index").WriteCount);
 
-            Assert.AreEqual(typeof(TestEntity), index.Meta.EntityType);
+            Assert.AreEqual("TestEntity", index.Meta.EntityName);
             Assert.AreEqual(typeof(int), index.Meta.IndexedFieldType);
             Assert.AreEqual(0, index.Meta.IndexedFieldNumber);
             Assert.AreEqual(2, index.Meta.IncludedFieldNumbers.Length);

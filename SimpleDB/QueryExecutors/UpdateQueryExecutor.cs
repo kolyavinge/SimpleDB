@@ -50,9 +50,9 @@ namespace SimpleDB.QueryExecutors
             if (query.WhereClause != null)
             {
                 var whereFieldNumbers = query.WhereClause.GetAllFieldNumbers().ToHashSet();
-                if (_indexHolder.AnyIndexContainsFields(typeof(TEntity), whereFieldNumbers))
+                if (_indexHolder.AnyIndexContainsFields(query.EntityName, whereFieldNumbers))
                 {
-                    var analyzer = new WhereClauseAnalyzer(typeof(TEntity), _primaryKeys, new FieldValueReader(_dataFile), _indexHolder);
+                    var analyzer = new WhereClauseAnalyzer(query.EntityName, _primaryKeys, new FieldValueReader(_dataFile), _indexHolder);
                     fieldValueCollections.AddRange(analyzer.GetResult(query.WhereClause));
                     allFieldNumbers.AddRange(fieldValueCollections.SelectMany(collection => collection.Select(field => field.Number)));
                 }

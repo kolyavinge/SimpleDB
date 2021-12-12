@@ -8,7 +8,7 @@ namespace SimpleDB.Linq
 {
     internal class QueryableSelect<TEntity> : IQueryableSelect<TEntity>
     {
-        private readonly SelectQueryExecutor<TEntity> _queryExecutor;
+        private readonly SelectQueryExecutor _queryExecutor;
         private readonly Mapper<TEntity> _mapper;
         private Expression<Func<TEntity, object>> _selectExpression;
         private Expression<Func<TEntity, bool>> _whereExpression;
@@ -17,7 +17,7 @@ namespace SimpleDB.Linq
         private int? _limitValue;
 
         public QueryableSelect(
-            SelectQueryExecutor<TEntity> queryExecutor,
+            SelectQueryExecutor queryExecutor,
             Mapper<TEntity> mapper,
             Expression<Func<TEntity, object>> selectExpression)
         {
@@ -64,8 +64,9 @@ namespace SimpleDB.Linq
                 _limitValue);
             var query = queryBuilder.BuildQueryForToList();
             var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper);
 
-            return result.Items;
+            return entities;
         }
 
         public int Count()

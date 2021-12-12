@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using NUnit.Framework;
 using SimpleDB.Core;
+using SimpleDB.IndexedSearch;
 using SimpleDB.Infrastructure;
 using SimpleDB.Queries;
 using SimpleDB.QueryExecutors;
@@ -13,7 +14,7 @@ namespace SimpleDB.Test.QueryExecutors
         private readonly string _workingDirectory = "working directory";
         private Mapper<TestEntity> _mapper;
         private Collection<TestEntity> _collection;
-        private SelectQueryExecutor<TestEntity> _queryExecutor;
+        private SelectQueryExecutor _queryExecutor;
 
         [SetUp]
         public void Setup()
@@ -33,7 +34,7 @@ namespace SimpleDB.Test.QueryExecutors
                 new PrimaryKeyFileFactory(_workingDirectory, fileSystem, memory),
                 new DataFileFactory(_workingDirectory, fileSystem, memory),
                 new MetaFileFactory(_workingDirectory, fileSystem));
-            _queryExecutor = new SelectQueryExecutor<TestEntity>(_mapper, _collection.DataFile, _collection.PrimaryKeys);
+            _queryExecutor = new SelectQueryExecutor(_collection.DataFile, _collection.PrimaryKeys, new IndexHolder());
         }
 
         [Test]
@@ -42,17 +43,18 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new SelectQuery(new SelectClause(new[] { new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(0) }))
             {
                 WhereClause = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(1), new WhereClause.Constant(3.4f)))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
 
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(20, result[0].Byte);
-            Assert.AreEqual(0, result[0].Id); // not select
-            Assert.AreEqual(0.0f, result[0].Float); // not select
+            Assert.AreEqual(1, entities.Count);
+            Assert.AreEqual(20, entities[0].Byte);
+            Assert.AreEqual(0, entities[0].Id); // not select
+            Assert.AreEqual(0.0f, entities[0].Float); // not select
         }
 
         [Test]
@@ -61,17 +63,18 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new SelectQuery(new SelectClause(new SelectClause.SelectClauseItem[] { new SelectClause.PrimaryKey(), new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new SelectClause.SelectClauseItem[] { new SelectClause.PrimaryKey(), new SelectClause.Field(0) }))
             {
                 WhereClause = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(1), new WhereClause.Constant(3.4f)))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
 
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(2, result[0].Id);
-            Assert.AreEqual(20, result[0].Byte);
-            Assert.AreEqual(0.0f, result[0].Float); // not select
+            Assert.AreEqual(1, entities.Count);
+            Assert.AreEqual(2, entities[0].Id);
+            Assert.AreEqual(20, entities[0].Byte);
+            Assert.AreEqual(0.0f, entities[0].Float); // not select
         }
 
         [Test]
@@ -80,16 +83,17 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new SelectQuery(new SelectClause(new SelectClause.SelectClauseItem[] { new SelectClause.PrimaryKey(), new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new SelectClause.SelectClauseItem[] { new SelectClause.PrimaryKey(), new SelectClause.Field(0) }))
             {
                 WhereClause = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.PrimaryKey(), new WhereClause.Constant(2)))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
 
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(2, result[0].Id);
-            Assert.AreEqual(20, result[0].Byte);
+            Assert.AreEqual(1, entities.Count);
+            Assert.AreEqual(2, entities[0].Id);
+            Assert.AreEqual(20, entities[0].Byte);
         }
 
         [Test]
@@ -98,7 +102,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new SelectQuery(new SelectClause(new SelectClause.SelectClauseItem[] { new SelectClause.PrimaryKey(), new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new SelectClause.SelectClauseItem[] { new SelectClause.PrimaryKey(), new SelectClause.Field(0) }))
             {
                 WhereClause = new WhereClause(
                     new WhereClause.AndOperation(
@@ -106,11 +110,12 @@ namespace SimpleDB.Test.QueryExecutors
                         new WhereClause.EqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20))))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
 
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(2, result[0].Id);
-            Assert.AreEqual(20, result[0].Byte);
+            Assert.AreEqual(1, entities.Count);
+            Assert.AreEqual(2, entities[0].Id);
+            Assert.AreEqual(20, entities[0].Byte);
         }
 
         [Test]
@@ -119,7 +124,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new SelectQuery(new SelectClause(new SelectClause.SelectClauseItem[] { new SelectClause.PrimaryKey(), new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new SelectClause.SelectClauseItem[] { new SelectClause.PrimaryKey(), new SelectClause.Field(0) }))
             {
                 WhereClause = new WhereClause(
                     new WhereClause.OrOperation(
@@ -127,11 +132,12 @@ namespace SimpleDB.Test.QueryExecutors
                         new WhereClause.EqualsOperation(new WhereClause.PrimaryKey(), new WhereClause.Constant(2))))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
 
-            Assert.AreEqual(2, result.Count);
-            Assert.AreEqual(1, result[0].Id);
-            Assert.AreEqual(2, result[1].Id);
+            Assert.AreEqual(2, entities.Count);
+            Assert.AreEqual(1, entities[0].Id);
+            Assert.AreEqual(2, entities[1].Id);
         }
 
         [Test]
@@ -140,15 +146,16 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new SelectQuery(new SelectClause(new[] { new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(0) }))
             {
                 WhereClause = new WhereClause(new WhereClause.LessOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20)))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
 
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(10, result[0].Byte);
+            Assert.AreEqual(1, entities.Count);
+            Assert.AreEqual(10, entities[0].Byte);
         }
 
         [Test]
@@ -157,16 +164,17 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new SelectQuery(new SelectClause(new[] { new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(0) }))
             {
                 WhereClause = new WhereClause(new WhereClause.GreatOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)10)))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
 
-            Assert.AreEqual(2, result.Count);
-            Assert.AreEqual(20, result[0].Byte);
-            Assert.AreEqual(30, result[1].Byte);
+            Assert.AreEqual(2, entities.Count);
+            Assert.AreEqual(20, entities[0].Byte);
+            Assert.AreEqual(30, entities[1].Byte);
         }
 
         [Test]
@@ -175,16 +183,17 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new SelectQuery(new SelectClause(new[] { new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(0) }))
             {
                 WhereClause = new WhereClause(new WhereClause.LessOrEqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20)))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
 
-            Assert.AreEqual(2, result.Count);
-            Assert.AreEqual(10, result[0].Byte);
-            Assert.AreEqual(20, result[1].Byte);
+            Assert.AreEqual(2, entities.Count);
+            Assert.AreEqual(10, entities[0].Byte);
+            Assert.AreEqual(20, entities[1].Byte);
         }
 
         [Test]
@@ -193,16 +202,17 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new SelectQuery(new SelectClause(new[] { new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(0) }))
             {
                 WhereClause = new WhereClause(new WhereClause.GreatOrEqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20)))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
 
-            Assert.AreEqual(2, result.Count);
-            Assert.AreEqual(20, result[0].Byte);
-            Assert.AreEqual(30, result[1].Byte);
+            Assert.AreEqual(2, entities.Count);
+            Assert.AreEqual(20, entities[0].Byte);
+            Assert.AreEqual(30, entities[1].Byte);
         }
 
         [Test]
@@ -211,7 +221,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new SelectQuery(new SelectClause(new[] { new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(0) }))
             {
                 WhereClause =
                     new WhereClause(
@@ -219,11 +229,12 @@ namespace SimpleDB.Test.QueryExecutors
                             new WhereClause.EqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20))))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
 
-            Assert.AreEqual(2, result.Count);
-            Assert.AreEqual(10, result[0].Byte);
-            Assert.AreEqual(30, result[1].Byte);
+            Assert.AreEqual(2, entities.Count);
+            Assert.AreEqual(10, entities[0].Byte);
+            Assert.AreEqual(30, entities[1].Byte);
         }
 
         [Test]
@@ -232,16 +243,17 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, String = "12345" });
             _collection.Insert(new TestEntity { Id = 2, String = "12" });
             _collection.Insert(new TestEntity { Id = 3, String = "123" });
-            var query = new SelectQuery(new SelectClause(new[] { new SelectClause.Field(2) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(2) }))
             {
                 WhereClause = new WhereClause(new WhereClause.LikeOperation(new WhereClause.Field(2), new WhereClause.Constant("123")))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
 
-            Assert.AreEqual(2, result.Count);
-            Assert.AreEqual("12345", result[0].String);
-            Assert.AreEqual("123", result[1].String);
+            Assert.AreEqual(2, entities.Count);
+            Assert.AreEqual("12345", entities[0].String);
+            Assert.AreEqual("123", entities[1].String);
         }
 
         [Test]
@@ -250,16 +262,17 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, String = "12345" });
             _collection.Insert(new TestEntity { Id = 2, String = "12" });
             _collection.Insert(new TestEntity { Id = 3, String = "123" });
-            var query = new SelectQuery(new SelectClause(new[] { new SelectClause.Field(2) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(2) }))
             {
                 WhereClause = new WhereClause(new WhereClause.InOperation(new WhereClause.Field(2), new WhereClause.Set(new[] { "123", "12" })))
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
 
-            Assert.AreEqual(2, result.Count);
-            Assert.AreEqual("12", result[0].String);
-            Assert.AreEqual("123", result[1].String);
+            Assert.AreEqual(2, entities.Count);
+            Assert.AreEqual("12", entities[0].String);
+            Assert.AreEqual("123", entities[1].String);
         }
 
         [Test]
@@ -268,16 +281,17 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, String = "12345" });
             _collection.Insert(new TestEntity { Id = 2, String = "12" });
             _collection.Insert(new TestEntity { Id = 3, String = "123" });
-            var query = new SelectQuery(new SelectClause(new[] { new SelectClause.Field(2) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(2) }))
             {
                 OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(2, SortDirection.Asc) })
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
 
-            Assert.AreEqual("12", result[0].String);
-            Assert.AreEqual("123", result[1].String);
-            Assert.AreEqual("12345", result[2].String);
+            Assert.AreEqual("12", entities[0].String);
+            Assert.AreEqual("123", entities[1].String);
+            Assert.AreEqual("12345", entities[2].String);
         }
 
         [Test]
@@ -286,16 +300,17 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, String = "12345" });
             _collection.Insert(new TestEntity { Id = 2, String = "12" });
             _collection.Insert(new TestEntity { Id = 3, String = "123" });
-            var query = new SelectQuery(new SelectClause(new[] { new SelectClause.Field(2) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(2) }))
             {
                 OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(2, SortDirection.Desc) })
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
 
-            Assert.AreEqual("12345", result[0].String);
-            Assert.AreEqual("123", result[1].String);
-            Assert.AreEqual("12", result[2].String);
+            Assert.AreEqual("12345", entities[0].String);
+            Assert.AreEqual("123", entities[1].String);
+            Assert.AreEqual("12", entities[2].String);
         }
 
         [Test]
@@ -304,16 +319,17 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, String = "12345" });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, String = "12" });
             _collection.Insert(new TestEntity { Id = 3, Byte = 20, String = "123" });
-            var query = new SelectQuery(new SelectClause(new[] { new SelectClause.Field(2) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(2) }))
             {
                 OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, SortDirection.Asc), new OrderByClause.Field(2, SortDirection.Asc) })
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
 
-            Assert.AreEqual("12345", result[0].String);
-            Assert.AreEqual("12", result[1].String);
-            Assert.AreEqual("123", result[2].String);
+            Assert.AreEqual("12345", entities[0].String);
+            Assert.AreEqual("12", entities[1].String);
+            Assert.AreEqual("123", entities[2].String);
         }
 
         [Test]
@@ -322,16 +338,17 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, String = "12345" });
             _collection.Insert(new TestEntity { Id = 2, Byte = 10, String = "12" });
             _collection.Insert(new TestEntity { Id = 3, Byte = 10, String = "123" });
-            var query = new SelectQuery(new SelectClause(new[] { new SelectClause.Field(2) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(2) }))
             {
                 OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, SortDirection.Asc), new OrderByClause.Field(2, SortDirection.Desc) })
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
 
-            Assert.AreEqual("12345", result[0].String);
-            Assert.AreEqual("123", result[1].String);
-            Assert.AreEqual("12", result[2].String);
+            Assert.AreEqual("12345", entities[0].String);
+            Assert.AreEqual("123", entities[1].String);
+            Assert.AreEqual("12", entities[2].String);
         }
 
         [Test]
@@ -340,16 +357,17 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, String = "12345" });
             _collection.Insert(new TestEntity { Id = 2, Byte = 10, String = "12" });
             _collection.Insert(new TestEntity { Id = 3, Byte = 10, String = "123" });
-            var query = new SelectQuery(new SelectClause(new[] { new SelectClause.Field(2) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(2) }))
             {
                 OrderByClause = new OrderByClause(new[] { new OrderByClause.PrimaryKey(SortDirection.Asc) })
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
 
-            Assert.AreEqual("12345", result[0].String);
-            Assert.AreEqual("12", result[1].String);
-            Assert.AreEqual("123", result[2].String);
+            Assert.AreEqual("12345", entities[0].String);
+            Assert.AreEqual("12", entities[1].String);
+            Assert.AreEqual("123", entities[2].String);
         }
 
         [Test]
@@ -358,16 +376,17 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, String = "12345" });
             _collection.Insert(new TestEntity { Id = 2, Byte = 10, String = "12" });
             _collection.Insert(new TestEntity { Id = 3, Byte = 10, String = "123" });
-            var query = new SelectQuery(new SelectClause(new[] { new SelectClause.Field(2) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(2) }))
             {
                 OrderByClause = new OrderByClause(new[] { new OrderByClause.PrimaryKey(SortDirection.Desc) })
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
 
-            Assert.AreEqual("123", result[0].String);
-            Assert.AreEqual("12", result[1].String);
-            Assert.AreEqual("12345", result[2].String);
+            Assert.AreEqual("123", entities[0].String);
+            Assert.AreEqual("12", entities[1].String);
+            Assert.AreEqual("12345", entities[2].String);
         }
 
         [Test]
@@ -376,17 +395,18 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
-            var query = new SelectQuery(new SelectClause(new[] { new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(0) }))
             {
                 OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, SortDirection.Asc) }),
                 Skip = 1
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
 
-            Assert.AreEqual(2, result.Count);
-            Assert.AreEqual(20, result[0].Byte);
-            Assert.AreEqual(30, result[1].Byte);
+            Assert.AreEqual(2, entities.Count);
+            Assert.AreEqual(20, entities[0].Byte);
+            Assert.AreEqual(30, entities[1].Byte);
         }
 
         [Test]
@@ -395,15 +415,16 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
-            var query = new SelectQuery(new SelectClause(new[] { new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(0) }))
             {
                 OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, SortDirection.Asc) }),
                 Skip = 100
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
 
-            Assert.AreEqual(0, result.Count);
+            Assert.AreEqual(0, entities.Count);
         }
 
         [Test]
@@ -412,17 +433,18 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
-            var query = new SelectQuery(new SelectClause(new[] { new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(0) }))
             {
                 OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, SortDirection.Asc) }),
                 Limit = 2
             };
 
-            var result = _queryExecutor.ExecuteQuery(query).Items.ToList();
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
 
-            Assert.AreEqual(2, result.Count);
-            Assert.AreEqual(10, result[0].Byte);
-            Assert.AreEqual(20, result[1].Byte);
+            Assert.AreEqual(2, entities.Count);
+            Assert.AreEqual(10, entities[0].Byte);
+            Assert.AreEqual(20, entities[1].Byte);
         }
 
         [Test]
@@ -431,7 +453,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
-            var query = new SelectQuery(new SelectClause(new[] { new SelectClause.CountAggregate() }));
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.CountAggregate() }));
 
             var result = (int)_queryExecutor.ExecuteQuery(query).Scalar;
 
@@ -444,7 +466,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
-            var query = new SelectQuery(new SelectClause(new[] { new SelectClause.CountAggregate() }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.CountAggregate() }))
             {
                 WhereClause = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)10)))
             };
@@ -460,7 +482,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
-            var query = new SelectQuery(new SelectClause(new[] { new SelectClause.CountAggregate() }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.CountAggregate() }))
             {
                 Skip = 1
             };
@@ -476,7 +498,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
-            var query = new SelectQuery(new SelectClause(new[] { new SelectClause.CountAggregate() }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.CountAggregate() }))
             {
                 Skip = 1,
                 Limit = 3

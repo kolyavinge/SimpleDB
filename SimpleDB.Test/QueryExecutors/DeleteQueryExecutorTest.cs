@@ -32,7 +32,7 @@ namespace SimpleDB.Test.QueryExecutors
                 new PrimaryKeyFileFactory(_workingDirectory, fileSystem, memory),
                 new DataFileFactory(_workingDirectory, fileSystem, memory),
                 new MetaFileFactory(_workingDirectory, fileSystem));
-            _queryExecutor = new DeleteQueryExecutor<TestEntity>(_collection.PrimaryKeyFile, _collection.PrimaryKeys, _collection.DataFile, new IndexHolder(), new IndexUpdater());
+            _queryExecutor = new DeleteQueryExecutor<TestEntity>(_collection.PrimaryKeyFile, _collection.PrimaryKeys, _collection.DataFile, new IndexHolder(), new IndexUpdater(mapper));
         }
 
         [Test]
@@ -41,7 +41,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f, String = "123" });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f, String = "456" });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f, String = "789" });
-            var query = new DeleteQuery();
+            var query = new DeleteQuery("TestEntity");
 
             var result = _queryExecutor.ExecuteQuery(query);
 
@@ -58,7 +58,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f, String = "123" });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f, String = "456" });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f, String = "789" });
-            var query = new DeleteQuery
+            var query = new DeleteQuery("TestEntity")
             {
                 WhereClause = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)10)))
             };

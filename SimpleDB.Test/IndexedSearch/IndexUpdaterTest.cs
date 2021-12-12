@@ -27,7 +27,7 @@ namespace SimpleDB.Test.IndexedSearch
                 });
             _indexInt = new Index<int>(new IndexMeta
             {
-                EntityType = typeof(TestEntity),
+                EntityName = "TestEntity",
                 Name = "index int",
                 IndexedFieldType = typeof(int),
                 IndexedFieldNumber = 0,
@@ -35,7 +35,7 @@ namespace SimpleDB.Test.IndexedSearch
             });
             _indexDouble = new Index<double>(new IndexMeta
             {
-                EntityType = typeof(TestEntity),
+                EntityName = "TestEntity",
                 Name = "index double",
                 IndexedFieldType = typeof(double),
                 IndexedFieldNumber = 1,

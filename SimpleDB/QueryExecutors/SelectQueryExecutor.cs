@@ -8,22 +8,20 @@ using SimpleDB.Utils.EnumerableExtension;
 
 namespace SimpleDB.QueryExecutors
 {
-    internal class SelectQueryExecutor<TEntity>
+    internal class SelectQueryExecutor
     {
-        private readonly Mapper<TEntity> _mapper;
         private readonly DataFile _dataFile;
         private readonly IDictionary<object, PrimaryKey> _primaryKeys;
         private readonly IndexHolder _indexHolder;
 
-        public SelectQueryExecutor(Mapper<TEntity> mapper, DataFile dataFile, IDictionary<object, PrimaryKey> primaryKeys, IndexHolder indexHolder = null)
+        public SelectQueryExecutor(DataFile dataFile, IDictionary<object, PrimaryKey> primaryKeys, IndexHolder indexHolder)
         {
-            _mapper = mapper;
             _dataFile = dataFile;
             _primaryKeys = primaryKeys;
-            _indexHolder = indexHolder ?? new IndexHolder();
+            _indexHolder = indexHolder;
         }
 
-        public SelectQueryResult<TEntity> ExecuteQuery(SelectQuery query)
+        public SelectQueryResult ExecuteQuery(SelectQuery query)
         {
             try
             {
@@ -36,7 +34,7 @@ namespace SimpleDB.QueryExecutors
             }
         }
 
-        private SelectQueryResult<TEntity> TryExecuteQuery(SelectQuery query)
+        private SelectQueryResult TryExecuteQuery(SelectQuery query)
         {
             var fieldValueCollections = new List<FieldValueCollection>();
             var alreadyReadedFieldNumbers = new HashSet<byte>();
@@ -45,9 +43,9 @@ namespace SimpleDB.QueryExecutors
             if (query.WhereClause != null)
             {
                 var whereFieldNumbers = query.WhereClause.GetAllFieldNumbers().ToHashSet();
-                if (_indexHolder.AnyIndexContainsFields(typeof(TEntity), whereFieldNumbers))
+                if (_indexHolder.AnyIndexContainsFields(query.EntityName, whereFieldNumbers))
                 {
-                    var analyzer = new WhereClauseAnalyzer(typeof(TEntity), _primaryKeys, new FieldValueReader(_dataFile), _indexHolder);
+                    var analyzer = new WhereClauseAnalyzer(query.EntityName, _primaryKeys, new FieldValueReader(_dataFile), _indexHolder);
                     fieldValueCollections.AddRange(analyzer.GetResult(query.WhereClause));
                     alreadyReadedFieldNumbers.AddRange(fieldValueCollections.SelectMany(collection => collection.Select(field => field.Number)));
                 }
@@ -71,9 +69,9 @@ namespace SimpleDB.QueryExecutors
             }
             else if (query.OrderByClause != null
                 && query.OrderByClause.OrderedItems.OfType<OrderByClause.Field>().Any()
-                && query.OrderByClause.GetAllFieldNumbers().All(fieldNumber => _indexHolder.AnyIndexFor(typeof(TEntity), fieldNumber)))
+                && query.OrderByClause.GetAllFieldNumbers().All(fieldNumber => _indexHolder.AnyIndexFor(query.EntityName, fieldNumber)))
             {
-                var analyzer = new OrderByClauseAnalyzer(typeof(TEntity), _primaryKeys, _indexHolder);
+                var analyzer = new OrderByClauseAnalyzer(query.EntityName, _primaryKeys, _indexHolder);
                 fieldValueCollections.AddRange(analyzer.GetResult(query.OrderByClause));
                 alreadyReadedFieldNumbers.AddRange(query.OrderByClause.GetAllFieldNumbers());
                 isResultOrdered = true;
@@ -94,12 +92,12 @@ namespace SimpleDB.QueryExecutors
                 {
                     count = Math.Min(count, query.Limit.Value);
                 }
-                return new SelectQueryResult<TEntity> { Scalar = count };
+                return new SelectQueryResult { Scalar = count };
             }
             // добираем из индексов недостающие поля
             var allFieldNumbersInQuery = query.GetAllFieldNumbers().ToHashSet();
             allFieldNumbersInQuery.ExceptWith(alreadyReadedFieldNumbers);
-            var remainingFieldValues = _indexHolder.GetScanResult(typeof(TEntity), fieldValueCollections.Select(x => x.PrimaryKey.Value), _primaryKeys, allFieldNumbersInQuery);
+            var remainingFieldValues = _indexHolder.GetScanResult(query.EntityName, fieldValueCollections.Select(x => x.PrimaryKey.Value), _primaryKeys, allFieldNumbersInQuery);
             FieldValueCollection.Merge(fieldValueCollections, remainingFieldValues);
             alreadyReadedFieldNumbers.AddRange(fieldValueCollections.SelectMany(collection => collection.Select(field => field.Number)));
             // order by
@@ -147,23 +145,29 @@ namespace SimpleDB.QueryExecutors
                     _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, nonSelectedFieldNumbers, fieldValueCollection);
                 }
             }
-            // result entities
+
+            return new SelectQueryResult { FieldValueCollections = fieldValueCollections };
+        }
+
+        public List<TEntity> MakeEntities<TEntity>(SelectQuery query, SelectQueryResult result, Mapper<TEntity> mapper)
+        {
+            var selectFieldNumbers = query.SelectClause.GetAllFieldNumbers().ToHashSet();
             var includePrimaryKey = query.SelectClause.SelectItems.Any(x => x is SelectClause.PrimaryKey);
             var queryResultItems = new List<TEntity>();
-            foreach (var fieldValueCollection in fieldValueCollections)
+            foreach (var fieldValueCollection in result.FieldValueCollections)
             {
                 var primaryKey = fieldValueCollection.PrimaryKey;
-                var entity = _mapper.MakeEntity(primaryKey.Value, fieldValueCollection, includePrimaryKey, selectFieldNumbers);
+                var entity = mapper.MakeEntity(primaryKey.Value, fieldValueCollection, includePrimaryKey, selectFieldNumbers);
                 queryResultItems.Add(entity);
             }
 
-            return new SelectQueryResult<TEntity> { Items = queryResultItems };
+            return queryResultItems;
         }
     }
 
-    internal class SelectQueryResult<TEntity>
+    internal class SelectQueryResult
     {
-        public List<TEntity> Items { get; set; }
+        public List<FieldValueCollection> FieldValueCollections { get; set; }
 
         public object Scalar { get; set; }
     }

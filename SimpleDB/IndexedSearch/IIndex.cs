@@ -7,7 +7,7 @@ namespace SimpleDB.IndexedSearch
 {
     internal class IndexMeta
     {
-        public Type EntityType { get; set; }
+        public string EntityName { get; set; }
 
         public Type IndexedFieldType { get; set; }
 
@@ -48,7 +48,7 @@ namespace SimpleDB.IndexedSearch
         public static IndexMeta Deserialize(IReadableStream stream)
         {
             var meta = new IndexMeta();
-            meta.EntityType = Type.GetType(stream.ReadString());
+            meta.EntityName = stream.ReadString();
             meta.IndexedFieldType = Type.GetType(stream.ReadString());
             meta.Name = stream.ReadString();
             meta.IndexedFieldNumber = stream.ReadByte();
@@ -60,7 +60,7 @@ namespace SimpleDB.IndexedSearch
 
         public void Serialize(IWriteableStream stream)
         {
-            stream.WriteString(EntityType.AssemblyQualifiedName);
+            stream.WriteString(EntityName);
             stream.WriteString(IndexedFieldType.AssemblyQualifiedName);
             stream.WriteString(Name);
             stream.WriteByte(IndexedFieldNumber);

@@ -36,7 +36,7 @@ namespace SimpleDB.Test.QueryExecutors
                 new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, _memory),
                 new DataFileFactory(_workingDirectory, _fileSystem, _memory),
                 new MetaFileFactory(_workingDirectory, _fileSystem));
-            _queryExecutor = new UpdateQueryExecutor<TestEntity>( _mapper, _collection.PrimaryKeyFile, _collection.DataFile, _collection.PrimaryKeys, new IndexHolder(), new IndexUpdater());
+            _queryExecutor = new UpdateQueryExecutor<TestEntity>( _mapper, _collection.PrimaryKeyFile, _collection.DataFile, _collection.PrimaryKeys, new IndexHolder(), new IndexUpdater(_mapper));
         }
 
         [Test]
@@ -45,7 +45,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f, String = "123" });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f, String = "456" });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f, String = "789" });
-            var query = new UpdateQuery(new UpdateClause(new[] { new UpdateClause.Field(0, (byte)100), new UpdateClause.Field(1, 34.5f) }));
+            var query = new UpdateQuery("TestEntity", new UpdateClause(new[] { new UpdateClause.Field(0, (byte)100), new UpdateClause.Field(1, 34.5f) }));
 
             var result = _queryExecutor.ExecuteQuery(query);
 
@@ -73,7 +73,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f, String = "123" });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f, String = "456" });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f, String = "789" });
-            var query = new UpdateQuery(new UpdateClause(new[] { new UpdateClause.Field(0, (byte)100), new UpdateClause.Field(1, 34.5f) }))
+            var query = new UpdateQuery("TestEntity", new UpdateClause(new[] { new UpdateClause.Field(0, (byte)100), new UpdateClause.Field(1, 34.5f) }))
             {
                 WhereClause = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)10)))
             };
@@ -102,7 +102,7 @@ namespace SimpleDB.Test.QueryExecutors
         public void ExecuteQuery_WhereAndUpdateSameField()
         {
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f, String = "123" });
-            var query = new UpdateQuery(new UpdateClause(new[] { new UpdateClause.Field(2, "987") }))
+            var query = new UpdateQuery("TestEntity", new UpdateClause(new[] { new UpdateClause.Field(2, "987") }))
             {
                 WhereClause = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(2), new WhereClause.Constant("123")))
             };
@@ -123,7 +123,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f, String = "123" });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f, String = "456" });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f, String = "789" });
-            var query = new UpdateQuery(new UpdateClause(new[] { new UpdateClause.Field(2, "000") }));
+            var query = new UpdateQuery("TestEntity", new UpdateClause(new[] { new UpdateClause.Field(2, "000") }));
 
             var result = _queryExecutor.ExecuteQuery(query);
 
@@ -151,7 +151,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f, String = "123" });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f, String = "456" });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f, String = "789" });
-            var query = new UpdateQuery(new UpdateClause(new[] { new UpdateClause.Field(2, "0") }));
+            var query = new UpdateQuery("TestEntity", new UpdateClause(new[] { new UpdateClause.Field(2, "0") }));
 
             var result = _queryExecutor.ExecuteQuery(query);
 
@@ -179,7 +179,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f, String = "123" });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f, String = "456" });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f, String = "789" });
-            var query = new UpdateQuery(new UpdateClause(new[] { new UpdateClause.Field(2, "0000000000") }));
+            var query = new UpdateQuery("TestEntity", new UpdateClause(new[] { new UpdateClause.Field(2, "0000000000") }));
 
             var result = _queryExecutor.ExecuteQuery(query);
 
@@ -207,7 +207,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f, String = "123", InnerObject = new InnerObject { Value = 123 } });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f, String = "456", InnerObject = new InnerObject { Value = 456 } });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f, String = "789", InnerObject = new InnerObject { Value = 789 } });
-            var query = new UpdateQuery(new UpdateClause(new[] { new UpdateClause.Field(3, new InnerObject { Value = 111 }) }));
+            var query = new UpdateQuery("TestEntity", new UpdateClause(new[] { new UpdateClause.Field(3, new InnerObject { Value = 111 }) }));
 
             var result = _queryExecutor.ExecuteQuery(query);
 
@@ -238,7 +238,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f, String = "123", InnerObject = new InnerObject { Value = 123 } });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f, String = "456", InnerObject = new InnerObject { Value = 456 } });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f, String = "789", InnerObject = new InnerObject { Value = 789 } });
-            var query = new UpdateQuery(new UpdateClause(new[] { new UpdateClause.Field(3, new InnerObject { Value = 1 }) }));
+            var query = new UpdateQuery("TestEntity", new UpdateClause(new[] { new UpdateClause.Field(3, new InnerObject { Value = 1 }) }));
 
             var result = _queryExecutor.ExecuteQuery(query);
 
@@ -269,7 +269,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f, String = "123", InnerObject = new InnerObject { Value = 123 } });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f, String = "456", InnerObject = new InnerObject { Value = 456 } });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f, String = "789", InnerObject = new InnerObject { Value = 789 } });
-            var query = new UpdateQuery(new UpdateClause(new[] { new UpdateClause.Field(3, new InnerObject { Value = 123456789 }) }));
+            var query = new UpdateQuery("TestEntity", new UpdateClause(new[] { new UpdateClause.Field(3, new InnerObject { Value = 123456789 }) }));
 
             var result = _queryExecutor.ExecuteQuery(query);
 
@@ -299,7 +299,7 @@ namespace SimpleDB.Test.QueryExecutors
         {
             var index = new Index<byte>(new IndexMeta
             {
-                EntityType = typeof(TestEntity),
+                EntityName = "TestEntity",
                 Name = "index",
                 IndexedFieldType = typeof(byte),
                 IndexedFieldNumber = 0,

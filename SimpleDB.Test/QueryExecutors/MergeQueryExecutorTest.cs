@@ -48,6 +48,7 @@ namespace SimpleDB.Test.QueryExecutors
                 new TestEntity { Id = 12, Byte = 20, Float = 9.9f }
             };
             var query = new MergeQuery<TestEntity>(
+                "TestEntity",
                 new MergeClause(new[] { new MergeClause.MergeClauseItem(0), new MergeClause.MergeClauseItem(1) }),
                 newEntities);
 
@@ -76,6 +77,7 @@ namespace SimpleDB.Test.QueryExecutors
                 new TestEntity { Id = 12, Byte = 30, Float = 5.6f }
             };
             var query = new MergeQuery<TestEntity>(
+                "TestEntity",
                 new MergeClause(new[] { new MergeClause.MergeClauseItem(0), new MergeClause.MergeClauseItem(1) }),
                 newEntities);
 
@@ -101,6 +103,7 @@ namespace SimpleDB.Test.QueryExecutors
                 new TestEntity { Id = 12, Byte = 30, Float = 0.6f }
             };
             var query = new MergeQuery<TestEntity>(
+                "TestEntity",
                 new MergeClause(new[] { new MergeClause.MergeClauseItem(0), new MergeClause.MergeClauseItem(1) }),
                 newEntities);
 

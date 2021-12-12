@@ -39,23 +39,23 @@ namespace SimpleDB.Test.QueryExecutors
             collection.Insert(new TestEntity { Id = 10, A = 1, B = 2, C = 3, D = 4, E = 5, S = "123" });
             collection.Insert(new TestEntity { Id = 20, A = 6, B = 7, C = 8, D = 9, E = 10, S = "987" });
 
-            var indexA = new Index<int>(new IndexMeta { EntityType = typeof(TestEntity), Name = "indexA", IndexedFieldType = typeof(int), IndexedFieldNumber = 0 });
+            var indexA = new Index<int>(new IndexMeta { EntityName = "TestEntity", Name = "indexA", IndexedFieldType = typeof(int), IndexedFieldNumber = 0 });
             indexA.Add(1, new IndexItem { PrimaryKeyValue = 10 });
             indexA.Add(6, new IndexItem { PrimaryKeyValue = 20 });
 
-            var indexB = new Index<int>(new IndexMeta { EntityType = typeof(TestEntity), Name = "indexB", IndexedFieldType = typeof(int), IndexedFieldNumber = 1 });
+            var indexB = new Index<int>(new IndexMeta { EntityName = "TestEntity", Name = "indexB", IndexedFieldType = typeof(int), IndexedFieldNumber = 1 });
             indexB.Add(2, new IndexItem { PrimaryKeyValue = 10 });
             indexB.Add(7, new IndexItem { PrimaryKeyValue = 20 });
 
             var indexS = new Index<string>(
-                new IndexMeta { EntityType = typeof(TestEntity), Name = "indexS", IndexedFieldType = typeof(string), IndexedFieldNumber = 5, IncludedFieldNumbers = new byte[] { 4 } });
+                new IndexMeta { EntityName = "TestEntity", Name = "indexS", IndexedFieldType = typeof(string), IndexedFieldNumber = 5, IncludedFieldNumbers = new byte[] { 4 } });
             indexS.Add("123", new IndexItem { PrimaryKeyValue = 10, IncludedFields = new object[] { 5 } });
             indexS.Add("987", new IndexItem { PrimaryKeyValue = 20, IncludedFields = new object[] { 10 } });
 
             var indexHolder = new IndexHolder(new IIndex[] { indexA, indexB, indexS });
 
             _testFieldValueReader = new TestFieldValueReader(new FieldValueReader(collection.DataFile));
-            _analyzer = new WhereClauseAnalyzer(typeof(TestEntity), collection.PrimaryKeys, _testFieldValueReader, indexHolder);
+            _analyzer = new WhereClauseAnalyzer("TestEntity", collection.PrimaryKeys, _testFieldValueReader, indexHolder);
         }
 
         [Test]

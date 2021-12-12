@@ -26,7 +26,7 @@ namespace SimpleDB.Linq
         {
             var mergeClauseBuilder = new MergeClauseBuilder();
             var mergeClause = mergeClauseBuilder.Build(_mapper, _mergeFieldsExpression);
-            var query = new MergeQuery<TEntity>(mergeClause, _entities);
+            var query = new MergeQuery<TEntity>(_mapper.EntityName, mergeClause, _entities);
 
             return query;
         }

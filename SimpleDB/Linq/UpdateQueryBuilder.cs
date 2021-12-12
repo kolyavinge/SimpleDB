@@ -25,7 +25,7 @@ namespace SimpleDB.Linq
         {
             var updateClauseBuilder = new UpdateClauseBuilder();
             var whereClauseBuilder = new WhereClauseBuilder();
-            var query = new UpdateQuery(updateClauseBuilder.Build(_mapper, _updateExpression));
+            var query = new UpdateQuery(_mapper.EntityName, updateClauseBuilder.Build(_mapper, _updateExpression));
             query.WhereClause = whereClauseBuilder.Build(_mapper, _whereExpression);
 
             return query;

@@ -27,35 +27,35 @@ namespace SimpleDB.IndexedSearch
 
     internal class IndexHolder
     {
-        private readonly Dictionary<Type, List<IIndex>> _indexes;
+        private readonly Dictionary<string, List<IIndex>> _indexes;
 
         public IndexHolder(IEnumerable<IIndex> indexes)
         {
-            _indexes = indexes.GroupBy(x => x.Meta.EntityType).ToDictionary(k => k.Key, v => v.ToList());
+            _indexes = indexes.GroupBy(x => x.Meta.EntityName).ToDictionary(k => k.Key, v => v.ToList());
         }
 
         public IndexHolder()
         {
-            _indexes = new Dictionary<Type, List<IIndex>>();
+            _indexes = new Dictionary<string, List<IIndex>>();
         }
 
-        public bool AnyIndexContainsFields(Type entityType, ISet<byte> fieldNumbers)
+        public bool AnyIndexContainsFields(string entityName, ISet<byte> fieldNumbers)
         {
-            if (!_indexes.ContainsKey(entityType)) return false;
-            return _indexes[entityType].Any(x => x.Meta.IsContainAnyFields(fieldNumbers));
+            if (!_indexes.ContainsKey(entityName)) return false;
+            return _indexes[entityName].Any(x => x.Meta.IsContainAnyFields(fieldNumbers));
         }
 
-        public bool AnyIndexFor(Type entityType, byte indexedFieldNumber)
+        public bool AnyIndexFor(string entityName, byte indexedFieldNumber)
         {
-            if (!_indexes.ContainsKey(entityType)) return false;
-            return _indexes[entityType].Any(x => x.Meta.IndexedFieldNumber == indexedFieldNumber);
+            if (!_indexes.ContainsKey(entityName)) return false;
+            return _indexes[entityName].Any(x => x.Meta.IndexedFieldNumber == indexedFieldNumber);
         }
 
-        public IEnumerable<IndexResult> GetIndexResult(Type operationType, bool isNotApplied, Type entityType, byte fieldNumber, object fieldValue)
+        public IEnumerable<IndexResult> GetIndexResult(Type operationType, bool isNotApplied, string entityName, byte fieldNumber, object fieldValue)
         {
-            if (!_indexes.ContainsKey(entityType)) return null;
+            if (!_indexes.ContainsKey(entityName)) return null;
             IEnumerable<IndexValue> indexValues = null;
-            var index = _indexes[entityType].FirstOrDefault(i => i.Meta.IndexedFieldNumber == fieldNumber);
+            var index = _indexes[entityName].FirstOrDefault(i => i.Meta.IndexedFieldNumber == fieldNumber);
             if (index != null)
             {
                 if (operationType == typeof(WhereClause.EqualsOperation) && !isNotApplied)
@@ -127,10 +127,10 @@ namespace SimpleDB.IndexedSearch
             }
         }
 
-        public IEnumerable<IndexResult> GetIndexResult(Type entityType, byte indexedFieldNumber, SortDirection sortDirection)
+        public IEnumerable<IndexResult> GetIndexResult(string entityName, byte indexedFieldNumber, SortDirection sortDirection)
         {
-            if (!_indexes.ContainsKey(entityType)) return Enumerable.Empty<IndexResult>();
-            var index = _indexes[entityType].FirstOrDefault(x => x.Meta.IndexedFieldNumber == indexedFieldNumber);
+            if (!_indexes.ContainsKey(entityName)) return Enumerable.Empty<IndexResult>();
+            var index = _indexes[entityName].FirstOrDefault(x => x.Meta.IndexedFieldNumber == indexedFieldNumber);
             if (index != null)
             {
                 var indexValues = index.GetAllIndexValues(sortDirection);
@@ -142,12 +142,12 @@ namespace SimpleDB.IndexedSearch
             }
         }
 
-        public IEnumerable<FieldValueCollection> GetScanResult(Type entityType, IEnumerable<object> primaryKeyValues, IDictionary<object, PrimaryKey> primaryKeys, IEnumerable<byte> fieldNumbers)
+        public IEnumerable<FieldValueCollection> GetScanResult(string entityName, IEnumerable<object> primaryKeyValues, IDictionary<object, PrimaryKey> primaryKeys, IEnumerable<byte> fieldNumbers)
         {
-            if (!_indexes.ContainsKey(entityType)) return null;
+            if (!_indexes.ContainsKey(entityName)) return null;
             var fieldNumbersSet = fieldNumbers.ToHashSet();
             var fieldValueDictionary = primaryKeyValues.Select(pk => new FieldValueCollection { PrimaryKey = primaryKeys[pk] }).ToDictionary(k => k.PrimaryKey.Value, v => v);
-            foreach (var index in _indexes[entityType].Where(x => x.Meta.IsContainAnyFields(fieldNumbersSet)))
+            foreach (var index in _indexes[entityName].Where(x => x.Meta.IsContainAnyFields(fieldNumbersSet)))
             {
                 var converter = new IndexValueConverter(index.Meta);
                 foreach (var indexValue in index.GetAllIndexValues())
