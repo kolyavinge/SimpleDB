@@ -4,73 +4,36 @@
     {
         private readonly string _sqlQuery;
         private int _index;
-        private int _start, _end;
-        private int _row;
-        private int _col;
-        private int _startCol;
-        private int _startRow;
 
-        public char CurrentChar { get; private set; }
-
-        public SqlQueryReaderValue Value
-        {
-            get
-            {
-                return new SqlQueryReaderValue
-                {
-                    Value = _sqlQuery.Substring(_start, _end - _start + 1),
-                    Row = _startRow,
-                    Col = _startCol
-                };
-            }
-        }
-
-        public bool Eof { get { return _index == _sqlQuery.Length - 1; } }
+        public int Row { get; private set; }
+        public int Col { get; private set; }
+        public char Char { get; private set; }
+        public bool Eof => _index == _sqlQuery.Length;
 
         public SqlQueryReader(string sqlQuery)
         {
             _sqlQuery = sqlQuery;
-            CurrentChar = _sqlQuery[0];
+            Col = -1;
         }
 
         public void NextChar()
         {
             if (Eof) return;
-            _index++;
-            CurrentChar = _sqlQuery[_index];
-            if (CurrentChar == '\n')
+            Char = _sqlQuery[_index++];
+            if (Char == '\n')
             {
-                _row++;
-                _col = -1;
+                Row++;
+                Col = -1;
                 NextChar();
             }
-            else if (CurrentChar == '\r')
+            else if (Char == '\r')
             {
                 NextChar();
             }
             else
             {
-                _col++;
+                Col++;
             }
         }
-
-        public void StartReadValue()
-        {
-            _start = _index;
-            _startCol = _col;
-            _startRow = _row;
-        }
-
-        public void EndReadValue()
-        {
-            _end = _index;
-        }
-    }
-
-    internal struct SqlQueryReaderValue
-    {
-        public string Value;
-        public int Row;
-        public int Col;
     }
 }

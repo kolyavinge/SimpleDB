@@ -16,5 +16,12 @@ namespace SimpleDB.Sql
             Row = row;
             Col = col;
         }
+
+        public Token(string value) : this(value, 0, 0) { }
+
+        public bool IsValueEquals(string x)
+        {
+            return String.Equals(Value, x, StringComparison.OrdinalIgnoreCase);
+        }
     }
 }

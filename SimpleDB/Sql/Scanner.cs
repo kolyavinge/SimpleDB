@@ -5,68 +5,62 @@ namespace SimpleDB.Sql
 {
     internal class Scanner
     {
-        private readonly string _sqlQuery;
-        private char[] _value;
-        private int _valueIndex;
-        private int _charIndex;
-        private int _charCol;
-        private int _charRow;
-        private char _ch;
-        private bool _eof;
+        private readonly SqlQueryReader _rd;
+        private List<Token> _tokens;
+        private char[] _valueBuffer;
+        private int _valueBufferLength;
+        private int _row, _col;
 
         public Scanner(string sqlQuery)
         {
-            _value = new char[256];
-            _sqlQuery = sqlQuery;
-            _ch = _sqlQuery[0];
+            _rd = new SqlQueryReader(sqlQuery);
         }
 
         public IEnumerable<Token> GetTokens()
         {
-            var token = GetNextToken();
-            while (token != null)
-            {
-                yield return token;
-                token = GetNextToken();
-            }
+            _tokens = new List<Token>();
+            _valueBuffer = new char[256];
+            ReadAllTokens();
+
+            return _tokens;
         }
 
-        private Token GetNextToken()
+        private void ReadAllTokens()
         {
-            if (_eof) return null;
-            _valueIndex = 0;
-            var startCol = _charCol;
+            _rd.NextChar();
             switch (1)
             {
                 case 1:
-                    if (_eof) break;
-                    else if (_ch == ' ' || _ch == '\t') { NextChar(); break; }
-                    else if (_ch == '\n') { _charRow++; _charCol = 0; startCol = _charCol; NextChar(); goto case 1; }
-                    else if (_ch == '\r') { _charCol = 0; startCol = _charCol; NextChar(); goto case 1; }
-                    else if (Char.IsLetterOrDigit(_ch)) { AddChar(); NextChar(); goto case 1; }
-                    else if (_ch == '*') { AddChar(); NextChar(); break; }
-                    else if (_ch == ',') { NextChar(); break; }
+                    if (_rd.Eof) { AddChar(); AddToken(); }
+                    else if (_rd.Char == ' ' || _rd.Char == '\t' || _rd.Char == '\n') { _rd.NextChar(); goto case 1; }
+                    else if (Char.IsLetterOrDigit(_rd.Char)) { SetRowCol(); AddChar(); _rd.NextChar(); goto case 2; }
+                    else if (_rd.Char == '*') { SetRowCol(); AddChar(); AddToken(); _rd.NextChar(); goto case 1; }
+                    else if (_rd.Char == ',') { AddToken(); _rd.NextChar(); goto case 1; }
                     break;
-            }
-
-            return new Token(new string(_value, 0, _valueIndex), _charRow, startCol);
-        }
-
-        private void NextChar()
-        {
-            _charIndex++;
-            _eof = _charIndex == _sqlQuery.Length;
-            if (!_eof)
-            {
-                _ch = _sqlQuery[_charIndex];
-                _charCol++;
+                case 2:
+                    if (_rd.Eof) { AddChar(); AddToken(); }
+                    else if (_rd.Char == ' ' || _rd.Char == '\t' || _rd.Char == '\n') { AddToken(); _rd.NextChar(); goto case 1; }
+                    else if (Char.IsLetterOrDigit(_rd.Char)) { AddChar(); _rd.NextChar(); goto case 2; }
+                    else { AddToken(); _rd.NextChar(); goto case 1; }
+                    break;
             }
         }
 
         private void AddChar()
         {
-            _value[_valueIndex] = _ch;
-            _valueIndex++;
+            _valueBuffer[_valueBufferLength++] = _rd.Char;
+        }
+
+        private void SetRowCol()
+        {
+            _row = _rd.Row;
+            _col = _rd.Col;
+        }
+
+        private void AddToken()
+        {
+            _tokens.Add(new Token(new string(_valueBuffer, 0, _valueBufferLength), _row, _col));
+            _valueBufferLength = 0;
         }
     }
 }
