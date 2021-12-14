@@ -7,7 +7,7 @@ using SimpleDB.Utils.EnumerableExtension;
 
 namespace SimpleDB.QueryExecutors
 {
-    internal class DeleteQueryExecutor<TEntity>
+    internal class DeleteQueryExecutor
     {
         private readonly PrimaryKeyFile _primaryKeyFile;
         private readonly DataFile _dataFile;
@@ -81,7 +81,7 @@ namespace SimpleDB.QueryExecutors
             {
                 Delete(primaryKey);
             }
-            _indexUpdater.DeleteFromIndexes<TEntity>(primaryKeysForDelete);
+            _indexUpdater.DeleteFromIndexes(query.EntityName, primaryKeysForDelete);
 
             return result;
         }

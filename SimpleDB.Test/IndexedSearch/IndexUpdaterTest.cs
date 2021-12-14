@@ -99,7 +99,7 @@ namespace SimpleDB.Test.IndexedSearch
         {
             _indexInt.Add(10, new IndexItem { PrimaryKeyValue = 1, IncludedFields = new object[] { 1.2 } });
             _indexDouble.Add(1.2, new IndexItem { PrimaryKeyValue = 1, IncludedFields = new object[] { 10 } });
-            _indexUpdater.UpdateIndexes<TestEntity>(new object[] { 1 }, new FieldValue[] { new FieldValue(0, 100), new FieldValue(1, 10.2) });
+            _indexUpdater.UpdateIndexes("TestEntity", new object[] { 1 }, new FieldValue[] { new FieldValue(0, 100), new FieldValue(1, 10.2) });
 
             Assert.AreEqual(null, _indexInt.GetEquals(10));
             Assert.AreEqual(null, _indexDouble.GetEquals(1.2));
@@ -124,7 +124,7 @@ namespace SimpleDB.Test.IndexedSearch
         {
             _indexInt.Add(10, new IndexItem { PrimaryKeyValue = 1, IncludedFields = new object[] { 1.2 } });
             _indexDouble.Add(1.2, new IndexItem { PrimaryKeyValue = 1, IncludedFields = new object[] { 10 } });
-            _indexUpdater.UpdateIndexes<TestEntity>(new object[] { 1 }, new FieldValue[] { new FieldValue(0, 100) });
+            _indexUpdater.UpdateIndexes("TestEntity", new object[] { 1 }, new FieldValue[] { new FieldValue(0, 100) });
 
             Assert.AreEqual(null, _indexInt.GetEquals(10));
 
@@ -148,7 +148,7 @@ namespace SimpleDB.Test.IndexedSearch
         {
             _indexInt.Add(10, new IndexItem { PrimaryKeyValue = 1, IncludedFields = new object[] { 1.2 } });
             _indexDouble.Add(1.2, new IndexItem { PrimaryKeyValue = 1, IncludedFields = new object[] { 10 } });
-            _indexUpdater.DeleteFromIndexes<TestEntity>(1);
+            _indexUpdater.DeleteFromIndexes("TestEntity", 1);
             Assert.AreEqual(null, _indexInt.GetEquals(10));
             Assert.AreEqual(null, _indexDouble.GetEquals(1.2));
         }

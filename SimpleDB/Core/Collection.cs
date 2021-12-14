@@ -220,7 +220,7 @@ namespace SimpleDB.Core
             {
                 PrimaryKeyFile.BeginWrite();
                 EntityOperations.Delete(id, PrimaryKeyFile, PrimaryKeys);
-                _indexUpdater.DeleteFromIndexes<TEntity>(id);
+                _indexUpdater.DeleteFromIndexes(Mapper.EntityName, id);
             }
             finally
             {
@@ -236,7 +236,7 @@ namespace SimpleDB.Core
                 foreach (var id in idList)
                 {
                     EntityOperations.Delete(id, PrimaryKeyFile, PrimaryKeys);
-                    _indexUpdater.DeleteFromIndexes<TEntity>(idList);
+                    _indexUpdater.DeleteFromIndexes(Mapper.EntityName, idList);
                 }
             }
             finally

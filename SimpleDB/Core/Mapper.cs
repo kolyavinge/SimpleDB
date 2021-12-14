@@ -9,6 +9,7 @@ namespace SimpleDB.Core
     {
         Type EntityType { get; }
         string EntityName { get; }
+        Type PrimaryKeyType { get; }
         List<FieldMeta> FieldMetaCollection { get; }
     }
 
@@ -21,6 +22,8 @@ namespace SimpleDB.Core
         public string EntityName => EntityType.Name;
 
         public PrimaryKeyMapping<TEntity> PrimaryKeyMapping { get; }
+
+        public Type PrimaryKeyType => PrimaryKeyMapping.PropertyType;
 
         public List<FieldMapping<TEntity>> FieldMappings { get; }
 
