@@ -34,9 +34,9 @@ namespace SimpleDB.QueryExecutors
             return new SelectQueryExecutor(_dataFile, _primaryKeys, _indexHolder);
         }
 
-        public UpdateQueryExecutor<TEntity> MakeUpdateQueryExecutor()
+        public UpdateQueryExecutor MakeUpdateQueryExecutor()
         {
-            return new UpdateQueryExecutor<TEntity>(_mapper, _primaryKeyFile, _dataFile, _primaryKeys, _indexHolder, _indexUpdater);
+            return new UpdateQueryExecutor(_mapper, _primaryKeyFile, _dataFile, _primaryKeys, _indexHolder, _indexUpdater);
         }
 
         public DeleteQueryExecutor MakeDeleteQueryExecutor()
