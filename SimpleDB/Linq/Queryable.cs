@@ -8,10 +8,10 @@ namespace SimpleDB.Linq
 {
     internal class Queryable<TEntity> : IQueryable<TEntity>
     {
-        private readonly QueryExecutorFactory<TEntity> _queryExecutorFactory;
+        private readonly QueryExecutorFactory _queryExecutorFactory;
         private readonly Mapper<TEntity> _mapper;
 
-        public Queryable(QueryExecutorFactory<TEntity> queryExecutorFactory, Mapper<TEntity> mapper)
+        public Queryable(QueryExecutorFactory queryExecutorFactory, Mapper<TEntity> mapper)
         {
             _queryExecutorFactory = queryExecutorFactory;
             _mapper = mapper;
@@ -84,7 +84,7 @@ namespace SimpleDB.Linq
                mergeFieldsExpression,
                entities);
             var query = queryBuilder.BuildQuery();
-            var queryExecutor = _queryExecutorFactory.MakeMergeQueryExecutor();
+            var queryExecutor = _queryExecutorFactory.MakeMergeQueryExecutor(_mapper);
             var result = queryExecutor.ExecuteQuery(query);
 
             return result;

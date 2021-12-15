@@ -247,7 +247,7 @@ namespace SimpleDB.Core
 
         public IQueryable<TEntity> Query()
         {
-            var queryExecutorFactory = new QueryExecutorFactory<TEntity>(Mapper, PrimaryKeyFile, PrimaryKeys, DataFile, _indexHolder, _indexUpdater);
+            var queryExecutorFactory = new QueryExecutorFactory(Mapper.EntityMeta, PrimaryKeyFile, PrimaryKeys, DataFile, _indexHolder, _indexUpdater);
             return new Queryable<TEntity>(queryExecutorFactory, Mapper);
         }
 

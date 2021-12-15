@@ -4,9 +4,9 @@ using SimpleDB.IndexedSearch;
 
 namespace SimpleDB.QueryExecutors
 {
-    internal class QueryExecutorFactory<TEntity>
+    internal class QueryExecutorFactory
     {
-        private readonly Mapper<TEntity> _mapper;
+        private readonly EntityMeta _entityMeta;
         private readonly PrimaryKeyFile _primaryKeyFile;
         private readonly Dictionary<object, PrimaryKey> _primaryKeys;
         private readonly DataFile _dataFile;
@@ -14,14 +14,14 @@ namespace SimpleDB.QueryExecutors
         private readonly IndexUpdater _indexUpdater;
 
         public QueryExecutorFactory(
-            Mapper<TEntity> mapper,
+            EntityMeta entityMeta,
             PrimaryKeyFile primaryKeyFile,
             Dictionary<object, PrimaryKey> primaryKeys,
             DataFile dataFile,
             IndexHolder indexHolder,
             IndexUpdater indexUpdater)
         {
-            _mapper = mapper;
+            _entityMeta = entityMeta;
             _primaryKeyFile = primaryKeyFile;
             _primaryKeys = primaryKeys;
             _dataFile = dataFile;
@@ -36,7 +36,7 @@ namespace SimpleDB.QueryExecutors
 
         public UpdateQueryExecutor MakeUpdateQueryExecutor()
         {
-            return new UpdateQueryExecutor(_mapper, _primaryKeyFile, _dataFile, _primaryKeys, _indexHolder, _indexUpdater);
+            return new UpdateQueryExecutor(_entityMeta, _primaryKeyFile, _dataFile, _primaryKeys, _indexHolder, _indexUpdater);
         }
 
         public DeleteQueryExecutor MakeDeleteQueryExecutor()
@@ -44,9 +44,9 @@ namespace SimpleDB.QueryExecutors
             return new DeleteQueryExecutor(_primaryKeyFile, _primaryKeys, _dataFile, _indexHolder, _indexUpdater);
         }
 
-        public MergeQueryExecutor<TEntity> MakeMergeQueryExecutor()
+        public MergeQueryExecutor<TEntity> MakeMergeQueryExecutor<TEntity>(Mapper<TEntity> mapper)
         {
-            return new MergeQueryExecutor<TEntity>(_mapper, _primaryKeyFile, _dataFile, _primaryKeys);
+            return new MergeQueryExecutor<TEntity>(mapper, _primaryKeyFile, _dataFile, _primaryKeys);
         }
     }
 }

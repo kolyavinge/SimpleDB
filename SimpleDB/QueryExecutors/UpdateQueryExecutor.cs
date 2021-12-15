@@ -9,7 +9,7 @@ namespace SimpleDB.QueryExecutors
 {
     internal class UpdateQueryExecutor
     {
-        private readonly IMapper _mapper;
+        private readonly EntityMeta _entityMeta;
         private readonly PrimaryKeyFile _primaryKeyFile;
         private readonly DataFile _dataFile;
         private readonly IDictionary<object, PrimaryKey> _primaryKeys;
@@ -17,9 +17,9 @@ namespace SimpleDB.QueryExecutors
         private readonly IndexUpdater _indexUpdater;
 
         public UpdateQueryExecutor(
-            IMapper mapper, PrimaryKeyFile primaryKeyFile, DataFile dataFile, IDictionary<object, PrimaryKey> primaryKeys, IndexHolder indexHolder, IndexUpdater indexUpdater)
+            EntityMeta entityMeta, PrimaryKeyFile primaryKeyFile, DataFile dataFile, IDictionary<object, PrimaryKey> primaryKeys, IndexHolder indexHolder, IndexUpdater indexUpdater)
         {
-            _mapper = mapper;
+            _entityMeta = entityMeta;
             _primaryKeyFile = primaryKeyFile;
             _dataFile = dataFile;
             _primaryKeys = primaryKeys;
@@ -84,7 +84,7 @@ namespace SimpleDB.QueryExecutors
             var updateFieldDictionary = query.UpdateClause.UpdateItems.Cast<UpdateClause.Field>().ToDictionary(k => k.Number, v => new FieldValue(v.Number, v.Value));
             var updateFieldNumbers = query.UpdateClause.GetAllFieldNumbers().ToHashSet();
             var variableFieldNumbers =
-                (from meta in _mapper.FieldMetaCollection
+                (from meta in _entityMeta.FieldMetaCollection
                  join fieldNumber in updateFieldNumbers on meta.Number equals fieldNumber
                  let fieldType = FieldTypesConverter.GetFieldType(meta.Type)
                  where fieldType == FieldTypes.String || fieldType == FieldTypes.Object
@@ -95,7 +95,7 @@ namespace SimpleDB.QueryExecutors
                 var nonSelectedUpdateFieldNumbers = updateFieldNumbers.ToHashSet();
                 nonSelectedUpdateFieldNumbers.ExceptWith(allFieldNumbers);
                 allFieldNumbers.AddRange(nonSelectedUpdateFieldNumbers);
-                var remainingFieldNumbers = _mapper.FieldMetaCollection.Select(x => x.Number).ToHashSet();
+                var remainingFieldNumbers = _entityMeta.FieldMetaCollection.Select(x => x.Number).ToHashSet();
                 remainingFieldNumbers.ExceptWith(allFieldNumbers);
                 if (nonSelectedUpdateFieldNumbers.Any())
                 {
