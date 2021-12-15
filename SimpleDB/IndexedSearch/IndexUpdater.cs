@@ -51,7 +51,7 @@ namespace SimpleDB.IndexedSearch
                     var indexItem = new IndexItem { PrimaryKeyValue = fieldValueCollection.PrimaryKeyValue, IncludedFields = includedFieldValues };
                     index.Add(indexedFieldValue, indexItem);
                 }
-                SaveIndexFile<TEntity>(index);
+                SaveIndexFile(index);
             }
         }
 
@@ -70,21 +70,20 @@ namespace SimpleDB.IndexedSearch
             var fieldValueDictionary = entities.ToDictionary(
                 entity => mapper.GetPrimaryKeyValue(entity),
                 entity => mapper.GetFieldValueCollection(entity, fieldNumbers).ToDictionary(k => k.Number, v => v.Value));
-            UpdateIndexes<TEntity>(entityIndexes, fieldValueDictionary);
+            UpdateIndexes(entityIndexes, fieldValueDictionary);
         }
 
-        public void UpdateIndexes<TEntity>(IEnumerable<object> primaryKeyValues, IEnumerable<FieldValue> updatedFields)
+        public void UpdateIndexes(string entityName, IEnumerable<object> primaryKeyValues, IEnumerable<FieldValue> updatedFields)
         {
-            var mapper = _mapperHolder.Get<TEntity>();
-            if (!_indexes.ContainsKey(mapper.EntityName)) return;
-            var entityIndexes = _indexes[mapper.EntityName];
+            if (!_indexes.ContainsKey(entityName)) return;
+            var entityIndexes = _indexes[entityName];
             var fieldValueDictionary = primaryKeyValues.ToDictionary(
                 primaryKeyValue => primaryKeyValue,
                 _ => updatedFields.ToDictionary(k => k.Number, v => v.Value));
-            UpdateIndexes<TEntity>(entityIndexes, fieldValueDictionary);
+            UpdateIndexes(entityIndexes, fieldValueDictionary);
         }
 
-        private void UpdateIndexes<TEntity>(IEnumerable<IIndex> entityIndexes, Dictionary<object, Dictionary<byte, object>> fieldValueDictionary)
+        private void UpdateIndexes(IEnumerable<IIndex> entityIndexes, Dictionary<object, Dictionary<byte, object>> fieldValueDictionary)
         {
             foreach (var index in entityIndexes)
             {
@@ -130,20 +129,19 @@ namespace SimpleDB.IndexedSearch
                 {
                     index.Add(item.Key, item.Select(x => x.IndexItem));
                 }
-                SaveIndexFile<TEntity>(index);
+                SaveIndexFile(index);
             }
         }
 
-        public void DeleteFromIndexes<TEntity>(object primaryKeyValue)
+        public void DeleteFromIndexes(string entityName, object primaryKeyValue)
         {
-            DeleteFromIndexes<TEntity>(new[] { primaryKeyValue });
+            DeleteFromIndexes(entityName, new[] { primaryKeyValue });
         }
 
-        public void DeleteFromIndexes<TEntity>(IEnumerable<object> primaryKeyValues)
+        public void DeleteFromIndexes(string entityName, IEnumerable<object> primaryKeyValues)
         {
-            var mapper = _mapperHolder.Get<TEntity>();
-            if (!_indexes.ContainsKey(mapper.EntityName)) return;
-            var entityIndexes = _indexes[mapper.EntityName];
+            if (!_indexes.ContainsKey(entityName)) return;
+            var entityIndexes = _indexes[entityName];
             var primaryKeyValuesSet = primaryKeyValues.ToHashSet();
             foreach (var index in entityIndexes)
             {
@@ -164,14 +162,14 @@ namespace SimpleDB.IndexedSearch
                         index.Delete(item.IndexValue.IndexedFieldValue);
                     }
                 }
-                SaveIndexFile<TEntity>(index);
+                SaveIndexFile(index);
             }
         }
 
-        private void SaveIndexFile<TEntity>(IIndex index)
+        private void SaveIndexFile(IIndex index)
         {
-            var mapper = _mapperHolder.Get<TEntity>();
-            var indexFile = _indexFileFactory.Make(mapper.EntityName, index.Meta.Name, mapper.PrimaryKeyMapping.PropertyType, mapper.FieldMetaCollection);
+            var mapper = _mapperHolder.Get(index.Meta.EntityName);
+            var indexFile = _indexFileFactory.Make(index.Meta.EntityName, index.Meta.Name, mapper.PrimaryKeyType, mapper.FieldMetaCollection);
             indexFile.WriteIndex(index);
         }
 

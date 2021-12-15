@@ -15,7 +15,7 @@ namespace SimpleDB.Test.QueryExecutors
         private Memory _memory;
         private Mapper<TestEntity> _mapper;
         private Collection<TestEntity> _collection;
-        private UpdateQueryExecutor<TestEntity> _queryExecutor;
+        private UpdateQueryExecutor _queryExecutor;
 
         [SetUp]
         public void Setup()
@@ -36,7 +36,7 @@ namespace SimpleDB.Test.QueryExecutors
                 new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, _memory),
                 new DataFileFactory(_workingDirectory, _fileSystem, _memory),
                 new MetaFileFactory(_workingDirectory, _fileSystem));
-            _queryExecutor = new UpdateQueryExecutor<TestEntity>( _mapper, _collection.PrimaryKeyFile, _collection.DataFile, _collection.PrimaryKeys, new IndexHolder(), new IndexUpdater(_mapper));
+            _queryExecutor = new UpdateQueryExecutor( _mapper, _collection.PrimaryKeyFile, _collection.DataFile, _collection.PrimaryKeys, new IndexHolder(), new IndexUpdater(_mapper));
         }
 
         [Test]

@@ -7,9 +7,9 @@ using SimpleDB.Utils.EnumerableExtension;
 
 namespace SimpleDB.QueryExecutors
 {
-    internal class UpdateQueryExecutor<TEntity>
+    internal class UpdateQueryExecutor
     {
-        private readonly Mapper<TEntity> _mapper;
+        private readonly IMapper _mapper;
         private readonly PrimaryKeyFile _primaryKeyFile;
         private readonly DataFile _dataFile;
         private readonly IDictionary<object, PrimaryKey> _primaryKeys;
@@ -17,7 +17,7 @@ namespace SimpleDB.QueryExecutors
         private readonly IndexUpdater _indexUpdater;
 
         public UpdateQueryExecutor(
-            Mapper<TEntity> mapper, PrimaryKeyFile primaryKeyFile, DataFile dataFile, IDictionary<object, PrimaryKey> primaryKeys, IndexHolder indexHolder, IndexUpdater indexUpdater)
+            IMapper mapper, PrimaryKeyFile primaryKeyFile, DataFile dataFile, IDictionary<object, PrimaryKey> primaryKeys, IndexHolder indexHolder, IndexUpdater indexUpdater)
         {
             _mapper = mapper;
             _primaryKeyFile = primaryKeyFile;
@@ -142,7 +142,7 @@ namespace SimpleDB.QueryExecutors
                 }
             }
 
-            _indexUpdater.UpdateIndexes<TEntity>(fieldValueCollections.Select(x => x.PrimaryKey.Value), updateFieldDictionary.Values);
+            _indexUpdater.UpdateIndexes(query.EntityName, fieldValueCollections.Select(x => x.PrimaryKey.Value), updateFieldDictionary.Values);
 
             return fieldValueCollections.Count;
         }
