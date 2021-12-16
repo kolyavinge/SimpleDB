@@ -20,8 +20,6 @@ namespace SimpleDB.Core
             Type = type;
         }
 
-        public FieldMeta(byte number, Type type) : this(number, null, type) { }
-
         public object GetDefaultValue()
         {
             if (Type == typeof(bool)) return default(bool);

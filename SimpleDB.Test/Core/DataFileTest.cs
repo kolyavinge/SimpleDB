@@ -23,22 +23,22 @@ namespace SimpleDB.Test.Core
             _memory = Memory.Instance;
             _fieldMetaCollection = new FieldMeta[]
             {
-                new FieldMeta(0, typeof(bool)),
-                new FieldMeta(1, typeof(sbyte)),
-                new FieldMeta(2, typeof(byte)),
-                new FieldMeta(3, typeof(char)),
-                new FieldMeta(4, typeof(short)),
-                new FieldMeta(5, typeof(ushort)),
-                new FieldMeta(6, typeof(int)),
-                new FieldMeta(7, typeof(uint)),
-                new FieldMeta(8, typeof(long)),
-                new FieldMeta(9, typeof(ulong)),
-                new FieldMeta(10, typeof(float)),
-                new FieldMeta(11, typeof(double)),
-                new FieldMeta(12, typeof(decimal)),
-                new FieldMeta(13, typeof(DateTime)),
-                new FieldMeta(14, typeof(string)),
-                new FieldMeta(15, typeof(byte[]))
+                new FieldMeta(0,  "", typeof(bool)),
+                new FieldMeta(1,  "", typeof(sbyte)),
+                new FieldMeta(2,  "", typeof(byte)),
+                new FieldMeta(3,  "", typeof(char)),
+                new FieldMeta(4,  "", typeof(short)),
+                new FieldMeta(5,  "", typeof(ushort)),
+                new FieldMeta(6,  "", typeof(int)),
+                new FieldMeta(7,  "", typeof(uint)),
+                new FieldMeta(8,  "", typeof(long)),
+                new FieldMeta(9,  "", typeof(ulong)),
+                new FieldMeta(10, "", typeof(float)),
+                new FieldMeta(11, "", typeof(double)),
+                new FieldMeta(12, "", typeof(decimal)),
+                new FieldMeta(13, "", typeof(DateTime)),
+                new FieldMeta(14, "", typeof(string)),
+                new FieldMeta(15, "", typeof(byte[]))
             };
             _fieldNumbers = _fieldMetaCollection.Select(x => x.Number).ToHashSet();
         }
@@ -122,7 +122,7 @@ namespace SimpleDB.Test.Core
         {
             var fieldMetaCollection = new FieldMeta[]
             {
-                new FieldMeta(0, typeof(TestEntity))
+                new FieldMeta(0, "", typeof(TestEntity))
             };
             var dataFile = new DataFile("", fieldMetaCollection, _fileSystem, _memory);
             dataFile.BeginWrite();
@@ -547,7 +547,7 @@ namespace SimpleDB.Test.Core
         {
             var fieldMetaCollection = new FieldMeta[]
             {
-                new FieldMeta(0, typeof(InnerObject))
+                new FieldMeta(0, "", typeof(InnerObject))
             };
             var dataFile = new DataFile("", fieldMetaCollection, _fileSystem, _memory);
             dataFile.BeginWrite();
@@ -586,7 +586,7 @@ namespace SimpleDB.Test.Core
         {
             var fieldMetaCollection = new FieldMeta[]
             {
-                new FieldMeta(0, typeof(InnerObject)),
+                new FieldMeta(0, "", typeof(InnerObject)),
             };
             var fieldValueCollection = new FieldValue[]
             {
@@ -605,7 +605,7 @@ namespace SimpleDB.Test.Core
         {
             var fieldMetaCollection = new FieldMeta[]
             {
-                new FieldMeta(0, null)
+                new FieldMeta(0, "", null)
             };
             var fieldValueCollection = new FieldValue[]
             {
@@ -625,8 +625,8 @@ namespace SimpleDB.Test.Core
         {
             var fieldMetaCollection = new FieldMeta[]
             {
-                new FieldMeta(0, typeof(string)),
-                new FieldMeta(1, typeof(int)),
+                new FieldMeta(0, "", typeof(string)),
+                new FieldMeta(1, "", typeof(int)),
             };
             var fieldValueCollection = new FieldValue[]
             {
@@ -647,8 +647,8 @@ namespace SimpleDB.Test.Core
         {
             var fieldMetaCollection = new FieldMeta[]
             {
-                new FieldMeta(0, typeof(string)),
-                new FieldMeta(1, typeof(int)),
+                new FieldMeta(0, "", typeof(string)),
+                new FieldMeta(1, "", typeof(int)),
             };
             var fieldValueCollection = new FieldValue[]
             {
@@ -669,8 +669,8 @@ namespace SimpleDB.Test.Core
         {
             var fieldMetaCollection = new FieldMeta[]
             {
-                new FieldMeta(0, typeof(string)),
-                new FieldMeta(1, typeof(int)),
+                new FieldMeta(0, "", typeof(string)),
+                new FieldMeta(1, "", typeof(int)),
             };
             var fieldValueCollection = new FieldValue[]
             {
@@ -770,7 +770,7 @@ namespace SimpleDB.Test.Core
         {
             var fieldMetaCollection = new FieldMeta[]
             {
-                new FieldMeta(0, typeof(string)) { Settings = new FieldSettings { Compressed = true } }
+                new FieldMeta(0, "", typeof(string)) { Settings = new FieldSettings { Compressed = true } }
             };
             var fieldValueCollection = new FieldValue[]
             {
@@ -789,7 +789,7 @@ namespace SimpleDB.Test.Core
         {
             var fieldMetaCollection = new FieldMeta[]
             {
-                new FieldMeta(0, typeof(InnerObject)) { Settings = new FieldSettings { Compressed = true } }
+                new FieldMeta(0, "", typeof(InnerObject)) { Settings = new FieldSettings { Compressed = true } }
             };
             var fieldValueCollection = new FieldValue[]
             {
