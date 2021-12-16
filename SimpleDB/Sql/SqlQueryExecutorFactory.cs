@@ -6,7 +6,7 @@ namespace SimpleDB.Sql
 {
     internal static class SqlQueryExecutorFactory
     {
-        public static ISqlQueryExecutor MakeQueryExecutor(string workingDirectory)
+        public static ISqlQueryExecutor Make(string workingDirectory)
         {
             return new SqlQueryExecutor(
                 new PrimaryKeyFileFactory(workingDirectory),

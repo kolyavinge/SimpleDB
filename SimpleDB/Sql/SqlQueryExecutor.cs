@@ -43,7 +43,9 @@ namespace SimpleDB.Sql
             var primaryKeys = primaryKeyFile.GetAllPrimaryKeys().ToDictionary(k => k.Value, v => v);
             primaryKeyFile.EndReadWrite();
             var dataFile = _dataFileFactory.MakeFromEntityName(entityMeta.EntityName, entityMeta.FieldMetaCollection);
+            dataFile.BeginRead();
             var result = ExecuteQuery(queryType, query, primaryKeyFile, primaryKeys, dataFile);
+            dataFile.EndReadWrite();
 
             return result;
         }
@@ -61,6 +63,7 @@ namespace SimpleDB.Sql
                 var result = executor.ExecuteQuery((SelectQuery)query);
                 return new SqlQueryResult
                 {
+                    EntityName = query.EntityName,
                     FieldValueCollections = result.FieldValueCollections,
                     Scalar = result.Scalar
                 };
@@ -82,6 +85,8 @@ namespace SimpleDB.Sql
 
     internal class SqlQueryResult
     {
+        public string EntityName { get; set; }
+
         public List<FieldValueCollection> FieldValueCollections { get; set; }
 
         public object Scalar { get; set; }
