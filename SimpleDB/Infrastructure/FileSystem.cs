@@ -1,74 +1,138 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using SingleFileStorage;
 
 namespace SimpleDB.Infrastructure
 {
     internal interface IFileSystem
     {
-        bool FileExists(string fullPath);
+        bool FileExists(string fileName);
 
-        void CreateFileIfNeeded(string fullPath);
+        void CreateFiles(params string[] fileNames);
 
-        IFileStream OpenFileRead(string fullPath);
+        void CreateNewFiles(IEnumerable<string> fileNames);
 
-        IFileStream OpenFileWrite(string fullPath);
+        IFileStream OpenFileRead(string fileName);
 
-        IFileStream OpenFileReadWrite(string fullPath);
+        IFileStream OpenFileReadWrite(string fileName);
 
-        IEnumerable<string> GetFiles(string directory);
+        IEnumerable<string> GetFiles();
 
-        void RenameFile(string fullPath, string renamedFullPath);
+        void RenameFile(string fileName, string renamedFileName);
 
-        void DeleteFile(string fullPath);
+        void DeleteFile(string fileName);
     }
 
     internal class FileSystem : IFileSystem
     {
-        public static readonly FileSystem Instance = new FileSystem();
+        private readonly string _databaseFilePath;
+        private readonly List<IFileStream> _openedFiles;
+        private IStorage _storage;
 
-        private FileSystem() { }
-
-        public bool FileExists(string fullPath)
+        public FileSystem(string databaseFilePath)
         {
-            return System.IO.File.Exists(fullPath);
+            _databaseFilePath = databaseFilePath;
+            _openedFiles = new List<IFileStream>();
+            if (!File.Exists(databaseFilePath)) StorageFile.Create(databaseFilePath);
         }
 
-        public void CreateFileIfNeeded(string fullPath)
+        public bool FileExists(string fileName)
         {
-            if (!System.IO.File.Exists(fullPath))
+            ThrowErrorIfOpenedFilesExists();
+            using (var storage = StorageFile.Open(_databaseFilePath, Access.Read))
             {
-                using (System.IO.File.Create(fullPath)) { }
+                return storage.IsRecordExist(fileName);
             }
         }
 
-        public IFileStream OpenFileRead(string fullPath)
+        public void CreateFiles(params string[] fileNames)
         {
-            return new FileStream(System.IO.File.Open(fullPath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read));
+            ThrowErrorIfOpenedFilesExists();
+            using (var storage = StorageFile.Open(_databaseFilePath, Access.Modify))
+            {
+                foreach (var fileName in fileNames)
+                {
+                    storage.CreateRecord(fileName);
+                }
+            }
         }
 
-        public IFileStream OpenFileWrite(string fullPath)
+        public void CreateNewFiles(IEnumerable<string> fileNames)
         {
-            return new FileStream(System.IO.File.OpenWrite(fullPath));
+            ThrowErrorIfOpenedFilesExists();
+            using (var storage = StorageFile.Open(_databaseFilePath, Access.Modify))
+            {
+                foreach (var fileName in fileNames)
+                {
+                    if (!storage.IsRecordExist(fileName))
+                    {
+                        storage.CreateRecord(fileName);
+                    }
+                }
+            }
         }
 
-        public IFileStream OpenFileReadWrite(string fullPath)
+        public IFileStream OpenFileRead(string fileName)
         {
-            return new FileStream(System.IO.File.Open(fullPath, System.IO.FileMode.Open, System.IO.FileAccess.ReadWrite));
+            if (_storage == null) _storage = StorageFile.Open(_databaseFilePath, Access.Read);
+            else if (_storage.AccessMode != Access.Read) throw new IOException("File must be opened with Read mode.");
+            var fileStream = new FileStream(_storage.OpenRecord(fileName), DisposeFileStreamFunc);
+            _openedFiles.Add(fileStream);
+
+            return fileStream;
         }
 
-        public IEnumerable<string> GetFiles(string directory)
+        public IFileStream OpenFileReadWrite(string fileName)
         {
-            return Directory.GetFiles(directory);
+            if (_storage == null) _storage = StorageFile.Open(_databaseFilePath, Access.Modify);
+            else if (_storage.AccessMode != Access.Modify) throw new IOException("File must be opened with ReadWrite mode");
+            var fileStream = new FileStream(_storage.OpenRecord(fileName), DisposeFileStreamFunc);
+            _openedFiles.Add(fileStream);
+
+            return fileStream;
         }
 
-        public void RenameFile(string fullPath, string renamedFullPath)
+        private void DisposeFileStreamFunc(IFileStream fileStream)
         {
-            File.Move(fullPath, renamedFullPath);
+            _openedFiles.Remove(fileStream);
+            if (!_openedFiles.Any())
+            {
+                _storage.Dispose();
+                _storage = null;
+            }
         }
 
-        public void DeleteFile(string fullPath)
+        public IEnumerable<string> GetFiles()
         {
-            File.Delete(fullPath);
+            ThrowErrorIfOpenedFilesExists();
+            using (var storage = StorageFile.Open(_databaseFilePath, Access.Read))
+            {
+                return storage.GetAllRecordNames();
+            }
+        }
+
+        public void RenameFile(string fileName, string renamedFileName)
+        {
+            ThrowErrorIfOpenedFilesExists();
+            using (var storage = StorageFile.Open(_databaseFilePath, Access.Modify))
+            {
+                storage.RenameRecord(fileName, renamedFileName);
+            }
+        }
+
+        public void DeleteFile(string fileName)
+        {
+            ThrowErrorIfOpenedFilesExists();
+            using (var storage = StorageFile.Open(_databaseFilePath, Access.Modify))
+            {
+                storage.DeleteRecord(fileName);
+            }
+        }
+
+        private void ThrowErrorIfOpenedFilesExists()
+        {
+            if (_storage != null) throw new IOException("All opened files must be closed.");
         }
     }
 }

@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using SimpleDB.IndexedSearch;
 using SimpleDB.Infrastructure;
 using SimpleDB.Linq;
 using SimpleDB.QueryExecutors;
-using SimpleDB.Utils.EnumerableExtension;
 
 namespace SimpleDB.Core
 {
@@ -95,8 +93,8 @@ namespace SimpleDB.Core
         {
             try
             {
-                DataFile.BeginWrite();
-                PrimaryKeyFile.BeginWrite();
+                DataFile.BeginReadWrite();
+                PrimaryKeyFile.BeginReadWrite();
                 EntityOperations.Insert(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
                 _indexUpdater.AddToIndexes(entity);
             }
@@ -111,8 +109,8 @@ namespace SimpleDB.Core
         {
             try
             {
-                DataFile.BeginWrite();
-                PrimaryKeyFile.BeginWrite();
+                DataFile.BeginReadWrite();
+                PrimaryKeyFile.BeginReadWrite();
                 foreach (var entity in entities)
                 {
                     EntityOperations.Insert(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
@@ -130,8 +128,8 @@ namespace SimpleDB.Core
         {
             try
             {
-                DataFile.BeginWrite();
-                PrimaryKeyFile.BeginWrite();
+                DataFile.BeginReadWrite();
+                PrimaryKeyFile.BeginReadWrite();
                 EntityOperations.Update(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
                 _indexUpdater.UpdateIndexes(entity);
             }
@@ -146,8 +144,8 @@ namespace SimpleDB.Core
         {
             try
             {
-                DataFile.BeginWrite();
-                PrimaryKeyFile.BeginWrite();
+                DataFile.BeginReadWrite();
+                PrimaryKeyFile.BeginReadWrite();
                 foreach (var entity in entities)
                 {
                     EntityOperations.Update(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
@@ -165,8 +163,8 @@ namespace SimpleDB.Core
         {
             try
             {
-                DataFile.BeginWrite();
-                PrimaryKeyFile.BeginWrite();
+                DataFile.BeginReadWrite();
+                PrimaryKeyFile.BeginReadWrite();
                 var primaryKeyValue = Mapper.GetPrimaryKeyValue(entity);
                 if (Exist(primaryKeyValue))
                 {
@@ -190,8 +188,8 @@ namespace SimpleDB.Core
         {
             try
             {
-                DataFile.BeginWrite();
-                PrimaryKeyFile.BeginWrite();
+                DataFile.BeginReadWrite();
+                PrimaryKeyFile.BeginReadWrite();
                 foreach (var entity in entities)
                 {
                     var primaryKeyValue = Mapper.GetPrimaryKeyValue(entity);
@@ -218,7 +216,7 @@ namespace SimpleDB.Core
         {
             try
             {
-                PrimaryKeyFile.BeginWrite();
+                PrimaryKeyFile.BeginReadWrite();
                 EntityOperations.Delete(id, PrimaryKeyFile, PrimaryKeys);
                 _indexUpdater.DeleteFromIndexes(Mapper.EntityName, id);
             }
@@ -232,7 +230,7 @@ namespace SimpleDB.Core
         {
             try
             {
-                PrimaryKeyFile.BeginWrite();
+                PrimaryKeyFile.BeginReadWrite();
                 foreach (var id in idList)
                 {
                     EntityOperations.Delete(id, PrimaryKeyFile, PrimaryKeys);
@@ -266,6 +264,7 @@ namespace SimpleDB.Core
             }
             else
             {
+                metaFile.Create();
                 metaFile.Save(currentMetaData);
             }
         }
@@ -278,14 +277,12 @@ namespace SimpleDB.Core
 
     internal class CollectionFactory : ICollectionFactory
     {
-        private readonly string _workingDirectory;
         private readonly IFileSystem _fileSystem;
         private readonly IMemory _memory;
 
-        public CollectionFactory(string workingDirectory, IFileSystem fileSystem = null, IMemory memory = null)
+        public CollectionFactory(IFileSystem fileSystem, IMemory memory = null)
         {
-            _workingDirectory = workingDirectory;
-            _fileSystem = fileSystem ?? FileSystem.Instance;
+            _fileSystem = fileSystem;
             _memory = memory ?? Memory.Instance;
         }
 
@@ -293,9 +290,9 @@ namespace SimpleDB.Core
         {
             return new Collection<TEntity>(
                 mapper,
-                new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, _memory),
-                new DataFileFactory(_workingDirectory, _fileSystem, _memory),
-                new MetaFileFactory(_workingDirectory, _fileSystem),
+                new PrimaryKeyFileFactory(_fileSystem, _memory),
+                new DataFileFactory(_fileSystem, _memory),
+                new MetaFileFactory(_fileSystem),
                 indexHolder,
                 indexUpdater);
         }

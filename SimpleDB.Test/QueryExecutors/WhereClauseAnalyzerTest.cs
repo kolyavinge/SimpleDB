@@ -11,7 +11,6 @@ namespace SimpleDB.Test.QueryExecutors
 {
     class WhereClauseAnalyzerTest
     {
-        private readonly string _workingDirectory = "working directory";
         private WhereClauseAnalyzer _analyzer;
         private TestFieldValueReader _testFieldValueReader;
 
@@ -33,9 +32,9 @@ namespace SimpleDB.Test.QueryExecutors
                 });
             var collection = new Collection<TestEntity>(
                 mapper,
-                new PrimaryKeyFileFactory(_workingDirectory, fileSystem, memory),
-                new DataFileFactory(_workingDirectory, fileSystem, memory),
-                new MetaFileFactory(_workingDirectory, fileSystem));
+                new PrimaryKeyFileFactory(fileSystem, memory),
+                new DataFileFactory(fileSystem, memory),
+                new MetaFileFactory(fileSystem));
             collection.Insert(new TestEntity { Id = 10, A = 1, B = 2, C = 3, D = 4, E = 5, S = "123" });
             collection.Insert(new TestEntity { Id = 20, A = 6, B = 7, C = 8, D = 9, E = 10, S = "987" });
 

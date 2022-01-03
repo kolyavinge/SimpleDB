@@ -8,7 +8,6 @@ namespace SimpleDB.Test.Core
 {
     class CollectionTest
     {
-        private readonly string _workingDirectory = "working directory";
         private Mapper<TestEntity> _mapper;
         private TestEntity _entity;
         private Collection<TestEntity> _collection;
@@ -29,9 +28,9 @@ namespace SimpleDB.Test.Core
                 });
             _collection = new Collection<TestEntity>(
                 _mapper,
-                new PrimaryKeyFileFactory(_workingDirectory, fileSystem, memory),
-                new DataFileFactory(_workingDirectory, fileSystem, memory),
-                new MetaFileFactory(_workingDirectory, fileSystem));
+                new PrimaryKeyFileFactory(fileSystem, memory),
+                new DataFileFactory(fileSystem, memory),
+                new MetaFileFactory(fileSystem));
         }
 
         [Test]

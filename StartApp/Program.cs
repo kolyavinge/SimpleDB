@@ -12,24 +12,24 @@ namespace StartApp
         static void Main()
         {
             var doInsert = 1;
-            var doGet = 1;
-            var doUpdate = 1;
-            var doDelete = 1;
-            var doQuery = 1;
-            var doMerge = 1;
+            var doGet = 0;
+            var doUpdate = 0;
+            var doDelete = 0;
+            var doQuery = 0;
+            var doMerge = 0;
             var doGetAsync = 0;
-            var doStatistics = 1;
-            var doDefragmentation = 1;
+            var doStatistics = 0;
+            var doDefragmentation = 0;
 
-            var workingDirectory = @"D:\Projects\SimpleDB\StartApp\bin\Debug\netcoreapp3.1\Database";
+            var databaseFilePath = @"D:\Projects\SimpleDB\StartApp\bin\Debug\netcoreapp3.1\StartApp.database";
             if (doInsert == 1)
             {
-                foreach (var file in Directory.GetFiles(workingDirectory)) File.Delete(file);
+                File.Delete(databaseFilePath);
             }
 
             // build engine
             var builder = DBEngineBuilder.Make();
-            builder.WorkingDirectory(workingDirectory);
+            builder.DatabaseFilePath(databaseFilePath);
 
             builder.Map<Person>()
                 .PrimaryKey(x => x.Id)
@@ -274,7 +274,7 @@ namespace StartApp
             if (doStatistics == 1)
             {
                 Console.WriteLine("========== Statistics ==========");
-                var statistics = StatisticsFactory.MakeStatistics(workingDirectory);
+                var statistics = StatisticsFactory.MakeStatistics(databaseFilePath);
                 sw = System.Diagnostics.Stopwatch.StartNew();
                 foreach (var stat in statistics.GetPrimaryKeyFileStatistics())
                 {
@@ -294,7 +294,7 @@ namespace StartApp
             {
                 Console.WriteLine("========== Defragmentation ==========");
                 sw = System.Diagnostics.Stopwatch.StartNew();
-                var defragmentator = DefragmentatorFactory.MakeDefragmentator(workingDirectory);
+                var defragmentator = DefragmentatorFactory.MakeDefragmentator(databaseFilePath);
                 defragmentator.DefragmentDataFile("Person.data");
                 sw.Stop();
                 Console.WriteLine(sw.Elapsed);

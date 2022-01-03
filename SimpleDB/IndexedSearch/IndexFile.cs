@@ -12,11 +12,11 @@ namespace SimpleDB.IndexedSearch
         private readonly IFileSystem _fileSystem;
         private readonly IDictionary<byte, Type> _fieldTypes;
 
-        public string FileFullPath { get; }
+        public string FileName { get; }
 
-        public IndexFile(string fileFullPath, Type primaryKeyType, IEnumerable<FieldMeta> fieldMetaCollection, IFileSystem fileSystem)
+        public IndexFile(string fileName, Type primaryKeyType, IEnumerable<FieldMeta> fieldMetaCollection, IFileSystem fileSystem)
         {
-            FileFullPath = fileFullPath;
+            FileName = fileName;
             _primaryKeyType = primaryKeyType;
             _fileSystem = fileSystem;
             _fieldTypes = fieldMetaCollection.ToDictionary(k => k.Number, v => v.Type);
@@ -24,7 +24,7 @@ namespace SimpleDB.IndexedSearch
 
         public Index<TField> ReadIndex<TField>() where TField : IComparable<TField>
         {
-            using (var stream = _fileSystem.OpenFileRead(FileFullPath))
+            using (var stream = _fileSystem.OpenFileRead(FileName))
             {
                 return Index<TField>.Deserialize(stream, _primaryKeyType, _fieldTypes);
             }
@@ -32,16 +32,21 @@ namespace SimpleDB.IndexedSearch
 
         public void WriteIndex(IIndex index)
         {
-            using (var stream = _fileSystem.OpenFileWrite(FileFullPath))
+            using (var stream = _fileSystem.OpenFileReadWrite(FileName))
             {
                 index.Serialize(stream);
                 stream.SetLength(stream.Position);
             }
         }
 
+        public void Create()
+        {
+            _fileSystem.CreateFiles(FileName);
+        }
+
         public bool IsExist()
         {
-            return _fileSystem.FileExists(FileFullPath);
+            return _fileSystem.FileExists(FileName);
         }
     }
 
@@ -52,29 +57,27 @@ namespace SimpleDB.IndexedSearch
 
     internal class IndexFileFactory : IIndexFileFactory
     {
-        private readonly string _workingDirectory;
         private readonly IFileSystem _fileSystem;
 
-        public IndexFileFactory(string workingDirectory, IFileSystem fileSystem = null)
+        public IndexFileFactory(IFileSystem fileSystem)
         {
-            _workingDirectory = workingDirectory;
-            _fileSystem = fileSystem ?? FileSystem.Instance;
+            _fileSystem = fileSystem;
         }
 
         public IndexFile Make(string entityName, string indexName, Type primaryKeyType, IEnumerable<FieldMeta> fieldMetaCollection)
         {
-            var fileFullPath = IndexFileName.GetFullFileName(_workingDirectory, entityName, indexName);
-            return new IndexFile(fileFullPath, primaryKeyType, fieldMetaCollection, _fileSystem);
+            var fileName = IndexFileName.FromEntityName(entityName, indexName);
+            return new IndexFile(fileName, primaryKeyType, fieldMetaCollection, _fileSystem);
         }
     }
 
     internal static class IndexFileName
     {
-        public static string Extension = ".index";
+        public const string Extension = ".index";
 
-        public static string GetFullFileName(string workingDirectory, string entityName, string indexName)
+        public static string FromEntityName(string entityName, string indexName)
         {
-            return String.Format("{0}\\{1}_{2}{3}", workingDirectory, entityName, indexName, Extension);
+            return String.Format("{0}_{1}{2}", entityName, indexName, Extension);
         }
     }
 }

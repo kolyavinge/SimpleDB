@@ -10,8 +10,8 @@ namespace SimpleDB.Test
         public void BuildEngine()
         {
             var builder = DBEngineBuilder.Make();
-            builder.WorkingDirectory("WorkingDirectory");
-            builder._collectionFactory = new CollectionFactory("WorkingDirectory", new MemoryFileSystem());
+            builder.DatabaseFilePath("databaseFilePath");
+            builder._collectionFactory = new CollectionFactory(new MemoryFileSystem());
             builder.Map<TestEntity>()
                 .PrimaryKey(x => x.Id)
                 .Field(0, x => x.Int)
@@ -28,7 +28,7 @@ namespace SimpleDB.Test
             try
             {
                 var builder = DBEngineBuilder.Make();
-                builder.WorkingDirectory("WorkingDirectory");
+                builder.DatabaseFilePath("databaseFilePath");
                 builder.Map<TestEntity>()
                     .PrimaryKey(x => x.Id)
                     .Field(0, x => x.Int, new FieldSettings { Compressed = true })
@@ -46,7 +46,7 @@ namespace SimpleDB.Test
         public void BuildEngine_ValueTypeNotCompressed_Error()
         {
             var builder = DBEngineBuilder.Make();
-            builder.WorkingDirectory("WorkingDirectory");
+            builder.DatabaseFilePath("databaseFilePath");
             builder.Map<TestEntity>()
                 .PrimaryKey(x => x.Id)
                 .Field(0, x => x.Int, new FieldSettings { Compressed = false })

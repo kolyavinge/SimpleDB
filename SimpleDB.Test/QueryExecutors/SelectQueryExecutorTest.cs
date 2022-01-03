@@ -11,7 +11,6 @@ namespace SimpleDB.Test.QueryExecutors
 {
     class SelectQueryExecutorTest
     {
-        private readonly string _workingDirectory = "working directory";
         private Mapper<TestEntity> _mapper;
         private Collection<TestEntity> _collection;
         private SelectQueryExecutor _queryExecutor;
@@ -31,9 +30,9 @@ namespace SimpleDB.Test.QueryExecutors
                 });
             _collection = new Collection<TestEntity>(
                 _mapper,
-                new PrimaryKeyFileFactory(_workingDirectory, fileSystem, memory),
-                new DataFileFactory(_workingDirectory, fileSystem, memory),
-                new MetaFileFactory(_workingDirectory, fileSystem));
+                new PrimaryKeyFileFactory(fileSystem, memory),
+                new DataFileFactory(fileSystem, memory),
+                new MetaFileFactory(fileSystem));
             _queryExecutor = new SelectQueryExecutor(_collection.DataFile, _collection.PrimaryKeys, new IndexHolder());
         }
 

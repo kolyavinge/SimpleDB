@@ -12,7 +12,8 @@ namespace SimpleDB
     {
         private readonly List<MapperBuilder> _mapperBuilders = new List<MapperBuilder>();
         private readonly List<IndexBuilder> _indexBuilders = new List<IndexBuilder>();
-        private string _workingDirectory;
+        private string _databaseFilePath;
+        private IFileSystem _fileSystem;
         internal CollectionFactory _collectionFactory;
 
         public static DBEngineBuilder Make()
@@ -22,10 +23,11 @@ namespace SimpleDB
 
         internal DBEngineBuilder() { }
 
-        public void WorkingDirectory(string workingDirectory)
+        public void DatabaseFilePath(string path)
         {
-            _workingDirectory = workingDirectory;
-            _collectionFactory = new CollectionFactory(workingDirectory);
+            _databaseFilePath = path;
+            _fileSystem = new FileSystem(_databaseFilePath);
+            _collectionFactory = new CollectionFactory(_fileSystem);
         }
 
         public IMapperBuilder<TEntity> Map<TEntity>()
@@ -37,7 +39,7 @@ namespace SimpleDB
 
         public IIndexBuilder<TEntity> Index<TEntity>()
         {
-            var indexBuilder = new IndexBuilder<TEntity>(_workingDirectory);
+            var indexBuilder = new IndexBuilder<TEntity>(_fileSystem);
             _indexBuilders.Add(indexBuilder);
             return indexBuilder;
         }
@@ -46,9 +48,11 @@ namespace SimpleDB
         {
             var mappers = _mapperBuilders.Select(x => x.Build()).ToList();
             var mapperHolder = new MapperHolder(mappers);
+            var fileBuilder = new FileBuilder(_fileSystem);
+            fileBuilder.CreateNewFiles(mappers);
             var indexes = _indexBuilders.Select(x => x.BuildFunction(mapperHolder)).ToList();
             var indexHolder = new IndexHolder(indexes);
-            var indexUpdater = new IndexUpdater(indexes, mapperHolder, new IndexFileFactory(_workingDirectory));
+            var indexUpdater = new IndexUpdater(indexes, mapperHolder, new IndexFileFactory(_fileSystem));
 
             return new DBEngine(_collectionFactory, mapperHolder, indexHolder, indexUpdater);
         }
@@ -146,12 +150,12 @@ namespace SimpleDB
     {
         private string _name;
         private readonly List<Expression<Func<TEntity, object>>> _includeExpressions;
-        private readonly string _workingDirectory;
+        private readonly IFileSystem _fileSystem;
 
-        public IndexBuilder(string workingDirectory)
+        public IndexBuilder(IFileSystem fileSystem)
         {
-            _workingDirectory = workingDirectory;
             _includeExpressions = new List<Expression<Func<TEntity, object>>>();
+            _fileSystem = fileSystem;
         }
 
         public IIndexBuilder<TEntity> Name(string name)
@@ -165,7 +169,7 @@ namespace SimpleDB
             BuildFunction = (mapperHolder) =>
             {
                 var initializer = new IndexInitializer<TEntity>(
-                    mapperHolder, new PrimaryKeyFileFactory(_workingDirectory), new DataFileFactory(_workingDirectory), new IndexFileFactory(_workingDirectory));
+                    mapperHolder, new PrimaryKeyFileFactory(_fileSystem), new DataFileFactory(_fileSystem), new IndexFileFactory(_fileSystem));
 
                 return initializer.GetIndex(_name, indexedFieldExpression, _includeExpressions);
             };
@@ -176,6 +180,23 @@ namespace SimpleDB
         {
             _includeExpressions.Add(includeExpression);
             return this;
+        }
+    }
+
+    class FileBuilder
+    {
+        private IFileSystem _fileSystem;
+
+        public FileBuilder(IFileSystem fileSystem)
+        {
+            _fileSystem = fileSystem;
+        }
+
+        public void CreateNewFiles(List<IMapper> mappers)
+        {
+            var primaryKeyFileNames = mappers.Select(x => PrimaryKeyFileName.FromEntityName(x.EntityName)).ToList();
+            var dataFileNames = mappers.Select(x => DataFileName.FromEntityName(x.EntityName)).ToList();
+            _fileSystem.CreateNewFiles(primaryKeyFileNames.Union(dataFileNames));
         }
     }
 }

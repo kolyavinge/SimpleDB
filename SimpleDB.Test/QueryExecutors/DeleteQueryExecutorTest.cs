@@ -10,7 +10,6 @@ namespace SimpleDB.Test.QueryExecutors
 {
     class DeleteQueryExecutorTest
     {
-        private readonly string _workingDirectory = "working directory";
         private Collection<TestEntity> _collection;
         private DeleteQueryExecutor _queryExecutor;
 
@@ -29,9 +28,9 @@ namespace SimpleDB.Test.QueryExecutors
                 });
             _collection = new Collection<TestEntity>(
                 mapper,
-                new PrimaryKeyFileFactory(_workingDirectory, fileSystem, memory),
-                new DataFileFactory(_workingDirectory, fileSystem, memory),
-                new MetaFileFactory(_workingDirectory, fileSystem));
+                new PrimaryKeyFileFactory(fileSystem, memory),
+                new DataFileFactory(fileSystem, memory),
+                new MetaFileFactory(fileSystem));
             _queryExecutor = new DeleteQueryExecutor(_collection.PrimaryKeyFile, _collection.PrimaryKeys, _collection.DataFile, new IndexHolder(), new IndexUpdater(mapper));
         }
 

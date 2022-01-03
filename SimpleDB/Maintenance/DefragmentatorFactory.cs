@@ -5,13 +5,15 @@ namespace SimpleDB.Maintenance
 {
     public static class DefragmentatorFactory
     {
-        public static IDefragmentator MakeDefragmentator(string workingDirectory)
+        public static IDefragmentator MakeDefragmentator(string databaseFilePath)
         {
+            var fileSystem = new FileSystem(databaseFilePath);
+
             return new Defragmentator(
-                new PrimaryKeyFileFactory(workingDirectory),
-                new DataFileFactory(workingDirectory),
-                new MetaFileFactory(workingDirectory),
-                FileSystem.Instance);
+                new PrimaryKeyFileFactory(fileSystem),
+                new DataFileFactory(fileSystem),
+                new MetaFileFactory(fileSystem),
+                fileSystem);
         }
     }
 }

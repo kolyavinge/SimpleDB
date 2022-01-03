@@ -7,7 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleDB", "SimpleDB\Simple
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleDB.Test", "SimpleDB.Test\SimpleDB.Test.csproj", "{BF376C26-3F98-4029-A239-48E438E328E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StartApp", "StartApp\StartApp.csproj", "{5517C257-0A6A-4D02-81EC-359C928C0ADA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StartApp", "StartApp\StartApp.csproj", "{5517C257-0A6A-4D02-81EC-359C928C0ADA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SingleFileStorage", "..\SingleFileStorage\SingleFileStorage\SingleFileStorage.csproj", "{24AA38C1-A31C-4982-9687-0D67D63293FE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SingleFileStorage", "SingleFileStorage", "{73C8CDFB-C3E0-4F80-97E7-A3D9E3F0031D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,9 +31,16 @@ Global
 		{5517C257-0A6A-4D02-81EC-359C928C0ADA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5517C257-0A6A-4D02-81EC-359C928C0ADA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5517C257-0A6A-4D02-81EC-359C928C0ADA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24AA38C1-A31C-4982-9687-0D67D63293FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24AA38C1-A31C-4982-9687-0D67D63293FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24AA38C1-A31C-4982-9687-0D67D63293FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24AA38C1-A31C-4982-9687-0D67D63293FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{24AA38C1-A31C-4982-9687-0D67D63293FE} = {73C8CDFB-C3E0-4F80-97E7-A3D9E3F0031D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {73AE759A-1A82-45FF-98E4-C35CA630A443}

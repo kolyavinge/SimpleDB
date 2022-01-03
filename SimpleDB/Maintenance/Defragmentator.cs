@@ -27,11 +27,6 @@ namespace SimpleDB.Maintenance
 
         public void DefragmentDataFile(string dataFileName)
         {
-            PrimaryKeyFile currentPrimaryKeyFile = null;
-            PrimaryKeyFile defragmentPrimaryKeyFile = null;
-            DataFile currentDataFile = null;
-            DataFile defragmentDataFile = null;
-
             var entityName = Path.GetFileNameWithoutExtension(dataFileName);
             var metaFile = _metaFileCollection.GetMetaFile(entityName);
             var metaData = metaFile.GetMetaData();
@@ -39,20 +34,24 @@ namespace SimpleDB.Maintenance
             var fieldMetaCollection = metaData.FieldMetaCollection.ToList();
             var fieldNumbers = fieldMetaCollection.Select(x => x.Number).ToHashSet();
 
-            currentPrimaryKeyFile = _primaryKeyFileFactory.MakeFromEntityName(entityName, primaryKeyType);
-            currentPrimaryKeyFile.BeginRead();
+            var currentPrimaryKeyFileName = PrimaryKeyFileName.FromEntityName(entityName);
+            var currentDataFileName = DataFileName.FromEntityName(entityName);
+            var defragmentPrimaryKeyFileName = GetDefragmentedFileName(currentPrimaryKeyFileName);
+            var defragmentDataFileName = GetDefragmentedFileName(currentDataFileName);
+            _fileSystem.CreateFiles(new[] { defragmentPrimaryKeyFileName, defragmentDataFileName });
+
+            var currentPrimaryKeyFile = _primaryKeyFileFactory.MakeFromFileName(currentPrimaryKeyFileName, primaryKeyType);
+            currentPrimaryKeyFile.BeginReadWrite();
             var primaryKeys = currentPrimaryKeyFile.GetAllPrimaryKeys().Where(x => !x.IsDeleted).OrderBy(x => x.Value).ToList();
 
-            var defragmentPrimaryKeyFileFullPath = GetDefragmentedFullFileName(currentPrimaryKeyFile.FileFullPath);
-            defragmentPrimaryKeyFile = _primaryKeyFileFactory.MakeFromFileFullPath(defragmentPrimaryKeyFileFullPath, primaryKeyType);
-            defragmentPrimaryKeyFile.BeginWrite();
+            var defragmentPrimaryKeyFile = _primaryKeyFileFactory.MakeFromFileName(defragmentPrimaryKeyFileName, primaryKeyType);
+            defragmentPrimaryKeyFile.BeginReadWrite();
 
-            currentDataFile = _dataFileFactory.MakeFromEntityName(entityName, fieldMetaCollection);
-            currentDataFile.BeginRead();
+            var currentDataFile = _dataFileFactory.MakeFromFileName(currentDataFileName, fieldMetaCollection);
+            currentDataFile.BeginReadWrite();
 
-            var defragmentDataFileFullPath = GetDefragmentedFullFileName(currentDataFile.FileFullPath);
-            defragmentDataFile = _dataFileFactory.MakeFromFileFullPath(defragmentDataFileFullPath, fieldMetaCollection);
-            defragmentDataFile.BeginWrite();
+            var defragmentDataFile = _dataFileFactory.MakeFromFileName(defragmentDataFileName, fieldMetaCollection);
+            defragmentDataFile.BeginReadWrite();
 
             var fieldValueCollection = new FieldValueCollection();
             foreach (var primaryKey in primaryKeys)
@@ -70,13 +69,13 @@ namespace SimpleDB.Maintenance
             defragmentPrimaryKeyFile.EndReadWrite();
             defragmentDataFile.EndReadWrite();
 
-            _fileSystem.DeleteFile(currentPrimaryKeyFile.FileFullPath);
-            _fileSystem.DeleteFile(currentDataFile.FileFullPath);
-            _fileSystem.RenameFile(defragmentPrimaryKeyFileFullPath, currentPrimaryKeyFile.FileFullPath);
-            _fileSystem.RenameFile(defragmentDataFileFullPath, currentDataFile.FileFullPath);
+            _fileSystem.DeleteFile(currentPrimaryKeyFile.FileName);
+            _fileSystem.DeleteFile(currentDataFile.FileName);
+            _fileSystem.RenameFile(defragmentPrimaryKeyFileName, currentPrimaryKeyFile.FileName);
+            _fileSystem.RenameFile(defragmentDataFileName, currentDataFile.FileName);
         }
 
-        private string GetDefragmentedFullFileName(string currentFile)
+        private string GetDefragmentedFileName(string currentFile)
         {
             return currentFile + ".defrag";
         }

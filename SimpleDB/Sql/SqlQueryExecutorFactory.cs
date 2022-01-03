@@ -1,16 +1,18 @@
 ﻿using SimpleDB.Core;
 using SimpleDB.IndexedSearch;
-using SimpleDB.QueryExecutors;
+using SimpleDB.Infrastructure;
 
 namespace SimpleDB.Sql
 {
     internal static class SqlQueryExecutorFactory
     {
-        public static ISqlQueryExecutor Make(string workingDirectory)
+        public static ISqlQueryExecutor Make(string databaseFilePath)
         {
+            var fileSystem = new FileSystem(databaseFilePath);
+
             return new SqlQueryExecutor(
-                new PrimaryKeyFileFactory(workingDirectory),
-                new DataFileFactory(workingDirectory),
+                new PrimaryKeyFileFactory(fileSystem),
+                new DataFileFactory(fileSystem),
                 new IndexHolder());
         }
     }

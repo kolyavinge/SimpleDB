@@ -13,32 +13,26 @@ namespace SimpleDB.Core
         private readonly IMemoryBuffer _memoryBuffer;
         private IFileStream _fileStream;
 
-        public string FileFullPath { get; }
+        public string FileName { get; }
 
-        public DataFile(string fileFullPath, IEnumerable<FieldMeta> fieldMetaCollection, IFileSystem fileSystem, IMemory memory)
+        public DataFile(string fileName, IEnumerable<FieldMeta> fieldMetaCollection, IFileSystem fileSystem, IMemory memory)
         {
-            FileFullPath = fileFullPath;
+            FileName = fileName;
             _fileSystem = fileSystem;
             _fieldMetaDictionary = fieldMetaCollection.ToDictionary(k => k.Number, v => v);
-            fileSystem.CreateFileIfNeeded(FileFullPath);
             _memoryBuffer = memory.GetBuffer();
         }
 
-        public long SizeInBytes { get { return _fileStream.Length; } }
+        public long SizeInBytes => _fileStream.Length;
 
         public void BeginRead()
         {
-            _fileStream = _fileSystem.OpenFileRead(FileFullPath);
-        }
-
-        public void BeginWrite()
-        {
-            _fileStream = _fileSystem.OpenFileWrite(FileFullPath);
+            _fileStream = _fileSystem.OpenFileRead(FileName);
         }
 
         public void BeginReadWrite()
         {
-            _fileStream = _fileSystem.OpenFileReadWrite(FileFullPath);
+            _fileStream = _fileSystem.OpenFileReadWrite(FileName);
         }
 
         public void EndReadWrite()
@@ -49,7 +43,9 @@ namespace SimpleDB.Core
         public InsertResult Insert(IEnumerable<FieldValue> fieldValueCollection)
         {
             var startDataFileOffset = _fileStream.Seek(0, System.IO.SeekOrigin.End);
-            InsertValues(_fileStream, fieldValueCollection, out int insertedBytesCount);
+            _memoryBuffer.Seek(0, System.IO.SeekOrigin.Begin);
+            InsertValues(_memoryBuffer, fieldValueCollection, out int insertedBytesCount);
+            _fileStream.WriteByteArray(_memoryBuffer.BufferArray, 0, insertedBytesCount);
             var endDataFileOffset = startDataFileOffset + insertedBytesCount;
 
             return new InsertResult { StartDataFileOffset = startDataFileOffset, EndDataFileOffset = endDataFileOffset };
@@ -546,42 +542,35 @@ namespace SimpleDB.Core
 
     internal interface IDataFileFactory
     {
-        DataFile MakeFromFileFullPath(string fileFullPath, IEnumerable<FieldMeta> fieldMetaCollection);
+        DataFile MakeFromFileName(string fileName, IEnumerable<FieldMeta> fieldMetaCollection);
         DataFile MakeFromEntityName(string entityName, IEnumerable<FieldMeta> fieldMetaCollection);
     }
 
     internal class DataFileFactory : IDataFileFactory
     {
-        private readonly string _workingDirectory;
         private readonly IFileSystem _fileSystem;
         private readonly IMemory _memory;
 
-        public DataFileFactory(string workingDirectory, IFileSystem fileSystem = null, IMemory memory = null)
+        public DataFileFactory(IFileSystem fileSystem, IMemory memory = null)
         {
-            _workingDirectory = workingDirectory;
-            _fileSystem = fileSystem ?? FileSystem.Instance;
+            _fileSystem = fileSystem;
             _memory = memory ?? Memory.Instance;
         }
 
-        public DataFile MakeFromFileFullPath(string fileFullPath, IEnumerable<FieldMeta> fieldMetaCollection)
+        public DataFile MakeFromFileName(string fileName, IEnumerable<FieldMeta> fieldMetaCollection)
         {
-            return new DataFile(fileFullPath, fieldMetaCollection, _fileSystem, _memory);
+            return new DataFile(fileName, fieldMetaCollection, _fileSystem, _memory);
         }
 
         public DataFile MakeFromEntityName(string entityName, IEnumerable<FieldMeta> fieldMetaCollection)
         {
-            return MakeFromFileFullPath(DataFileName.GetFullFileName(_workingDirectory, entityName), fieldMetaCollection);
+            return MakeFromFileName(DataFileName.FromEntityName(entityName), fieldMetaCollection);
         }
     }
 
     internal static class DataFileName
     {
-        public static string Extension = ".data";
-
-        public static string GetFullFileName(string workingDirectory, string entityName)
-        {
-            return String.Format("{0}\\{1}{2}", workingDirectory, entityName, Extension);
-        }
+        public const string Extension = ".data";
 
         public static string FromEntityName(string entityName)
         {

@@ -10,19 +10,16 @@ namespace SimpleDB.Maintenance
     internal class Statistics : IStatistics
     {
         private readonly MetaFileCollection _metaFileCollection;
-        private readonly string _workingDirectory;
         private readonly IPrimaryKeyFileFactory _primaryKeyFileFactory;
         private readonly IDataFileFactory _dataFileFactory;
         private readonly IFileSystem _fileSystem;
 
         public Statistics(
-            string workingDirectory,
             IPrimaryKeyFileFactory primaryKeyFileFactory,
             IDataFileFactory dataFileFactory,
             IMetaFileFactory metaFileFactory,
             IFileSystem fileSystem)
         {
-            _workingDirectory = workingDirectory;
             _primaryKeyFileFactory = primaryKeyFileFactory;
             _dataFileFactory = dataFileFactory;
             _fileSystem = fileSystem;
@@ -31,15 +28,15 @@ namespace SimpleDB.Maintenance
 
         public IEnumerable<FileStatistics> GetPrimaryKeyFileStatistics()
         {
-            foreach (var primaryKeyFileFullPath in GetPrimaryKeyFileFullPathes())
+            foreach (var primaryKeyFileName in GetPrimaryKeyFileNames())
             {
                 PrimaryKeyFile primaryKeyFile = null;
                 try
                 {
-                    var entityName = Path.GetFileNameWithoutExtension(primaryKeyFileFullPath);
+                    var entityName = Path.GetFileNameWithoutExtension(primaryKeyFileName);
                     var metaFile = _metaFileCollection.GetMetaFile(entityName);
                     var metaData = metaFile.GetMetaData();
-                    primaryKeyFile = _primaryKeyFileFactory.MakeFromFileFullPath(primaryKeyFileFullPath, metaData.PrimaryKeyType);
+                    primaryKeyFile = _primaryKeyFileFactory.MakeFromFileName(primaryKeyFileName, metaData.PrimaryKeyType);
                     primaryKeyFile.BeginRead();
                     var primaryKeys = primaryKeyFile.GetAllPrimaryKeys().ToList();
                     // сумма байт удаленных ключей
@@ -60,16 +57,16 @@ namespace SimpleDB.Maintenance
 
         public IEnumerable<FileStatistics> GetDataFileStatistics()
         {
-            foreach (var primaryKeyFileFullPath in GetPrimaryKeyFileFullPathes())
+            foreach (var primaryKeyFileName in GetPrimaryKeyFileNames())
             {
                 PrimaryKeyFile primaryKeyFile = null;
                 DataFile dataFile = null;
                 try
                 {
-                    var entityName = Path.GetFileNameWithoutExtension(primaryKeyFileFullPath);
+                    var entityName = Path.GetFileNameWithoutExtension(primaryKeyFileName);
                     var metaFile = _metaFileCollection.GetMetaFile(entityName);
                     var metaData = metaFile.GetMetaData();
-                    primaryKeyFile = _primaryKeyFileFactory.MakeFromFileFullPath(primaryKeyFileFullPath, metaData.PrimaryKeyType);
+                    primaryKeyFile = _primaryKeyFileFactory.MakeFromFileName(primaryKeyFileName, metaData.PrimaryKeyType);
                     primaryKeyFile.BeginRead();
                     var primaryKeys = primaryKeyFile.GetAllPrimaryKeys().ToList();
                     var fieldMetaCollection = metaData.FieldMetaCollection.ToList();
@@ -102,10 +99,10 @@ namespace SimpleDB.Maintenance
             }
         }
 
-        private IEnumerable<string> GetPrimaryKeyFileFullPathes()
+        private IEnumerable<string> GetPrimaryKeyFileNames()
         {
             return _fileSystem
-                .GetFiles(_workingDirectory).Where(file => Path.GetExtension(file) == PrimaryKeyFileName.Extension)
+                .GetFiles().Where(file => Path.GetExtension(file) == PrimaryKeyFileName.Extension)
                 .ToList();
         }
     }

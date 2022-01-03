@@ -31,7 +31,7 @@ namespace SimpleDB.QueryExecutors
         {
             try
             {
-                _primaryKeyFile.BeginWrite();
+                _primaryKeyFile.BeginReadWrite();
                 _dataFile.BeginReadWrite();
                 return TryExecuteQuery(query);
             }

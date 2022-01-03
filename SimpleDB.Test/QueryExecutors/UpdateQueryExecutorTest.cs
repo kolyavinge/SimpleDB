@@ -10,7 +10,6 @@ namespace SimpleDB.Test.QueryExecutors
 {
     class UpdateQueryExecutorTest
     {
-        private readonly string _workingDirectory = "working directory";
         private MemoryFileSystem _fileSystem;
         private Memory _memory;
         private Mapper<TestEntity> _mapper;
@@ -33,9 +32,9 @@ namespace SimpleDB.Test.QueryExecutors
                 });
             _collection = new Collection<TestEntity>(
                 _mapper,
-                new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, _memory),
-                new DataFileFactory(_workingDirectory, _fileSystem, _memory),
-                new MetaFileFactory(_workingDirectory, _fileSystem));
+                new PrimaryKeyFileFactory(_fileSystem, _memory),
+                new DataFileFactory(_fileSystem, _memory),
+                new MetaFileFactory(_fileSystem));
             _queryExecutor = new UpdateQueryExecutor(_mapper.EntityMeta, _collection.PrimaryKeyFile, _collection.DataFile, _collection.PrimaryKeys, new IndexHolder(), new IndexUpdater(_mapper));
         }
 
@@ -309,13 +308,13 @@ namespace SimpleDB.Test.QueryExecutors
             var indexUpdater = new IndexUpdater(
                 new IIndex[] { index },
                 new MapperHolder(new[] { _mapper }),
-                new IndexFileFactory(_workingDirectory, _fileSystem));
+                new IndexFileFactory(_fileSystem));
 
             _collection = new Collection<TestEntity>(
                 _mapper,
-                new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, _memory),
-                new DataFileFactory(_workingDirectory, _fileSystem, _memory),
-                new MetaFileFactory(_workingDirectory, _fileSystem),
+                new PrimaryKeyFileFactory(_fileSystem, _memory),
+                new DataFileFactory(_fileSystem, _memory),
+                new MetaFileFactory(_fileSystem),
                 indexHolder,
                 indexUpdater);
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using SimpleDB.Infrastructure;
@@ -12,46 +13,42 @@ namespace SimpleDB.Test.Tools
         public MemoryFileSystem()
         {
             FileStreams = new List<MemoryFileStream>();
-            FullFilePathes = new List<string>();
+            FileNames = new List<string>();
         }
 
-        public List<string> FullFilePathes { get; set; }
+        public List<string> FileNames { get; set; }
 
-        public bool FileExists(string fullPath)
+        public bool FileExists(string fileName)
         {
-            return FileStreams.Any(x => x.FileFullPath == fullPath);
+            return FileStreams.Any(x => x.FileName == fileName);
         }
 
-        public void CreateFileIfNeeded(string fullFilePath)
+        public void CreateFiles(params string[] fileNames)
         {
-            FullFilePathes.Add(fullFilePath);
+            foreach (var fileName in fileNames)
+            {
+                FileNames.Add(fileName);
+            }
         }
 
-        public IFileStream OpenFileRead(string fullPath)
+        public void CreateNewFiles(IEnumerable<string> fileNames)
         {
-            var stream = GetStream(fullPath);
-            stream.ReadCount++;
-            return stream;
+            throw new NotImplementedException();
         }
 
-        public IFileStream OpenFileWrite(string fullPath)
+        public IFileStream OpenFileRead(string fileName)
         {
-            var stream = GetStream(fullPath);
-            stream.WriteCount++;
-            return stream;
+            return GetStream(fileName);
         }
 
-        public IFileStream OpenFileReadWrite(string fullPath)
+        public IFileStream OpenFileReadWrite(string fileName)
         {
-            var stream = GetStream(fullPath);
-            stream.ReadCount++;
-            stream.WriteCount++;
-            return stream;
+            return GetStream(fileName);
         }
 
-        private MemoryFileStream GetStream(string fullPath)
+        private MemoryFileStream GetStream(string fileName)
         {
-            var fileStream = FileStreams.FirstOrDefault(x => x.FileFullPath == fullPath);
+            var fileStream = FileStreams.FirstOrDefault(x => x.FileName == fileName);
             if (fileStream != null)
             {
                 fileStream.Seek(0, SeekOrigin.Begin);
@@ -59,24 +56,25 @@ namespace SimpleDB.Test.Tools
             }
             else
             {
-                fileStream = new MemoryFileStream { FileFullPath = fullPath };
+                fileStream = new MemoryFileStream { FileName = fileName };
                 FileStreams.Add(fileStream);
                 return fileStream;
             }
         }
 
-        public IEnumerable<string> GetFiles(string directory)
+        public IEnumerable<string> GetFiles()
         {
-            return FileStreams.Where(x => Path.GetDirectoryName(x.FileFullPath) == directory).Select(x => x.FileFullPath);
+            return FileStreams.Select(x => x.FileName);
         }
 
-        public void RenameFile(string fullPath, string renamedFullPath)
+        public void RenameFile(string fileName, string renamedFileName)
         {
+            throw new NotImplementedException();
         }
 
-        public void DeleteFile(string fullPath)
+        public void DeleteFile(string fileName)
         {
-            FileStreams.RemoveAll(x => x.FileFullPath == fullPath);
+            FileStreams.RemoveAll(x => x.FileName == fileName);
         }
     }
 }

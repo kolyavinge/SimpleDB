@@ -10,30 +10,33 @@ namespace SimpleDB.Infrastructure
 
     internal class FileStream : IFileStream
     {
-        private readonly System.IO.FileStream _fileStream;
+        private readonly Stream _stream;
+        private readonly Action<IFileStream> _disposeFunc;
         private readonly BinaryReader _reader;
         private readonly BinaryWriter _writer;
 
-        public long Position { get { return _fileStream.Position; } }
+        public long Position { get { return _stream.Position; } }
 
-        public long Length { get { return _fileStream.Length; } }
+        public long Length { get { return _stream.Length; } }
 
-        public FileStream(System.IO.FileStream fileStream)
+        public FileStream(Stream fileStream, Action<IFileStream> disposeFunc)
         {
-            _fileStream = fileStream;
-            if (_fileStream.CanRead)
+            _stream = fileStream;
+            _disposeFunc = disposeFunc;
+            if (_stream.CanRead)
             {
-                _reader = new BinaryReader(_fileStream);
+                _reader = new BinaryReader(_stream);
             }
-            if (_fileStream.CanWrite)
+            if (_stream.CanWrite)
             {
-                _writer = new BinaryWriter(_fileStream);
+                _writer = new BinaryWriter(_stream);
             }
         }
 
         public void Dispose()
         {
-            _fileStream.Dispose();
+            _stream.Dispose();
+            _disposeFunc(this);
         }
 
         public bool ReadBool()
@@ -118,12 +121,12 @@ namespace SimpleDB.Infrastructure
 
         public long Seek(long offset, SeekOrigin origin)
         {
-            return _fileStream.Seek(offset, origin);
+            return _stream.Seek(offset, origin);
         }
 
         public void SetLength(long length)
         {
-            _fileStream.SetLength(length);
+            _stream.SetLength(length);
         }
 
         public void WriteBool(bool value)

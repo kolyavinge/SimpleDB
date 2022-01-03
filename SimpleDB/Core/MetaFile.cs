@@ -10,17 +10,17 @@ namespace SimpleDB.Core
     {
         private readonly IFileSystem _fileSystem;
 
-        public string FileFullPath { get; }
+        public string FileName { get; }
 
-        public MetaFile(string fileFullPath, IFileSystem fileSystem)
+        public MetaFile(string fileName, IFileSystem fileSystem)
         {
-            FileFullPath = fileFullPath;
+            FileName = fileName;
             _fileSystem = fileSystem;
         }
 
         public MetaData GetMetaData()
         {
-            using (var fs = _fileSystem.OpenFileRead(FileFullPath))
+            using (var fs = _fileSystem.OpenFileRead(FileName))
             {
                 var entityName = fs.ReadString();
 
@@ -53,7 +53,7 @@ namespace SimpleDB.Core
 
         public void Save(MetaData metaData)
         {
-            using (var fs = _fileSystem.OpenFileWrite(FileFullPath))
+            using (var fs = _fileSystem.OpenFileReadWrite(FileName))
             {
                 fs.WriteString(metaData.EntityName);
 
@@ -84,12 +84,17 @@ namespace SimpleDB.Core
 
         public bool IsExist()
         {
-            return _fileSystem.FileExists(FileFullPath);
+            return _fileSystem.FileExists(FileName);
+        }
+
+        public void Create()
+        {
+            _fileSystem.CreateFiles(FileName);
         }
 
         public void Delete()
         {
-            _fileSystem.DeleteFile(FileFullPath);
+            _fileSystem.DeleteFile(FileName);
         }
     }
 
@@ -143,39 +148,31 @@ namespace SimpleDB.Core
 
     internal interface IMetaFileFactory
     {
-        MetaFile MakeFromFileFullPath(string fileFullPath);
         MetaFile MakeFromEntityName(string entityName);
     }
 
     internal class MetaFileFactory : IMetaFileFactory
     {
-        private readonly string _workingDirectory;
         private readonly IFileSystem _fileSystem;
 
-        public MetaFileFactory(string workingDirectory, IFileSystem fileSystem = null)
+        public MetaFileFactory(IFileSystem fileSystem)
         {
-            _workingDirectory = workingDirectory;
-            _fileSystem = fileSystem ?? FileSystem.Instance;
-        }
-
-        public MetaFile MakeFromFileFullPath(string fileFullPath)
-        {
-            return new MetaFile(fileFullPath, _fileSystem);
+            _fileSystem = fileSystem;
         }
 
         public MetaFile MakeFromEntityName(string entityName)
         {
-            return MakeFromFileFullPath(MetaFileName.GetFullFileName(_workingDirectory, entityName));
+            return new MetaFile(MetaFileName.FromEntityName(entityName), _fileSystem);
         }
     }
 
     internal static class MetaFileName
     {
-        public static string Extension = ".meta";
+        public const string Extension = ".meta";
 
-        public static string GetFullFileName(string workingDirectory, string entityName)
+        public static string FromEntityName(string entityName)
         {
-            return String.Format("{0}\\{1}{2}", workingDirectory, entityName, Extension);
+            return String.Format("{0}{1}", entityName, Extension);
         }
     }
 }

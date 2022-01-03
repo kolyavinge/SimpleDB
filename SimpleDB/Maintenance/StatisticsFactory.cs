@@ -5,14 +5,15 @@ namespace SimpleDB.Maintenance
 {
     public static class StatisticsFactory
     {
-        public static IStatistics MakeStatistics(string workingDirectory)
+        public static IStatistics MakeStatistics(string databaseFilePath)
         {
+            var fileSystem = new FileSystem(databaseFilePath);
+
             return new Statistics(
-                workingDirectory,
-                new PrimaryKeyFileFactory(workingDirectory),
-                new DataFileFactory(workingDirectory),
-                new MetaFileFactory(workingDirectory),
-                FileSystem.Instance);
+                new PrimaryKeyFileFactory(fileSystem),
+                new DataFileFactory(fileSystem),
+                new MetaFileFactory(fileSystem),
+                fileSystem);
         }
     }
 }

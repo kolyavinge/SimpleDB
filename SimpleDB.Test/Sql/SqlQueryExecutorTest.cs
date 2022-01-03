@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using NUnit.Framework;
 using SimpleDB.Core;
 using SimpleDB.IndexedSearch;
@@ -12,7 +10,6 @@ namespace SimpleDB.Test.Sql
 {
     class SqlQueryExecutorTest
     {
-        private readonly string _workingDirectory = "working directory";
         private Mapper<TestEntity> _mapper;
         private Collection<TestEntity> _collection;
         private SqlQueryExecutor _executor;
@@ -32,12 +29,12 @@ namespace SimpleDB.Test.Sql
                 });
             _collection = new Collection<TestEntity>(
                 _mapper,
-                new PrimaryKeyFileFactory(_workingDirectory, fileSystem, memory),
-                new DataFileFactory(_workingDirectory, fileSystem, memory),
-                new MetaFileFactory(_workingDirectory, fileSystem));
+                new PrimaryKeyFileFactory(fileSystem, memory),
+                new DataFileFactory(fileSystem, memory),
+                new MetaFileFactory(fileSystem));
             _executor = new SqlQueryExecutor(
-                new PrimaryKeyFileFactory(_workingDirectory, fileSystem, memory),
-                new DataFileFactory(_workingDirectory, fileSystem, memory),
+                new PrimaryKeyFileFactory(fileSystem, memory),
+                new DataFileFactory(fileSystem, memory),
                 new IndexHolder());
         }
 

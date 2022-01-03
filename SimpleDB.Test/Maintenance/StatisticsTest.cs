@@ -9,7 +9,6 @@ namespace SimpleDB.Test.Maintenance
 {
     class StatisticsTest
     {
-        private readonly string _workingDirectory = "working directory";
         private MemoryFileSystem _fileSystem;
         private Memory _memory;
         private Mapper<TestEntity> _mapper;
@@ -31,14 +30,13 @@ namespace SimpleDB.Test.Maintenance
                 });
             _collection = new Collection<TestEntity>(
                 _mapper,
-                new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, _memory),
-                new DataFileFactory(_workingDirectory, _fileSystem, _memory),
-                new MetaFileFactory(_workingDirectory, _fileSystem));
+                new PrimaryKeyFileFactory(_fileSystem, _memory),
+                new DataFileFactory(_fileSystem, _memory),
+                new MetaFileFactory(_fileSystem));
             _statistics = new Statistics(
-                _workingDirectory,
-                new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, _memory),
-                new DataFileFactory(_workingDirectory, _fileSystem, _memory),
-                new MetaFileFactory(_workingDirectory, _fileSystem),
+                new PrimaryKeyFileFactory(_fileSystem, _memory),
+                new DataFileFactory(_fileSystem, _memory),
+                new MetaFileFactory(_fileSystem),
                 _fileSystem);
         }
 
@@ -110,9 +108,9 @@ namespace SimpleDB.Test.Maintenance
                });
             _collection = new Collection<TestEntity>(
                 _mapper,
-                new PrimaryKeyFileFactory(_workingDirectory, _fileSystem, _memory),
-                new DataFileFactory(_workingDirectory, _fileSystem, _memory),
-                new MetaFileFactory(_workingDirectory, _fileSystem)); // пересохранили meta файл
+                new PrimaryKeyFileFactory(_fileSystem, _memory),
+                new DataFileFactory(_fileSystem, _memory),
+                new MetaFileFactory(_fileSystem)); // пересохранили meta файл
 
             var result = _statistics.GetDataFileStatistics().ToList();
             Assert.AreEqual(16, result.First().FragmentationSizeInBytes);

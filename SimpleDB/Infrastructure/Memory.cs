@@ -35,14 +35,14 @@ namespace SimpleDB.Infrastructure
 
         public byte[] BufferArray { get; private set; }
 
-        public long Position { get { return _memoryStream.Position; } }
+        public long Position => _memoryStream.Position;
 
-        public long Length { get { return _memoryStream.Length; } }
+        public long Length => _memoryStream.Length;
 
         public MemoryBuffer()
         {
             BufferArray = new byte[10 * 1024 * 1024];
-            _memoryStream = new MemoryStream(BufferArray);
+            _memoryStream = new MemoryStream(BufferArray, true);
             _reader = new BinaryReader(_memoryStream);
             _writer = new BinaryWriter(_memoryStream);
         }

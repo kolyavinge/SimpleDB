@@ -1,14 +1,12 @@
 ﻿using NUnit.Framework;
 using SimpleDB.Core;
 using SimpleDB.IndexedSearch;
-using SimpleDB.Infrastructure;
 using SimpleDB.Test.Tools;
 
 namespace SimpleDB.Test.IndexedSearch
 {
     class IndexUpdaterTest
     {
-        private readonly string _workingDirectory = "working directory";
         private Mapper<TestEntity> _mapper;
         private IndexUpdater _indexUpdater;
         private Index<int> _indexInt;
@@ -44,7 +42,7 @@ namespace SimpleDB.Test.IndexedSearch
             _indexUpdater = new IndexUpdater(
                 new IIndex[] { _indexInt, _indexDouble },
                 new MapperHolder(new[] { _mapper }),
-                new IndexFileFactory(_workingDirectory, fileSystem));
+                new IndexFileFactory(fileSystem));
         }
 
         [Test]

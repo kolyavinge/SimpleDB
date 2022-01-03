@@ -50,6 +50,7 @@ namespace SimpleDB.IndexedSearch
             var meta = new IndexMeta { EntityName = _mapper.EntityName, IndexedFieldType = typeof(TField), Name = indexName, IndexedFieldNumber = indexedFieldNumber, IncludedFieldNumbers = includedFieldNumbers };
             var index = new Index<TField>(meta);
             PopulateIndex(index, indexedFieldNumber, includedFieldNumbers);
+            indexFile.Create();
             indexFile.WriteIndex(index);
 
             return index;

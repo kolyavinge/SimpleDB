@@ -35,8 +35,8 @@ namespace SimpleDB.QueryExecutors
             }
             try
             {
-                _primaryKeyFile.BeginWrite();
-                _dataFile.BeginWrite();
+                _primaryKeyFile.BeginReadWrite();
+                _dataFile.BeginReadWrite();
                 if (newEntities.Any())
                 {
                     foreach (var entity in newEntities)
