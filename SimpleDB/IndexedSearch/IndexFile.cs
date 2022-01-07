@@ -10,24 +10,33 @@ namespace SimpleDB.IndexedSearch
     {
         private readonly Type _primaryKeyType;
         private readonly IFileSystem _fileSystem;
+        private readonly IMemory _memory;
         private readonly IDictionary<byte, Type> _fieldTypes;
 
         public string FileName { get; }
 
-        public IndexFile(string fileName, Type primaryKeyType, IEnumerable<FieldMeta> fieldMetaCollection, IFileSystem fileSystem)
+        public IndexFile(string fileName, Type primaryKeyType, IEnumerable<FieldMeta> fieldMetaCollection, IFileSystem fileSystem, IMemory memory)
         {
             FileName = fileName;
             _primaryKeyType = primaryKeyType;
             _fileSystem = fileSystem;
+            _memory = memory;
             _fieldTypes = fieldMetaCollection.ToDictionary(k => k.Number, v => v.Type);
         }
 
         public Index<TField> ReadIndex<TField>() where TField : IComparable<TField>
         {
+            byte[] indexFileBytes;
             using (var stream = _fileSystem.OpenFileRead(FileName))
             {
-                return Index<TField>.Deserialize(stream, _primaryKeyType, _fieldTypes);
+                indexFileBytes = stream.ReadByteArray((int)stream.Length);
             }
+            var buffer = _memory.GetBuffer();
+            buffer.WriteByteArray(indexFileBytes, 0, indexFileBytes.Length);
+            buffer.Seek(0, System.IO.SeekOrigin.Begin);
+            var index = Index<TField>.Deserialize(buffer, _primaryKeyType, _fieldTypes);
+
+            return index;
         }
 
         public void WriteIndex(IIndex index)
@@ -58,16 +67,18 @@ namespace SimpleDB.IndexedSearch
     internal class IndexFileFactory : IIndexFileFactory
     {
         private readonly IFileSystem _fileSystem;
+        private readonly IMemory _memory;
 
-        public IndexFileFactory(IFileSystem fileSystem)
+        public IndexFileFactory(IFileSystem fileSystem, IMemory memory = null)
         {
             _fileSystem = fileSystem;
+            _memory = memory ?? Memory.Instance;
         }
 
         public IndexFile Make(string entityName, string indexName, Type primaryKeyType, IEnumerable<FieldMeta> fieldMetaCollection)
         {
             var fileName = IndexFileName.FromEntityName(entityName, indexName);
-            return new IndexFile(fileName, primaryKeyType, fieldMetaCollection, _fileSystem);
+            return new IndexFile(fileName, primaryKeyType, fieldMetaCollection, _fileSystem, _memory);
         }
     }
 

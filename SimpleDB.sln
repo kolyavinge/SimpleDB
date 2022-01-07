@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StartApp", "StartApp\StartA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SingleFileStorage", "..\SingleFileStorage\SingleFileStorage\SingleFileStorage.csproj", "{24AA38C1-A31C-4982-9687-0D67D63293FE}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SingleFileStorage", "SingleFileStorage", "{73C8CDFB-C3E0-4F80-97E7-A3D9E3F0031D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External", "External", "{73C8CDFB-C3E0-4F80-97E7-A3D9E3F0031D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
