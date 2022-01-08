@@ -16,6 +16,8 @@ namespace SimpleDB.Test.Tools
             FileNames = new List<string>();
         }
 
+        public string DatabaseFilePath { get; }
+
         public List<string> FileNames { get; set; }
 
         public bool FileExists(string fileName)

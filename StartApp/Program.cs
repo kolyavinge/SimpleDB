@@ -17,7 +17,6 @@ namespace StartApp
             var doDelete = 0;
             var doQuery = 0;
             var doMerge = 0;
-            var doGetAsync = 0;
             var doStatistics = 0;
             var doDefragmentation = 0;
 
@@ -264,11 +263,6 @@ namespace StartApp
                 Console.WriteLine("Exist -1: " + collection.Exist(-1));
                 Console.WriteLine("Exist -2: " + collection.Exist(-2));
                 Console.WriteLine("Exist -3: " + collection.Exist(-3));
-            }
-
-            if (doGetAsync == 1)
-            {
-                Parallel.For(0, 10, i => collection.Get(i));
             }
 
             if (doStatistics == 1)

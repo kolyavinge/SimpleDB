@@ -43,9 +43,7 @@ namespace SimpleDB.Sql
             var primaryKeys = primaryKeyFile.GetAllPrimaryKeys().ToDictionary(k => k.Value, v => v);
             primaryKeyFile.EndReadWrite();
             var dataFile = _dataFileFactory.MakeFromEntityName(entityMeta.EntityName, entityMeta.FieldMetaCollection);
-            dataFile.BeginRead();
             var result = ExecuteQuery(queryType, query, primaryKeyFile, primaryKeys, dataFile);
-            dataFile.EndReadWrite();
 
             return result;
         }

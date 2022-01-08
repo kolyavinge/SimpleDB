@@ -23,6 +23,8 @@ namespace SimpleDB.Test.Tools
             _writer = new BinaryWriter(_stream);
         }
 
+        public string Name { get; }
+
         public bool DidRead { get; set; }
 
         public bool DidWrite { get; set; }

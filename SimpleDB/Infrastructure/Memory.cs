@@ -33,7 +33,7 @@ namespace SimpleDB.Infrastructure
         private readonly BinaryReader _reader;
         private readonly BinaryWriter _writer;
 
-        public byte[] BufferArray { get; private set; }
+        public byte[] BufferArray => _memoryStream.ToArray();
 
         public long Position => _memoryStream.Position;
 
@@ -41,8 +41,7 @@ namespace SimpleDB.Infrastructure
 
         public MemoryBuffer()
         {
-            BufferArray = new byte[10 * 1024 * 1024];
-            _memoryStream = new MemoryStream(BufferArray, true);
+            _memoryStream = new MemoryStream();
             _reader = new BinaryReader(_memoryStream);
             _writer = new BinaryWriter(_memoryStream);
         }

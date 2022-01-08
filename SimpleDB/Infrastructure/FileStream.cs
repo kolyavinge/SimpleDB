@@ -5,6 +5,7 @@ namespace SimpleDB.Infrastructure
 {
     internal interface IFileStream : IReadableStream, IWriteableStream, IDisposable
     {
+        string Name { get; }
         void SetLength(long length);
     }
 
@@ -15,12 +16,15 @@ namespace SimpleDB.Infrastructure
         private readonly BinaryReader _reader;
         private readonly BinaryWriter _writer;
 
+        public string Name { get; }
+
         public long Position { get { return _stream.Position; } }
 
         public long Length { get { return _stream.Length; } }
 
-        public FileStream(Stream fileStream, Action<IFileStream> disposeFunc)
+        public FileStream(string fileName, Stream fileStream, Action<IFileStream> disposeFunc)
         {
+            Name = fileName;
             _stream = fileStream;
             _disposeFunc = disposeFunc;
             if (_stream.CanRead)

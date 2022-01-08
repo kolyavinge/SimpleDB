@@ -7,6 +7,8 @@ namespace SimpleDB.Infrastructure
 {
     internal interface IFileSystem
     {
+        string DatabaseFilePath { get; }
+
         bool FileExists(string fileName);
 
         void CreateFiles(params string[] fileNames);
@@ -26,13 +28,14 @@ namespace SimpleDB.Infrastructure
 
     internal class FileSystem : IFileSystem
     {
-        private readonly string _databaseFilePath;
         private readonly List<IFileStream> _openedFiles;
         private IStorage _storage;
 
+        public string DatabaseFilePath { get; }
+
         public FileSystem(string databaseFilePath)
         {
-            _databaseFilePath = databaseFilePath;
+            DatabaseFilePath = databaseFilePath;
             _openedFiles = new List<IFileStream>();
             if (!File.Exists(databaseFilePath)) StorageFile.Create(databaseFilePath);
         }
@@ -40,7 +43,7 @@ namespace SimpleDB.Infrastructure
         public bool FileExists(string fileName)
         {
             ThrowErrorIfOpenedFilesExists();
-            using (var storage = StorageFile.Open(_databaseFilePath, Access.Read))
+            using (var storage = StorageFile.Open(DatabaseFilePath, Access.Read))
             {
                 return storage.IsRecordExist(fileName);
             }
@@ -49,7 +52,7 @@ namespace SimpleDB.Infrastructure
         public void CreateFiles(params string[] fileNames)
         {
             ThrowErrorIfOpenedFilesExists();
-            using (var storage = StorageFile.Open(_databaseFilePath, Access.Modify))
+            using (var storage = StorageFile.Open(DatabaseFilePath, Access.Modify))
             {
                 foreach (var fileName in fileNames)
                 {
@@ -61,7 +64,7 @@ namespace SimpleDB.Infrastructure
         public void CreateNewFiles(IEnumerable<string> fileNames)
         {
             ThrowErrorIfOpenedFilesExists();
-            using (var storage = StorageFile.Open(_databaseFilePath, Access.Modify))
+            using (var storage = StorageFile.Open(DatabaseFilePath, Access.Modify))
             {
                 foreach (var fileName in fileNames)
                 {
@@ -75,9 +78,10 @@ namespace SimpleDB.Infrastructure
 
         public IFileStream OpenFileRead(string fileName)
         {
-            if (_storage == null) _storage = StorageFile.Open(_databaseFilePath, Access.Read);
+            if (_storage == null) _storage = StorageFile.Open(DatabaseFilePath, Access.Read);
             else if (_storage.AccessMode != Access.Read) throw new IOException("File must be opened with Read mode.");
-            var fileStream = new FileStream(_storage.OpenRecord(fileName), DisposeFileStreamFunc);
+            if (_openedFiles.Any(x => x.Name == fileName)) throw new IOException($"File {fileName} already has been opened.");
+            var fileStream = new FileStream(fileName, _storage.OpenRecord(fileName), DisposeFileStreamFunc);
             _openedFiles.Add(fileStream);
 
             return fileStream;
@@ -85,9 +89,10 @@ namespace SimpleDB.Infrastructure
 
         public IFileStream OpenFileReadWrite(string fileName)
         {
-            if (_storage == null) _storage = StorageFile.Open(_databaseFilePath, Access.Modify);
+            if (_storage == null) _storage = StorageFile.Open(DatabaseFilePath, Access.Modify);
             else if (_storage.AccessMode != Access.Modify) throw new IOException("File must be opened with ReadWrite mode");
-            var fileStream = new FileStream(_storage.OpenRecord(fileName), DisposeFileStreamFunc);
+            if (_openedFiles.Any(x => x.Name == fileName)) throw new IOException($"File {fileName} already has been opened.");
+            var fileStream = new FileStream(fileName, _storage.OpenRecord(fileName), DisposeFileStreamFunc);
             _openedFiles.Add(fileStream);
 
             return fileStream;
@@ -106,7 +111,7 @@ namespace SimpleDB.Infrastructure
         public IEnumerable<string> GetFiles()
         {
             ThrowErrorIfOpenedFilesExists();
-            using (var storage = StorageFile.Open(_databaseFilePath, Access.Read))
+            using (var storage = StorageFile.Open(DatabaseFilePath, Access.Read))
             {
                 return storage.GetAllRecordNames();
             }
@@ -115,7 +120,7 @@ namespace SimpleDB.Infrastructure
         public void RenameFile(string fileName, string renamedFileName)
         {
             ThrowErrorIfOpenedFilesExists();
-            using (var storage = StorageFile.Open(_databaseFilePath, Access.Modify))
+            using (var storage = StorageFile.Open(DatabaseFilePath, Access.Modify))
             {
                 storage.RenameRecord(fileName, renamedFileName);
             }
@@ -124,7 +129,7 @@ namespace SimpleDB.Infrastructure
         public void DeleteFile(string fileName)
         {
             ThrowErrorIfOpenedFilesExists();
-            using (var storage = StorageFile.Open(_databaseFilePath, Access.Modify))
+            using (var storage = StorageFile.Open(DatabaseFilePath, Access.Modify))
             {
                 storage.DeleteRecord(fileName);
             }
