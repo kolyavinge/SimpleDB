@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using SimpleDB.Building;
 using SimpleDB.Core;
 using SimpleDB.IndexedSearch;
 using SimpleDB.Infrastructure;
@@ -71,66 +72,9 @@ namespace SimpleDB
         IMapperBuilder<TEntity> FieldSetFunction(FieldSetFunctionDelegate<TEntity> func);
     }
 
-    public delegate void PrimaryKeySetFunctionDelegate<TEntity>(object primaryKeyValue, TEntity entity);
+    public delegate void PrimaryKeySetFunctionDelegate<in TEntity>(object primaryKeyValue, TEntity entity);
 
-    public delegate void FieldSetFunctionDelegate<TEntity>(byte fieldNumber, object fieldValue, TEntity entity);
-
-    internal abstract class MapperBuilder
-    {
-        public abstract IMapper Build();
-    }
-
-    internal class MapperBuilder<TEntity> : MapperBuilder, IMapperBuilder<TEntity>
-    {
-        private readonly FieldMappingValidator _fieldMappingValidator = new FieldMappingValidator();
-        private PrimaryKeyMapping<TEntity> _primaryKeyMapping;
-        private readonly List<FieldMapping<TEntity>> _fieldMappings = new List<FieldMapping<TEntity>>();
-        private Func<TEntity> _makeFunction;
-        private PrimaryKeySetFunctionDelegate<TEntity> _primaryKeySetFunction;
-        private FieldSetFunctionDelegate<TEntity> _fieldSetFunction;
-
-        public IMapperBuilder<TEntity> PrimaryKey(Expression<Func<TEntity, object>> primaryKeyExpression)
-        {
-            _primaryKeyMapping = new PrimaryKeyMapping<TEntity>(primaryKeyExpression);
-            return this;
-        }
-
-        public IMapperBuilder<TEntity> Field(byte number, Expression<Func<TEntity, object>> fieldExpression, FieldSettings settings = default)
-        {
-            var fieldMapping = new FieldMapping<TEntity>(number, fieldExpression) { Settings = settings };
-            _fieldMappingValidator.Validate(fieldMapping);
-            _fieldMappings.Add(fieldMapping);
-            return this;
-        }
-
-        public IMapperBuilder<TEntity> MakeFunction(Func<TEntity> func)
-        {
-            _makeFunction = func;
-            return this;
-        }
-
-        public IMapperBuilder<TEntity> PrimaryKeySetFunction(PrimaryKeySetFunctionDelegate<TEntity> func)
-        {
-            _primaryKeySetFunction = func;
-            return this;
-        }
-
-        public IMapperBuilder<TEntity> FieldSetFunction(FieldSetFunctionDelegate<TEntity> func)
-        {
-            _fieldSetFunction = func;
-            return this;
-        }
-
-        public override IMapper Build()
-        {
-            return new Mapper<TEntity>(_primaryKeyMapping, _fieldMappings)
-            {
-                MakeFunction = _makeFunction,
-                PrimaryKeySetFunction = _primaryKeySetFunction,
-                FieldSetFunction = _fieldSetFunction
-            };
-        }
-    }
+    public delegate void FieldSetFunctionDelegate<in TEntity>(byte fieldNumber, object fieldValue, TEntity entity);
 
     public interface IIndexBuilder<TEntity>
     {
@@ -139,64 +83,5 @@ namespace SimpleDB
         IIndexBuilder<TEntity> For<TField>(Expression<Func<TEntity, TField>> forExpression) where TField : IComparable<TField>;
 
         IIndexBuilder<TEntity> Include(Expression<Func<TEntity, object>> includeExpression);
-    }
-
-    internal abstract class IndexBuilder
-    {
-        public Func<MapperHolder, IIndex> BuildFunction { get; protected set; }
-    }
-
-    internal class IndexBuilder<TEntity> : IndexBuilder, IIndexBuilder<TEntity>
-    {
-        private string _name;
-        private readonly List<Expression<Func<TEntity, object>>> _includeExpressions;
-        private readonly IFileSystem _fileSystem;
-
-        public IndexBuilder(IFileSystem fileSystem)
-        {
-            _includeExpressions = new List<Expression<Func<TEntity, object>>>();
-            _fileSystem = fileSystem;
-        }
-
-        public IIndexBuilder<TEntity> Name(string name)
-        {
-            _name = name;
-            return this;
-        }
-
-        public IIndexBuilder<TEntity> For<TField>(Expression<Func<TEntity, TField>> indexedFieldExpression) where TField : IComparable<TField>
-        {
-            BuildFunction = (mapperHolder) =>
-            {
-                var initializer = new IndexInitializer<TEntity>(
-                    mapperHolder, new PrimaryKeyFileFactory(_fileSystem), new DataFileFactory(_fileSystem), new IndexFileFactory(_fileSystem));
-
-                return initializer.GetIndex(_name, indexedFieldExpression, _includeExpressions);
-            };
-            return this;
-        }
-
-        public IIndexBuilder<TEntity> Include(Expression<Func<TEntity, object>> includeExpression)
-        {
-            _includeExpressions.Add(includeExpression);
-            return this;
-        }
-    }
-
-    class FileBuilder
-    {
-        private IFileSystem _fileSystem;
-
-        public FileBuilder(IFileSystem fileSystem)
-        {
-            _fileSystem = fileSystem;
-        }
-
-        public void CreateNewFiles(List<IMapper> mappers)
-        {
-            var primaryKeyFileNames = mappers.Select(x => PrimaryKeyFileName.FromEntityName(x.EntityName)).ToList();
-            var dataFileNames = mappers.Select(x => DataFileName.FromEntityName(x.EntityName)).ToList();
-            _fileSystem.CreateNewFiles(primaryKeyFileNames.Union(dataFileNames));
-        }
     }
 }
