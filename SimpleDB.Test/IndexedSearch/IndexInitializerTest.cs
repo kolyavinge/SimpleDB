@@ -99,17 +99,17 @@ namespace SimpleDB.Test.IndexedSearch
 
             _fileSystem.FileStreams.ForEach(x => x.DidRead = x.DidWrite = false);
             _initializer.GetIndex<int>("test index", x => x.Int, new Expression<Func<TestEntity, object>>[] { x => x.Float, x => x.String });
-            Assert.AreEqual(true, _fileSystem.FileStreams.First(x => x.FileName == "TestEntity.primary").DidRead);
-            Assert.AreEqual(true, _fileSystem.FileStreams.First(x => x.FileName == "TestEntity.data").DidRead);
-            Assert.AreEqual(false, _fileSystem.FileStreams.First(x => x.FileName == "TestEntity_test index.index").DidRead);
-            Assert.AreEqual(true, _fileSystem.FileStreams.First(x => x.FileName == "TestEntity_test index.index").DidWrite);
+            Assert.AreEqual(true, _fileSystem.FileStreams.First(x => x.Name == "TestEntity.primary").DidRead);
+            Assert.AreEqual(true, _fileSystem.FileStreams.First(x => x.Name == "TestEntity.data").DidRead);
+            Assert.AreEqual(false, _fileSystem.FileStreams.First(x => x.Name == "TestEntity_test index.index").DidRead);
+            Assert.AreEqual(true, _fileSystem.FileStreams.First(x => x.Name == "TestEntity_test index.index").DidWrite);
 
             _fileSystem.FileStreams.ForEach(x => x.DidRead = x.DidWrite = false);
             var index = _initializer.GetIndex<int>("test index", x => x.Int, new Expression<Func<TestEntity, object>>[] { x => x.Float, x => x.String });
-            Assert.AreEqual(false, _fileSystem.FileStreams.First(x => x.FileName == "TestEntity.primary").DidRead);
-            Assert.AreEqual(false, _fileSystem.FileStreams.First(x => x.FileName == "TestEntity.data").DidRead);
-            Assert.AreEqual(true, _fileSystem.FileStreams.First(x => x.FileName == "TestEntity_test index.index").DidRead);
-            Assert.AreEqual(false, _fileSystem.FileStreams.First(x => x.FileName == "TestEntity_test index.index").DidWrite);
+            Assert.AreEqual(false, _fileSystem.FileStreams.First(x => x.Name == "TestEntity.primary").DidRead);
+            Assert.AreEqual(false, _fileSystem.FileStreams.First(x => x.Name == "TestEntity.data").DidRead);
+            Assert.AreEqual(true, _fileSystem.FileStreams.First(x => x.Name == "TestEntity_test index.index").DidRead);
+            Assert.AreEqual(false, _fileSystem.FileStreams.First(x => x.Name == "TestEntity_test index.index").DidWrite);
 
             Assert.AreEqual("TestEntity", index.Meta.EntityName);
             Assert.AreEqual(typeof(int), index.Meta.IndexedFieldType);

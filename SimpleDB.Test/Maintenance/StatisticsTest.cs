@@ -10,7 +10,6 @@ namespace SimpleDB.Test.Maintenance
     class StatisticsTest
     {
         private MemoryFileSystem _fileSystem;
-        private Memory _memory;
         private Mapper<TestEntity> _mapper;
         private Collection<TestEntity> _collection;
         private Statistics _statistics;
@@ -19,7 +18,6 @@ namespace SimpleDB.Test.Maintenance
         public void Setup()
         {
             _fileSystem = new MemoryFileSystem();
-            _memory = Memory.Instance;
             _mapper = new Mapper<TestEntity>(
                 new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
                 new FieldMapping<TestEntity>[]
@@ -30,12 +28,12 @@ namespace SimpleDB.Test.Maintenance
                 });
             _collection = new Collection<TestEntity>(
                 _mapper,
-                new PrimaryKeyFileFactory(_fileSystem, _memory),
-                new DataFileFactory(_fileSystem, _memory),
+                new PrimaryKeyFileFactory(_fileSystem),
+                new DataFileFactory(_fileSystem),
                 new MetaFileFactory(_fileSystem));
             _statistics = new Statistics(
-                new PrimaryKeyFileFactory(_fileSystem, _memory),
-                new DataFileFactory(_fileSystem, _memory),
+                new PrimaryKeyFileFactory(_fileSystem),
+                new DataFileFactory(_fileSystem),
                 new MetaFileFactory(_fileSystem),
                 _fileSystem);
         }
@@ -108,8 +106,8 @@ namespace SimpleDB.Test.Maintenance
                });
             _collection = new Collection<TestEntity>(
                 _mapper,
-                new PrimaryKeyFileFactory(_fileSystem, _memory),
-                new DataFileFactory(_fileSystem, _memory),
+                new PrimaryKeyFileFactory(_fileSystem),
+                new DataFileFactory(_fileSystem),
                 new MetaFileFactory(_fileSystem)); // пересохранили meta файл
 
             var result = _statistics.GetDataFileStatistics().ToList();

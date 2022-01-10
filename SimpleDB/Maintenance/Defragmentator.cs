@@ -75,9 +75,6 @@ namespace SimpleDB.Maintenance
             _fileSystem.RenameFile(defragmentDataFileName, currentDataFile.FileName);
         }
 
-        private string GetDefragmentedFileName(string currentFile)
-        {
-            return currentFile + ".defrag";
-        }
+        private string GetDefragmentedFileName(string currentFile) => currentFile + ".defrag";
     }
 }

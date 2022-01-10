@@ -16,20 +16,11 @@ namespace SimpleDB.Test.Tools
             _writer = new BinaryWriter(_stream);
         }
 
-        public MemoryFileStream(byte[] bytes)
-        {
-            _stream = new MemoryStream(bytes);
-            _reader = new BinaryReader(_stream);
-            _writer = new BinaryWriter(_stream);
-        }
-
-        public string Name { get; }
-
         public bool DidRead { get; set; }
 
         public bool DidWrite { get; set; }
 
-        public string FileName { get; set; }
+        public string Name { get; set; }
 
         public long Position { get { return _stream.Position; } }
 

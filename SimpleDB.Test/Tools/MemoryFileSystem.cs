@@ -22,7 +22,7 @@ namespace SimpleDB.Test.Tools
 
         public bool FileExists(string fileName)
         {
-            return FileStreams.Any(x => x.FileName == fileName);
+            return FileStreams.Any(x => x.Name == fileName);
         }
 
         public void CreateFiles(params string[] fileNames)
@@ -50,7 +50,7 @@ namespace SimpleDB.Test.Tools
 
         private MemoryFileStream GetStream(string fileName)
         {
-            var fileStream = FileStreams.FirstOrDefault(x => x.FileName == fileName);
+            var fileStream = FileStreams.FirstOrDefault(x => x.Name == fileName);
             if (fileStream != null)
             {
                 fileStream.Seek(0, SeekOrigin.Begin);
@@ -58,7 +58,7 @@ namespace SimpleDB.Test.Tools
             }
             else
             {
-                fileStream = new MemoryFileStream { FileName = fileName };
+                fileStream = new MemoryFileStream { Name = fileName };
                 FileStreams.Add(fileStream);
                 return fileStream;
             }
@@ -66,17 +66,20 @@ namespace SimpleDB.Test.Tools
 
         public IEnumerable<string> GetFiles()
         {
-            return FileStreams.Select(x => x.FileName);
+            return FileStreams.Select(x => x.Name);
         }
 
         public void RenameFile(string fileName, string renamedFileName)
         {
-            throw new NotImplementedException();
+            FileNames.Remove(fileName);
+            FileNames.Add(renamedFileName);
+            FileStreams.First(x => x.Name == fileName).Name = renamedFileName;
         }
 
         public void DeleteFile(string fileName)
         {
-            FileStreams.RemoveAll(x => x.FileName == fileName);
+            FileNames.Remove(fileName);
+            FileStreams.RemoveAll(x => x.Name == fileName);
         }
     }
 }
