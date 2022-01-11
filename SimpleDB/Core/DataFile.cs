@@ -59,8 +59,7 @@ namespace SimpleDB.Core
             {
                 stream.WriteByte(fieldMeta.Number);
                 totalInsertedBytesCount += sizeof(byte);
-                object fieldValue;
-                if (fieldValueDictionary.TryGetValue(fieldMeta.Number, out fieldValue))
+                if (fieldValueDictionary.TryGetValue(fieldMeta.Number, out var fieldValue))
                 {
                     InsertValue(stream, fieldMeta, fieldValue, out insertedBytesCount);
                 }

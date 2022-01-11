@@ -24,6 +24,8 @@ namespace SimpleDB.Infrastructure
         void RenameFile(string fileName, string renamedFileName);
 
         void DeleteFile(string fileName);
+
+        void DefragmentDatabaseFile();
     }
 
     internal class FileSystem : IFileSystem
@@ -133,6 +135,12 @@ namespace SimpleDB.Infrastructure
             {
                 storage.DeleteRecord(fileName);
             }
+        }
+
+        public void DefragmentDatabaseFile()
+        {
+            var defragmentator = SingleFileStorage.Maintenance.DefragmentatorFactory.Make();
+            defragmentator.Defragment(DatabaseFilePath);
         }
 
         private void ThrowErrorIfOpenedFilesExists()

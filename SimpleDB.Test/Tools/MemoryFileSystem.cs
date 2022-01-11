@@ -81,5 +81,9 @@ namespace SimpleDB.Test.Tools
             FileNames.Remove(fileName);
             FileStreams.RemoveAll(x => x.Name == fileName);
         }
+
+        public void DefragmentDatabaseFile()
+        {
+        }
     }
 }

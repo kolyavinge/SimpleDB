@@ -38,7 +38,7 @@ namespace SimpleDB.Maintenance
             var currentDataFileName = DataFileName.FromEntityName(entityName);
             var defragmentPrimaryKeyFileName = GetDefragmentedFileName(currentPrimaryKeyFileName);
             var defragmentDataFileName = GetDefragmentedFileName(currentDataFileName);
-            _fileSystem.CreateFiles(new[] { defragmentPrimaryKeyFileName, defragmentDataFileName });
+            _fileSystem.CreateFiles(defragmentPrimaryKeyFileName, defragmentDataFileName);
 
             var currentPrimaryKeyFile = _primaryKeyFileFactory.MakeFromFileName(currentPrimaryKeyFileName, primaryKeyType);
             currentPrimaryKeyFile.BeginReadWrite();
@@ -73,6 +73,8 @@ namespace SimpleDB.Maintenance
             _fileSystem.DeleteFile(currentDataFile.FileName);
             _fileSystem.RenameFile(defragmentPrimaryKeyFileName, currentPrimaryKeyFile.FileName);
             _fileSystem.RenameFile(defragmentDataFileName, currentDataFile.FileName);
+
+            _fileSystem.DefragmentDatabaseFile();
         }
 
         private string GetDefragmentedFileName(string currentFile) => currentFile + ".defrag";
