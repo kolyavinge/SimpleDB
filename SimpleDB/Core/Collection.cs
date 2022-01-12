@@ -95,7 +95,7 @@ namespace SimpleDB.Core
             {
                 DataFile.BeginReadWrite();
                 PrimaryKeyFile.BeginReadWrite();
-                EntityOperations.Insert(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
+                EntityOperations.Insert(new[] { entity }, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
                 _indexUpdater.AddToIndexes(entity);
             }
             finally
@@ -111,10 +111,7 @@ namespace SimpleDB.Core
             {
                 DataFile.BeginReadWrite();
                 PrimaryKeyFile.BeginReadWrite();
-                foreach (var entity in entities)
-                {
-                    EntityOperations.Insert(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
-                }
+                EntityOperations.Insert(entities, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
                 _indexUpdater.AddToIndexes(entities);
             }
             finally
@@ -130,7 +127,7 @@ namespace SimpleDB.Core
             {
                 DataFile.BeginReadWrite();
                 PrimaryKeyFile.BeginReadWrite();
-                EntityOperations.Update(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
+                EntityOperations.Update(new[] { entity }, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
                 _indexUpdater.UpdateIndexes(entity);
             }
             finally
@@ -146,10 +143,7 @@ namespace SimpleDB.Core
             {
                 DataFile.BeginReadWrite();
                 PrimaryKeyFile.BeginReadWrite();
-                foreach (var entity in entities)
-                {
-                    EntityOperations.Update(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
-                }
+                EntityOperations.Update(entities, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
                 _indexUpdater.UpdateIndexes(entities);
             }
             finally
@@ -168,12 +162,12 @@ namespace SimpleDB.Core
                 var primaryKeyValue = Mapper.GetPrimaryKeyValue(entity);
                 if (Exist(primaryKeyValue))
                 {
-                    EntityOperations.Update(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
+                    EntityOperations.Update(new[] { entity }, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
                     _indexUpdater.UpdateIndexes(entity);
                 }
                 else
                 {
-                    EntityOperations.Insert(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
+                    EntityOperations.Insert(new[] { entity }, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
                     _indexUpdater.AddToIndexes(entity);
                 }
             }
@@ -195,12 +189,12 @@ namespace SimpleDB.Core
                     var primaryKeyValue = Mapper.GetPrimaryKeyValue(entity);
                     if (Exist(primaryKeyValue))
                     {
-                        EntityOperations.Update(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
+                        EntityOperations.Update(new[] { entity }, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
                         _indexUpdater.UpdateIndexes(entity);
                     }
                     else
                     {
-                        EntityOperations.Insert(entity, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
+                        EntityOperations.Insert(new[] { entity }, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
                         _indexUpdater.AddToIndexes(entity);
                     }
                 }

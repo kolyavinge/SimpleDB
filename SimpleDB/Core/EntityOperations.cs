@@ -19,24 +19,48 @@ namespace SimpleDB.Core
         }
 
         public static void Insert<TEntity>(
-            TEntity entity, Mapper<TEntity> mapper, PrimaryKeyFile primaryKeyFile, DataFile dataFile, IDictionary<object, PrimaryKey> primaryKeys)
+            IEnumerable<TEntity> entities, Mapper<TEntity> mapper, PrimaryKeyFile primaryKeyFile, DataFile dataFile, IDictionary<object, PrimaryKey> primaryKeys)
         {
-            var fieldValueCollection = mapper.GetFieldValueCollection(entity);
-            var insertResult = dataFile.Insert(fieldValueCollection);
-            var primaryKeyValue = mapper.GetPrimaryKeyValue(entity);
-            var primaryKey = primaryKeyFile.Insert(primaryKeyValue, insertResult.StartDataFileOffset, insertResult.EndDataFileOffset);
-            primaryKeys.Add(primaryKeyValue, primaryKey);
+            var insertedPrimaryKeys = new List<KeyValuePair<object, DataFile.InsertResult>>();
+
+            foreach (var entity in entities)
+            {
+                var fieldValueCollection = mapper.GetFieldValueCollection(entity);
+                var insertResult = dataFile.Insert(fieldValueCollection);
+                var primaryKeyValue = mapper.GetPrimaryKeyValue(entity);
+                insertedPrimaryKeys.Add(new KeyValuePair<object, DataFile.InsertResult>(primaryKeyValue, insertResult));
+            }
+
+            foreach (var item in insertedPrimaryKeys)
+            {
+                var primaryKeyValue = item.Key;
+                var insertResult = item.Value;
+                var primaryKey = primaryKeyFile.Insert(primaryKeyValue, insertResult.StartDataFileOffset, insertResult.EndDataFileOffset);
+                primaryKeys.Add(primaryKeyValue, primaryKey);
+            }
         }
 
         public static void Update<TEntity>(
-            TEntity entity, Mapper<TEntity> mapper, PrimaryKeyFile primaryKeyFile, DataFile dataFile, IDictionary<object, PrimaryKey> primaryKeys)
+            IEnumerable<TEntity> entities, Mapper<TEntity> mapper, PrimaryKeyFile primaryKeyFile, DataFile dataFile, IDictionary<object, PrimaryKey> primaryKeys)
         {
-            var primaryKeyValue = mapper.GetPrimaryKeyValue(entity);
-            if (primaryKeys.ContainsKey(primaryKeyValue) == false) return;
-            var primaryKey = primaryKeys[primaryKeyValue];
-            var fieldValueCollection = mapper.GetFieldValueCollection(entity);
-            var updateResult = dataFile.Update(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldValueCollection);
-            primaryKeyFile.UpdatePrimaryKey(primaryKey, updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset);
+            var updatedPrimaryKeys = new List<KeyValuePair<PrimaryKey, DataFile.UpdateResult>>();
+
+            foreach (var entity in entities)
+            {
+                var primaryKeyValue = mapper.GetPrimaryKeyValue(entity);
+                if (primaryKeys.ContainsKey(primaryKeyValue) == false) break;
+                var primaryKey = primaryKeys[primaryKeyValue];
+                var fieldValueCollection = mapper.GetFieldValueCollection(entity);
+                var updateResult = dataFile.Update(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldValueCollection);
+                updatedPrimaryKeys.Add(new KeyValuePair<PrimaryKey, DataFile.UpdateResult>(primaryKey, updateResult));
+            }
+
+            foreach (var item in updatedPrimaryKeys)
+            {
+                var primaryKey = item.Key;
+                var updateResult = item.Value;
+                primaryKeyFile.UpdatePrimaryKey(primaryKey, updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset);
+            }
         }
 
         public static void UpdateAllFields(FieldValueCollection fieldValueCollection, PrimaryKeyFile primaryKeyFile, DataFile dataFile)

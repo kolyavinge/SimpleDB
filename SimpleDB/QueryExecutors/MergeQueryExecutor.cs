@@ -39,10 +39,7 @@ namespace SimpleDB.QueryExecutors
                 _dataFile.BeginReadWrite();
                 if (newEntities.Any())
                 {
-                    foreach (var entity in newEntities)
-                    {
-                        EntityOperations.Insert(entity, _mapper, _primaryKeyFile, _dataFile, _primaryKeys);
-                    }
+                    EntityOperations.Insert(newEntities, _mapper, _primaryKeyFile, _dataFile, _primaryKeys);
                 }
             }
             finally
