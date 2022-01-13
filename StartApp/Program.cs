@@ -33,7 +33,7 @@ namespace StartApp
                 .PrimaryKey(x => x.Id)
                 .Field(0, x => x.Name)
                 .Field(1, x => x.Surname)
-                .Field(2, x => x.Middlename, new FieldSettings { Compressed = true })
+                .Field(2, x => x.Middlename)
                 .Field(3, x => x.BirthDay)
                 .Field(4, x => x.AdditionalInfo, new FieldSettings { Compressed = true })
                 .MakeFunction(() => new Person())
