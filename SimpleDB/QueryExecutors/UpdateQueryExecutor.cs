@@ -87,7 +87,7 @@ namespace SimpleDB.QueryExecutors
                 (from meta in _entityMeta.FieldMetaCollection
                  join fieldNumber in updateFieldNumbers on meta.Number equals fieldNumber
                  let fieldType = FieldTypesConverter.GetFieldType(meta.Type)
-                 where fieldType == FieldTypes.String || fieldType == FieldTypes.Object
+                 where fieldType == FieldTypes.String || fieldType == FieldTypes.ByteArray || fieldType == FieldTypes.Object
                  select fieldNumber).ToList();
             // если среди обновляемых есть поля с переменной длиной
             if (variableFieldNumbers.Any())
