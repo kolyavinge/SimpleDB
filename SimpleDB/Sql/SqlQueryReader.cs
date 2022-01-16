@@ -13,18 +13,20 @@
         public SqlQueryReader(string sqlQuery)
         {
             _sqlQuery = sqlQuery;
+            _index = -1;
             Col = -1;
         }
 
         public void NextChar()
         {
             if (Eof) return;
-            Char = _sqlQuery[_index++];
+            _index++;
+            if (Eof) return;
+            Char = _sqlQuery[_index];
             if (Char == '\n')
             {
                 Row++;
                 Col = -1;
-                NextChar();
             }
             else if (Char == '\r')
             {

@@ -67,17 +67,17 @@ namespace SimpleDB.Sql
                 };
             }
 
-            throw new Exception();
+            throw new InvalidQueryException();
         }
 
         private QueryType GetQueryType(List<Token> tokens)
         {
-            if (tokens.First().IsValueEquals("SELECT"))
+            if (tokens.First().Kind == TokenKind.SelectKeyword)
             {
                 return QueryType.Select;
             }
 
-            throw new Exception();
+            throw new InvalidQueryException();
         }
     }
 
