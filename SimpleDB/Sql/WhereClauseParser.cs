@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using SimpleDB.Core;
 using SimpleDB.Queries;
@@ -102,7 +103,7 @@ namespace SimpleDB.Sql
 
             if (_tokenIterator.Current.Kind == TokenKind.FloatNumber)
             {
-                return new WhereClause.Constant(Double.Parse(_tokenIterator.Current.Value));
+                return new WhereClause.Constant(Double.Parse(_tokenIterator.Current.Value, new NumberFormatInfo { NumberDecimalSeparator = "." }));
             }
 
             if (_tokenIterator.Current.Kind == TokenKind.String)

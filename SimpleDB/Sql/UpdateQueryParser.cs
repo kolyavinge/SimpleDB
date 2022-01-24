@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Text;
 using SimpleDB.Core;
 using SimpleDB.Queries;
 
@@ -71,7 +71,7 @@ namespace SimpleDB.Sql
                     }
                     else if (tokenIter.Current.Kind == TokenKind.FloatNumber)
                     {
-                        updateItems.Last().Value = Double.Parse(tokenIter.Current.Value);
+                        updateItems.Last().Value = Double.Parse(tokenIter.Current.Value, new NumberFormatInfo { NumberDecimalSeparator = "." });
                         tokenIter.NextToken();
                         goto case State.SetNextField;
                     }
@@ -109,7 +109,8 @@ namespace SimpleDB.Sql
             {
                 var fieldMeta = entityMeta.FieldMetaCollection.FirstOrDefault(x => x.Name == item.FieldName);
                 if (fieldMeta == null) throw new InvalidQueryException();
-                yield return new UpdateClause.Field(fieldMeta.Number, item.Value);
+                var convertedValue = Convert.ChangeType(item.Value, fieldMeta.Type);
+                yield return new UpdateClause.Field(fieldMeta.Number, convertedValue);
             }
         }
     }

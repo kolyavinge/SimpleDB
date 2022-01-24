@@ -23,6 +23,7 @@ namespace SimpleDB.Test.Sql
                     new FieldMeta(0, "Login", typeof(string)),
                     new FieldMeta(1, "Name", typeof(string)),
                     new FieldMeta(2, "Age", typeof(int)),
+                    new FieldMeta(3, "Float", typeof(float)),
                 }
             };
             _parser = new WhereClauseParser();
@@ -367,6 +368,21 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(123, root.Left.Right.Right.Value);
             Assert.AreEqual(0, root.Right.Left.Number);
             Assert.AreEqual("login", root.Right.Right.Value);
+        }
+
+        [Test]
+        public void FloatField()
+        {
+            var tokens = new List<Token>
+            {
+                new Token("WHERE", TokenKind.WhereKeyword, 0, 0),
+                new Token("Float", TokenKind.Identificator, 0, 0),
+                new Token("=", TokenKind.EqualsOperation, 0, 0),
+                new Token("123.456", TokenKind.FloatNumber, 0, 0),
+            };
+            dynamic root = GetClause(tokens);
+            Assert.AreEqual(typeof(WhereClause.EqualsOperation), root.GetType());
+            Assert.AreEqual(123.456, root.Right.Value);
         }
 
         [Test]

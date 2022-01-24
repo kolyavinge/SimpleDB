@@ -26,7 +26,9 @@ namespace SimpleDB.Test.Sql
                         FieldMetaCollection = new[]
                         {
                             new FieldMeta(0, "Login", typeof(string)),
-                            new FieldMeta(1, "Name", typeof(string))
+                            new FieldMeta(1, "Name", typeof(string)),
+                            new FieldMeta(2, "Byte", typeof(byte)),
+                            new FieldMeta(3, "Float", typeof(float))
                         }
                     }
                 }
@@ -135,6 +137,40 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), root.GetType());
             Assert.AreEqual(typeof(WhereClause.Field), root.Left.GetType());
             Assert.AreEqual(typeof(WhereClause.Constant), root.Right.GetType());
+        }
+
+        [Test]
+        public void Update_ConvertFieldByte()
+        {
+            var tokens = new List<Token>
+            {
+                new Token("UPDATE", TokenKind.UpdateKeyword, 0, 0),
+                new Token("User", TokenKind.Identificator, 0, 0),
+                new Token("SET", TokenKind.SetKeyword, 0, 0),
+                new Token("Byte", TokenKind.Identificator, 0, 0),
+                new Token("=", TokenKind.EqualsOperation, 0, 0),
+                new Token("123", TokenKind.IntegerNumber, 0, 0)
+            };
+            var query = _parser.GetQuery(_context, tokens) as UpdateQuery;
+            var item = query.UpdateClause.UpdateItems.First() as UpdateClause.Field;
+            Assert.AreEqual(typeof(byte), item.Value.GetType());
+        }
+
+        [Test]
+        public void Update_ConvertFieldFloat()
+        {
+            var tokens = new List<Token>
+            {
+                new Token("UPDATE", TokenKind.UpdateKeyword, 0, 0),
+                new Token("User", TokenKind.Identificator, 0, 0),
+                new Token("SET", TokenKind.SetKeyword, 0, 0),
+                new Token("Float", TokenKind.Identificator, 0, 0),
+                new Token("=", TokenKind.EqualsOperation, 0, 0),
+                new Token("123.456", TokenKind.FloatNumber, 0, 0)
+            };
+            var query = _parser.GetQuery(_context, tokens) as UpdateQuery;
+            var item = query.UpdateClause.UpdateItems.First() as UpdateClause.Field;
+            Assert.AreEqual(typeof(float), item.Value.GetType());
         }
     }
 }
