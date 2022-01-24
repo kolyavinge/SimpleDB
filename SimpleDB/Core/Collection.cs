@@ -30,7 +30,7 @@ namespace SimpleDB.Core
         {
             Mapper = mapper;
             _indexHolder = indexHolder ?? new IndexHolder();
-            _indexUpdater = indexUpdater ?? new IndexUpdater(mapper);
+            _indexUpdater = indexUpdater ?? new IndexUpdater(Enumerable.Empty<IIndex>(), new MapperHolder(new[] { mapper }), null);
             PrimaryKeyFile = primaryKeyFileFactory.MakeFromEntityName(mapper.EntityName, mapper.PrimaryKeyMapping.PropertyType);
             DataFile = dataFileFactory.MakeFromEntityName(mapper.EntityName, mapper.FieldMetaCollection);
             PrimaryKeys = GetAllPrimaryKeys().Where(x => !x.IsDeleted).ToDictionary(k => k.Value, v => v);
@@ -96,7 +96,7 @@ namespace SimpleDB.Core
                 DataFile.BeginReadWrite();
                 PrimaryKeyFile.BeginReadWrite();
                 EntityOperations.Insert(new[] { entity }, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
-                _indexUpdater.AddToIndexes(entity);
+                _indexUpdater.AddToIndexes(new[] { entity });
             }
             finally
             {
@@ -128,7 +128,7 @@ namespace SimpleDB.Core
                 DataFile.BeginReadWrite();
                 PrimaryKeyFile.BeginReadWrite();
                 EntityOperations.Update(new[] { entity }, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
-                _indexUpdater.UpdateIndexes(entity);
+                _indexUpdater.UpdateIndexes(new[] { entity });
             }
             finally
             {
@@ -163,12 +163,12 @@ namespace SimpleDB.Core
                 if (Exist(primaryKeyValue))
                 {
                     EntityOperations.Update(new[] { entity }, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
-                    _indexUpdater.UpdateIndexes(entity);
+                    _indexUpdater.UpdateIndexes(new[] { entity });
                 }
                 else
                 {
                     EntityOperations.Insert(new[] { entity }, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
-                    _indexUpdater.AddToIndexes(entity);
+                    _indexUpdater.AddToIndexes(new[] { entity });
                 }
             }
             finally
@@ -190,12 +190,12 @@ namespace SimpleDB.Core
                     if (Exist(primaryKeyValue))
                     {
                         EntityOperations.Update(new[] { entity }, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
-                        _indexUpdater.UpdateIndexes(entity);
+                        _indexUpdater.UpdateIndexes(new[] { entity });
                     }
                     else
                     {
                         EntityOperations.Insert(new[] { entity }, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
-                        _indexUpdater.AddToIndexes(entity);
+                        _indexUpdater.AddToIndexes(new[] { entity });
                     }
                 }
             }
@@ -212,7 +212,7 @@ namespace SimpleDB.Core
             {
                 PrimaryKeyFile.BeginReadWrite();
                 EntityOperations.Delete(id, PrimaryKeyFile, PrimaryKeys);
-                _indexUpdater.DeleteFromIndexes(Mapper.EntityName, id);
+                _indexUpdater.DeleteFromIndexes(Mapper.EntityName, new[] { id });
             }
             finally
             {

@@ -19,17 +19,6 @@ namespace SimpleDB.IndexedSearch
             _indexFileFactory = indexFileFactory;
         }
 
-        public IndexUpdater(IMapper mapper)
-        {
-            _indexes = new Dictionary<string, List<IIndex>>();
-            _mapperHolder = new MapperHolder(new[] { mapper });
-        }
-
-        public void AddToIndexes<TEntity>(TEntity entity)
-        {
-            AddToIndexes<TEntity>(new[] { entity });
-        }
-
         public void AddToIndexes<TEntity>(IEnumerable<TEntity> entities)
         {
             var mapper = _mapperHolder.Get<TEntity>();
@@ -53,11 +42,6 @@ namespace SimpleDB.IndexedSearch
                 }
                 SaveIndexFile(index);
             }
-        }
-
-        public void UpdateIndexes<TEntity>(TEntity entity)
-        {
-            UpdateIndexes<TEntity>(new[] { entity });
         }
 
         public void UpdateIndexes<TEntity>(IEnumerable<TEntity> entities)
@@ -131,11 +115,6 @@ namespace SimpleDB.IndexedSearch
                 }
                 SaveIndexFile(index);
             }
-        }
-
-        public void DeleteFromIndexes(string entityName, object primaryKeyValue)
-        {
-            DeleteFromIndexes(entityName, new[] { primaryKeyValue });
         }
 
         public void DeleteFromIndexes(string entityName, IEnumerable<object> primaryKeyValues)

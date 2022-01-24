@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Linq;
+using NUnit.Framework;
 using SimpleDB.Core;
 using SimpleDB.IndexedSearch;
 using SimpleDB.Infrastructure;
@@ -31,7 +32,12 @@ namespace SimpleDB.Test.QueryExecutors
                 new PrimaryKeyFileFactory(fileSystem, memory),
                 new DataFileFactory(fileSystem, memory),
                 new MetaFileFactory(fileSystem));
-            _queryExecutor = new DeleteQueryExecutor(_collection.PrimaryKeyFile, _collection.PrimaryKeys, _collection.DataFile, new IndexHolder(), new IndexUpdater(mapper));
+            _queryExecutor = new DeleteQueryExecutor(
+                _collection.PrimaryKeyFile,
+                _collection.PrimaryKeys,
+                _collection.DataFile,
+                new IndexHolder(),
+                new IndexUpdater(Enumerable.Empty<IIndex>(), new MapperHolder(new[] { mapper }), null));
         }
 
         [Test]
