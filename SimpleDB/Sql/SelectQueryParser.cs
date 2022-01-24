@@ -13,7 +13,7 @@ namespace SimpleDB.Sql
         {
             Select,
             SelectClause,
-            SelectFields,
+            SelectNextField,
             SelectField,
             From,
             FromTable,
@@ -36,12 +36,10 @@ namespace SimpleDB.Sql
             public SortDirection Direction;
         }
 
-        private TokenIterator _tokenIter;
-
         public override AbstractQuery GetQuery(QueryContext context, List<Token> tokens)
         {
-            _tokenIter = new TokenIterator(tokens);
-            EntityMeta entityMeta = null;
+            var tokenIter = new TokenIterator(tokens);
+            EntityMeta entityMeta;
             bool selectAll = false;
             var selectTokens = new List<Token>();
             SelectQuery selectQuery = null;
@@ -50,98 +48,98 @@ namespace SimpleDB.Sql
             switch (State.Select)
             {
                 case State.Select:
-                    if (_tokenIter.Eof) break;
-                    else if (_tokenIter.Current.Kind == TokenKind.SelectKeyword) { _tokenIter.NextToken(); goto case State.SelectClause; }
+                    if (tokenIter.Eof) break;
+                    else if (tokenIter.Current.Kind == TokenKind.SelectKeyword) { tokenIter.NextToken(); goto case State.SelectClause; }
                     else throw new InvalidQueryException();
                 case State.SelectClause:
-                    if (_tokenIter.Current.Kind == TokenKind.Asterisk) { selectAll = true; _tokenIter.NextToken(); goto case State.From; }
-                    else if (_tokenIter.Current.Kind == TokenKind.Identificator) { selectTokens.Add(_tokenIter.Current); _tokenIter.NextToken(); goto case State.SelectFields; }
+                    if (tokenIter.Current.Kind == TokenKind.Asterisk) { selectAll = true; tokenIter.NextToken(); goto case State.From; }
+                    else if (tokenIter.Current.Kind == TokenKind.Identificator) { selectTokens.Add(tokenIter.Current); tokenIter.NextToken(); goto case State.SelectNextField; }
                     else throw new InvalidQueryException();
-                case State.SelectFields:
-                    if (_tokenIter.Current.Kind == TokenKind.FromKeyword) { _tokenIter.NextToken(); goto case State.FromTable; }
-                    else if (_tokenIter.Current.Kind == TokenKind.Comma) { _tokenIter.NextToken(); goto case State.SelectField; }
+                case State.SelectNextField:
+                    if (tokenIter.Current.Kind == TokenKind.FromKeyword) { tokenIter.NextToken(); goto case State.FromTable; }
+                    else if (tokenIter.Current.Kind == TokenKind.Comma) { tokenIter.NextToken(); goto case State.SelectField; }
                     else throw new InvalidQueryException();
                 case State.SelectField:
-                    if (_tokenIter.Current.Kind == TokenKind.Identificator) { selectTokens.Add(_tokenIter.Current); _tokenIter.NextToken(); goto case State.SelectFields; }
+                    if (tokenIter.Current.Kind == TokenKind.Identificator) { selectTokens.Add(tokenIter.Current); tokenIter.NextToken(); goto case State.SelectNextField; }
                     else throw new InvalidQueryException();
                 case State.From:
-                    if (_tokenIter.Current.Kind == TokenKind.FromKeyword) { _tokenIter.NextToken(); goto case State.FromTable; }
+                    if (tokenIter.Current.Kind == TokenKind.FromKeyword) { tokenIter.NextToken(); goto case State.FromTable; }
                     else throw new InvalidQueryException();
                 case State.FromTable:
-                    if (_tokenIter.Current.Kind == TokenKind.Identificator)
+                    if (tokenIter.Current.Kind == TokenKind.Identificator)
                     {
-                        entityMeta = context.EntityMetaCollection.FirstOrDefault(x => x.EntityName == _tokenIter.Current.Value);
+                        entityMeta = context.EntityMetaCollection.FirstOrDefault(x => x.EntityName == tokenIter.Current.Value);
                         if (entityMeta == null) throw new InvalidQueryException();
                         selectQuery = new SelectQuery(entityMeta.EntityName, new SelectClause(GetSelectClauseItems(entityMeta, selectTokens, selectAll)));
-                        _tokenIter.NextToken();
+                        tokenIter.NextToken();
                         goto case State.Where;
                     }
                     else throw new InvalidQueryException();
                 case State.Where:
-                    if (_tokenIter.Eof) break;
-                    if (_tokenIter.Current.Kind == TokenKind.WhereKeyword)
+                    if (tokenIter.Eof) break;
+                    if (tokenIter.Current.Kind == TokenKind.WhereKeyword)
                     {
                         var whereClauseParser = new WhereClauseParser();
-                        selectQuery.WhereClause = whereClauseParser.GetClause(entityMeta, _tokenIter);
+                        selectQuery.WhereClause = whereClauseParser.GetClause(entityMeta, tokenIter);
                     }
                     goto case State.OrderBy;
                 case State.OrderBy:
-                    if (_tokenIter.Eof) break;
-                    else if (_tokenIter.Current.Kind == TokenKind.OrderByKeyword)
+                    if (tokenIter.Eof) break;
+                    else if (tokenIter.Current.Kind == TokenKind.OrderByKeyword)
                     {
-                        _tokenIter.NextToken();
+                        tokenIter.NextToken();
                         goto case State.OrderByItem;
                     }
                     goto case State.Skip;
                 case State.OrderByItem:
-                    if (_tokenIter.Current.Kind == TokenKind.Identificator)
+                    if (tokenIter.Current.Kind == TokenKind.Identificator)
                     {
-                        orderByItems.Add(new OrderByItem { Field = _tokenIter.Current.Value, Direction = SortDirection.Asc });
-                        _tokenIter.NextToken();
+                        orderByItems.Add(new OrderByItem { Field = tokenIter.Current.Value, Direction = SortDirection.Asc });
+                        tokenIter.NextToken();
                         goto case State.OrderByDirection;
                     }
                     else throw new InvalidQueryException();
                 case State.OrderByDirection:
-                    if (_tokenIter.Current.Kind == TokenKind.Comma) { _tokenIter.NextToken(); goto case State.OrderByItem; }
-                    else if (_tokenIter.Current.Kind == TokenKind.AscKeyword) { _tokenIter.NextToken(); goto case State.OrderByDirectionAscDesc; }
-                    else if (_tokenIter.Current.Kind == TokenKind.DescKeyword) { orderByItems.Last().Direction = SortDirection.Desc; _tokenIter.NextToken(); goto case State.OrderByDirectionAscDesc; }
-                    else if (_tokenIter.Current.Kind == TokenKind.SkipKeyword) { goto case State.OrderByEnd; }
-                    else if (_tokenIter.Current.Kind == TokenKind.LimitKeyword) { goto case State.OrderByEnd; }
+                    if (tokenIter.Current.Kind == TokenKind.Comma) { tokenIter.NextToken(); goto case State.OrderByItem; }
+                    else if (tokenIter.Current.Kind == TokenKind.AscKeyword) { tokenIter.NextToken(); goto case State.OrderByDirectionAscDesc; }
+                    else if (tokenIter.Current.Kind == TokenKind.DescKeyword) { orderByItems.Last().Direction = SortDirection.Desc; tokenIter.NextToken(); goto case State.OrderByDirectionAscDesc; }
+                    else if (tokenIter.Current.Kind == TokenKind.SkipKeyword) { goto case State.OrderByEnd; }
+                    else if (tokenIter.Current.Kind == TokenKind.LimitKeyword) { goto case State.OrderByEnd; }
                     else goto case State.OrderByEnd;
                 case State.OrderByDirectionAscDesc:
-                    if (_tokenIter.Current.Kind == TokenKind.Comma) { _tokenIter.NextToken(); goto case State.OrderByItem; }
-                    else if (_tokenIter.Current.Kind == TokenKind.SkipKeyword) { goto case State.OrderByEnd; }
-                    else if (_tokenIter.Current.Kind == TokenKind.LimitKeyword) { goto case State.OrderByEnd; }
+                    if (tokenIter.Current.Kind == TokenKind.Comma) { tokenIter.NextToken(); goto case State.OrderByItem; }
+                    else if (tokenIter.Current.Kind == TokenKind.SkipKeyword) { goto case State.OrderByEnd; }
+                    else if (tokenIter.Current.Kind == TokenKind.LimitKeyword) { goto case State.OrderByEnd; }
                     else goto case State.OrderByEnd;
                 case State.OrderByEnd:
                     selectQuery.OrderByClause = new OrderByClause(GetOrderByClauseItems(entityMeta, orderByItems));
                     goto case State.Skip;
                 case State.Skip:
-                    if (_tokenIter.Eof) break;
-                    if (_tokenIter.Current.Kind == TokenKind.SkipKeyword) { _tokenIter.NextToken(); goto case State.SkipValue; }
+                    if (tokenIter.Eof) break;
+                    if (tokenIter.Current.Kind == TokenKind.SkipKeyword) { tokenIter.NextToken(); goto case State.SkipValue; }
                     else goto case State.Limit;
                 case State.SkipValue:
-                    if (_tokenIter.Current.Kind == TokenKind.IntegerNumber)
+                    if (tokenIter.Current.Kind == TokenKind.IntegerNumber)
                     {
-                        selectQuery.Skip = Int32.Parse(_tokenIter.Current.Value);
-                        _tokenIter.NextToken();
+                        selectQuery.Skip = Int32.Parse(tokenIter.Current.Value);
+                        tokenIter.NextToken();
                     }
                     else throw new InvalidQueryException();
                     goto case State.Limit;
                 case State.Limit:
-                    if (_tokenIter.Eof) break;
-                    if (_tokenIter.Current.Kind == TokenKind.LimitKeyword) { _tokenIter.NextToken(); goto case State.LimitValue; }
+                    if (tokenIter.Eof) break;
+                    if (tokenIter.Current.Kind == TokenKind.LimitKeyword) { tokenIter.NextToken(); goto case State.LimitValue; }
                     else goto case State.End;
                 case State.LimitValue:
-                    if (_tokenIter.Current.Kind == TokenKind.IntegerNumber)
+                    if (tokenIter.Current.Kind == TokenKind.IntegerNumber)
                     {
-                        selectQuery.Limit = Int32.Parse(_tokenIter.Current.Value);
-                        _tokenIter.NextToken();
+                        selectQuery.Limit = Int32.Parse(tokenIter.Current.Value);
+                        tokenIter.NextToken();
                     }
                     else throw new InvalidQueryException();
                     goto case State.End;
                 case State.End:
-                    if (!_tokenIter.Eof) throw new InvalidQueryException();
+                    if (!tokenIter.Eof) throw new InvalidQueryException();
                     break;
             }
 
@@ -168,7 +166,8 @@ namespace SimpleDB.Sql
                     }
                     else
                     {
-                        var fieldMeta = entityMeta.FieldMetaCollection.First(x => token.Value.Equals(x.Name));
+                        var fieldMeta = entityMeta.FieldMetaCollection.FirstOrDefault(x => token.Value.Equals(x.Name));
+                        if (fieldMeta == null) throw new InvalidQueryException();
                         yield return new SelectClause.Field(fieldMeta.Number);
                     }
                 }
@@ -185,7 +184,8 @@ namespace SimpleDB.Sql
                 }
                 else
                 {
-                    var fieldMeta = entityMeta.FieldMetaCollection.First(x => orderByItem.Field.Equals(x.Name));
+                    var fieldMeta = entityMeta.FieldMetaCollection.FirstOrDefault(x => orderByItem.Field.Equals(x.Name));
+                    if (fieldMeta == null) throw new InvalidQueryException();
                     yield return new OrderByClause.Field(fieldMeta.Number, orderByItem.Direction);
                 }
             }

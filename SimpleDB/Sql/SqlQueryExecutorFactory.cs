@@ -13,7 +13,8 @@ namespace SimpleDB.Sql
             return new SqlQueryExecutor(
                 new PrimaryKeyFileFactory(fileSystem),
                 new DataFileFactory(fileSystem),
-                new IndexHolder());
+                new IndexHolder(),
+                null);
         }
     }
 }

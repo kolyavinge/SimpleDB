@@ -23,7 +23,7 @@ namespace SimpleDB.Test.Sql
                     {
                         EntityName = "User",
                         PrimaryKeyName = "Id",
-                        FieldMetaCollection = new FieldMeta[]
+                        FieldMetaCollection = new[]
                         {
                             new FieldMeta(0, "Login", typeof(string)),
                             new FieldMeta(1, "Name", typeof(string))

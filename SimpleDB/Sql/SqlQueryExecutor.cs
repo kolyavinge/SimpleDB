@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using SimpleDB.Core;
 using SimpleDB.IndexedSearch;
@@ -18,15 +17,18 @@ namespace SimpleDB.Sql
         private readonly IPrimaryKeyFileFactory _primaryKeyFileFactory;
         private readonly IDataFileFactory _dataFileFactory;
         private readonly IndexHolder _indexHolder;
+        private readonly IndexUpdater _indexUpdater;
 
         public SqlQueryExecutor(
             IPrimaryKeyFileFactory primaryKeyFileFactory,
             IDataFileFactory dataFileFactory,
-            IndexHolder indexHolder)
+            IndexHolder indexHolder,
+            IndexUpdater indexUpdater)
         {
             _primaryKeyFileFactory = primaryKeyFileFactory;
             _dataFileFactory = dataFileFactory;
             _indexHolder = indexHolder;
+            _indexUpdater = indexUpdater;
         }
 
         public SqlQueryResult ExecuteQuery(QueryContext context, string sqlQuery)
@@ -43,13 +45,14 @@ namespace SimpleDB.Sql
             var primaryKeys = primaryKeyFile.GetAllPrimaryKeys().ToDictionary(k => k.Value, v => v);
             primaryKeyFile.EndReadWrite();
             var dataFile = _dataFileFactory.MakeFromEntityName(entityMeta.EntityName, entityMeta.FieldMetaCollection);
-            var result = ExecuteQuery(queryType, query, primaryKeyFile, primaryKeys, dataFile);
+            var result = ExecuteQuery(queryType, entityMeta, query, primaryKeyFile, primaryKeys, dataFile);
 
             return result;
         }
 
         private SqlQueryResult ExecuteQuery(
             QueryType queryType,
+            EntityMeta entityMeta,
             AbstractQuery query,
             PrimaryKeyFile primaryKeyFile,
             IDictionary<object, PrimaryKey> primaryKeys,
@@ -66,17 +69,25 @@ namespace SimpleDB.Sql
                     Scalar = result.Scalar
                 };
             }
+            if (queryType == QueryType.Update)
+            {
+                var executor = new UpdateQueryExecutor(entityMeta, primaryKeyFile, dataFile, primaryKeys, _indexHolder, _indexUpdater);
+                var result = executor.ExecuteQuery((UpdateQuery)query);
+                return new SqlQueryResult
+                {
+                    EntityName = query.EntityName,
+                    Scalar = result
+                };
+            }
 
             throw new InvalidQueryException();
         }
 
         private QueryType GetQueryType(List<Token> tokens)
         {
-            if (tokens.First().Kind == TokenKind.SelectKeyword)
-            {
-                return QueryType.Select;
-            }
-
+            var tokenKind = tokens.First().Kind;
+            if (tokenKind == TokenKind.SelectKeyword) return QueryType.Select;
+            if (tokenKind == TokenKind.UpdateKeyword) return QueryType.Update;
             throw new InvalidQueryException();
         }
     }

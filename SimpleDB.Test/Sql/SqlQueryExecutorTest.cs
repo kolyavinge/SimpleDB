@@ -35,7 +35,8 @@ namespace SimpleDB.Test.Sql
             _executor = new SqlQueryExecutor(
                 new PrimaryKeyFileFactory(fileSystem, memory),
                 new DataFileFactory(fileSystem, memory),
-                new IndexHolder());
+                new IndexHolder(),
+                null);
         }
 
         [Test]
@@ -92,6 +93,25 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(1, result.FieldValueCollections[0].Count);
             Assert.AreEqual(1, result.FieldValueCollections[1].Count);
             Assert.AreEqual(1, result.FieldValueCollections[2].Count);
+        }
+
+        [Test]
+        public void ExecuteQuery_Update()
+        {
+            _collection.Insert(new[]
+            {
+                new TestEntity { Id = 1, Byte = 10, Float = 10.2f, String = "123" },
+                new TestEntity { Id = 2, Byte = 20, Float = 20.2f, String = "456" },
+                new TestEntity { Id = 3, Byte = 30, Float = 30.2f, String = "789" },
+            });
+            var context = new QueryContext
+            {
+                EntityMetaCollection = new List<EntityMeta> { _mapper.EntityMeta }
+            };
+            var result = _executor.ExecuteQuery(context, "UPDATE TestEntity SET String = '123'");
+
+            Assert.AreEqual("TestEntity", result.EntityName);
+            Assert.AreEqual(3, (int)result.Scalar);
         }
 
         class TestEntity

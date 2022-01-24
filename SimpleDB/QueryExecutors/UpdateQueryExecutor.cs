@@ -142,7 +142,10 @@ namespace SimpleDB.QueryExecutors
                 }
             }
 
-            _indexUpdater.UpdateIndexes(query.EntityName, fieldValueCollections.Select(x => x.PrimaryKey.Value), updateFieldDictionary.Values);
+            if (_indexUpdater != null)
+            {
+                _indexUpdater.UpdateIndexes(query.EntityName, fieldValueCollections.Select(x => x.PrimaryKey.Value), updateFieldDictionary.Values);
+            }
 
             return fieldValueCollections.Count;
         }

@@ -99,6 +99,8 @@ namespace SimpleDB.Sql
         private readonly Dictionary<string, TokenKind> _tokenKinds = new Dictionary<string, TokenKind>(StringComparer.OrdinalIgnoreCase)
         {
             { "SELECT", TokenKind.SelectKeyword },
+            { "UPDATE", TokenKind.UpdateKeyword },
+            { "SET", TokenKind.SetKeyword },
             { "FROM", TokenKind.FromKeyword },
             { "WHERE", TokenKind.WhereKeyword },
             { "ORDERBY", TokenKind.OrderByKeyword },

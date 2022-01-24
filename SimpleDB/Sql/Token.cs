@@ -19,6 +19,8 @@
     internal enum TokenKind
     {
         SelectKeyword,
+        UpdateKeyword,
+        SetKeyword,
         FromKeyword,
         WhereKeyword,
         OrderByKeyword,
