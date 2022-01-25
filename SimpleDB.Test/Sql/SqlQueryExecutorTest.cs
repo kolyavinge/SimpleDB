@@ -40,7 +40,7 @@ namespace SimpleDB.Test.Sql
         }
 
         [Test]
-        public void ExecuteQuery()
+        public void ExecuteQuery_Select()
         {
             _collection.Insert(new[]
             {
@@ -112,6 +112,25 @@ namespace SimpleDB.Test.Sql
 
             Assert.AreEqual("TestEntity", result.EntityName);
             Assert.AreEqual(3, (int)result.Scalar);
+        }
+
+        [Test]
+        public void ExecuteQuery_Delete()
+        {
+            _collection.Insert(new[]
+            {
+                new TestEntity { Id = 1, Byte = 10, Float = 10.2f, String = "123" },
+                new TestEntity { Id = 2, Byte = 20, Float = 20.2f, String = "456" },
+                new TestEntity { Id = 3, Byte = 30, Float = 30.2f, String = "789" },
+            });
+            var context = new QueryContext
+            {
+                EntityMetaCollection = new List<EntityMeta> { _mapper.EntityMeta }
+            };
+            var result = _executor.ExecuteQuery(context, "DELETE TestEntity WHERE String = '123'");
+
+            Assert.AreEqual("TestEntity", result.EntityName);
+            Assert.AreEqual(1, (int)result.Scalar);
         }
 
         class TestEntity

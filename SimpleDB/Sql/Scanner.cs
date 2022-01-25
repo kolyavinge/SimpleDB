@@ -100,6 +100,7 @@ namespace SimpleDB.Sql
         {
             { "SELECT", TokenKind.SelectKeyword },
             { "UPDATE", TokenKind.UpdateKeyword },
+            { "DELETE", TokenKind.DeleteKeyword },
             { "SET", TokenKind.SetKeyword },
             { "FROM", TokenKind.FromKeyword },
             { "WHERE", TokenKind.WhereKeyword },

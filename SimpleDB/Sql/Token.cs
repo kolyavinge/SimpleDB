@@ -20,6 +20,7 @@
     {
         SelectKeyword,
         UpdateKeyword,
+        DeleteKeyword,
         SetKeyword,
         FromKeyword,
         WhereKeyword,
