@@ -26,6 +26,16 @@ namespace SimpleDB.IndexedSearch
 
         public Index<TField> ReadIndex<TField>() where TField : IComparable<TField>
         {
+            return Index<TField>.Deserialize(ReadIndexFileContent(), _primaryKeyType, _fieldTypes);
+        }
+
+        public IIndex ReadIndex()
+        {
+            return PrimitiveTypeIndex.Deserialize(ReadIndexFileContent(), _primaryKeyType, _fieldTypes);
+        }
+
+        private IMemoryBuffer ReadIndexFileContent()
+        {
             byte[] indexFileBytes;
             using (var stream = _fileSystem.OpenFileRead(FileName))
             {
@@ -34,9 +44,8 @@ namespace SimpleDB.IndexedSearch
             var buffer = _memory.GetBuffer();
             buffer.WriteByteArray(indexFileBytes, 0, indexFileBytes.Length);
             buffer.Seek(0, System.IO.SeekOrigin.Begin);
-            var index = Index<TField>.Deserialize(buffer, _primaryKeyType, _fieldTypes);
 
-            return index;
+            return buffer;
         }
 
         public void WriteIndex(IIndex index)
@@ -61,6 +70,7 @@ namespace SimpleDB.IndexedSearch
 
     internal interface IIndexFileFactory
     {
+        IndexFile Make(string fileName, Type primaryKeyType, IEnumerable<FieldMeta> fieldMetaCollection);
         IndexFile Make(string entityName, string indexName, Type primaryKeyType, IEnumerable<FieldMeta> fieldMetaCollection);
     }
 
@@ -73,6 +83,11 @@ namespace SimpleDB.IndexedSearch
         {
             _fileSystem = fileSystem;
             _memory = memory ?? Memory.Instance;
+        }
+
+        public IndexFile Make(string fileName, Type primaryKeyType, IEnumerable<FieldMeta> fieldMetaCollection)
+        {
+            return new IndexFile(fileName, primaryKeyType, fieldMetaCollection, _fileSystem, _memory);
         }
 
         public IndexFile Make(string entityName, string indexName, Type primaryKeyType, IEnumerable<FieldMeta> fieldMetaCollection)

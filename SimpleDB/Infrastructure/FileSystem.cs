@@ -13,13 +13,13 @@ namespace SimpleDB.Infrastructure
 
         void CreateFiles(params string[] fileNames);
 
-        void CreateNewFiles(IEnumerable<string> fileNames);
+        void CreateNewFiles(params string[] fileNames);
 
         IFileStream OpenFileRead(string fileName);
 
         IFileStream OpenFileReadWrite(string fileName);
 
-        IEnumerable<string> GetFiles();
+        IEnumerable<string> GetFiles(string extension);
 
         void RenameFile(string fileName, string renamedFileName);
 
@@ -63,7 +63,7 @@ namespace SimpleDB.Infrastructure
             }
         }
 
-        public void CreateNewFiles(IEnumerable<string> fileNames)
+        public void CreateNewFiles(params string[] fileNames)
         {
             ThrowErrorIfOpenedFilesExists();
             using (var storage = StorageFile.Open(DatabaseFilePath, Access.Modify))
@@ -110,12 +110,12 @@ namespace SimpleDB.Infrastructure
             }
         }
 
-        public IEnumerable<string> GetFiles()
+        public IEnumerable<string> GetFiles(string extension)
         {
             ThrowErrorIfOpenedFilesExists();
             using (var storage = StorageFile.Open(DatabaseFilePath, Access.Read))
             {
-                return storage.GetAllRecordNames();
+                return storage.GetAllRecordNames().Where(file => Path.GetExtension(file) == extension).ToList();
             }
         }
 

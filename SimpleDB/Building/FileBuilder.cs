@@ -18,7 +18,7 @@ namespace SimpleDB.Building
         {
             var primaryKeyFileNames = mappers.Select(x => PrimaryKeyFileName.FromEntityName(x.EntityName)).ToList();
             var dataFileNames = mappers.Select(x => DataFileName.FromEntityName(x.EntityName)).ToList();
-            _fileSystem.CreateNewFiles(primaryKeyFileNames.Union(dataFileNames));
+            _fileSystem.CreateNewFiles(primaryKeyFileNames.Union(dataFileNames).ToArray());
         }
     }
 }

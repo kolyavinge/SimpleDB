@@ -9,37 +9,41 @@ namespace SimpleDB.Sql
 {
     internal interface ISqlQueryExecutor
     {
-        SqlQueryResult ExecuteQuery(QueryContext context, string sqlQuery);
+        SqlQueryResult ExecuteQuery(string sqlQuery);
     }
 
     internal class SqlQueryExecutor : ISqlQueryExecutor
     {
+        private readonly Dictionary<string, EntityMeta> _entityMetaDictionary;
         private readonly IPrimaryKeyFileFactory _primaryKeyFileFactory;
         private readonly IDataFileFactory _dataFileFactory;
         private readonly IndexHolder _indexHolder;
         private readonly IndexUpdater _indexUpdater;
 
         public SqlQueryExecutor(
+            Dictionary<string, EntityMeta> entityMetaDictionary,
             IPrimaryKeyFileFactory primaryKeyFileFactory,
             IDataFileFactory dataFileFactory,
             IndexHolder indexHolder,
             IndexUpdater indexUpdater)
         {
+            _entityMetaDictionary = entityMetaDictionary;
             _primaryKeyFileFactory = primaryKeyFileFactory;
             _dataFileFactory = dataFileFactory;
             _indexHolder = indexHolder;
             _indexUpdater = indexUpdater;
         }
 
-        public SqlQueryResult ExecuteQuery(QueryContext context, string sqlQuery)
+        public SqlQueryResult ExecuteQuery(string sqlQuery)
         {
             var scanner = new Scanner(sqlQuery);
             var tokens = scanner.GetTokens().ToList();
             var queryType = GetQueryType(tokens);
             var factory = new QueryParserFactory();
             var parser = factory.MakeParser(queryType);
+            var context = new QueryContext { EntityMetaDictionary = _entityMetaDictionary };
             var query = parser.GetQuery(context, tokens);
-            var entityMeta = context.EntityMetaCollection.First(x => x.EntityName == query.EntityName);
+            var entityMeta = _entityMetaDictionary[query.EntityName];
             var primaryKeyFile = _primaryKeyFileFactory.MakeFromEntityName(entityMeta.EntityName, entityMeta.PrimaryKeyType);
             primaryKeyFile.BeginRead();
             var primaryKeys = primaryKeyFile.GetAllPrimaryKeys().ToDictionary(k => k.Value, v => v);

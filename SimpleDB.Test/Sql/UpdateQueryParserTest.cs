@@ -17,18 +17,21 @@ namespace SimpleDB.Test.Sql
         {
             _context = new QueryContext
             {
-                EntityMetaCollection = new List<EntityMeta>
+                EntityMetaDictionary = new Dictionary<string, EntityMeta>
                 {
-                    new EntityMeta
                     {
-                        EntityName = "User",
-                        PrimaryKeyName = "Id",
-                        FieldMetaCollection = new[]
+                        "User",
+                        new EntityMeta
                         {
-                            new FieldMeta(0, "Login", typeof(string)),
-                            new FieldMeta(1, "Name", typeof(string)),
-                            new FieldMeta(2, "Byte", typeof(byte)),
-                            new FieldMeta(3, "Float", typeof(float))
+                            EntityName = "User",
+                            PrimaryKeyName = "Id",
+                            FieldMetaCollection = new[]
+                            {
+                                new FieldMeta(0, "Login", typeof(string)),
+                                new FieldMeta(1, "Name", typeof(string)),
+                                new FieldMeta(2, "Byte", typeof(byte)),
+                                new FieldMeta(3, "Float", typeof(float))
+                            }
                         }
                     }
                 }
@@ -171,6 +174,28 @@ namespace SimpleDB.Test.Sql
             var query = _parser.GetQuery(_context, tokens) as UpdateQuery;
             var item = query.UpdateClause.UpdateItems.First() as UpdateClause.Field;
             Assert.AreEqual(typeof(float), item.Value.GetType());
+        }
+
+        [Test]
+        public void UpdateWrongTable()
+        {
+            var tokens = new List<Token>
+            {
+                new Token("UPDATE", TokenKind.UpdateKeyword, 0, 0),
+                new Token("WRONG_TABLE", TokenKind.Identificator, 0, 0),
+                new Token("SET", TokenKind.SetKeyword, 0, 0),
+                new Token("Float", TokenKind.Identificator, 0, 0),
+                new Token("=", TokenKind.EqualsOperation, 0, 0),
+                new Token("123.456", TokenKind.FloatNumber, 0, 0)
+            };
+            try
+            {
+                _parser.GetQuery(_context, tokens);
+                Assert.Fail();
+            }
+            catch (InvalidQueryException)
+            {
+            }
         }
     }
 }

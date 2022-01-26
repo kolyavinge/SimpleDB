@@ -32,7 +32,12 @@ namespace SimpleDB.Test.Sql
                 new PrimaryKeyFileFactory(fileSystem, memory),
                 new DataFileFactory(fileSystem, memory),
                 new MetaFileFactory(fileSystem));
+            var entityMetaDictionary = new Dictionary<string, EntityMeta>
+            {
+                { _mapper.EntityName, _mapper.EntityMeta }
+            };
             _executor = new SqlQueryExecutor(
+                entityMetaDictionary,
                 new PrimaryKeyFileFactory(fileSystem, memory),
                 new DataFileFactory(fileSystem, memory),
                 new IndexHolder(),
@@ -48,11 +53,7 @@ namespace SimpleDB.Test.Sql
                 new TestEntity { Id = 2, Byte = 20, Float = 20.2f, String = "456" },
                 new TestEntity { Id = 3, Byte = 30, Float = 30.2f, String = "789" },
             });
-            var context = new QueryContext
-            {
-                EntityMetaCollection = new List<EntityMeta> { _mapper.EntityMeta }
-            };
-            var result = _executor.ExecuteQuery(context, "SELECT * FROM TestEntity");
+            var result = _executor.ExecuteQuery("SELECT * FROM TestEntity");
 
             Assert.AreEqual("TestEntity", result.EntityName);
             Assert.AreEqual(3, result.FieldValueCollections.Count);
@@ -79,11 +80,7 @@ namespace SimpleDB.Test.Sql
                 new TestEntity { Id = 2, Byte = 20, Float = 20.2f, String = "456" },
                 new TestEntity { Id = 3, Byte = 30, Float = 30.2f, String = "789" },
             });
-            var context = new QueryContext
-            {
-                EntityMetaCollection = new List<EntityMeta> { _mapper.EntityMeta }
-            };
-            var result = _executor.ExecuteQuery(context, "SELECT Byte FROM TestEntity");
+            var result = _executor.ExecuteQuery("SELECT Byte FROM TestEntity");
 
             Assert.AreEqual("TestEntity", result.EntityName);
             Assert.AreEqual(3, result.FieldValueCollections.Count);
@@ -104,11 +101,7 @@ namespace SimpleDB.Test.Sql
                 new TestEntity { Id = 2, Byte = 20, Float = 20.2f, String = "456" },
                 new TestEntity { Id = 3, Byte = 30, Float = 30.2f, String = "789" },
             });
-            var context = new QueryContext
-            {
-                EntityMetaCollection = new List<EntityMeta> { _mapper.EntityMeta }
-            };
-            var result = _executor.ExecuteQuery(context, "UPDATE TestEntity SET String = '123'");
+            var result = _executor.ExecuteQuery("UPDATE TestEntity SET String = '123'");
 
             Assert.AreEqual("TestEntity", result.EntityName);
             Assert.AreEqual(3, (int)result.Scalar);
@@ -123,11 +116,7 @@ namespace SimpleDB.Test.Sql
                 new TestEntity { Id = 2, Byte = 20, Float = 20.2f, String = "456" },
                 new TestEntity { Id = 3, Byte = 30, Float = 30.2f, String = "789" },
             });
-            var context = new QueryContext
-            {
-                EntityMetaCollection = new List<EntityMeta> { _mapper.EntityMeta }
-            };
-            var result = _executor.ExecuteQuery(context, "DELETE TestEntity WHERE String = '123'");
+            var result = _executor.ExecuteQuery("DELETE TestEntity WHERE String = '123'");
 
             Assert.AreEqual("TestEntity", result.EntityName);
             Assert.AreEqual(1, (int)result.Scalar);

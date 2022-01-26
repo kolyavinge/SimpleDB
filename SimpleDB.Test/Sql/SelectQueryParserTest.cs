@@ -17,16 +17,19 @@ namespace SimpleDB.Test.Sql
         {
             _context = new QueryContext
             {
-                EntityMetaCollection = new List<EntityMeta>
+                EntityMetaDictionary = new Dictionary<string, EntityMeta>
                 {
-                    new EntityMeta
                     {
-                        EntityName = "User",
-                        PrimaryKeyName = "Id",
-                        FieldMetaCollection = new[]
+                        "User",
+                        new EntityMeta
                         {
-                            new FieldMeta(0, "Login", typeof(string)),
-                            new FieldMeta(1, "Name", typeof(string))
+                            EntityName = "User",
+                            PrimaryKeyName = "Id",
+                            FieldMetaCollection = new[]
+                            {
+                                new FieldMeta(0, "Login", typeof(string)),
+                                new FieldMeta(1, "Name", typeof(string))
+                            }
                         }
                     }
                 }

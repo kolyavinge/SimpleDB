@@ -44,8 +44,8 @@ namespace SimpleDB.Sql
                 case State.UpdateTable:
                     if (tokenIter.Current.Kind == TokenKind.Identificator)
                     {
-                        entityMeta = context.EntityMetaCollection.FirstOrDefault(x => x.EntityName == tokenIter.Current.Value);
-                        if (entityMeta == null) throw new InvalidQueryException();
+                        if (!context.EntityMetaDictionary.ContainsKey(tokenIter.Current.Value)) throw new InvalidQueryException();
+                        entityMeta = context.EntityMetaDictionary[tokenIter.Current.Value];
                         tokenIter.NextToken();
                         goto case State.Set;
                     }

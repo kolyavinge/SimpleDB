@@ -33,7 +33,7 @@ namespace SimpleDB.Test.Tools
             }
         }
 
-        public void CreateNewFiles(IEnumerable<string> fileNames)
+        public void CreateNewFiles(params string[] fileNames)
         {
             throw new NotImplementedException();
         }
@@ -64,9 +64,9 @@ namespace SimpleDB.Test.Tools
             }
         }
 
-        public IEnumerable<string> GetFiles()
+        public IEnumerable<string> GetFiles(string extension)
         {
-            return FileStreams.Select(x => x.Name);
+            return FileStreams.Where(x => Path.GetExtension(x.Name) == extension).Select(x => x.Name);
         }
 
         public void RenameFile(string fileName, string renamedFileName)

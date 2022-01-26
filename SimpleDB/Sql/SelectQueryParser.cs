@@ -68,8 +68,8 @@ namespace SimpleDB.Sql
                 case State.FromTable:
                     if (tokenIter.Current.Kind == TokenKind.Identificator)
                     {
-                        entityMeta = context.EntityMetaCollection.FirstOrDefault(x => x.EntityName == tokenIter.Current.Value);
-                        if (entityMeta == null) throw new InvalidQueryException();
+                        if (!context.EntityMetaDictionary.ContainsKey(tokenIter.Current.Value)) throw new InvalidQueryException();
+                        entityMeta = context.EntityMetaDictionary[tokenIter.Current.Value];
                         selectQuery = new SelectQuery(entityMeta.EntityName, new SelectClause(GetSelectClauseItems(entityMeta, selectTokens, selectAll)));
                         tokenIter.NextToken();
                         goto case State.Where;

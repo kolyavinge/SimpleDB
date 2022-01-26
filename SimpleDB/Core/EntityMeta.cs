@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace SimpleDB.Core
 {
@@ -13,5 +12,16 @@ namespace SimpleDB.Core
         public string PrimaryKeyName { get; set; }
 
         public IEnumerable<FieldMeta> FieldMetaCollection { get; set; }
+
+        public static EntityMeta MakeFromMetaData(MetaData metaData)
+        {
+            return new EntityMeta
+            {
+                EntityName = metaData.EntityName,
+                PrimaryKeyType = metaData.PrimaryKeyType,
+                PrimaryKeyName = metaData.PrimaryKeyName,
+                FieldMetaCollection = metaData.FieldMetaCollection
+            };
+        }
     }
 }

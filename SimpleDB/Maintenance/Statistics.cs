@@ -101,9 +101,7 @@ namespace SimpleDB.Maintenance
 
         private IEnumerable<string> GetPrimaryKeyFileNames()
         {
-            return _fileSystem
-                .GetFiles().Where(file => Path.GetExtension(file) == PrimaryKeyFileName.Extension)
-                .ToList();
+            return _fileSystem.GetFiles(PrimaryKeyFileName.Extension).ToList();
         }
     }
 }

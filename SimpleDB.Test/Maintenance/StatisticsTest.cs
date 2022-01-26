@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using NUnit.Framework;
 using SimpleDB.Core;
-using SimpleDB.Infrastructure;
 using SimpleDB.Maintenance;
 using SimpleDB.Test.Tools;
 
