@@ -79,6 +79,16 @@ namespace SimpleDB.Sql
                     Scalar = result
                 };
             }
+            if (queryType == QueryType.Delete)
+            {
+                var executor = new DeleteQueryExecutor(primaryKeyFile, dataFile, primaryKeys, _indexHolder, _indexUpdater);
+                var result = executor.ExecuteQuery((DeleteQuery)query);
+                return new SqlQueryResult
+                {
+                    EntityName = query.EntityName,
+                    Scalar = result
+                };
+            }
 
             throw new InvalidQueryException();
         }
@@ -88,6 +98,7 @@ namespace SimpleDB.Sql
             var tokenKind = tokens.First().Kind;
             if (tokenKind == TokenKind.SelectKeyword) return QueryType.Select;
             if (tokenKind == TokenKind.UpdateKeyword) return QueryType.Update;
+            if (tokenKind == TokenKind.DeleteKeyword) return QueryType.Delete;
             throw new InvalidQueryException();
         }
     }

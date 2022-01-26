@@ -34,8 +34,8 @@ namespace SimpleDB.Test.QueryExecutors
                 new MetaFileFactory(fileSystem));
             _queryExecutor = new DeleteQueryExecutor(
                 _collection.PrimaryKeyFile,
-                _collection.PrimaryKeys,
                 _collection.DataFile,
+                _collection.PrimaryKeys,
                 new IndexHolder(),
                 new IndexUpdater(Enumerable.Empty<IIndex>(), new MapperHolder(new[] { mapper }), null));
         }

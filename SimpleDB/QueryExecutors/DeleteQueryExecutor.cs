@@ -13,10 +13,10 @@ namespace SimpleDB.QueryExecutors
         private readonly DataFile _dataFile;
         private readonly IndexHolder _indexHolder;
         private readonly IndexUpdater _indexUpdater;
-        private readonly Dictionary<object, PrimaryKey> _primaryKeysDictionary;
+        private readonly IDictionary<object, PrimaryKey> _primaryKeysDictionary;
 
         public DeleteQueryExecutor(
-            PrimaryKeyFile primaryKeyFile, Dictionary<object, PrimaryKey> primaryKeysDictionary, DataFile dataFile, IndexHolder indexHolder, IndexUpdater indexUpdater)
+            PrimaryKeyFile primaryKeyFile, DataFile dataFile, IDictionary<object, PrimaryKey> primaryKeysDictionary, IndexHolder indexHolder, IndexUpdater indexUpdater)
         {
             _primaryKeyFile = primaryKeyFile;
             _primaryKeysDictionary = primaryKeysDictionary;
@@ -81,7 +81,11 @@ namespace SimpleDB.QueryExecutors
             {
                 Delete(primaryKey);
             }
-            _indexUpdater.DeleteFromIndexes(query.EntityName, primaryKeysForDelete);
+
+            if (_indexUpdater != null)
+            {
+                _indexUpdater.DeleteFromIndexes(query.EntityName, primaryKeysForDelete);
+            }
 
             return result;
         }
