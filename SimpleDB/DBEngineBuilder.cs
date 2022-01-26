@@ -53,7 +53,7 @@ namespace SimpleDB
             fileBuilder.CreateNewFiles(mappers);
             var indexes = _indexBuilders.Select(x => x.BuildFunction(mapperHolder)).ToList();
             var indexHolder = new IndexHolder(indexes);
-            var indexUpdater = new IndexUpdater(indexes, mapperHolder, new IndexFileFactory(_fileSystem));
+            var indexUpdater = new IndexUpdater(indexes, new IndexFileFactory(_fileSystem));
 
             return new DBEngine(_collectionFactory, mapperHolder, indexHolder, indexUpdater);
         }

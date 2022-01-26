@@ -41,7 +41,7 @@ namespace SimpleDB.QueryExecutors
 
         public DeleteQueryExecutor MakeDeleteQueryExecutor()
         {
-            return new DeleteQueryExecutor(_primaryKeyFile, _dataFile, _primaryKeys, _indexHolder, _indexUpdater);
+            return new DeleteQueryExecutor(_entityMeta, _primaryKeyFile, _dataFile, _primaryKeys, _indexHolder, _indexUpdater);
         }
 
         public MergeQueryExecutor<TEntity> MakeMergeQueryExecutor<TEntity>(Mapper<TEntity> mapper)

@@ -8,19 +8,16 @@ namespace SimpleDB.IndexedSearch
     internal class IndexUpdater
     {
         private readonly Dictionary<string, List<IIndex>> _indexes;
-        private readonly MapperHolder _mapperHolder;
         private readonly IIndexFileFactory _indexFileFactory;
 
-        public IndexUpdater(IEnumerable<IIndex> indexes, MapperHolder mapperHolder, IIndexFileFactory indexFileFactory)
+        public IndexUpdater(IEnumerable<IIndex> indexes, IIndexFileFactory indexFileFactory)
         {
             _indexes = indexes.GroupBy(x => x.Meta.EntityName).ToDictionary(k => k.Key, v => v.ToList());
-            _mapperHolder = mapperHolder;
             _indexFileFactory = indexFileFactory;
         }
 
-        public void AddToIndexes<TEntity>(IEnumerable<TEntity> entities)
+        public void AddToIndexes<TEntity>(Mapper<TEntity> mapper, IEnumerable<TEntity> entities)
         {
-            var mapper = _mapperHolder.Get<TEntity>();
             if (!_indexes.ContainsKey(mapper.EntityName)) return;
             var entityIndexes = _indexes[mapper.EntityName];
             var fieldNumbers = entityIndexes.Select(x => x.Meta.IndexedFieldNumber).ToHashSet();
@@ -39,13 +36,12 @@ namespace SimpleDB.IndexedSearch
                     var indexItem = new IndexItem { PrimaryKeyValue = fieldValueCollection.PrimaryKeyValue, IncludedFields = includedFieldValues };
                     index.Add(indexedFieldValue, indexItem);
                 }
-                SaveIndexFile(index);
+                SaveIndexFile(mapper.EntityMeta, index);
             }
         }
 
-        public void UpdateIndexes<TEntity>(IEnumerable<TEntity> entities)
+        public void UpdateIndexes<TEntity>(Mapper<TEntity> mapper, IEnumerable<TEntity> entities)
         {
-            var mapper = _mapperHolder.Get<TEntity>();
             if (!_indexes.ContainsKey(mapper.EntityName)) return;
             var entityIndexes = _indexes[mapper.EntityName];
             var fieldNumbers = entityIndexes.Select(x => x.Meta.IndexedFieldNumber).ToHashSet();
@@ -53,20 +49,20 @@ namespace SimpleDB.IndexedSearch
             var fieldValueDictionary = entities.ToDictionary(
                 entity => mapper.GetPrimaryKeyValue(entity),
                 entity => mapper.GetFieldValueCollection(entity, fieldNumbers).ToDictionary(k => k.Number, v => v.Value));
-            UpdateIndexes(entityIndexes, fieldValueDictionary);
+            UpdateIndexes(mapper.EntityMeta, entityIndexes, fieldValueDictionary);
         }
 
-        public void UpdateIndexes(string entityName, IEnumerable<object> primaryKeyValues, IEnumerable<FieldValue> updatedFields)
+        public void UpdateIndexes(EntityMeta entityMeta, IEnumerable<object> primaryKeyValues, IEnumerable<FieldValue> updatedFields)
         {
-            if (!_indexes.ContainsKey(entityName)) return;
-            var entityIndexes = _indexes[entityName];
+            if (!_indexes.ContainsKey(entityMeta.EntityName)) return;
+            var entityIndexes = _indexes[entityMeta.EntityName];
             var fieldValueDictionary = primaryKeyValues.ToDictionary(
                 primaryKeyValue => primaryKeyValue,
                 _ => updatedFields.ToDictionary(k => k.Number, v => v.Value));
-            UpdateIndexes(entityIndexes, fieldValueDictionary);
+            UpdateIndexes(entityMeta, entityIndexes, fieldValueDictionary);
         }
 
-        private void UpdateIndexes(IEnumerable<IIndex> entityIndexes, Dictionary<object, Dictionary<byte, object>> fieldValueDictionary)
+        private void UpdateIndexes(EntityMeta entityMeta, IEnumerable<IIndex> entityIndexes, Dictionary<object, Dictionary<byte, object>> fieldValueDictionary)
         {
             foreach (var index in entityIndexes)
             {
@@ -112,14 +108,14 @@ namespace SimpleDB.IndexedSearch
                 {
                     index.Add(item.Key, item.Select(x => x.IndexItem));
                 }
-                SaveIndexFile(index);
+                SaveIndexFile(entityMeta, index);
             }
         }
 
-        public void DeleteFromIndexes(string entityName, IEnumerable<object> primaryKeyValues)
+        public void DeleteFromIndexes(EntityMeta entityMeta, IEnumerable<object> primaryKeyValues)
         {
-            if (!_indexes.ContainsKey(entityName)) return;
-            var entityIndexes = _indexes[entityName];
+            if (!_indexes.ContainsKey(entityMeta.EntityName)) return;
+            var entityIndexes = _indexes[entityMeta.EntityName];
             var primaryKeyValuesSet = primaryKeyValues.ToHashSet();
             foreach (var index in entityIndexes)
             {
@@ -140,14 +136,13 @@ namespace SimpleDB.IndexedSearch
                         index.Delete(item.IndexValue.IndexedFieldValue);
                     }
                 }
-                SaveIndexFile(index);
+                SaveIndexFile(entityMeta, index);
             }
         }
 
-        private void SaveIndexFile(IIndex index)
+        private void SaveIndexFile(EntityMeta entityMeta, IIndex index)
         {
-            var mapper = _mapperHolder.Get(index.Meta.EntityName);
-            var indexFile = _indexFileFactory.Make(index.Meta.EntityName, index.Meta.Name, mapper.PrimaryKeyType, mapper.FieldMetaCollection);
+            var indexFile = _indexFileFactory.Make(index.Meta.EntityName, index.Meta.Name, entityMeta.PrimaryKeyType, entityMeta.FieldMetaCollection);
             indexFile.WriteIndex(index);
         }
 

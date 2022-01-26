@@ -81,7 +81,7 @@ namespace SimpleDB.Sql
             }
             if (queryType == QueryType.Delete)
             {
-                var executor = new DeleteQueryExecutor(primaryKeyFile, dataFile, primaryKeys, _indexHolder, _indexUpdater);
+                var executor = new DeleteQueryExecutor(entityMeta, primaryKeyFile, dataFile, primaryKeys, _indexHolder, _indexUpdater);
                 var result = executor.ExecuteQuery((DeleteQuery)query);
                 return new SqlQueryResult
                 {

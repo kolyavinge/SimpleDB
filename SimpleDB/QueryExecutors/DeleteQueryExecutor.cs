@@ -9,6 +9,7 @@ namespace SimpleDB.QueryExecutors
 {
     internal class DeleteQueryExecutor
     {
+        private readonly EntityMeta _entityMeta;
         private readonly PrimaryKeyFile _primaryKeyFile;
         private readonly DataFile _dataFile;
         private readonly IndexHolder _indexHolder;
@@ -16,8 +17,14 @@ namespace SimpleDB.QueryExecutors
         private readonly IDictionary<object, PrimaryKey> _primaryKeysDictionary;
 
         public DeleteQueryExecutor(
-            PrimaryKeyFile primaryKeyFile, DataFile dataFile, IDictionary<object, PrimaryKey> primaryKeysDictionary, IndexHolder indexHolder, IndexUpdater indexUpdater)
+            EntityMeta entityMeta,
+            PrimaryKeyFile primaryKeyFile,
+            DataFile dataFile,
+            IDictionary<object, PrimaryKey> primaryKeysDictionary,
+            IndexHolder indexHolder,
+            IndexUpdater indexUpdater)
         {
+            _entityMeta = entityMeta;
             _primaryKeyFile = primaryKeyFile;
             _primaryKeysDictionary = primaryKeysDictionary;
             _dataFile = dataFile;
@@ -84,7 +91,7 @@ namespace SimpleDB.QueryExecutors
 
             if (_indexUpdater != null)
             {
-                _indexUpdater.DeleteFromIndexes(query.EntityName, primaryKeysForDelete);
+                _indexUpdater.DeleteFromIndexes(_entityMeta, primaryKeysForDelete);
             }
 
             return result;

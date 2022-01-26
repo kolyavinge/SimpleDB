@@ -144,7 +144,7 @@ namespace SimpleDB.QueryExecutors
 
             if (_indexUpdater != null)
             {
-                _indexUpdater.UpdateIndexes(query.EntityName, fieldValueCollections.Select(x => x.PrimaryKey.Value), updateFieldDictionary.Values);
+                _indexUpdater.UpdateIndexes(_entityMeta, fieldValueCollections.Select(x => x.PrimaryKey.Value), updateFieldDictionary.Values);
             }
 
             return fieldValueCollections.Count;

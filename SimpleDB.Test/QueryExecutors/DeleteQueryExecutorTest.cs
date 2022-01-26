@@ -33,11 +33,12 @@ namespace SimpleDB.Test.QueryExecutors
                 new DataFileFactory(fileSystem, memory),
                 new MetaFileFactory(fileSystem));
             _queryExecutor = new DeleteQueryExecutor(
+                mapper.EntityMeta,
                 _collection.PrimaryKeyFile,
                 _collection.DataFile,
                 _collection.PrimaryKeys,
                 new IndexHolder(),
-                new IndexUpdater(Enumerable.Empty<IIndex>(), new MapperHolder(new[] { mapper }), null));
+                new IndexUpdater(Enumerable.Empty<IIndex>(), null));
         }
 
         [Test]

@@ -43,7 +43,7 @@ namespace SimpleDB.Test.QueryExecutors
                 _collection.DataFile,
                 _collection.PrimaryKeys,
                 new IndexHolder(),
-                new IndexUpdater(Enumerable.Empty<IIndex>(), new MapperHolder(new[] { _mapper }), null));
+                new IndexUpdater(Enumerable.Empty<IIndex>(), null));
         }
 
         [Test]
@@ -406,10 +406,7 @@ namespace SimpleDB.Test.QueryExecutors
                 IncludedFieldNumbers = new byte[] { 1 }
             });
             var indexHolder = new IndexHolder(new IIndex[] { index });
-            var indexUpdater = new IndexUpdater(
-                new IIndex[] { index },
-                new MapperHolder(new[] { _mapper }),
-                new IndexFileFactory(_fileSystem));
+            var indexUpdater = new IndexUpdater(new IIndex[] { index }, new IndexFileFactory(_fileSystem));
 
             _collection = new Collection<TestEntity>(
                 _mapper,
