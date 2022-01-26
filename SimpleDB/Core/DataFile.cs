@@ -574,7 +574,7 @@ namespace SimpleDB.Core
 
         public static string FromEntityName(string entityName)
         {
-            return String.Format("{0}{1}", entityName, Extension);
+            return $"{entityName}{Extension}";
         }
     }
 }

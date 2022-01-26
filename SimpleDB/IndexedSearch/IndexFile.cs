@@ -84,11 +84,18 @@ namespace SimpleDB.IndexedSearch
 
     internal static class IndexFileName
     {
-        public const string Extension = ".index";
+        public const string Extension = ".idx";
+        public const string Separator = "#";
 
         public static string FromEntityName(string entityName, string indexName)
         {
-            return String.Format("{0}_{1}{2}", entityName, indexName, Extension);
+            return $"{entityName}{Separator}{indexName}{Extension}";
+        }
+
+        public static (string, string) GetEntityAndIndexName(string indexFileName)
+        {
+            var x = indexFileName.Split(new[] { Separator, Extension }, StringSplitOptions.None);
+            return (x[0], x[1]);
         }
     }
 }
