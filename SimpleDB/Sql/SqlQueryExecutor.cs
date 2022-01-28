@@ -46,7 +46,7 @@ namespace SimpleDB.Sql
             var entityMeta = _entityMetaDictionary[query.EntityName];
             var primaryKeyFile = _primaryKeyFileFactory.MakeFromEntityName(entityMeta.EntityName, entityMeta.PrimaryKeyType);
             primaryKeyFile.BeginRead();
-            var primaryKeys = primaryKeyFile.GetAllPrimaryKeys().ToDictionary(k => k.Value, v => v);
+            var primaryKeys = primaryKeyFile.GetAllPrimaryKeys().Where(x => !x.IsDeleted).ToDictionary(k => k.Value, v => v);
             primaryKeyFile.EndReadWrite();
             var dataFile = _dataFileFactory.MakeFromEntityName(entityMeta.EntityName, entityMeta.FieldMetaCollection);
             var result = ExecuteQuery(queryType, entityMeta, query, primaryKeyFile, primaryKeys, dataFile);

@@ -91,7 +91,7 @@ namespace SimpleDB.QueryExecutors
 
             if (_indexUpdater != null)
             {
-                _indexUpdater.DeleteFromIndexes(_entityMeta, primaryKeysForDelete);
+                _indexUpdater.DeleteFromIndexes(_entityMeta, primaryKeysForDelete.Select(x => x.Value));
             }
 
             return result;
