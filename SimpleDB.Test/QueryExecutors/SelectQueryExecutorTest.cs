@@ -24,9 +24,9 @@ namespace SimpleDB.Test.QueryExecutors
                 new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
                 new FieldMapping<TestEntity>[]
                 {
-                    new FieldMapping<TestEntity>(0, entity => entity.Byte),
-                    new FieldMapping<TestEntity>(1, entity => entity.Float),
-                    new FieldMapping<TestEntity>(2, entity => entity.String)
+                    new FieldMapping<TestEntity>(1, entity => entity.Byte),
+                    new FieldMapping<TestEntity>(2, entity => entity.Float),
+                    new FieldMapping<TestEntity>(3, entity => entity.String)
                 });
             _collection = new Collection<TestEntity>(
                 _mapper,
@@ -42,9 +42,9 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(1) }))
             {
-                WhereClause = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(1), new WhereClause.Constant(3.4f)))
+                WhereClause = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(2), new WhereClause.Constant(3.4f)))
             };
 
             var result = _queryExecutor.ExecuteQuery(query);
@@ -62,9 +62,9 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new SelectQuery("TestEntity", new SelectClause(new SelectClause.SelectClauseItem[] { new SelectClause.PrimaryKey(), new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new SelectClause.SelectClauseItem[] { new SelectClause.PrimaryKey(), new SelectClause.Field(1) }))
             {
-                WhereClause = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(1), new WhereClause.Constant(3.4f)))
+                WhereClause = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(2), new WhereClause.Constant(3.4f)))
             };
 
             var result = _queryExecutor.ExecuteQuery(query);
@@ -82,7 +82,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new SelectQuery("TestEntity", new SelectClause(new SelectClause.SelectClauseItem[] { new SelectClause.PrimaryKey(), new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new SelectClause.SelectClauseItem[] { new SelectClause.PrimaryKey(), new SelectClause.Field(1) }))
             {
                 WhereClause = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.PrimaryKey(), new WhereClause.Constant(2)))
             };
@@ -101,12 +101,12 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new SelectQuery("TestEntity", new SelectClause(new SelectClause.SelectClauseItem[] { new SelectClause.PrimaryKey(), new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new SelectClause.SelectClauseItem[] { new SelectClause.PrimaryKey(), new SelectClause.Field(1) }))
             {
                 WhereClause = new WhereClause(
                     new WhereClause.AndOperation(
                         new WhereClause.EqualsOperation(new WhereClause.PrimaryKey(), new WhereClause.Constant(2)),
-                        new WhereClause.EqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20))))
+                        new WhereClause.EqualsOperation(new WhereClause.Field(1), new WhereClause.Constant((byte)20))))
             };
 
             var result = _queryExecutor.ExecuteQuery(query);
@@ -123,7 +123,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new SelectQuery("TestEntity", new SelectClause(new SelectClause.SelectClauseItem[] { new SelectClause.PrimaryKey(), new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new SelectClause.SelectClauseItem[] { new SelectClause.PrimaryKey(), new SelectClause.Field(1) }))
             {
                 WhereClause = new WhereClause(
                     new WhereClause.OrOperation(
@@ -145,9 +145,9 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(1) }))
             {
-                WhereClause = new WhereClause(new WhereClause.LessOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20)))
+                WhereClause = new WhereClause(new WhereClause.LessOperation(new WhereClause.Field(1), new WhereClause.Constant((byte)20)))
             };
 
             var result = _queryExecutor.ExecuteQuery(query);
@@ -163,9 +163,9 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(1) }))
             {
-                WhereClause = new WhereClause(new WhereClause.GreatOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)10)))
+                WhereClause = new WhereClause(new WhereClause.GreatOperation(new WhereClause.Field(1), new WhereClause.Constant((byte)10)))
             };
 
             var result = _queryExecutor.ExecuteQuery(query);
@@ -182,9 +182,9 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(1) }))
             {
-                WhereClause = new WhereClause(new WhereClause.LessOrEqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20)))
+                WhereClause = new WhereClause(new WhereClause.LessOrEqualsOperation(new WhereClause.Field(1), new WhereClause.Constant((byte)20)))
             };
 
             var result = _queryExecutor.ExecuteQuery(query);
@@ -201,9 +201,9 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(1) }))
             {
-                WhereClause = new WhereClause(new WhereClause.GreatOrEqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20)))
+                WhereClause = new WhereClause(new WhereClause.GreatOrEqualsOperation(new WhereClause.Field(1), new WhereClause.Constant((byte)20)))
             };
 
             var result = _queryExecutor.ExecuteQuery(query);
@@ -220,12 +220,12 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
-            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(1) }))
             {
                 WhereClause =
                     new WhereClause(
                         new WhereClause.NotOperation(
-                            new WhereClause.EqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)20))))
+                            new WhereClause.EqualsOperation(new WhereClause.Field(1), new WhereClause.Constant((byte)20))))
             };
 
             var result = _queryExecutor.ExecuteQuery(query);
@@ -242,9 +242,9 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, String = "12345" });
             _collection.Insert(new TestEntity { Id = 2, String = "12" });
             _collection.Insert(new TestEntity { Id = 3, String = "123" });
-            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(2) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(3) }))
             {
-                WhereClause = new WhereClause(new WhereClause.LikeOperation(new WhereClause.Field(2), new WhereClause.Constant("123")))
+                WhereClause = new WhereClause(new WhereClause.LikeOperation(new WhereClause.Field(3), new WhereClause.Constant("123")))
             };
 
             var result = _queryExecutor.ExecuteQuery(query);
@@ -261,9 +261,9 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, String = "12345" });
             _collection.Insert(new TestEntity { Id = 2, String = "12" });
             _collection.Insert(new TestEntity { Id = 3, String = "123" });
-            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(2) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(3) }))
             {
-                WhereClause = new WhereClause(new WhereClause.InOperation(new WhereClause.Field(2), new WhereClause.Set(new[] { "123", "12" })))
+                WhereClause = new WhereClause(new WhereClause.InOperation(new WhereClause.Field(3), new WhereClause.Set(new[] { "123", "12" })))
             };
 
             var result = _queryExecutor.ExecuteQuery(query);
@@ -280,9 +280,9 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, String = "12345" });
             _collection.Insert(new TestEntity { Id = 2, String = "12" });
             _collection.Insert(new TestEntity { Id = 3, String = "123" });
-            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(2) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(3) }))
             {
-                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(2, SortDirection.Asc) })
+                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(3, SortDirection.Asc) })
             };
 
             var result = _queryExecutor.ExecuteQuery(query);
@@ -299,9 +299,9 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, String = "12345" });
             _collection.Insert(new TestEntity { Id = 2, String = "12" });
             _collection.Insert(new TestEntity { Id = 3, String = "123" });
-            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(2) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(3) }))
             {
-                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(2, SortDirection.Desc) })
+                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(3, SortDirection.Desc) })
             };
 
             var result = _queryExecutor.ExecuteQuery(query);
@@ -318,9 +318,9 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, String = "12345" });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20, String = "12" });
             _collection.Insert(new TestEntity { Id = 3, Byte = 20, String = "123" });
-            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(2) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(3) }))
             {
-                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, SortDirection.Asc), new OrderByClause.Field(2, SortDirection.Asc) })
+                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(1, SortDirection.Asc), new OrderByClause.Field(3, SortDirection.Asc) })
             };
 
             var result = _queryExecutor.ExecuteQuery(query);
@@ -337,9 +337,9 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, String = "12345" });
             _collection.Insert(new TestEntity { Id = 2, Byte = 10, String = "12" });
             _collection.Insert(new TestEntity { Id = 3, Byte = 10, String = "123" });
-            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(2) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(3) }))
             {
-                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, SortDirection.Asc), new OrderByClause.Field(2, SortDirection.Desc) })
+                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(2, SortDirection.Asc), new OrderByClause.Field(3, SortDirection.Desc) })
             };
 
             var result = _queryExecutor.ExecuteQuery(query);
@@ -356,7 +356,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, String = "12345" });
             _collection.Insert(new TestEntity { Id = 2, Byte = 10, String = "12" });
             _collection.Insert(new TestEntity { Id = 3, Byte = 10, String = "123" });
-            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(2) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(3) }))
             {
                 OrderByClause = new OrderByClause(new[] { new OrderByClause.PrimaryKey(SortDirection.Asc) })
             };
@@ -375,7 +375,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10, String = "12345" });
             _collection.Insert(new TestEntity { Id = 2, Byte = 10, String = "12" });
             _collection.Insert(new TestEntity { Id = 3, Byte = 10, String = "123" });
-            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(2) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(3) }))
             {
                 OrderByClause = new OrderByClause(new[] { new OrderByClause.PrimaryKey(SortDirection.Desc) })
             };
@@ -394,9 +394,9 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
-            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(1) }))
             {
-                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, SortDirection.Asc) }),
+                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(1, SortDirection.Asc) }),
                 Skip = 1
             };
 
@@ -414,9 +414,9 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
-            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(1) }))
             {
-                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, SortDirection.Asc) }),
+                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(1, SortDirection.Asc) }),
                 Skip = 100
             };
 
@@ -432,9 +432,9 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 1, Byte = 10 });
             _collection.Insert(new TestEntity { Id = 2, Byte = 20 });
             _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
-            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(0) }))
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(1) }))
             {
-                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(0, SortDirection.Asc) }),
+                OrderByClause = new OrderByClause(new[] { new OrderByClause.Field(1, SortDirection.Asc) }),
                 Limit = 2
             };
 
@@ -467,7 +467,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 3, Byte = 30 });
             var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.CountAggregate() }))
             {
-                WhereClause = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)10)))
+                WhereClause = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(1), new WhereClause.Constant((byte)10)))
             };
 
             var result = (int)_queryExecutor.ExecuteQuery(query).Scalar;

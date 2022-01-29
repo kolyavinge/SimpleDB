@@ -12,6 +12,7 @@ namespace SimpleDB.Core
 
         public FieldValue(byte number, object value)
         {
+            if (number == 0) throw new ArgumentException("Number must be greater than zero");
             Number = number;
             Value = value;
         }

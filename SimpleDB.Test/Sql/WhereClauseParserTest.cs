@@ -20,10 +20,10 @@ namespace SimpleDB.Test.Sql
                 PrimaryKeyName = "Id",
                 FieldMetaCollection = new FieldMeta[]
                 {
-                    new FieldMeta(0, "Login", typeof(string)),
-                    new FieldMeta(1, "Name", typeof(string)),
-                    new FieldMeta(2, "Age", typeof(int)),
-                    new FieldMeta(3, "Float", typeof(float)),
+                    new FieldMeta(1, "Login", typeof(string)),
+                    new FieldMeta(2, "Name", typeof(string)),
+                    new FieldMeta(3, "Age", typeof(int)),
+                    new FieldMeta(4, "Float", typeof(float)),
                 }
             };
             _parser = new WhereClauseParser();
@@ -80,7 +80,7 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), root.GetType());
             Assert.AreEqual(typeof(WhereClause.Field), root.Left.GetType());
             Assert.AreEqual(typeof(WhereClause.Constant), root.Right.GetType());
-            Assert.AreEqual(2, root.Left.Number);
+            Assert.AreEqual(3, root.Left.Number);
             Assert.AreEqual(123, root.Right.Value);
         }
 
@@ -98,7 +98,7 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), root.GetType());
             Assert.AreEqual(typeof(WhereClause.Field), root.Left.GetType());
             Assert.AreEqual(typeof(WhereClause.Constant), root.Right.GetType());
-            Assert.AreEqual(1, root.Left.Number);
+            Assert.AreEqual(2, root.Left.Number);
             Assert.AreEqual("user name", root.Right.Value);
         }
 
@@ -122,7 +122,7 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(typeof(WhereClause.InOperation), root.GetType());
             Assert.AreEqual(typeof(WhereClause.Field), root.Left.GetType());
             Assert.AreEqual(typeof(WhereClause.Set), root.Right.GetType());
-            Assert.AreEqual(1, root.Left.Number);
+            Assert.AreEqual(2, root.Left.Number);
             Assert.AreEqual(3, root.Right.Value.Count);
         }
 
@@ -144,9 +144,9 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(typeof(WhereClause.OrOperation), root.GetType());
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), root.Left.GetType());
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), root.Right.GetType());
-            Assert.AreEqual(1, root.Left.Left.Number);
+            Assert.AreEqual(2, root.Left.Left.Number);
             Assert.AreEqual("user name", root.Left.Right.Value);
-            Assert.AreEqual(2, root.Right.Left.Number);
+            Assert.AreEqual(3, root.Right.Left.Number);
             Assert.AreEqual(123, root.Right.Right.Value);
         }
 
@@ -168,9 +168,9 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(typeof(WhereClause.AndOperation), root.GetType());
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), root.Left.GetType());
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), root.Right.GetType());
-            Assert.AreEqual(1, root.Left.Left.Number);
+            Assert.AreEqual(2, root.Left.Left.Number);
             Assert.AreEqual("user name", root.Left.Right.Value);
-            Assert.AreEqual(2, root.Right.Left.Number);
+            Assert.AreEqual(3, root.Right.Left.Number);
             Assert.AreEqual(123, root.Right.Right.Value);
         }
 
@@ -198,11 +198,11 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(typeof(WhereClause.OrOperation), root.Right.GetType());
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), root.Right.Left.GetType());
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), root.Right.Right.GetType());
-            Assert.AreEqual(1, root.Left.Left.Number);
+            Assert.AreEqual(2, root.Left.Left.Number);
             Assert.AreEqual("user name", root.Left.Right.Value);
-            Assert.AreEqual(2, root.Right.Left.Left.Number);
+            Assert.AreEqual(3, root.Right.Left.Left.Number);
             Assert.AreEqual(123, root.Right.Left.Right.Value);
-            Assert.AreEqual(0, root.Right.Right.Left.Number);
+            Assert.AreEqual(1, root.Right.Right.Left.Number);
             Assert.AreEqual("login", root.Right.Right.Right.Value);
         }
 
@@ -230,11 +230,11 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(typeof(WhereClause.AndOperation), root.Right.GetType());
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), root.Right.Left.GetType());
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), root.Right.Right.GetType());
-            Assert.AreEqual(1, root.Left.Left.Number);
+            Assert.AreEqual(2, root.Left.Left.Number);
             Assert.AreEqual("user name", root.Left.Right.Value);
-            Assert.AreEqual(2, root.Right.Left.Left.Number);
+            Assert.AreEqual(3, root.Right.Left.Left.Number);
             Assert.AreEqual(123, root.Right.Left.Right.Value);
-            Assert.AreEqual(0, root.Right.Right.Left.Number);
+            Assert.AreEqual(1, root.Right.Right.Left.Number);
             Assert.AreEqual("login", root.Right.Right.Right.Value);
         }
 
@@ -262,11 +262,11 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(typeof(WhereClause.AndOperation), root.Right.GetType());
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), root.Right.Left.GetType());
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), root.Right.Right.GetType());
-            Assert.AreEqual(1, root.Left.Left.Number);
+            Assert.AreEqual(2, root.Left.Left.Number);
             Assert.AreEqual("user name", root.Left.Right.Value);
-            Assert.AreEqual(2, root.Right.Left.Left.Number);
+            Assert.AreEqual(3, root.Right.Left.Left.Number);
             Assert.AreEqual(123, root.Right.Left.Right.Value);
-            Assert.AreEqual(0, root.Right.Right.Left.Number);
+            Assert.AreEqual(1, root.Right.Right.Left.Number);
             Assert.AreEqual("login", root.Right.Right.Right.Value);
         }
 
@@ -294,11 +294,11 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), root.Right.GetType());
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), root.Left.Left.GetType());
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), root.Left.Right.GetType());
-            Assert.AreEqual(1, root.Left.Left.Left.Number);
+            Assert.AreEqual(2, root.Left.Left.Left.Number);
             Assert.AreEqual("user name", root.Left.Left.Right.Value);
-            Assert.AreEqual(2, root.Left.Right.Left.Number);
+            Assert.AreEqual(3, root.Left.Right.Left.Number);
             Assert.AreEqual(123, root.Left.Right.Right.Value);
-            Assert.AreEqual(0, root.Right.Left.Number);
+            Assert.AreEqual(1, root.Right.Left.Number);
             Assert.AreEqual("login", root.Right.Right.Value);
         }
 
@@ -328,11 +328,11 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(typeof(WhereClause.AndOperation), root.Right.GetType());
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), root.Right.Left.GetType());
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), root.Right.Right.GetType());
-            Assert.AreEqual(1, root.Left.Left.Number);
+            Assert.AreEqual(2, root.Left.Left.Number);
             Assert.AreEqual("user name", root.Left.Right.Value);
-            Assert.AreEqual(2, root.Right.Left.Left.Number);
+            Assert.AreEqual(3, root.Right.Left.Left.Number);
             Assert.AreEqual(123, root.Right.Left.Right.Value);
-            Assert.AreEqual(0, root.Right.Right.Left.Number);
+            Assert.AreEqual(1, root.Right.Right.Left.Number);
             Assert.AreEqual("login", root.Right.Right.Right.Value);
         }
 
@@ -362,11 +362,11 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), root.Right.GetType());
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), root.Left.Left.GetType());
             Assert.AreEqual(typeof(WhereClause.EqualsOperation), root.Left.Right.GetType());
-            Assert.AreEqual(1, root.Left.Left.Left.Number);
+            Assert.AreEqual(2, root.Left.Left.Left.Number);
             Assert.AreEqual("user name", root.Left.Left.Right.Value);
-            Assert.AreEqual(2, root.Left.Right.Left.Number);
+            Assert.AreEqual(3, root.Left.Right.Left.Number);
             Assert.AreEqual(123, root.Left.Right.Right.Value);
-            Assert.AreEqual(0, root.Right.Left.Number);
+            Assert.AreEqual(1, root.Right.Left.Number);
             Assert.AreEqual("login", root.Right.Right.Value);
         }
 

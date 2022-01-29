@@ -19,9 +19,9 @@ namespace SimpleDB.Test.Core
                 new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
                 new FieldMapping<TestEntity>[]
                 {
-                    new FieldMapping<TestEntity>(0, entity => entity.Byte),
-                    new FieldMapping<TestEntity>(1, entity => entity.Float),
-                    new FieldMapping<TestEntity>(2, entity => entity.String)
+                    new FieldMapping<TestEntity>(1, entity => entity.Byte),
+                    new FieldMapping<TestEntity>(2, entity => entity.Float),
+                    new FieldMapping<TestEntity>(3, entity => entity.String)
                 });
         }
 
@@ -36,9 +36,9 @@ namespace SimpleDB.Test.Core
         {
             var result = _mapper.FieldMetaCollection.ToList();
             Assert.AreEqual(3, result.Count);
-            Assert.AreEqual(0, result[0].Number);
-            Assert.AreEqual(1, result[1].Number);
-            Assert.AreEqual(2, result[2].Number);
+            Assert.AreEqual(1, result[0].Number);
+            Assert.AreEqual(2, result[1].Number);
+            Assert.AreEqual(3, result[2].Number);
             Assert.AreEqual(typeof(byte), result[0].Type);
             Assert.AreEqual(typeof(float), result[1].Type);
             Assert.AreEqual(typeof(string), result[2].Type);
@@ -55,9 +55,9 @@ namespace SimpleDB.Test.Core
         {
             var result = _mapper.GetFieldValueCollection(_entity).ToList();
             Assert.AreEqual(3, result.Count);
-            Assert.AreEqual(0, result[0].Number);
-            Assert.AreEqual(1, result[1].Number);
-            Assert.AreEqual(2, result[2].Number);
+            Assert.AreEqual(1, result[0].Number);
+            Assert.AreEqual(2, result[1].Number);
+            Assert.AreEqual(3, result[2].Number);
             Assert.AreEqual((byte)45, result[0].Value);
             Assert.AreEqual(6.7f, result[1].Value);
             Assert.AreEqual("123", result[2].Value);
@@ -66,11 +66,11 @@ namespace SimpleDB.Test.Core
         [Test]
         public void GetFieldValueCollectionWithFieldNumbers()
         {
-            var fieldNumbers = new HashSet<byte>(new byte[] { 1, 2 });
+            var fieldNumbers = new HashSet<byte>(new byte[] { 2, 3 });
             var result = _mapper.GetFieldValueCollection(_entity, fieldNumbers).ToList();
             Assert.AreEqual(2, result.Count);
-            Assert.AreEqual(1, result[0].Number);
-            Assert.AreEqual(2, result[1].Number);
+            Assert.AreEqual(2, result[0].Number);
+            Assert.AreEqual(3, result[1].Number);
             Assert.AreEqual(6.7f, result[0].Value);
             Assert.AreEqual("123", result[1].Value);
         }
@@ -80,9 +80,9 @@ namespace SimpleDB.Test.Core
         {
             var fieldValueCollection = new FieldValue[]
             {
-                new FieldValue(0, (byte)45),
-                new FieldValue(1, 6.7f),
-                new FieldValue(2, "123")
+                new FieldValue(1, (byte)45),
+                new FieldValue(2, 6.7f),
+                new FieldValue(3, "123")
             };
             var result = _mapper.MakeEntity(123, fieldValueCollection, true);
             Assert.AreEqual(123, result.Id);
@@ -96,9 +96,9 @@ namespace SimpleDB.Test.Core
         {
             var fieldValueCollection = new FieldValue[]
             {
-                new FieldValue(0, (byte)45),
-                new FieldValue(1, 6.7f),
-                new FieldValue(2, "123")
+                new FieldValue(1, (byte)45),
+                new FieldValue(2, 6.7f),
+                new FieldValue(3, "123")
             };
             var result = _mapper.MakeEntity(123, fieldValueCollection, false);
             Assert.AreEqual(0, result.Id);
@@ -114,24 +114,24 @@ namespace SimpleDB.Test.Core
                 new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
                 new FieldMapping<TestEntity>[]
                 {
-                    new FieldMapping<TestEntity>(0, entity => entity.Byte),
-                    new FieldMapping<TestEntity>(1, entity => entity.Float),
-                    new FieldMapping<TestEntity>(2, entity => entity.String)
+                    new FieldMapping<TestEntity>(1, entity => entity.Byte),
+                    new FieldMapping<TestEntity>(2, entity => entity.Float),
+                    new FieldMapping<TestEntity>(3, entity => entity.String)
                 });
             _mapper.MakeFunction = () => new TestEntity();
             _mapper.PrimaryKeySetFunction = (primaryKeyValue, entity) => entity.Id = (int)primaryKeyValue;
             _mapper.FieldSetFunction = (fieldNumber, fieldValue, entity) =>
             {
-                if (fieldNumber == 0) entity.Byte = (byte)fieldValue;
-                if (fieldNumber == 1) entity.Float = (float)fieldValue;
-                if (fieldNumber == 2) entity.String = (string)fieldValue;
+                if (fieldNumber == 1) entity.Byte = (byte)fieldValue;
+                if (fieldNumber == 2) entity.Float = (float)fieldValue;
+                if (fieldNumber == 3) entity.String = (string)fieldValue;
             };
 
             var fieldValueCollection = new FieldValue[]
             {
-                new FieldValue(0, (byte)45),
-                new FieldValue(1, 6.7f),
-                new FieldValue(2, "123")
+                new FieldValue(1, (byte)45),
+                new FieldValue(2, 6.7f),
+                new FieldValue(3, "123")
             };
             var result = _mapper.MakeEntity(123, fieldValueCollection, false);
             Assert.AreEqual(0, result.Id);

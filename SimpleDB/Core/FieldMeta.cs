@@ -15,6 +15,7 @@ namespace SimpleDB.Core
 
         public FieldMeta(byte number, string name, Type type)
         {
+            if (number == 0) throw new ArgumentException("Number must be greater than zero");
             Number = number;
             Name = name;
             Type = type;

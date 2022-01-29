@@ -25,9 +25,9 @@ namespace SimpleDB.Test.QueryExecutors
                 new PrimaryKeyMapping<TestEntity>(x => x.Id),
                 new FieldMapping<TestEntity>[]
                 {
-                    new FieldMapping<TestEntity>(0, x => x.Byte),
-                    new FieldMapping<TestEntity>(1, x => x.Float),
-                    new FieldMapping<TestEntity>(2, x => x.String)
+                    new FieldMapping<TestEntity>(1, x => x.Byte),
+                    new FieldMapping<TestEntity>(2, x => x.Float),
+                    new FieldMapping<TestEntity>(3, x => x.String)
                 });
             _collection = new Collection<TestEntity>(
                 _mapper,
@@ -69,7 +69,7 @@ namespace SimpleDB.Test.QueryExecutors
             _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f, String = "789" });
             var query = new DeleteQuery("TestEntity")
             {
-                WhereClause = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(0), new WhereClause.Constant((byte)10)))
+                WhereClause = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.Field(1), new WhereClause.Constant((byte)10)))
             };
 
             var result = _queryExecutor.ExecuteQuery(query);

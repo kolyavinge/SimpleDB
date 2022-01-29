@@ -21,9 +21,9 @@ namespace SimpleDB.Test.Linq
                 new PrimaryKeyMapping<TestEntity>(x => x.Id),
                 new[]
                 {
-                    new FieldMapping<TestEntity>(0, x => x.ByteField),
-                    new FieldMapping<TestEntity>(1, x => x.IntField),
-                    new FieldMapping<TestEntity>(2, x => x.StringField)
+                    new FieldMapping<TestEntity>(1, x => x.ByteField),
+                    new FieldMapping<TestEntity>(2, x => x.IntField),
+                    new FieldMapping<TestEntity>(3, x => x.StringField)
                 });
             _builder = new WhereClauseBuilder();
         }

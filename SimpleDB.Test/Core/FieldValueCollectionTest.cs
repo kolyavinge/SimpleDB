@@ -26,7 +26,7 @@ namespace SimpleDB.Test.Core
         public void Equals_EmptyAndFull()
         {
             var x = new FieldValueCollection();
-            var y = new FieldValueCollection(new[] { new FieldValue(0, 123) });
+            var y = new FieldValueCollection(new[] { new FieldValue(1, 123) });
             Assert.False(x.Equals(y));
             Assert.False(y.Equals(x));
         }
@@ -35,15 +35,15 @@ namespace SimpleDB.Test.Core
         public void GetHashCode_EmptyAndFull()
         {
             var x = new FieldValueCollection();
-            var y = new FieldValueCollection(new[] { new FieldValue(0, 123) });
+            var y = new FieldValueCollection(new[] { new FieldValue(1, 123) });
             Assert.True(x.GetHashCode() != y.GetHashCode());
         }
 
         [Test]
         public void Equals_1Same()
         {
-            var x = new FieldValueCollection(new[] { new FieldValue(0, 123) });
-            var y = new FieldValueCollection(new[] { new FieldValue(0, 123) });
+            var x = new FieldValueCollection(new[] { new FieldValue(1, 123) });
+            var y = new FieldValueCollection(new[] { new FieldValue(1, 123) });
             Assert.True(x.Equals(y));
             Assert.True(y.Equals(x));
         }
@@ -51,16 +51,16 @@ namespace SimpleDB.Test.Core
         [Test]
         public void GetHashCode_1Same()
         {
-            var x = new FieldValueCollection(new[] { new FieldValue(0, 123) });
-            var y = new FieldValueCollection(new[] { new FieldValue(0, 123) });
+            var x = new FieldValueCollection(new[] { new FieldValue(1, 123) });
+            var y = new FieldValueCollection(new[] { new FieldValue(1, 123) });
             Assert.True(x.GetHashCode() == y.GetHashCode());
         }
 
         [Test]
         public void Equals_1Diff()
         {
-            var x = new FieldValueCollection(new[] { new FieldValue(0, 123) });
-            var y = new FieldValueCollection(new[] { new FieldValue(0, 456) });
+            var x = new FieldValueCollection(new[] { new FieldValue(1, 123) });
+            var y = new FieldValueCollection(new[] { new FieldValue(1, 456) });
             Assert.False(x.Equals(y));
             Assert.False(y.Equals(x));
         }
@@ -68,16 +68,16 @@ namespace SimpleDB.Test.Core
         [Test]
         public void GetHashCode_1Diff()
         {
-            var x = new FieldValueCollection(new[] { new FieldValue(0, 123) });
-            var y = new FieldValueCollection(new[] { new FieldValue(0, 456) });
+            var x = new FieldValueCollection(new[] { new FieldValue(1, 123) });
+            var y = new FieldValueCollection(new[] { new FieldValue(1, 456) });
             Assert.True(x.GetHashCode() != y.GetHashCode());
         }
 
         [Test]
         public void Equals_2()
         {
-            var x = new FieldValueCollection(new[] { new FieldValue(0, 123), new FieldValue(1, 456) });
-            var y = new FieldValueCollection(new[] { new FieldValue(0, 123), new FieldValue(1, 456) });
+            var x = new FieldValueCollection(new[] { new FieldValue(1, 123), new FieldValue(2, 456) });
+            var y = new FieldValueCollection(new[] { new FieldValue(1, 123), new FieldValue(2, 456) });
             Assert.True(x.Equals(y));
             Assert.True(y.Equals(x));
         }
@@ -85,16 +85,16 @@ namespace SimpleDB.Test.Core
         [Test]
         public void GetHashCode_2()
         {
-            var x = new FieldValueCollection(new[] { new FieldValue(0, 123), new FieldValue(1, 456) });
-            var y = new FieldValueCollection(new[] { new FieldValue(0, 123), new FieldValue(1, 456) });
+            var x = new FieldValueCollection(new[] { new FieldValue(1, 123), new FieldValue(2, 456) });
+            var y = new FieldValueCollection(new[] { new FieldValue(1, 123), new FieldValue(2, 456) });
             Assert.True(x.GetHashCode() == y.GetHashCode());
         }
 
         [Test]
         public void Equals_2Invert()
         {
-            var x = new FieldValueCollection(new[] { new FieldValue(1, 456), new FieldValue(0, 123) });
-            var y = new FieldValueCollection(new[] { new FieldValue(0, 123), new FieldValue(1, 456) });
+            var x = new FieldValueCollection(new[] { new FieldValue(2, 456), new FieldValue(1, 123) });
+            var y = new FieldValueCollection(new[] { new FieldValue(1, 123), new FieldValue(2, 456) });
             Assert.True(x.Equals(y));
             Assert.True(y.Equals(x));
         }
@@ -102,19 +102,19 @@ namespace SimpleDB.Test.Core
         [Test]
         public void GetHashCode_2Invert()
         {
-            var x = new FieldValueCollection(new[] { new FieldValue(1, 456), new FieldValue(0, 123) });
-            var y = new FieldValueCollection(new[] { new FieldValue(0, 123), new FieldValue(1, 456) });
+            var x = new FieldValueCollection(new[] { new FieldValue(2, 456), new FieldValue(1, 123) });
+            var y = new FieldValueCollection(new[] { new FieldValue(1, 123), new FieldValue(2, 456) });
             Assert.True(x.GetHashCode() == y.GetHashCode());
         }
 
         [Test]
         public void Equals_Add()
         {
-            var x = new FieldValueCollection(new[] { new FieldValue(0, 123) });
-            var y = new FieldValueCollection(new[] { new FieldValue(0, 123), new FieldValue(1, 456) });
+            var x = new FieldValueCollection(new[] { new FieldValue(1, 123) });
+            var y = new FieldValueCollection(new[] { new FieldValue(1, 123), new FieldValue(2, 456) });
             Assert.False(x.Equals(y));
             Assert.False(y.Equals(x));
-            x.Add(new FieldValue(1, 456));
+            x.Add(new FieldValue(2, 456));
             Assert.True(x.Equals(y));
             Assert.True(y.Equals(x));
         }

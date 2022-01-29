@@ -31,20 +31,20 @@ namespace StartApp
 
             builder.Map<Person>()
                 .PrimaryKey(x => x.Id)
-                .Field(0, x => x.Name)
-                .Field(1, x => x.Surname)
-                .Field(2, x => x.Middlename)
-                .Field(3, x => x.BirthDay)
-                .Field(4, x => x.AdditionalInfo, new FieldSettings { Compressed = true })
+                .Field(1, x => x.Name)
+                .Field(2, x => x.Surname)
+                .Field(3, x => x.Middlename)
+                .Field(4, x => x.BirthDay)
+                .Field(5, x => x.AdditionalInfo, new FieldSettings { Compressed = true })
                 .MakeFunction(() => new Person())
                 .PrimaryKeySetFunction((primaryKeyValue, entity) => entity.Id = (int)primaryKeyValue)
                 .FieldSetFunction((fieldNumber, fieldValue, entity) =>
                 {
-                    if (fieldNumber == 0) entity.Name = (string)fieldValue;
-                    else if (fieldNumber == 1) entity.Surname = (string)fieldValue;
-                    else if (fieldNumber == 2) entity.Middlename = (string)fieldValue;
-                    else if (fieldNumber == 3) entity.BirthDay = (DateTime)fieldValue;
-                    else if (fieldNumber == 4) entity.AdditionalInfo = (PersonAdditionalInfo)fieldValue;
+                    if (fieldNumber == 1) entity.Name = (string)fieldValue;
+                    else if (fieldNumber == 2) entity.Surname = (string)fieldValue;
+                    else if (fieldNumber == 3) entity.Middlename = (string)fieldValue;
+                    else if (fieldNumber == 4) entity.BirthDay = (DateTime)fieldValue;
+                    else if (fieldNumber == 5) entity.AdditionalInfo = (PersonAdditionalInfo)fieldValue;
                 });
 
             builder.Index<Person>()

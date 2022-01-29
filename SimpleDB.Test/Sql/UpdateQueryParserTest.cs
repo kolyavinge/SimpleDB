@@ -27,10 +27,10 @@ namespace SimpleDB.Test.Sql
                             PrimaryKeyName = "Id",
                             FieldMetaCollection = new[]
                             {
-                                new FieldMeta(0, "Login", typeof(string)),
-                                new FieldMeta(1, "Name", typeof(string)),
-                                new FieldMeta(2, "Byte", typeof(byte)),
-                                new FieldMeta(3, "Float", typeof(float))
+                                new FieldMeta(1, "Login", typeof(string)),
+                                new FieldMeta(2, "Name", typeof(string)),
+                                new FieldMeta(3, "Byte", typeof(byte)),
+                                new FieldMeta(4, "Float", typeof(float))
                             }
                         }
                     }
@@ -57,7 +57,7 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(1, updatedItems.Count);
             Assert.IsTrue(updatedItems[0] is UpdateClause.Field);
             var field = (UpdateClause.Field)updatedItems[0];
-            Assert.AreEqual(0, field.Number);
+            Assert.AreEqual(1, field.Number);
             Assert.AreEqual("123", field.Value);
         }
 
@@ -83,10 +83,10 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(2, updatedItems.Count);
             Assert.IsTrue(updatedItems[0] is UpdateClause.Field);
             var field = (UpdateClause.Field)updatedItems[0];
-            Assert.AreEqual(0, field.Number);
+            Assert.AreEqual(1, field.Number);
             Assert.AreEqual("123", field.Value);
             field = (UpdateClause.Field)updatedItems[1];
-            Assert.AreEqual(1, field.Number);
+            Assert.AreEqual(2, field.Number);
             Assert.AreEqual("456", field.Value);
         }
 

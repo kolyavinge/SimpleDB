@@ -18,7 +18,7 @@ namespace SimpleDB.Test.Linq
         {
             _mapper = new Mapper<TestEntity>(
                 new PrimaryKeyMapping<TestEntity>(x => x.Id),
-                new[] { new FieldMapping<TestEntity>(0, x => x.Int) });
+                new[] { new FieldMapping<TestEntity>(1, x => x.Int) });
             _builder = new SelectClauseBuilder();
         }
 

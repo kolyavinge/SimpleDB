@@ -19,8 +19,8 @@ namespace SimpleDB.Test.Linq
                 new PrimaryKeyMapping<TestEntity>(x => x.Id),
                 new[]
                 {
-                    new FieldMapping<TestEntity>(0, x => x.Int),
-                    new FieldMapping<TestEntity>(1, x => x.String)
+                    new FieldMapping<TestEntity>(1, x => x.Int),
+                    new FieldMapping<TestEntity>(2, x => x.String)
                 });
             _builder = new OrderByClauseBuilder();
         }
@@ -53,7 +53,7 @@ namespace SimpleDB.Test.Linq
             Assert.AreEqual(typeof(OrderByClause.Field), result[1].GetType());
             Assert.AreEqual(SortDirection.Asc, ((OrderByClause.PrimaryKey)result[0]).Direction);
             Assert.AreEqual(SortDirection.Desc, ((OrderByClause.Field)result[1]).Direction);
-            Assert.AreEqual(0, ((OrderByClause.Field)result[1]).Number);
+            Assert.AreEqual(1, ((OrderByClause.Field)result[1]).Number);
         }
 
         [Test]
@@ -70,7 +70,7 @@ namespace SimpleDB.Test.Linq
             Assert.AreEqual(typeof(OrderByClause.Field), result[1].GetType());
             Assert.AreEqual(SortDirection.Asc, ((OrderByClause.PrimaryKey)result[0]).Direction);
             Assert.AreEqual(SortDirection.Desc, ((OrderByClause.Field)result[1]).Direction);
-            Assert.AreEqual(1, ((OrderByClause.Field)result[1]).Number);
+            Assert.AreEqual(2, ((OrderByClause.Field)result[1]).Number);
         }
 
         class TestEntity

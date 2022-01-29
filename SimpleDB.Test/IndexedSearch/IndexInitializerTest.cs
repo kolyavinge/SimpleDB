@@ -24,9 +24,9 @@ namespace SimpleDB.Test.IndexedSearch
                 new PrimaryKeyMapping<TestEntity>(x => x.Id),
                 new FieldMapping<TestEntity>[]
                 {
-                    new FieldMapping<TestEntity>(0, x => x.Int),
-                    new FieldMapping<TestEntity>(1, x => x.Float),
-                    new FieldMapping<TestEntity>(2, x => x.String),
+                    new FieldMapping<TestEntity>(1, x => x.Int),
+                    new FieldMapping<TestEntity>(2, x => x.Float),
+                    new FieldMapping<TestEntity>(3, x => x.String),
                 });
             _collection = new Collection<TestEntity>(
                 mapper,
@@ -54,10 +54,10 @@ namespace SimpleDB.Test.IndexedSearch
 
             Assert.AreEqual("TestEntity", index.Meta.EntityName);
             Assert.AreEqual(typeof(int), index.Meta.IndexedFieldType);
-            Assert.AreEqual(0, index.Meta.IndexedFieldNumber);
+            Assert.AreEqual(1, index.Meta.IndexedFieldNumber);
             Assert.AreEqual(2, index.Meta.IncludedFieldNumbers.Length);
-            Assert.AreEqual(1, index.Meta.IncludedFieldNumbers[0]);
-            Assert.AreEqual(2, index.Meta.IncludedFieldNumbers[1]);
+            Assert.AreEqual(2, index.Meta.IncludedFieldNumbers[0]);
+            Assert.AreEqual(3, index.Meta.IncludedFieldNumbers[1]);
 
             var indexValue = index.GetEquals(10);
             Assert.AreEqual(10, indexValue.IndexedFieldValue);
@@ -113,10 +113,10 @@ namespace SimpleDB.Test.IndexedSearch
 
             Assert.AreEqual("TestEntity", index.Meta.EntityName);
             Assert.AreEqual(typeof(int), index.Meta.IndexedFieldType);
-            Assert.AreEqual(0, index.Meta.IndexedFieldNumber);
+            Assert.AreEqual(1, index.Meta.IndexedFieldNumber);
             Assert.AreEqual(2, index.Meta.IncludedFieldNumbers.Length);
-            Assert.AreEqual(1, index.Meta.IncludedFieldNumbers[0]);
-            Assert.AreEqual(2, index.Meta.IncludedFieldNumbers[1]);
+            Assert.AreEqual(2, index.Meta.IncludedFieldNumbers[0]);
+            Assert.AreEqual(3, index.Meta.IncludedFieldNumbers[1]);
 
             var indexValue = index.GetEquals(10);
             Assert.AreEqual(10, indexValue.IndexedFieldValue);

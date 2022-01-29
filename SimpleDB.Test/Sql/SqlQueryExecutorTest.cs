@@ -25,9 +25,9 @@ namespace SimpleDB.Test.Sql
                 new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
                 new FieldMapping<TestEntity>[]
                 {
-                    new FieldMapping<TestEntity>(0, entity => entity.Byte),
-                    new FieldMapping<TestEntity>(1, entity => entity.Float),
-                    new FieldMapping<TestEntity>(2, entity => entity.String)
+                    new FieldMapping<TestEntity>(1, entity => entity.Byte),
+                    new FieldMapping<TestEntity>(2, entity => entity.Float),
+                    new FieldMapping<TestEntity>(3, entity => entity.String)
                 });
             _collection = new Collection<TestEntity>(
                 _mapper,
@@ -61,17 +61,17 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual("TestEntity", result.EntityName);
             Assert.AreEqual(3, result.FieldValueCollections.Count);
 
-            Assert.AreEqual((byte)10, result.FieldValueCollections[0][0].Value);
-            Assert.AreEqual(10.2f, result.FieldValueCollections[0][1].Value);
-            Assert.AreEqual("123", result.FieldValueCollections[0][2].Value);
+            Assert.AreEqual((byte)10, result.FieldValueCollections[0][1].Value);
+            Assert.AreEqual(10.2f, result.FieldValueCollections[0][2].Value);
+            Assert.AreEqual("123", result.FieldValueCollections[0][3].Value);
 
-            Assert.AreEqual((byte)20, result.FieldValueCollections[1][0].Value);
-            Assert.AreEqual(20.2f, result.FieldValueCollections[1][1].Value);
-            Assert.AreEqual("456", result.FieldValueCollections[1][2].Value);
+            Assert.AreEqual((byte)20, result.FieldValueCollections[1][1].Value);
+            Assert.AreEqual(20.2f, result.FieldValueCollections[1][2].Value);
+            Assert.AreEqual("456", result.FieldValueCollections[1][3].Value);
 
-            Assert.AreEqual((byte)30, result.FieldValueCollections[2][0].Value);
-            Assert.AreEqual(30.2f, result.FieldValueCollections[2][1].Value);
-            Assert.AreEqual("789", result.FieldValueCollections[2][2].Value);
+            Assert.AreEqual((byte)30, result.FieldValueCollections[2][1].Value);
+            Assert.AreEqual(30.2f, result.FieldValueCollections[2][2].Value);
+            Assert.AreEqual("789", result.FieldValueCollections[2][3].Value);
         }
 
         [Test]
@@ -87,9 +87,9 @@ namespace SimpleDB.Test.Sql
 
             Assert.AreEqual("TestEntity", result.EntityName);
             Assert.AreEqual(3, result.FieldValueCollections.Count);
-            Assert.AreEqual((byte)10, result.FieldValueCollections[0][0].Value);
-            Assert.AreEqual((byte)20, result.FieldValueCollections[1][0].Value);
-            Assert.AreEqual((byte)30, result.FieldValueCollections[2][0].Value);
+            Assert.AreEqual((byte)10, result.FieldValueCollections[0][1].Value);
+            Assert.AreEqual((byte)20, result.FieldValueCollections[1][1].Value);
+            Assert.AreEqual((byte)30, result.FieldValueCollections[2][1].Value);
             Assert.AreEqual(1, result.FieldValueCollections[0].Count);
             Assert.AreEqual(1, result.FieldValueCollections[1].Count);
             Assert.AreEqual(1, result.FieldValueCollections[2].Count);

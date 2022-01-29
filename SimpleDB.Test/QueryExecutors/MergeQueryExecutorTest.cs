@@ -25,9 +25,9 @@ namespace SimpleDB.Test.QueryExecutors
                 new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
                 new FieldMapping<TestEntity>[]
                 {
-                    new FieldMapping<TestEntity>(0, entity => entity.Byte),
-                    new FieldMapping<TestEntity>(1, entity => entity.Float),
-                    new FieldMapping<TestEntity>(2, entity => entity.String)
+                    new FieldMapping<TestEntity>(1, entity => entity.Byte),
+                    new FieldMapping<TestEntity>(2, entity => entity.Float),
+                    new FieldMapping<TestEntity>(3, entity => entity.String)
                 });
             _collection = new Collection<TestEntity>(
                 _mapper,
@@ -57,7 +57,7 @@ namespace SimpleDB.Test.QueryExecutors
             };
             var query = new MergeQuery<TestEntity>(
                 "TestEntity",
-                new MergeClause(new[] { new MergeClause.MergeClauseItem(0), new MergeClause.MergeClauseItem(1) }),
+                new MergeClause(new[] { new MergeClause.MergeClauseItem(1), new MergeClause.MergeClauseItem(2) }),
                 newEntities);
 
             var result = _queryExecutor.ExecuteQuery(query);
@@ -112,7 +112,7 @@ namespace SimpleDB.Test.QueryExecutors
             };
             var query = new MergeQuery<TestEntity>(
                 "TestEntity",
-                new MergeClause(new[] { new MergeClause.MergeClauseItem(0), new MergeClause.MergeClauseItem(1) }),
+                new MergeClause(new[] { new MergeClause.MergeClauseItem(1), new MergeClause.MergeClauseItem(2) }),
                 newEntities);
 
             var result = _queryExecutor.ExecuteQuery(query);
@@ -141,7 +141,7 @@ namespace SimpleDB.Test.QueryExecutors
             };
             var query = new MergeQuery<TestEntity>(
                 "TestEntity",
-                new MergeClause(new[] { new MergeClause.MergeClauseItem(0), new MergeClause.MergeClauseItem(1) }),
+                new MergeClause(new[] { new MergeClause.MergeClauseItem(1), new MergeClause.MergeClauseItem(2) }),
                 newEntities);
 
             var result = _queryExecutor.ExecuteQuery(query);

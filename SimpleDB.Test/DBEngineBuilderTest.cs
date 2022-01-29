@@ -14,8 +14,8 @@ namespace SimpleDB.Test
             builder._collectionFactory = new CollectionFactory(new MemoryFileSystem());
             builder.Map<TestEntity>()
                 .PrimaryKey(x => x.Id)
-                .Field(0, x => x.Int)
-                .Field(1, x => x.Name, new FieldSettings { Compressed = true });
+                .Field(1, x => x.Int)
+                .Field(2, x => x.Name, new FieldSettings { Compressed = true });
             var engine = builder.BuildEngine();
             Assert.IsNotNull(engine);
             var collection = engine.GetCollection<TestEntity>();
@@ -31,8 +31,8 @@ namespace SimpleDB.Test
                 builder.DatabaseFilePath("databaseFilePath");
                 builder.Map<TestEntity>()
                     .PrimaryKey(x => x.Id)
-                    .Field(0, x => x.Int, new FieldSettings { Compressed = true })
-                    .Field(1, x => x.Name);
+                    .Field(1, x => x.Int, new FieldSettings { Compressed = true })
+                    .Field(2, x => x.Name);
 
                 Assert.Fail();
             }
@@ -49,8 +49,8 @@ namespace SimpleDB.Test
             builder.DatabaseFilePath("databaseFilePath");
             builder.Map<TestEntity>()
                 .PrimaryKey(x => x.Id)
-                .Field(0, x => x.Int, new FieldSettings { Compressed = false })
-                .Field(1, x => x.Name);
+                .Field(1, x => x.Int, new FieldSettings { Compressed = false })
+                .Field(2, x => x.Name);
 
             Assert.Pass();
         }

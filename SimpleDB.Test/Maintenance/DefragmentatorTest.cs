@@ -21,9 +21,9 @@ namespace SimpleDB.Test.Maintenance
                 new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
                 new FieldMapping<TestEntity>[]
                 {
-                    new FieldMapping<TestEntity>(0, entity => entity.Byte),
-                    new FieldMapping<TestEntity>(1, entity => entity.Float),
-                    new FieldMapping<TestEntity>(2, entity => entity.String)
+                    new FieldMapping<TestEntity>(1, entity => entity.Byte),
+                    new FieldMapping<TestEntity>(2, entity => entity.Float),
+                    new FieldMapping<TestEntity>(3, entity => entity.String)
                 });
             InitCollection();
             _defragmentator = new Defragmentator(

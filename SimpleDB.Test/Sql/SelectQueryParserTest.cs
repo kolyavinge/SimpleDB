@@ -27,8 +27,8 @@ namespace SimpleDB.Test.Sql
                             PrimaryKeyName = "Id",
                             FieldMetaCollection = new[]
                             {
-                                new FieldMeta(0, "Login", typeof(string)),
-                                new FieldMeta(1, "Name", typeof(string))
+                                new FieldMeta(1, "Login", typeof(string)),
+                                new FieldMeta(2, "Name", typeof(string))
                             }
                         }
                     }
@@ -53,8 +53,8 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(3, selectItems.Count);
             Assert.IsTrue(selectItems[0] is SelectClause.PrimaryKey);
             var fields = selectItems.Skip(1).Cast<SelectClause.Field>().ToList();
-            Assert.AreEqual(0, fields[0].Number);
-            Assert.AreEqual(1, fields[1].Number);
+            Assert.AreEqual(1, fields[0].Number);
+            Assert.AreEqual(2, fields[1].Number);
         }
 
         [Test]
@@ -94,8 +94,8 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(3, selectItems.Count);
             Assert.IsTrue(selectItems[0] is SelectClause.PrimaryKey);
             var fields = selectItems.Skip(1).Cast<SelectClause.Field>().ToList();
-            Assert.AreEqual(0, fields[0].Number);
-            Assert.AreEqual(1, fields[1].Number);
+            Assert.AreEqual(1, fields[0].Number);
+            Assert.AreEqual(2, fields[1].Number);
         }
 
         [Test]
@@ -155,7 +155,7 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(1, query.OrderByClause.OrderedItems.Count());
             var orderedItems = query.OrderByClause.OrderedItems;
             Assert.AreEqual(typeof(OrderByClause.Field), orderedItems.First().GetType());
-            Assert.AreEqual(1, (orderedItems.First() as OrderByClause.Field).Number);
+            Assert.AreEqual(2, (orderedItems.First() as OrderByClause.Field).Number);
             Assert.AreEqual(SortDirection.Asc, orderedItems.First().Direction);
         }
 
@@ -176,7 +176,7 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(1, query.OrderByClause.OrderedItems.Count());
             var orderedItems = query.OrderByClause.OrderedItems;
             Assert.AreEqual(typeof(OrderByClause.Field), orderedItems.First().GetType());
-            Assert.AreEqual(1, (orderedItems.First() as OrderByClause.Field).Number);
+            Assert.AreEqual(2, (orderedItems.First() as OrderByClause.Field).Number);
             Assert.AreEqual(SortDirection.Asc, orderedItems.First().Direction);
         }
 
@@ -197,7 +197,7 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(1, query.OrderByClause.OrderedItems.Count());
             var orderedItems = query.OrderByClause.OrderedItems;
             Assert.AreEqual(typeof(OrderByClause.Field), orderedItems.First().GetType());
-            Assert.AreEqual(1, (orderedItems.First() as OrderByClause.Field).Number);
+            Assert.AreEqual(2, (orderedItems.First() as OrderByClause.Field).Number);
             Assert.AreEqual(SortDirection.Desc, orderedItems.First().Direction);
         }
 
@@ -219,11 +219,11 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(2, query.OrderByClause.OrderedItems.Count());
             var firstOrderedItem = query.OrderByClause.OrderedItems.First();
             Assert.AreEqual(typeof(OrderByClause.Field), firstOrderedItem.GetType());
-            Assert.AreEqual(1, (firstOrderedItem as OrderByClause.Field).Number);
+            Assert.AreEqual(2, (firstOrderedItem as OrderByClause.Field).Number);
             Assert.AreEqual(SortDirection.Asc, firstOrderedItem.Direction);
             var secondOrderedItem = query.OrderByClause.OrderedItems.Last();
             Assert.AreEqual(typeof(OrderByClause.Field), secondOrderedItem.GetType());
-            Assert.AreEqual(0, (secondOrderedItem as OrderByClause.Field).Number);
+            Assert.AreEqual(1, (secondOrderedItem as OrderByClause.Field).Number);
             Assert.AreEqual(SortDirection.Asc, secondOrderedItem.Direction);
         }
 
@@ -246,11 +246,11 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(2, query.OrderByClause.OrderedItems.Count());
             var firstOrderedItem = query.OrderByClause.OrderedItems.First();
             Assert.AreEqual(typeof(OrderByClause.Field), firstOrderedItem.GetType());
-            Assert.AreEqual(1, (firstOrderedItem as OrderByClause.Field).Number);
+            Assert.AreEqual(2, (firstOrderedItem as OrderByClause.Field).Number);
             Assert.AreEqual(SortDirection.Desc, firstOrderedItem.Direction);
             var secondOrderedItem = query.OrderByClause.OrderedItems.Last();
             Assert.AreEqual(typeof(OrderByClause.Field), secondOrderedItem.GetType());
-            Assert.AreEqual(0, (secondOrderedItem as OrderByClause.Field).Number);
+            Assert.AreEqual(1, (secondOrderedItem as OrderByClause.Field).Number);
             Assert.AreEqual(SortDirection.Asc, secondOrderedItem.Direction);
         }
 
@@ -274,11 +274,11 @@ namespace SimpleDB.Test.Sql
             Assert.AreEqual(2, query.OrderByClause.OrderedItems.Count());
             var firstOrderedItem = query.OrderByClause.OrderedItems.First();
             Assert.AreEqual(typeof(OrderByClause.Field), firstOrderedItem.GetType());
-            Assert.AreEqual(1, (firstOrderedItem as OrderByClause.Field).Number);
+            Assert.AreEqual(2, (firstOrderedItem as OrderByClause.Field).Number);
             Assert.AreEqual(SortDirection.Desc, firstOrderedItem.Direction);
             var secondOrderedItem = query.OrderByClause.OrderedItems.Last();
             Assert.AreEqual(typeof(OrderByClause.Field), secondOrderedItem.GetType());
-            Assert.AreEqual(0, (secondOrderedItem as OrderByClause.Field).Number);
+            Assert.AreEqual(1, (secondOrderedItem as OrderByClause.Field).Number);
             Assert.AreEqual(SortDirection.Desc, secondOrderedItem.Direction);
         }
 

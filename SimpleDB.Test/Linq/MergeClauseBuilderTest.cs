@@ -20,8 +20,8 @@ namespace SimpleDB.Test.Linq
                 new PrimaryKeyMapping<TestEntity>(x => x.Id),
                 new[]
                 {
-                    new FieldMapping<TestEntity>(0, x => x.Int),
-                    new FieldMapping<TestEntity>(1, x => x.Float)
+                    new FieldMapping<TestEntity>(1, x => x.Int),
+                    new FieldMapping<TestEntity>(2, x => x.Float)
                 });
             _builder = new MergeClauseBuilder();
         }
@@ -33,7 +33,7 @@ namespace SimpleDB.Test.Linq
             var result = _builder.Build(_mapper, mergeFieldsExpression).MergeItems.ToList();
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(typeof(MergeClause.MergeClauseItem), result[0].GetType());
-            Assert.AreEqual(0, result[0].FieldNumber);
+            Assert.AreEqual(1, result[0].FieldNumber);
         }
 
         [Test]
@@ -43,9 +43,9 @@ namespace SimpleDB.Test.Linq
             var result = _builder.Build(_mapper, mergeFieldsExpression).MergeItems.ToList();
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual(typeof(MergeClause.MergeClauseItem), result[0].GetType());
-            Assert.AreEqual(0, result[0].FieldNumber);
+            Assert.AreEqual(1, result[0].FieldNumber);
             Assert.AreEqual(typeof(MergeClause.MergeClauseItem), result[1].GetType());
-            Assert.AreEqual(1, result[1].FieldNumber);
+            Assert.AreEqual(2, result[1].FieldNumber);
         }
 
         class TestEntity
