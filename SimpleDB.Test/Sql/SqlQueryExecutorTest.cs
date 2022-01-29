@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Moq;
 using NUnit.Framework;
 using SimpleDB.Core;
 using SimpleDB.IndexedSearch;
@@ -10,6 +11,7 @@ namespace SimpleDB.Test.Sql
 {
     class SqlQueryExecutorTest
     {
+        private Mock<IIndexUpdater> _indexUpdater;
         private Mapper<TestEntity> _mapper;
         private Collection<TestEntity> _collection;
         private SqlQueryExecutor _executor;
@@ -36,12 +38,13 @@ namespace SimpleDB.Test.Sql
             {
                 { _mapper.EntityName, _mapper.EntityMeta }
             };
+            _indexUpdater = new Mock<IIndexUpdater>();
             _executor = new SqlQueryExecutor(
                 entityMetaDictionary,
                 new PrimaryKeyFileFactory(fileSystem, memory),
                 new DataFileFactory(fileSystem, memory),
                 new IndexHolder(),
-                null);
+                _indexUpdater.Object);
         }
 
         [Test]

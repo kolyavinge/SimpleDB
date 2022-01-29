@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using Moq;
 using NUnit.Framework;
 using SimpleDB.Core;
 using SimpleDB.IndexedSearch;
@@ -11,6 +11,7 @@ namespace SimpleDB.Test.QueryExecutors
 {
     class UpdateQueryExecutorTest
     {
+        private Mock<IIndexUpdater> _indexUpdater;
         private MemoryFileSystem _fileSystem;
         private Memory _memory;
         private Mapper<TestEntity> _mapper;
@@ -37,13 +38,14 @@ namespace SimpleDB.Test.QueryExecutors
                 new PrimaryKeyFileFactory(_fileSystem, _memory),
                 new DataFileFactory(_fileSystem, _memory),
                 new MetaFileFactory(_fileSystem));
+            _indexUpdater = new Mock<IIndexUpdater>();
             _queryExecutor = new UpdateQueryExecutor(
                 _mapper.EntityMeta,
                 _collection.PrimaryKeyFile,
                 _collection.DataFile,
                 _collection.PrimaryKeys,
                 new IndexHolder(),
-                new IndexUpdater(Enumerable.Empty<IIndex>(), null));
+                _indexUpdater.Object);
         }
 
         [Test]
@@ -397,32 +399,14 @@ namespace SimpleDB.Test.QueryExecutors
         [Test]
         public void ExecuteQuery_UpdateIndexes()
         {
-            var index = new Index<byte>(new IndexMeta
-            {
-                EntityName = "TestEntity",
-                Name = "index",
-                IndexedFieldType = typeof(byte),
-                IndexedFieldNumber = 0,
-                IncludedFieldNumbers = new byte[] { 1 }
-            });
-            var indexHolder = new IndexHolder(new IIndex[] { index });
-            var indexUpdater = new IndexUpdater(new IIndex[] { index }, new IndexFileFactory(_fileSystem));
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f, String = "123", InnerObject = new InnerObject { Value = 123 } });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f, String = "456", InnerObject = new InnerObject { Value = 456 } });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f, String = "789", InnerObject = new InnerObject { Value = 789 } });
+            var query = new UpdateQuery("TestEntity", new UpdateClause(new[] { new UpdateClause.Field(0, (byte)123) }));
 
-            _collection = new Collection<TestEntity>(
-                _mapper,
-                new PrimaryKeyFileFactory(_fileSystem, _memory),
-                new DataFileFactory(_fileSystem, _memory),
-                new MetaFileFactory(_fileSystem),
-                indexHolder,
-                indexUpdater);
-            _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
+            var result = _queryExecutor.ExecuteQuery(query);
 
-            var intResult = index.GetEquals((byte)10);
-            Assert.AreEqual((byte)10, intResult.IndexedFieldValue);
-            Assert.AreEqual(1, intResult.Items.Count);
-            Assert.AreEqual(1, intResult.Items[0].PrimaryKeyValue);
-            Assert.AreEqual(1, intResult.Items[0].IncludedFields.Length);
-            Assert.AreEqual(1.2f, intResult.Items[0].IncludedFields[0]);
+            _indexUpdater.Verify(x => x.UpdateIndexes(_mapper.EntityMeta, new object[] { 1, 2, 3 }, new[] { new FieldValue(0, (byte)123) }));
         }
 
         class TestEntity
