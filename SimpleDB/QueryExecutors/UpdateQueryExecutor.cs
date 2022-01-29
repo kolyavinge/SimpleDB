@@ -14,10 +14,10 @@ namespace SimpleDB.QueryExecutors
         private readonly DataFile _dataFile;
         private readonly IDictionary<object, PrimaryKey> _primaryKeys;
         private readonly IndexHolder _indexHolder;
-        private readonly IndexUpdater _indexUpdater;
+        private readonly IIndexUpdater _indexUpdater;
 
         public UpdateQueryExecutor(
-            EntityMeta entityMeta, PrimaryKeyFile primaryKeyFile, DataFile dataFile, IDictionary<object, PrimaryKey> primaryKeys, IndexHolder indexHolder, IndexUpdater indexUpdater)
+            EntityMeta entityMeta, PrimaryKeyFile primaryKeyFile, DataFile dataFile, IDictionary<object, PrimaryKey> primaryKeys, IndexHolder indexHolder, IIndexUpdater indexUpdater)
         {
             _entityMeta = entityMeta;
             _primaryKeyFile = primaryKeyFile;

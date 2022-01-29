@@ -11,7 +11,7 @@ namespace SimpleDB.QueryExecutors
         private readonly Dictionary<object, PrimaryKey> _primaryKeys;
         private readonly DataFile _dataFile;
         private readonly IndexHolder _indexHolder;
-        private readonly IndexUpdater _indexUpdater;
+        private readonly IIndexUpdater _indexUpdater;
 
         public QueryExecutorFactory(
             EntityMeta entityMeta,
@@ -19,7 +19,7 @@ namespace SimpleDB.QueryExecutors
             Dictionary<object, PrimaryKey> primaryKeys,
             DataFile dataFile,
             IndexHolder indexHolder,
-            IndexUpdater indexUpdater)
+            IIndexUpdater indexUpdater)
         {
             _entityMeta = entityMeta;
             _primaryKeyFile = primaryKeyFile;

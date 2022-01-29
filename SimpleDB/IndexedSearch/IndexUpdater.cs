@@ -5,7 +5,15 @@ using SimpleDB.Utils.EnumerableExtension;
 
 namespace SimpleDB.IndexedSearch
 {
-    internal class IndexUpdater
+    internal interface IIndexUpdater
+    {
+        void AddToIndexes<TEntity>(Mapper<TEntity> mapper, IEnumerable<TEntity> entities);
+        void UpdateIndexes<TEntity>(Mapper<TEntity> mapper, IEnumerable<TEntity> entities);
+        void UpdateIndexes(EntityMeta entityMeta, IEnumerable<object> primaryKeyValues, IEnumerable<FieldValue> updatedFields);
+        void DeleteFromIndexes(EntityMeta entityMeta, IEnumerable<object> primaryKeyValues);
+    }
+
+    internal class IndexUpdater : IIndexUpdater
     {
         private readonly Dictionary<string, List<IIndex>> _indexes;
         private readonly IIndexFileFactory _indexFileFactory;

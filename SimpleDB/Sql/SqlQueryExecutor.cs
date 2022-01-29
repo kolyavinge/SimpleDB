@@ -18,14 +18,14 @@ namespace SimpleDB.Sql
         private readonly IPrimaryKeyFileFactory _primaryKeyFileFactory;
         private readonly IDataFileFactory _dataFileFactory;
         private readonly IndexHolder _indexHolder;
-        private readonly IndexUpdater _indexUpdater;
+        private readonly IIndexUpdater _indexUpdater;
 
         public SqlQueryExecutor(
             Dictionary<string, EntityMeta> entityMetaDictionary,
             IPrimaryKeyFileFactory primaryKeyFileFactory,
             IDataFileFactory dataFileFactory,
             IndexHolder indexHolder,
-            IndexUpdater indexUpdater)
+            IIndexUpdater indexUpdater)
         {
             _entityMetaDictionary = entityMetaDictionary;
             _primaryKeyFileFactory = primaryKeyFileFactory;

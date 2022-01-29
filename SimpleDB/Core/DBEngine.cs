@@ -8,9 +8,9 @@ namespace SimpleDB.Core
         private readonly MapperHolder _mapperHolder;
         private readonly CollectionHolder _collectionHolder;
         private readonly IndexHolder _indexHolder;
-        private readonly IndexUpdater _indexUpdater;
+        private readonly IIndexUpdater _indexUpdater;
 
-        public DBEngine(ICollectionFactory collectionFactory, MapperHolder mapperHolder, IndexHolder indexHolder, IndexUpdater indexUpdater)
+        public DBEngine(ICollectionFactory collectionFactory, MapperHolder mapperHolder, IndexHolder indexHolder, IIndexUpdater indexUpdater)
         {
             _collectionFactory = collectionFactory;
             _mapperHolder = mapperHolder;

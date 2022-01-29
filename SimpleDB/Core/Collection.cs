@@ -10,7 +10,7 @@ namespace SimpleDB.Core
     internal class Collection<TEntity> : ICollection<TEntity>
     {
         private readonly IndexHolder _indexHolder;
-        private readonly IndexUpdater _indexUpdater;
+        private readonly IIndexUpdater _indexUpdater;
 
         internal Mapper<TEntity> Mapper { get; private set; }
 
@@ -26,7 +26,7 @@ namespace SimpleDB.Core
             IDataFileFactory dataFileFactory,
             IMetaFileFactory metaFileFactory,
             IndexHolder indexHolder = null,
-            IndexUpdater indexUpdater = null)
+            IIndexUpdater indexUpdater = null)
         {
             Mapper = mapper;
             _indexHolder = indexHolder ?? new IndexHolder();
@@ -266,7 +266,7 @@ namespace SimpleDB.Core
 
     internal interface ICollectionFactory
     {
-        Collection<TEntity> Make<TEntity>(Mapper<TEntity> mapper, IndexHolder indexHolder = null, IndexUpdater indexUpdater = null);
+        Collection<TEntity> Make<TEntity>(Mapper<TEntity> mapper, IndexHolder indexHolder = null, IIndexUpdater indexUpdater = null);
     }
 
     internal class CollectionFactory : ICollectionFactory
@@ -280,7 +280,7 @@ namespace SimpleDB.Core
             _memory = memory ?? Memory.Instance;
         }
 
-        public Collection<TEntity> Make<TEntity>(Mapper<TEntity> mapper, IndexHolder indexHolder = null, IndexUpdater indexUpdater = null)
+        public Collection<TEntity> Make<TEntity>(Mapper<TEntity> mapper, IndexHolder indexHolder = null, IIndexUpdater indexUpdater = null)
         {
             return new Collection<TEntity>(
                 mapper,
