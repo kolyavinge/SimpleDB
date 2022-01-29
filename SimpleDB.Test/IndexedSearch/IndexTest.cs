@@ -51,7 +51,7 @@ namespace SimpleDB.Test.IndexedSearch
 
             _index.Serialize(_stream);
             _stream.Seek(0, System.IO.SeekOrigin.Begin);
-            var result = Index<int>.Deserialize(_stream, typeof(int), new Dictionary<byte, Type> { { 1, typeof(int) }, { 2, typeof(int) } });
+            var result = IndexDeserializer.Deserialize<int>(_stream, typeof(int), new Dictionary<byte, Type> { { 1, typeof(int) }, { 2, typeof(int) } });
 
             Assert.AreEqual("TestEntity", result.Meta.EntityName);
             Assert.AreEqual(typeof(int), result.Meta.IndexedFieldType);
@@ -126,7 +126,7 @@ namespace SimpleDB.Test.IndexedSearch
 
             _index.Serialize(_stream);
             _stream.Seek(0, System.IO.SeekOrigin.Begin);
-            var result = Index<int>.Deserialize(_stream, typeof(int), new Dictionary<byte, Type>
+            var result = IndexDeserializer.Deserialize<int>(_stream, typeof(int), new Dictionary<byte, Type>
             {
                  { 1, typeof(bool) },
                  { 2, typeof(sbyte) },

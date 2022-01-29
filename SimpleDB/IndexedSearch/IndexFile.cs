@@ -26,12 +26,12 @@ namespace SimpleDB.IndexedSearch
 
         public Index<TField> ReadIndex<TField>() where TField : IComparable<TField>
         {
-            return Index<TField>.Deserialize(ReadIndexFileContent(), _primaryKeyType, _fieldTypes);
+            return IndexDeserializer.Deserialize<TField>(ReadIndexFileContent(), _primaryKeyType, _fieldTypes);
         }
 
         public IIndex ReadIndex()
         {
-            return PrimitiveTypeIndex.Deserialize(ReadIndexFileContent(), _primaryKeyType, _fieldTypes);
+            return IndexDeserializer.Deserialize(ReadIndexFileContent(), _primaryKeyType, _fieldTypes);
         }
 
         private IMemoryBuffer ReadIndexFileContent()

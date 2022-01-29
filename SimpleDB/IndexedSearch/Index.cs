@@ -17,7 +17,7 @@ namespace SimpleDB.IndexedSearch
             Meta = meta;
         }
 
-        private Index(IndexMeta meta, RBTree<TField, IndexValue> indexTree)
+        public Index(IndexMeta meta, RBTree<TField, IndexValue> indexTree)
         {
             _indexTree = indexTree;
             Meta = meta;
@@ -207,46 +207,6 @@ namespace SimpleDB.IndexedSearch
             Meta.Serialize(stream);
             var rbTreeSerializer = new RBTreeSerializer<TField, IndexValue>(new IndexNodeSerializer<TField>());
             rbTreeSerializer.Serialize(_indexTree, stream);
-        }
-
-        public static Index<TField> Deserialize(IReadableStream stream, Type primaryKeyType, IDictionary<byte, Type> fieldTypes)
-        {
-            var indexMeta = IndexMeta.Deserialize(stream);
-            return Deserialize(stream, indexMeta, primaryKeyType, fieldTypes);
-        }
-
-        public static Index<TField> Deserialize(IReadableStream stream, IndexMeta indexMeta, Type primaryKeyType, IDictionary<byte, Type> fieldTypes)
-        {
-            var rbTreeSerializer = new RBTreeSerializer<TField, IndexValue>(new IndexNodeSerializer<TField>(indexMeta, primaryKeyType, fieldTypes));
-            var indexTree = rbTreeSerializer.Deserialize(stream);
-
-            return new Index<TField>(indexMeta, indexTree);
-        }
-    }
-
-    internal static class PrimitiveTypeIndex
-    {
-        public static IIndex Deserialize(IReadableStream stream, Type primaryKeyType, IDictionary<byte, Type> fieldTypes)
-        {
-            var indexMeta = IndexMeta.Deserialize(stream);
-            var fieldType = indexMeta.IndexedFieldType;
-            if (fieldType == null) throw new ArgumentException($"IndexedFieldType cannot be null");
-            if (fieldType == typeof(bool)) return Index<bool>.Deserialize(stream, indexMeta, primaryKeyType, fieldTypes);
-            if (fieldType == typeof(sbyte)) return Index<sbyte>.Deserialize(stream, indexMeta, primaryKeyType, fieldTypes);
-            if (fieldType == typeof(byte)) return Index<byte>.Deserialize(stream, indexMeta, primaryKeyType, fieldTypes);
-            if (fieldType == typeof(char)) return Index<char>.Deserialize(stream, indexMeta, primaryKeyType, fieldTypes);
-            if (fieldType == typeof(short)) return Index<short>.Deserialize(stream, indexMeta, primaryKeyType, fieldTypes);
-            if (fieldType == typeof(ushort)) return Index<ushort>.Deserialize(stream, indexMeta, primaryKeyType, fieldTypes);
-            if (fieldType == typeof(int)) return Index<int>.Deserialize(stream, indexMeta, primaryKeyType, fieldTypes);
-            if (fieldType == typeof(uint)) return Index<uint>.Deserialize(stream, indexMeta, primaryKeyType, fieldTypes);
-            if (fieldType == typeof(long)) return Index<long>.Deserialize(stream, indexMeta, primaryKeyType, fieldTypes);
-            if (fieldType == typeof(ulong)) return Index<ulong>.Deserialize(stream, indexMeta, primaryKeyType, fieldTypes);
-            if (fieldType == typeof(float)) return Index<float>.Deserialize(stream, indexMeta, primaryKeyType, fieldTypes);
-            if (fieldType == typeof(double)) return Index<double>.Deserialize(stream, indexMeta, primaryKeyType, fieldTypes);
-            if (fieldType == typeof(decimal)) return Index<decimal>.Deserialize(stream, indexMeta, primaryKeyType, fieldTypes);
-            if (fieldType == typeof(DateTime)) return Index<DateTime>.Deserialize(stream, indexMeta, primaryKeyType, fieldTypes);
-            if (fieldType == typeof(string)) return Index<string>.Deserialize(stream, indexMeta, primaryKeyType, fieldTypes);
-            throw new ArgumentException($"Cannot read index for type '{fieldType}'");
         }
     }
 }
