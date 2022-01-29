@@ -1,5 +1,7 @@
-﻿using NUnit.Framework;
+﻿using Moq;
+using NUnit.Framework;
 using SimpleDB.Core;
+using SimpleDB.IndexedSearch;
 using SimpleDB.Infrastructure;
 using SimpleDB.Queries;
 using SimpleDB.QueryExecutors;
@@ -9,6 +11,7 @@ namespace SimpleDB.Test.QueryExecutors
 {
     class MergeQueryExecutorTest
     {
+        private Mock<IIndexUpdater> _indexUpdater;
         private Mapper<TestEntity> _mapper;
         private Collection<TestEntity> _collection;
         private MergeQueryExecutor<TestEntity> _queryExecutor;
@@ -31,7 +34,13 @@ namespace SimpleDB.Test.QueryExecutors
                 new PrimaryKeyFileFactory(fileSystem, memory),
                 new DataFileFactory(fileSystem, memory),
                 new MetaFileFactory(fileSystem));
-            _queryExecutor = new MergeQueryExecutor<TestEntity>(_mapper, _collection.PrimaryKeyFile, _collection.DataFile, _collection.PrimaryKeys);
+            _indexUpdater = new Mock<IIndexUpdater>();
+            _queryExecutor = new MergeQueryExecutor<TestEntity>(
+                _mapper,
+                _collection.PrimaryKeyFile,
+                _collection.DataFile,
+                _collection.PrimaryKeys,
+                _indexUpdater.Object);
         }
 
         [Test]
@@ -116,6 +125,28 @@ namespace SimpleDB.Test.QueryExecutors
             Assert.True(_collection.Exist(10));
             Assert.True(_collection.Exist(11));
             Assert.True(_collection.Exist(12));
+        }
+
+        [Test]
+        public void ExecuteQuery_AddToIndexes()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f });
+            var newEntities = new[]
+            {
+                new TestEntity { Id = 10, Byte = 10, Float = 0.2f },
+                new TestEntity { Id = 11, Byte = 20, Float = 0.4f },
+                new TestEntity { Id = 12, Byte = 30, Float = 0.6f }
+            };
+            var query = new MergeQuery<TestEntity>(
+                "TestEntity",
+                new MergeClause(new[] { new MergeClause.MergeClauseItem(0), new MergeClause.MergeClauseItem(1) }),
+                newEntities);
+
+            var result = _queryExecutor.ExecuteQuery(query);
+
+            _indexUpdater.Verify(x => x.AddToIndexes(_mapper, newEntities));
         }
 
         class TestEntity

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using SimpleDB.Core;
+using SimpleDB.IndexedSearch;
 using SimpleDB.Queries;
 using SimpleDB.Utils.EnumerableExtension;
 
@@ -12,13 +13,20 @@ namespace SimpleDB.QueryExecutors
         private readonly PrimaryKeyFile _primaryKeyFile;
         private readonly DataFile _dataFile;
         private readonly IDictionary<object, PrimaryKey> _primaryKeys;
+        private readonly IIndexUpdater _indexUpdater;
 
-        public MergeQueryExecutor(Mapper<TEntity> mapper, PrimaryKeyFile primaryKeyFile, DataFile dataFile, IDictionary<object, PrimaryKey> primaryKeys)
+        public MergeQueryExecutor(
+            Mapper<TEntity> mapper,
+            PrimaryKeyFile primaryKeyFile,
+            DataFile dataFile,
+            IDictionary<object, PrimaryKey> primaryKeys,
+            IIndexUpdater indexUpdater)
         {
             _mapper = mapper;
             _primaryKeyFile = primaryKeyFile;
             _dataFile = dataFile;
             _primaryKeys = primaryKeys;
+            _indexUpdater = indexUpdater;
         }
 
         public MergeQueryResult<TEntity> ExecuteQuery(MergeQuery<TEntity> query)
@@ -40,6 +48,7 @@ namespace SimpleDB.QueryExecutors
                 if (newEntities.Any())
                 {
                     EntityOperations.Insert(newEntities, _mapper, _primaryKeyFile, _dataFile, _primaryKeys);
+                    _indexUpdater.AddToIndexes(_mapper, newEntities);
                 }
             }
             finally

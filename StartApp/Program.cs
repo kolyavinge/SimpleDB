@@ -250,7 +250,16 @@ namespace StartApp
             {
                 Console.WriteLine("========== Merge ==========");
                 var newEntities = Enumerable.Range(1, count)
-                    .Select(i => new Person { Id = -i, Name = "Merged Name " + i.ToString(), Surname = "Merged Surname " + i.ToString() })
+                    .Select(i => new Person
+                    {
+                        Id = -i,
+                        Name = "Merged Name " + i.ToString(),
+                        Surname = "Merged Surname " + i.ToString(),
+                        Middlename = "Middlename " + i,
+                        BirthDay = DateTime.Today.AddYears(-10).AddDays(i),
+                        Bytes = new byte[] { 1, 2, 3 },
+                        AdditionalInfo = new PersonAdditionalInfo { Value = i }
+                    })
                     .ToList();
                 sw = System.Diagnostics.Stopwatch.StartNew();
                 var mergeResult = collection.Query().Merge(

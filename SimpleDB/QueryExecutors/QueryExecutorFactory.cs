@@ -46,7 +46,7 @@ namespace SimpleDB.QueryExecutors
 
         public MergeQueryExecutor<TEntity> MakeMergeQueryExecutor<TEntity>(Mapper<TEntity> mapper)
         {
-            return new MergeQueryExecutor<TEntity>(mapper, _primaryKeyFile, _dataFile, _primaryKeys);
+            return new MergeQueryExecutor<TEntity>(mapper, _primaryKeyFile, _dataFile, _primaryKeys, _indexUpdater);
         }
     }
 }
