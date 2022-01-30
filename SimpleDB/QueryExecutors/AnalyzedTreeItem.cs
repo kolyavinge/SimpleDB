@@ -84,9 +84,11 @@ namespace SimpleDB.QueryExecutors
         {
             get
             {
+                if (_whereClauseItem is WhereClause.PrimaryKey) return PrimaryKey.FieldNumber;
                 if (_whereClauseItem is WhereClause.Field) return ((WhereClause.Field)_whereClauseItem).Number;
-                else if (_whereClauseItem.Left is WhereClause.Field) return ((WhereClause.Field)_whereClauseItem.Left).Number;
-                else throw new InvalidOperationException();
+                if (_whereClauseItem.Left is WhereClause.PrimaryKey) return PrimaryKey.FieldNumber;
+                if (_whereClauseItem.Left is WhereClause.Field) return ((WhereClause.Field)_whereClauseItem.Left).Number;
+                throw new InvalidOperationException();
             }
         }
 

@@ -160,7 +160,7 @@ namespace SimpleDB.Sql
             {
                 foreach (var token in selectTokens)
                 {
-                    if (token.Value.Equals(entityMeta.PrimaryKeyName))
+                    if (token.Value.Equals(entityMeta.PrimaryKeyFieldMeta.Name))
                     {
                         yield return new SelectClause.PrimaryKey();
                     }
@@ -178,7 +178,7 @@ namespace SimpleDB.Sql
         {
             foreach (var orderByItem in orderByItems)
             {
-                if (orderByItem.Field.Equals(entityMeta.PrimaryKeyName))
+                if (orderByItem.Field.Equals(entityMeta.PrimaryKeyFieldMeta.Name))
                 {
                     yield return new OrderByClause.PrimaryKey(orderByItem.Direction);
                 }

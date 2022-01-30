@@ -176,6 +176,50 @@ namespace SimpleDB.Test.IndexedSearch
             Assert.AreEqual(5, indexValue.Items[2].PrimaryKeyValue);
             Assert.AreEqual(0, indexValue.Items[2].IncludedFields.Length);
         }
+
+        [Test]
+        public void MakeIndex_PrimaryKey()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Int = 10, Float = 1.0f, String = "1" });
+            _collection.Insert(new TestEntity { Id = 2, Int = 10, Float = 2.0f, String = "2" });
+            _collection.Insert(new TestEntity { Id = 3, Int = 20, Float = 3.0f, String = "3" });
+            _collection.Insert(new TestEntity { Id = 4, Int = 20, Float = 4.0f, String = "4" });
+            _collection.Insert(new TestEntity { Id = 5, Int = 20, Float = 5.0f, String = "5" });
+
+            var index = _initializer.GetIndex<int>("test index", x => x.Id, null);
+
+            var indexValue = index.GetEquals(1);
+            Assert.AreEqual(1, indexValue.IndexedFieldValue);
+            Assert.AreEqual(1, indexValue.Items.Count);
+            Assert.AreEqual(1, indexValue.Items[0].PrimaryKeyValue);
+            Assert.AreEqual(0, indexValue.Items[0].IncludedFields.Length);
+
+            indexValue = index.GetEquals(2);
+            Assert.AreEqual(2, indexValue.IndexedFieldValue);
+            Assert.AreEqual(1, indexValue.Items.Count);
+            Assert.AreEqual(2, indexValue.Items[0].PrimaryKeyValue);
+            Assert.AreEqual(0, indexValue.Items[0].IncludedFields.Length);
+        }
+
+        [Test]
+        public void MakeIndex_IncludePrimaryKey_Error()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Int = 10, Float = 1.0f, String = "1" });
+            _collection.Insert(new TestEntity { Id = 2, Int = 10, Float = 2.0f, String = "2" });
+            _collection.Insert(new TestEntity { Id = 3, Int = 20, Float = 3.0f, String = "3" });
+            _collection.Insert(new TestEntity { Id = 4, Int = 20, Float = 4.0f, String = "4" });
+            _collection.Insert(new TestEntity { Id = 5, Int = 20, Float = 5.0f, String = "5" });
+
+            try
+            {
+                _initializer.GetIndex<int>("test index", x => x.Int, new Expression<Func<TestEntity, object>>[] { x => x.Id });
+                Assert.Fail();
+            }
+            catch (ArgumentException e)
+            {
+                Assert.AreEqual("Primary key cannot be included in any index", e.Message);
+            }
+        }
     }
 
     class TestEntity

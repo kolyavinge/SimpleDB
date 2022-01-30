@@ -27,16 +27,21 @@ namespace SimpleDB.IndexedSearch
 
     internal class IndexHolder
     {
-        private readonly Dictionary<string, List<IIndex>> _indexes;
+        private Dictionary<string, List<IIndex>> _indexes;
 
         public IndexHolder(IEnumerable<IIndex> indexes)
         {
-            _indexes = indexes.GroupBy(x => x.Meta.EntityName).ToDictionary(k => k.Key, v => v.ToList());
+            SetIndexes(indexes);
         }
 
         public IndexHolder()
         {
             _indexes = new Dictionary<string, List<IIndex>>();
+        }
+
+        public void SetIndexes(IEnumerable<IIndex> indexes)
+        {
+            _indexes = indexes.GroupBy(x => x.Meta.EntityName).ToDictionary(k => k.Key, v => v.ToList());
         }
 
         public bool AnyIndexContainsFields(string entityName, ISet<byte> fieldNumbers)

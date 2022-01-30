@@ -44,7 +44,7 @@ namespace SimpleDB.Sql
             var context = new QueryContext { EntityMetaDictionary = _entityMetaDictionary };
             var query = parser.GetQuery(context, tokens);
             var entityMeta = _entityMetaDictionary[query.EntityName];
-            var primaryKeyFile = _primaryKeyFileFactory.MakeFromEntityName(entityMeta.EntityName, entityMeta.PrimaryKeyType);
+            var primaryKeyFile = _primaryKeyFileFactory.MakeFromEntityName(entityMeta.EntityName, entityMeta.PrimaryKeyFieldMeta.Type);
             primaryKeyFile.BeginRead();
             var primaryKeys = primaryKeyFile.GetAllPrimaryKeys().Where(x => !x.IsDeleted).ToDictionary(k => k.Value, v => v);
             primaryKeyFile.EndReadWrite();

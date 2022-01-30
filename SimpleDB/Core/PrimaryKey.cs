@@ -6,6 +6,8 @@ namespace SimpleDB.Core
 {
     internal class PrimaryKey
     {
+        public const byte FieldNumber = 0;
+
         public object Value { get; private set; }
 
         public long StartDataFileOffset { get; set; }

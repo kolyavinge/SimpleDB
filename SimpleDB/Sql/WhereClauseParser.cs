@@ -116,7 +116,7 @@ namespace SimpleDB.Sql
                 return Set();
             }
 
-            if (_tokenIterator.Current.Value.Equals(_entityMeta.PrimaryKeyName))
+            if (_tokenIterator.Current.Value.Equals(_entityMeta.PrimaryKeyFieldMeta.Name))
             {
                 return new WhereClause.PrimaryKey();
             }

@@ -17,7 +17,7 @@ namespace SimpleDB.Test.Sql
             _entityMeta = new EntityMeta
             {
                 EntityName = "User",
-                PrimaryKeyName = "Id",
+                PrimaryKeyFieldMeta = new PrimaryKeyFieldMeta("Id", typeof(int)),
                 FieldMetaCollection = new FieldMeta[]
                 {
                     new FieldMeta(1, "Login", typeof(string)),

@@ -19,17 +19,6 @@ namespace SimpleDB.Queries
 
         public abstract class UpdateClauseItem { }
 
-        // пока не реализовано !
-        //public class PrimaryKey : UpdateClauseItem
-        //{
-        //    public PrimaryKey(object value)
-        //    {
-        //        Value = value;
-        //    }
-
-        //    public object Value { get; }
-        //}
-
         public class Field : UpdateClauseItem
         {
             public Field(byte number, object value)

@@ -14,7 +14,10 @@ namespace SimpleDB.IndexedSearch
 
         public IEnumerable<FieldValue> GetFieldValues(IndexValue indexValue, IndexItem indexItem)
         {
-            yield return new FieldValue(_indexMeta.IndexedFieldNumber, indexValue.IndexedFieldValue);
+            if (_indexMeta.IndexedFieldNumber != PrimaryKey.FieldNumber)
+            {
+                yield return new FieldValue(_indexMeta.IndexedFieldNumber, indexValue.IndexedFieldValue);
+            }
             var includedFieldNumbers = _indexMeta.IncludedFieldNumbers ?? new byte[0];
             for (int includedFieldNumberIndex = 0; includedFieldNumberIndex < includedFieldNumbers.Length; includedFieldNumberIndex++)
             {

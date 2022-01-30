@@ -39,7 +39,9 @@ namespace SimpleDB.IndexedSearch
             {
                 foreach (var fieldValueCollection in fieldValueCollections)
                 {
-                    var indexedFieldValue = fieldValueCollection.FieldValues[index.Meta.IndexedFieldNumber];
+                    var indexedFieldValue = index.Meta.IndexedFieldNumber == PrimaryKey.FieldNumber
+                        ? fieldValueCollection.PrimaryKeyValue
+                        : fieldValueCollection.FieldValues[index.Meta.IndexedFieldNumber];
                     var includedFieldValues = index.Meta.IncludedFieldNumbers.Select(fn => fieldValueCollection.FieldValues[fn]).ToArray();
                     var indexItem = new IndexItem { PrimaryKeyValue = fieldValueCollection.PrimaryKeyValue, IncludedFields = includedFieldValues };
                     index.Add(indexedFieldValue, indexItem);
@@ -150,7 +152,7 @@ namespace SimpleDB.IndexedSearch
 
         private void SaveIndexFile(EntityMeta entityMeta, IIndex index)
         {
-            var indexFile = _indexFileFactory.Make(index.Meta.EntityName, index.Meta.Name, entityMeta.PrimaryKeyType, entityMeta.FieldMetaCollection);
+            var indexFile = _indexFileFactory.Make(entityMeta.EntityName, index.Meta.Name, entityMeta.PrimaryKeyFieldMeta.Type, entityMeta.FieldMetaCollection);
             indexFile.WriteIndex(index);
         }
 

@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace SimpleDB.Core
 {
@@ -7,9 +7,7 @@ namespace SimpleDB.Core
     {
         public string EntityName { get; set; }
 
-        public Type PrimaryKeyType { get; set; }
-
-        public string PrimaryKeyName { get; set; }
+        public PrimaryKeyFieldMeta PrimaryKeyFieldMeta { get; set; }
 
         public IEnumerable<FieldMeta> FieldMetaCollection { get; set; }
 
@@ -18,10 +16,14 @@ namespace SimpleDB.Core
             return new EntityMeta
             {
                 EntityName = metaData.EntityName,
-                PrimaryKeyType = metaData.PrimaryKeyType,
-                PrimaryKeyName = metaData.PrimaryKeyName,
+                PrimaryKeyFieldMeta = new PrimaryKeyFieldMeta(metaData.PrimaryKeyName, metaData.PrimaryKeyType),
                 FieldMetaCollection = metaData.FieldMetaCollection
             };
+        }
+
+        public IEnumerable<FieldMeta> GetPrimaryKeyAndFieldMetaCollection()
+        {
+            return new[] { PrimaryKeyFieldMeta }.Union(FieldMetaCollection);
         }
     }
 }

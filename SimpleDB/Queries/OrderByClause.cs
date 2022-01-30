@@ -43,7 +43,13 @@ namespace SimpleDB.Queries
 
         public IEnumerable<byte> GetAllFieldNumbers()
         {
-            return OrderedItems.OfType<Field>().Select(x => x.Number).Distinct();
+            var result = OrderedItems.OfType<Field>().Select(x => x.Number).Distinct().ToList();
+            if (OrderedItems.OfType<PrimaryKey>().Any())
+            {
+                result.Add(Core.PrimaryKey.FieldNumber);
+            }
+
+            return result;
         }
 
         public abstract class OrderByClauseItem

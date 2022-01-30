@@ -5,7 +5,7 @@ namespace SimpleDB.Core
 {
     internal class FieldMeta
     {
-        public byte Number { get; private set; }
+        public byte Number { get; protected set; }
 
         public string Name { get; private set; }
 
@@ -13,10 +13,14 @@ namespace SimpleDB.Core
 
         public FieldSettings Settings { get; set; }
 
-        public FieldMeta(byte number, string name, Type type)
+        public FieldMeta(byte number, string name, Type type) : this(name, type)
         {
             if (number == 0) throw new ArgumentException("Number must be greater than zero");
             Number = number;
+        }
+
+        protected FieldMeta(string name, Type type)
+        {
             Name = name;
             Type = type;
         }
@@ -58,6 +62,15 @@ namespace SimpleDB.Core
                 hash = (hash * 16777619) ^ Settings.GetHashCode();
                 return hash;
             }
+        }
+    }
+
+    internal class PrimaryKeyFieldMeta : FieldMeta
+    {
+        public PrimaryKeyFieldMeta(string name, Type type) :
+            base(name, type)
+        {
+            Number = PrimaryKey.FieldNumber;
         }
     }
 

@@ -11,14 +11,16 @@ namespace SimpleDB.Test.QueryExecutors
 {
     class SelectQueryExecutorTest
     {
+        private MemoryFileSystem _fileSystem;
         private Mapper<TestEntity> _mapper;
+        private IndexHolder _indexHolder;
         private Collection<TestEntity> _collection;
         private SelectQueryExecutor _queryExecutor;
 
         [SetUp]
         public void Setup()
         {
-            var fileSystem = new MemoryFileSystem();
+            _fileSystem = new MemoryFileSystem();
             var memory = Memory.Instance;
             _mapper = new Mapper<TestEntity>(
                 new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
@@ -28,12 +30,14 @@ namespace SimpleDB.Test.QueryExecutors
                     new FieldMapping<TestEntity>(2, entity => entity.Float),
                     new FieldMapping<TestEntity>(3, entity => entity.String)
                 });
+            _indexHolder = new IndexHolder();
             _collection = new Collection<TestEntity>(
                 _mapper,
-                new PrimaryKeyFileFactory(fileSystem, memory),
-                new DataFileFactory(fileSystem, memory),
-                new MetaFileFactory(fileSystem));
-            _queryExecutor = new SelectQueryExecutor(_collection.DataFile, _collection.PrimaryKeys, new IndexHolder());
+                new PrimaryKeyFileFactory(_fileSystem, memory),
+                new DataFileFactory(_fileSystem, memory),
+                new MetaFileFactory(_fileSystem),
+                _indexHolder);
+            _queryExecutor = new SelectQueryExecutor(_collection.DataFile, _collection.PrimaryKeys, _indexHolder);
         }
 
         [Test]
@@ -353,9 +357,9 @@ namespace SimpleDB.Test.QueryExecutors
         [Test]
         public void ExecuteQuery_OrderBy_PrimaryKey_Asc()
         {
-            _collection.Insert(new TestEntity { Id = 1, Byte = 10, String = "12345" });
-            _collection.Insert(new TestEntity { Id = 2, Byte = 10, String = "12" });
             _collection.Insert(new TestEntity { Id = 3, Byte = 10, String = "123" });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 10, String = "12" });
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10, String = "12345" });
             var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.Field(3) }))
             {
                 OrderByClause = new OrderByClause(new[] { new OrderByClause.PrimaryKey(SortDirection.Asc) })
@@ -386,6 +390,70 @@ namespace SimpleDB.Test.QueryExecutors
             Assert.AreEqual("123", entities[0].String);
             Assert.AreEqual("12", entities[1].String);
             Assert.AreEqual("12345", entities[2].String);
+        }
+
+        [Test]
+        public void ExecuteQuery_OrderBy_PrimaryKeyIndexed()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10, String = "12345" });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 10, String = "12" });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 10, String = "123" });
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.PrimaryKey() }))
+            {
+                OrderByClause = new OrderByClause(new[] { new OrderByClause.PrimaryKey(SortDirection.Desc) })
+            };
+
+            var indexId = new Index<int>(new IndexMeta { EntityName = "TestEntity", Name = "indexId", IndexedFieldType = typeof(int), IndexedFieldNumber = PrimaryKey.FieldNumber });
+            indexId.Add(1, new IndexItem { PrimaryKeyValue = 1 });
+            indexId.Add(2, new IndexItem { PrimaryKeyValue = 2 });
+            indexId.Add(3, new IndexItem { PrimaryKeyValue = 3 });
+            _indexHolder.SetIndexes(new IIndex[] { indexId });
+            _fileSystem.FileStreams.Clear();
+
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
+
+            Assert.AreEqual(3, entities[0].Id);
+            Assert.AreEqual(2, entities[1].Id);
+            Assert.AreEqual(1, entities[2].Id);
+            Assert.AreEqual(1, _fileSystem.FileStreams.Count);
+            Assert.AreEqual("TestEntity.data", _fileSystem.FileStreams.First().Name);
+            Assert.IsFalse(_fileSystem.FileStreams.First().DidRead);
+        }
+
+        [Test]
+        public void ExecuteQuery_OrderBy_FieldAndPrimaryKeyIndexed()
+        {
+            _collection.Insert(new TestEntity { Id = 1, Byte = 10, String = "12345" });
+            _collection.Insert(new TestEntity { Id = 2, Byte = 10, String = "12" });
+            _collection.Insert(new TestEntity { Id = 3, Byte = 10, String = "123" });
+            var query = new SelectQuery("TestEntity", new SelectClause(new[] { new SelectClause.PrimaryKey() }))
+            {
+                OrderByClause = new OrderByClause(new OrderByClause.OrderByClauseItem[] { new OrderByClause.Field(1, SortDirection.Desc), new OrderByClause.PrimaryKey(SortDirection.Desc) })
+            };
+
+            var indexId = new Index<int>(new IndexMeta { EntityName = "TestEntity", Name = "indexId", IndexedFieldType = typeof(int), IndexedFieldNumber = PrimaryKey.FieldNumber });
+            indexId.Add(1, new IndexItem { PrimaryKeyValue = 1 });
+            indexId.Add(2, new IndexItem { PrimaryKeyValue = 2 });
+            indexId.Add(3, new IndexItem { PrimaryKeyValue = 3 });
+
+            var indexByte = new Index<byte>(new IndexMeta { EntityName = "TestEntity", Name = "indexByte", IndexedFieldType = typeof(byte), IndexedFieldNumber = 1 });
+            indexByte.Add((byte)10, new IndexItem { PrimaryKeyValue = 1 });
+            indexByte.Add((byte)20, new IndexItem { PrimaryKeyValue = 2 });
+            indexByte.Add((byte)30, new IndexItem { PrimaryKeyValue = 3 });
+
+            _indexHolder.SetIndexes(new IIndex[] { indexId, indexByte });
+            _fileSystem.FileStreams.Clear();
+
+            var result = _queryExecutor.ExecuteQuery(query);
+            var entities = _queryExecutor.MakeEntities(query, result, _mapper).ToList();
+
+            Assert.AreEqual(3, entities[0].Id);
+            Assert.AreEqual(2, entities[1].Id);
+            Assert.AreEqual(1, entities[2].Id);
+            Assert.AreEqual(1, _fileSystem.FileStreams.Count);
+            Assert.AreEqual("TestEntity.data", _fileSystem.FileStreams.First().Name);
+            Assert.IsFalse(_fileSystem.FileStreams.First().DidRead);
         }
 
         [Test]

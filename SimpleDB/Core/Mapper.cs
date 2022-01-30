@@ -47,8 +47,7 @@ namespace SimpleDB.Core
             EntityMeta = new EntityMeta
             {
                 EntityName = EntityType.Name,
-                PrimaryKeyType = PrimaryKeyMapping.PropertyType,
-                PrimaryKeyName = PrimaryKeyMapping.PropertyName,
+                PrimaryKeyFieldMeta = new PrimaryKeyFieldMeta(PrimaryKeyMapping.PropertyName, PrimaryKeyMapping.PropertyType),
                 FieldMetaCollection = FieldMetaCollection
             };
         }

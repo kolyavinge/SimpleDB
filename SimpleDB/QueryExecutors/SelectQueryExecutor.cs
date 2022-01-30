@@ -38,7 +38,7 @@ namespace SimpleDB.QueryExecutors
         {
             var fieldValueCollections = new List<FieldValueCollection>();
             var alreadyReadedFieldNumbers = new HashSet<byte>();
-            bool isResultOrdered = false;
+            bool isResultOrderedByIndex = false;
             // where
             if (query.WhereClause != null)
             {
@@ -68,13 +68,12 @@ namespace SimpleDB.QueryExecutors
                 }
             }
             else if (query.OrderByClause != null
-                && query.OrderByClause.OrderedItems.OfType<OrderByClause.Field>().Any()
                 && query.OrderByClause.GetAllFieldNumbers().All(fieldNumber => _indexHolder.AnyIndexFor(query.EntityName, fieldNumber)))
             {
                 var analyzer = new OrderByClauseAnalyzer(query.EntityName, _primaryKeys, _indexHolder);
                 fieldValueCollections.AddRange(analyzer.GetResult(query.OrderByClause));
                 alreadyReadedFieldNumbers.AddRange(query.OrderByClause.GetAllFieldNumbers());
-                isResultOrdered = true;
+                isResultOrderedByIndex = true;
             }
             else
             {
@@ -101,7 +100,7 @@ namespace SimpleDB.QueryExecutors
             FieldValueCollection.Merge(fieldValueCollections, remainingFieldValues);
             alreadyReadedFieldNumbers.AddRange(fieldValueCollections.SelectMany(collection => collection.Select(field => field.Number)));
             // order by
-            if (!isResultOrdered && query.OrderByClause != null)
+            if (!isResultOrderedByIndex && query.OrderByClause != null)
             {
                 var orderbyFieldNumbers = query.OrderByClause.GetAllFieldNumbers().ToHashSet();
                 orderbyFieldNumbers.ExceptWith(alreadyReadedFieldNumbers);

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -46,8 +45,10 @@ namespace SimpleDB.IndexedSearch
         {
             var indexedFieldName = FieldMapping<TEntity>.GetPropertyName(indexedFieldExpression);
             var includedFieldNames = (includedExpressions ?? Enumerable.Empty<Expression<Func<TEntity, object>>>()).Select(FieldMapping<TEntity>.GetPropertyName).ToHashSet();
-            var indexedFieldNumber = _mapper.FieldMappings.First(fm => fm.PropertyName == indexedFieldName).Number;
-            var includedFieldNumbers = _mapper.FieldMappings.Where(fm => includedFieldNames.Contains(fm.PropertyName)).Select(x => x.Number).ToArray();
+            var fieldMetaCollection = _mapper.EntityMeta.GetPrimaryKeyAndFieldMetaCollection();
+            var indexedFieldNumber = fieldMetaCollection.First(fm => fm.Name == indexedFieldName).Number;
+            var includedFieldNumbers = fieldMetaCollection.Where(fm => includedFieldNames.Contains(fm.Name)).Select(x => x.Number).ToArray();
+            if (includedFieldNumbers.Contains(PrimaryKey.FieldNumber)) throw new ArgumentException("Primary key cannot be included in any index");
             var meta = new IndexMeta { EntityName = _mapper.EntityName, IndexedFieldType = typeof(TField), Name = indexName, IndexedFieldNumber = indexedFieldNumber, IncludedFieldNumbers = includedFieldNumbers };
             var index = new Index<TField>(meta);
             PopulateIndex(index, indexedFieldNumber, includedFieldNumbers);
@@ -57,7 +58,7 @@ namespace SimpleDB.IndexedSearch
             return index;
         }
 
-        private void PopulateIndex<TField>(Index<TField> index, byte indexedFieldNumber, IEnumerable<byte> includedFieldNumbers) where TField : IComparable<TField>
+        private void PopulateIndex(IIndex index, byte indexedFieldNumber, IEnumerable<byte> includedFieldNumbers)
         {
             PrimaryKeyFile primaryKeyFile = null;
             DataFile dataFile = null;
@@ -72,7 +73,7 @@ namespace SimpleDB.IndexedSearch
                 foreach (var primaryKey in primaryKeyFile.GetAllPrimaryKeys().Where(x => !x.IsDeleted).OrderBy(x => x.StartDataFileOffset))
                 {
                     dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldNumbers, fieldValueCollection);
-                    var indexedFieldValue = (TField)fieldValueCollection[indexedFieldNumber].Value;
+                    var indexedFieldValue = indexedFieldNumber == PrimaryKey.FieldNumber ? primaryKey.Value : fieldValueCollection[indexedFieldNumber].Value;
                     var includedFieldValues = includedFieldNumbers.Select(fn => fieldValueCollection[fn].Value).ToArray();
                     var indexItem = new IndexItem { PrimaryKeyValue = primaryKey.Value, IncludedFields = includedFieldValues };
                     index.Add(indexedFieldValue, indexItem);

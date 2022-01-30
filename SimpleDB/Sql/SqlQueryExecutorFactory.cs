@@ -42,7 +42,7 @@ namespace SimpleDB.Sql
             {
                 (string entityName, string indexName) = IndexFileName.GetEntityAndIndexName(indexFileName);
                 var entityMeta = entityMetaDictionary[entityName];
-                var indexFile = indexFileFactory.Make(indexFileName, entityMeta.PrimaryKeyType, entityMeta.FieldMetaCollection);
+                var indexFile = indexFileFactory.Make(indexFileName, entityMeta.PrimaryKeyFieldMeta.Type, entityMeta.FieldMetaCollection);
                 var index = indexFile.ReadIndex();
                 yield return index;
             }

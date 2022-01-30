@@ -48,6 +48,11 @@ namespace StartApp
                 });
 
             builder.Index<Person>()
+                .Name("id")
+                .For(x => x.Id)
+                .Include(x => x.Name);
+
+            builder.Index<Person>()
                 .Name("name")
                 .For(x => x.Name)
                 .Include(x => x.Surname)
@@ -99,7 +104,24 @@ namespace StartApp
                 Console.WriteLine(result[2]);
                 Console.WriteLine(result[3]);
 
-                Console.WriteLine("========== Get indexed ==========");
+                Console.WriteLine("========== Get indexed: Index 'id' ==========");
+                sw = System.Diagnostics.Stopwatch.StartNew();
+                result = collection.Query()
+                    .Select(x => new { x.Name })
+                    .Where(x => x.Id == 1000)
+                    .ToList();
+                if (result.Any())
+                {
+                    Console.WriteLine(result.First().Name);
+                }
+                else
+                {
+                    Console.WriteLine("empty result");
+                }
+                sw.Stop();
+                Console.WriteLine(sw.Elapsed);
+
+                Console.WriteLine("========== Get indexed: Index 'name' ==========");
                 sw = System.Diagnostics.Stopwatch.StartNew();
                 result = collection.Query()
                     .Select(x => new { x.Name, x.Surname, x.Middlename })

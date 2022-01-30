@@ -38,6 +38,11 @@ namespace SimpleDB.Test.QueryExecutors
             collection.Insert(new TestEntity { Id = 10, A = 1, B = 2, C = 3, D = 4, E = 5, S = "123" });
             collection.Insert(new TestEntity { Id = 20, A = 6, B = 7, C = 8, D = 9, E = 10, S = "987" });
 
+            var indexId = new Index<int>(
+                new IndexMeta { EntityName = "TestEntity", Name = "indexId", IndexedFieldType = typeof(int), IndexedFieldNumber = PrimaryKey.FieldNumber, IncludedFieldNumbers = new byte[] { 1 } });
+            indexId.Add(10, new IndexItem { PrimaryKeyValue = 10, IncludedFields = new object[] { 1 } });
+            indexId.Add(20, new IndexItem { PrimaryKeyValue = 20, IncludedFields = new object[] { 6 } });
+
             var indexA = new Index<int>(new IndexMeta { EntityName = "TestEntity", Name = "indexA", IndexedFieldType = typeof(int), IndexedFieldNumber = 1 });
             indexA.Add(1, new IndexItem { PrimaryKeyValue = 10 });
             indexA.Add(6, new IndexItem { PrimaryKeyValue = 20 });
@@ -51,7 +56,7 @@ namespace SimpleDB.Test.QueryExecutors
             indexS.Add("123", new IndexItem { PrimaryKeyValue = 10, IncludedFields = new object[] { 5 } });
             indexS.Add("987", new IndexItem { PrimaryKeyValue = 20, IncludedFields = new object[] { 10 } });
 
-            var indexHolder = new IndexHolder(new IIndex[] { indexA, indexB, indexS });
+            var indexHolder = new IndexHolder(new IIndex[] { indexId, indexA, indexB, indexS });
 
             _testFieldValueReader = new TestFieldValueReader(new FieldValueReader(collection.DataFile));
             _analyzer = new WhereClauseAnalyzer("TestEntity", collection.PrimaryKeys, _testFieldValueReader, indexHolder);
@@ -76,6 +81,17 @@ namespace SimpleDB.Test.QueryExecutors
             Assert.AreEqual(1, result[0][1].Number);
             Assert.AreEqual(1, result[0][1].Value);
             Assert.AreEqual(0, _testFieldValueReader.CallsCount);
+        }
+
+        [Test]
+        public void IdIndexed()
+        {
+            var where = new WhereClause(new WhereClause.EqualsOperation(new WhereClause.PrimaryKey(), new WhereClause.Constant(10)));
+            var result = _analyzer.GetResult(where).ToList();
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(10, result[0].PrimaryKey.Value);
+            Assert.AreEqual(1, result[0].Count);
+            Assert.AreEqual(1, result[0][1].Value);
         }
 
         [Test]
