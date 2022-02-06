@@ -89,6 +89,22 @@ namespace SimpleDB.Core
             }
         }
 
+        public IEnumerable<TEntity> GetAll()
+        {
+            try
+            {
+                DataFile.BeginRead();
+                foreach (var id in PrimaryKeys.Keys)
+                {
+                    yield return EntityOperations.Get(id, Mapper, PrimaryKeys, DataFile);
+                }
+            }
+            finally
+            {
+                DataFile.EndReadWrite();
+            }
+        }
+
         public void Insert(TEntity entity)
         {
             try

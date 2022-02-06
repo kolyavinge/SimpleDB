@@ -12,6 +12,8 @@ namespace SimpleDB
 
         IEnumerable<TEntity> Get(IEnumerable<object> idList);
 
+        IEnumerable<TEntity> GetAll();
+
         void Insert(TEntity entity);
 
         void Insert(IEnumerable<TEntity> entities);
