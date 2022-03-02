@@ -53,9 +53,19 @@ namespace SimpleDB.Test.Linq
         }
 
         [Test]
-        public void Build_Int()
+        public void Build_Int_Constant()
         {
             Expression<Func<TestEntity, TestEntity>> selectExpression = x => new TestEntity { Int = 2 };
+            var result = _builder.Build(_mapper, selectExpression).UpdateItems.ToList();
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(typeof(UpdateClause.Field), result[0].GetType());
+        }
+
+        [Test]
+        public void Build_Int_Variable()
+        {
+            int a = 2;
+            Expression<Func<TestEntity, TestEntity>> selectExpression = x => new TestEntity { Int = a };
             var result = _builder.Build(_mapper, selectExpression).UpdateItems.ToList();
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(typeof(UpdateClause.Field), result[0].GetType());

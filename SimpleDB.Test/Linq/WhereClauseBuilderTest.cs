@@ -59,6 +59,22 @@ namespace SimpleDB.Test.Linq
         }
 
         [Test]
+        public void Build_Equals_Argument()
+        {
+            Func_Build_Equals_Argument(2);
+        }
+
+        public void Func_Build_Equals_Argument(int id)
+        {
+            Expression<Func<TestEntity, bool>> whereExpression = x => x.Id == id;
+            dynamic result = _builder.Build(_mapper, whereExpression).Root;
+            Assert.AreEqual(typeof(WhereClause.EqualsOperation), result.GetType());
+            Assert.AreEqual(typeof(WhereClause.PrimaryKey), result.Left.GetType());
+            Assert.AreEqual(typeof(WhereClause.Constant), result.Right.GetType());
+            Assert.AreEqual(2, result.Right.Value);
+        }
+
+        [Test]
         public void Build_Equals_SomeClassField_1()
         {
             var someClass = new SomeClass { Id = 2 };

@@ -43,8 +43,18 @@ namespace SimpleDB.Linq
         {
             if (expression is ConstantExpression)
             {
-                var constantExpression = (ConstantExpression)expression;
+                var constantExpression = (ConstantExpression) expression;
                 return constantExpression.Value;
+            }
+            else if (expression is MemberExpression)
+            {
+                var memberExpression = (MemberExpression) expression;
+                if (memberExpression.Expression is ConstantExpression)
+                {
+                    var constantExpression = (ConstantExpression)memberExpression.Expression;
+                    var value = constantExpression.Value.GetType().GetField(memberExpression.Member.Name).GetValue(constantExpression.Value);
+                    return value;
+                }
             }
 
             throw new UnsupportedQueryException();
