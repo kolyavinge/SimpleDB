@@ -15,18 +15,21 @@ namespace SimpleDB.QueryExecutors
         private readonly IndexHolder _indexHolder;
         private readonly IIndexUpdater _indexUpdater;
         private readonly IDictionary<object, PrimaryKey> _primaryKeysDictionary;
+        private readonly IFieldValueReader _fieldValueReader;
 
         public DeleteQueryExecutor(
             EntityMeta entityMeta,
             PrimaryKeyFile primaryKeyFile,
             DataFile dataFile,
             IDictionary<object, PrimaryKey> primaryKeysDictionary,
+            IFieldValueReader fieldValueReader,
             IndexHolder indexHolder,
             IIndexUpdater indexUpdater)
         {
             _entityMeta = entityMeta;
             _primaryKeyFile = primaryKeyFile;
             _primaryKeysDictionary = primaryKeysDictionary;
+            _fieldValueReader = fieldValueReader;
             _dataFile = dataFile;
             _indexHolder = indexHolder;
             _indexUpdater = indexUpdater;
@@ -57,7 +60,7 @@ namespace SimpleDB.QueryExecutors
                 var whereFieldNumbers = query.WhereClause.GetAllFieldNumbers().ToHashSet();
                 if (_indexHolder.AnyIndexContainsFields(query.EntityName, whereFieldNumbers))
                 {
-                    var analyzer = new WhereClauseAnalyzer(query.EntityName, _primaryKeysDictionary, new FieldValueReader(_dataFile), _indexHolder);
+                    var analyzer = new WhereClauseAnalyzer(query.EntityName, _primaryKeysDictionary, _fieldValueReader, _indexHolder);
                     primaryKeysForDelete.AddRange(analyzer.GetResult(query.WhereClause).Select(x => x.PrimaryKey));
                 }
                 else

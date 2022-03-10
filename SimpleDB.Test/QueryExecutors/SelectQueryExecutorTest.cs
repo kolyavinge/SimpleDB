@@ -37,7 +37,7 @@ namespace SimpleDB.Test.QueryExecutors
                 new DataFileFactory(_fileSystem, memory),
                 new MetaFileFactory(_fileSystem),
                 _indexHolder);
-            _queryExecutor = new SelectQueryExecutor(_collection.DataFile, _collection.PrimaryKeys, _indexHolder);
+            _queryExecutor = new SelectQueryExecutor(_collection.DataFile, _collection.PrimaryKeys, new FieldValueReader(_collection.DataFile), _indexHolder);
         }
 
         [Test]

@@ -12,12 +12,14 @@ namespace SimpleDB.QueryExecutors
     {
         private readonly DataFile _dataFile;
         private readonly IDictionary<object, PrimaryKey> _primaryKeys;
+        private readonly IFieldValueReader _fieldValueReader;
         private readonly IndexHolder _indexHolder;
 
-        public SelectQueryExecutor(DataFile dataFile, IDictionary<object, PrimaryKey> primaryKeys, IndexHolder indexHolder)
+        public SelectQueryExecutor(DataFile dataFile, IDictionary<object, PrimaryKey> primaryKeys, IFieldValueReader fieldValueReader, IndexHolder indexHolder)
         {
             _dataFile = dataFile;
             _primaryKeys = primaryKeys;
+            _fieldValueReader = fieldValueReader;
             _indexHolder = indexHolder;
         }
 
@@ -45,7 +47,7 @@ namespace SimpleDB.QueryExecutors
                 var whereFieldNumbers = query.WhereClause.GetAllFieldNumbers().ToHashSet();
                 if (_indexHolder.AnyIndexContainsFields(query.EntityName, whereFieldNumbers))
                 {
-                    var analyzer = new WhereClauseAnalyzer(query.EntityName, _primaryKeys, new FieldValueReader(_dataFile), _indexHolder);
+                    var analyzer = new WhereClauseAnalyzer(query.EntityName, _primaryKeys, _fieldValueReader, _indexHolder);
                     fieldValueCollections.AddRange(analyzer.GetResult(query.WhereClause));
                     alreadyReadedFieldNumbers.AddRange(fieldValueCollections.SelectMany(collection => collection.Select(field => field.Number)));
                 }

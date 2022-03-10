@@ -64,7 +64,7 @@ namespace SimpleDB.Sql
         {
             if (queryType == QueryType.Select)
             {
-                var executor = new SelectQueryExecutor(dataFile, primaryKeys, _indexHolder);
+                var executor = new SelectQueryExecutor(dataFile, primaryKeys, new FieldValueReader(dataFile), _indexHolder);
                 var result = executor.ExecuteQuery((SelectQuery)query);
                 return new SqlQueryResult
                 {
@@ -75,7 +75,7 @@ namespace SimpleDB.Sql
             }
             if (queryType == QueryType.Update)
             {
-                var executor = new UpdateQueryExecutor(entityMeta, primaryKeyFile, dataFile, primaryKeys, _indexHolder, _indexUpdater);
+                var executor = new UpdateQueryExecutor(entityMeta, primaryKeyFile, dataFile, primaryKeys, new FieldValueReader(dataFile), _indexHolder, _indexUpdater);
                 var result = executor.ExecuteQuery((UpdateQuery)query);
                 return new SqlQueryResult
                 {
@@ -85,7 +85,7 @@ namespace SimpleDB.Sql
             }
             if (queryType == QueryType.Delete)
             {
-                var executor = new DeleteQueryExecutor(entityMeta, primaryKeyFile, dataFile, primaryKeys, _indexHolder, _indexUpdater);
+                var executor = new DeleteQueryExecutor(entityMeta, primaryKeyFile, dataFile, primaryKeys, new FieldValueReader(dataFile), _indexHolder, _indexUpdater);
                 var result = executor.ExecuteQuery((DeleteQuery)query);
                 return new SqlQueryResult
                 {

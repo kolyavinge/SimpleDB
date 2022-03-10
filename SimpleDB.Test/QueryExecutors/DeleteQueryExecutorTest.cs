@@ -40,6 +40,7 @@ namespace SimpleDB.Test.QueryExecutors
                 _collection.PrimaryKeyFile,
                 _collection.DataFile,
                 _collection.PrimaryKeys,
+                new FieldValueReader(_collection.DataFile),
                 new IndexHolder(),
                 _indexUpdater.Object);
         }

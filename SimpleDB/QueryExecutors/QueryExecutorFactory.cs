@@ -31,17 +31,17 @@ namespace SimpleDB.QueryExecutors
 
         public SelectQueryExecutor MakeSelectQueryExecutor()
         {
-            return new SelectQueryExecutor(_dataFile, _primaryKeys, _indexHolder);
+            return new SelectQueryExecutor(_dataFile, _primaryKeys, new FieldValueReader(_dataFile), _indexHolder);
         }
 
         public UpdateQueryExecutor MakeUpdateQueryExecutor()
         {
-            return new UpdateQueryExecutor(_entityMeta, _primaryKeyFile, _dataFile, _primaryKeys, _indexHolder, _indexUpdater);
+            return new UpdateQueryExecutor(_entityMeta, _primaryKeyFile, _dataFile, _primaryKeys, new FieldValueReader(_dataFile), _indexHolder, _indexUpdater);
         }
 
         public DeleteQueryExecutor MakeDeleteQueryExecutor()
         {
-            return new DeleteQueryExecutor(_entityMeta, _primaryKeyFile, _dataFile, _primaryKeys, _indexHolder, _indexUpdater);
+            return new DeleteQueryExecutor(_entityMeta, _primaryKeyFile, _dataFile, _primaryKeys, new FieldValueReader(_dataFile), _indexHolder, _indexUpdater);
         }
 
         public MergeQueryExecutor<TEntity> MakeMergeQueryExecutor<TEntity>(Mapper<TEntity> mapper)

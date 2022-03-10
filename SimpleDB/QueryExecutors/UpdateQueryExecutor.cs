@@ -13,16 +13,24 @@ namespace SimpleDB.QueryExecutors
         private readonly PrimaryKeyFile _primaryKeyFile;
         private readonly DataFile _dataFile;
         private readonly IDictionary<object, PrimaryKey> _primaryKeys;
+        private readonly IFieldValueReader _fieldValueReader;
         private readonly IndexHolder _indexHolder;
         private readonly IIndexUpdater _indexUpdater;
 
         public UpdateQueryExecutor(
-            EntityMeta entityMeta, PrimaryKeyFile primaryKeyFile, DataFile dataFile, IDictionary<object, PrimaryKey> primaryKeys, IndexHolder indexHolder, IIndexUpdater indexUpdater)
+            EntityMeta entityMeta,
+            PrimaryKeyFile primaryKeyFile,
+            DataFile dataFile,
+            IDictionary<object, PrimaryKey> primaryKeys,
+            IFieldValueReader fieldValueReader,
+            IndexHolder indexHolder,
+            IIndexUpdater indexUpdater)
         {
             _entityMeta = entityMeta;
             _primaryKeyFile = primaryKeyFile;
             _dataFile = dataFile;
             _primaryKeys = primaryKeys;
+            _fieldValueReader = fieldValueReader;
             _indexHolder = indexHolder;
             _indexUpdater = indexUpdater;
         }
@@ -52,7 +60,7 @@ namespace SimpleDB.QueryExecutors
                 var whereFieldNumbers = query.WhereClause.GetAllFieldNumbers().ToHashSet();
                 if (_indexHolder.AnyIndexContainsFields(query.EntityName, whereFieldNumbers))
                 {
-                    var analyzer = new WhereClauseAnalyzer(query.EntityName, _primaryKeys, new FieldValueReader(_dataFile), _indexHolder);
+                    var analyzer = new WhereClauseAnalyzer(query.EntityName, _primaryKeys, _fieldValueReader, _indexHolder);
                     fieldValueCollections.AddRange(analyzer.GetResult(query.WhereClause));
                     allFieldNumbers.AddRange(fieldValueCollections.SelectMany(collection => collection.Select(field => field.Number)));
                 }
