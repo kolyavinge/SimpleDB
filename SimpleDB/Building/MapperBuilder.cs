@@ -12,12 +12,12 @@ namespace SimpleDB.Building
 
     internal class MapperBuilder<TEntity> : MapperBuilder, IMapperBuilder<TEntity>
     {
-        private readonly FieldMappingValidator _fieldMappingValidator = new FieldMappingValidator();
-        private PrimaryKeyMapping<TEntity> _primaryKeyMapping;
-        private readonly List<FieldMapping<TEntity>> _fieldMappings = new List<FieldMapping<TEntity>>();
-        private Func<TEntity> _makeFunction;
-        private PrimaryKeySetFunctionDelegate<TEntity> _primaryKeySetFunction;
-        private FieldSetFunctionDelegate<TEntity> _fieldSetFunction;
+        private readonly FieldMappingValidator _fieldMappingValidator = new();
+        private readonly List<FieldMapping<TEntity>> _fieldMappings = new();
+        private PrimaryKeyMapping<TEntity>? _primaryKeyMapping;
+        private Func<TEntity>? _makeFunction;
+        private PrimaryKeySetFunctionDelegate<TEntity>? _primaryKeySetFunction;
+        private FieldSetFunctionDelegate<TEntity>? _fieldSetFunction;
 
         public IMapperBuilder<TEntity> PrimaryKey(Expression<Func<TEntity, object>> primaryKeyExpression)
         {
@@ -53,6 +53,7 @@ namespace SimpleDB.Building
 
         public override IMapper Build()
         {
+            if (_primaryKeyMapping == null) throw new InvalidOperationException("PrimaryKeyMapping cannot be null");
             return new Mapper<TEntity>(_primaryKeyMapping, _fieldMappings)
             {
                 MakeFunction = _makeFunction,

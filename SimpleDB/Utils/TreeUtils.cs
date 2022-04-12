@@ -6,7 +6,7 @@ namespace SimpleDB.Utils
 {
     internal static class TreeUtils
     {
-        public static IEnumerable<T> ToEnumerable<T>(T root, Func<T, T> getLeftFunc, Func<T, T> getRightFunc)
+        public static IEnumerable<T> ToEnumerable<T>(T root, Func<T, T?> getLeftFunc, Func<T, T?> getRightFunc)
         {
             var stack = new Stack<T>();
             stack.Push(root);

@@ -8,7 +8,7 @@ namespace SimpleDB.Core
     {
         public const byte FieldNumber = 0;
 
-        public object Value { get; private set; }
+        public object Value { get; }
 
         public long StartDataFileOffset { get; set; }
 

@@ -14,7 +14,7 @@ namespace SimpleDB.Test.Tools
             CallsCount = 0;
         }
 
-        public void ReadFieldValues(IEnumerable<FieldValueCollection> fieldValueCollections, IEnumerable<byte> fieldNumbers)
+        public void ReadFieldValues(IEnumerable<FieldValueCollection> fieldValueCollections, IReadOnlyCollection<byte> fieldNumbers)
         {
             _fieldValueReader.ReadFieldValues(fieldValueCollections, fieldNumbers);
             CallsCount++;

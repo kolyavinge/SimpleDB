@@ -32,24 +32,19 @@ namespace SimpleDB.Core
 
         public List<FieldMapping<TEntity>> FieldMappings { get; }
 
-        public Func<TEntity> MakeFunction { get; set; }
+        public Func<TEntity>? MakeFunction { get; set; }
 
-        public PrimaryKeySetFunctionDelegate<TEntity> PrimaryKeySetFunction { get; set; }
+        public PrimaryKeySetFunctionDelegate<TEntity>? PrimaryKeySetFunction { get; set; }
 
-        public FieldSetFunctionDelegate<TEntity> FieldSetFunction { get; set; }
+        public FieldSetFunctionDelegate<TEntity>? FieldSetFunction { get; set; }
 
-        public Mapper(PrimaryKeyMapping<TEntity> primaryKeyMapping, IEnumerable<FieldMapping<TEntity>> fieldMappings)
+        public Mapper(PrimaryKeyMapping<TEntity> primaryKeyMapping, IReadOnlyCollection<FieldMapping<TEntity>> fieldMappings)
         {
             PrimaryKeyMapping = primaryKeyMapping;
             _fieldMappings = fieldMappings.ToDictionary(k => k.Number, v => v);
             FieldMappings = _fieldMappings.Values.ToList();
             FieldMetaCollection = GetFieldMetaCollection(fieldMappings).ToList();
-            EntityMeta = new EntityMeta
-            {
-                EntityName = EntityType.Name,
-                PrimaryKeyFieldMeta = new PrimaryKeyFieldMeta(PrimaryKeyMapping.PropertyName, PrimaryKeyMapping.PropertyType),
-                FieldMetaCollection = FieldMetaCollection
-            };
+            EntityMeta = new EntityMeta(EntityType.Name, new PrimaryKeyFieldMeta(PrimaryKeyMapping.PropertyName, PrimaryKeyMapping.PropertyType), FieldMetaCollection);
         }
 
         private IEnumerable<FieldMeta> GetFieldMetaCollection(IEnumerable<FieldMapping<TEntity>> fieldMappings)
@@ -65,7 +60,7 @@ namespace SimpleDB.Core
             return PrimaryKeyMapping.Func.Invoke(entity);
         }
 
-        public IEnumerable<FieldValue> GetFieldValueCollection(TEntity entity, ISet<byte> fieldNumbers = null)
+        public IEnumerable<FieldValue> GetFieldValueCollection(TEntity entity, ISet<byte>? fieldNumbers = null)
         {
             var fieldMappings = _fieldMappings.Values.ToList();
             if (fieldNumbers != null)
@@ -78,7 +73,7 @@ namespace SimpleDB.Core
             }
         }
 
-        public TEntity MakeEntity(object primaryKeyValue, IEnumerable<FieldValue> fieldValueCollection, bool includePrimaryKey, ISet<byte> selectedFieldNumbers = null)
+        public TEntity MakeEntity(object primaryKeyValue, IEnumerable<FieldValue> fieldValueCollection, bool includePrimaryKey, ISet<byte>? selectedFieldNumbers = null)
         {
             if (MakeFunction != null && PrimaryKeySetFunction != null && FieldSetFunction != null)
             {
@@ -90,12 +85,14 @@ namespace SimpleDB.Core
             }
         }
 
-        private TEntity GetEntityByReflection(object primaryKeyValue, IEnumerable<FieldValue> fieldValueCollection, bool includePrimaryKey, ISet<byte> selectedFieldNumbers = null)
+        private TEntity GetEntityByReflection(object primaryKeyValue, IEnumerable<FieldValue> fieldValueCollection, bool includePrimaryKey, ISet<byte>? selectedFieldNumbers = null)
         {
             var entity = Activator.CreateInstance<TEntity>();
+            if (entity == null) throw new DBEngineException($"Cannot make instance of type {typeof(TEntity)}");
             if (includePrimaryKey)
             {
                 var primaryKeyProperty = entity.GetType().GetProperty(PrimaryKeyMapping.PropertyName);
+                if (primaryKeyProperty == null) throw new DBEngineException($"Cannot get property {PrimaryKeyMapping.PropertyName}");
                 primaryKeyProperty.SetValue(entity, primaryKeyValue);
             }
             if (selectedFieldNumbers != null)
@@ -106,6 +103,7 @@ namespace SimpleDB.Core
                     {
                         var fieldMapping = _fieldMappings[fieldValue.Number];
                         var fieldProperty = entity.GetType().GetProperty(fieldMapping.PropertyName);
+                        if (fieldProperty == null) throw new DBEngineException($"Cannot get property {fieldMapping.PropertyName}");
                         fieldProperty.SetValue(entity, fieldValue.Value);
                     }
                 }
@@ -116,6 +114,7 @@ namespace SimpleDB.Core
                 {
                     var fieldMapping = _fieldMappings[fieldValue.Number];
                     var fieldProperty = entity.GetType().GetProperty(fieldMapping.PropertyName);
+                    if (fieldProperty == null) throw new DBEngineException($"Cannot get property {fieldMapping.PropertyName}");
                     fieldProperty.SetValue(entity, fieldValue.Value);
                 }
             }
@@ -123,8 +122,10 @@ namespace SimpleDB.Core
             return entity;
         }
 
-        private TEntity GetEntityBySetFunctions(object primaryKeyValue, IEnumerable<FieldValue> fieldValueCollection, bool includePrimaryKey, ISet<byte> selectedFieldNumbers = null)
+        private TEntity GetEntityBySetFunctions(
+            object primaryKeyValue, IEnumerable<FieldValue> fieldValueCollection, bool includePrimaryKey, ISet<byte>? selectedFieldNumbers = null)
         {
+            if (MakeFunction == null || PrimaryKeySetFunction == null || FieldSetFunction == null) throw new InvalidOperationException();
             var entity = MakeFunction();
             if (includePrimaryKey)
             {
@@ -156,11 +157,11 @@ namespace SimpleDB.Core
     {
         public Expression<Func<TEntity, object>> Expression { get; set; }
 
-        public string PropertyName { get; private set; }
+        public string PropertyName { get; }
 
-        public Type PropertyType { get; private set; }
+        public Type PropertyType { get; }
 
-        public Func<TEntity, object> Func { get; private set; }
+        public Func<TEntity, object> Func { get; }
 
         public PrimaryKeyMapping(Expression<Func<TEntity, object>> primaryKeyExpression)
         {
@@ -175,6 +176,10 @@ namespace SimpleDB.Core
                 PropertyName = ((MemberExpression)primaryKeyExpression.Body).Member.Name;
                 PropertyType = ((MemberExpression)primaryKeyExpression.Body).Type;
             }
+            else
+            {
+                throw new DBEngineException("Incorrect primaryKeyExpression");
+            }
             Func = Expression.Compile();
         }
     }
@@ -185,11 +190,11 @@ namespace SimpleDB.Core
 
         public Expression<Func<TEntity, object>> Expression { get; set; }
 
-        public string PropertyName { get; private set; }
+        public string PropertyName { get; }
 
-        public Type PropertyType { get; private set; }
+        public Type PropertyType { get; }
 
-        public Func<TEntity, object> Func { get; private set; }
+        public Func<TEntity, object> Func { get; }
 
         public FieldSettings Settings { get; set; }
 
@@ -207,6 +212,10 @@ namespace SimpleDB.Core
                 PropertyName = ((MemberExpression)fieldExpression.Body).Member.Name;
                 PropertyType = ((MemberExpression)fieldExpression.Body).Type;
             }
+            else
+            {
+                throw new DBEngineException("Incorrect fieldExpression");
+            }
             Func = Expression.Compile();
         }
 
@@ -220,8 +229,10 @@ namespace SimpleDB.Core
             {
                 return ((MemberExpression)fieldExpression.Body).Member.Name;
             }
-
-            return null;
+            else
+            {
+                throw new DBEngineException("Incorrect fieldExpression");
+            }
         }
     }
 }

@@ -12,21 +12,21 @@ namespace SimpleDB.Core
         private readonly IndexHolder _indexHolder;
         private readonly IIndexUpdater _indexUpdater;
 
-        internal Mapper<TEntity> Mapper { get; private set; }
+        internal Mapper<TEntity> Mapper { get; }
 
-        internal PrimaryKeyFile PrimaryKeyFile { get; private set; }
+        internal PrimaryKeyFile PrimaryKeyFile { get; }
 
-        internal DataFile DataFile { get; private set; }
+        internal DataFile DataFile { get; }
 
-        internal Dictionary<object, PrimaryKey> PrimaryKeys { get; private set; }
+        internal Dictionary<object, PrimaryKey> PrimaryKeys { get; }
 
         public Collection(
             Mapper<TEntity> mapper,
             IPrimaryKeyFileFactory primaryKeyFileFactory,
             IDataFileFactory dataFileFactory,
             IMetaFileFactory metaFileFactory,
-            IndexHolder indexHolder = null,
-            IIndexUpdater indexUpdater = null)
+            IndexHolder? indexHolder = null,
+            IIndexUpdater? indexUpdater = null)
         {
             Mapper = mapper;
             _indexHolder = indexHolder ?? new IndexHolder();
@@ -60,12 +60,12 @@ namespace SimpleDB.Core
             return PrimaryKeys.ContainsKey(id);
         }
 
-        public TEntity Get(object id)
+        public TEntity? GetOrDefault(object id)
         {
             try
             {
                 DataFile.BeginRead();
-                return EntityOperations.Get(id, Mapper, PrimaryKeys, DataFile);
+                return EntityOperations.GetOrDefault(id, Mapper, PrimaryKeys, DataFile);
             }
             finally
             {
@@ -73,14 +73,15 @@ namespace SimpleDB.Core
             }
         }
 
-        public IEnumerable<TEntity> Get(IEnumerable<object> idList)
+        public IEnumerable<TEntity> GetOrDefault(IReadOnlyCollection<object> idList)
         {
             try
             {
                 DataFile.BeginRead();
                 foreach (var id in idList)
                 {
-                    yield return EntityOperations.Get(id, Mapper, PrimaryKeys, DataFile);
+                    var entity = EntityOperations.GetOrDefault(id, Mapper, PrimaryKeys, DataFile);
+                    if (entity != null) yield return entity;
                 }
             }
             finally
@@ -96,7 +97,8 @@ namespace SimpleDB.Core
                 DataFile.BeginRead();
                 foreach (var id in PrimaryKeys.Keys)
                 {
-                    yield return EntityOperations.Get(id, Mapper, PrimaryKeys, DataFile);
+                    var entity = EntityOperations.GetOrDefault(id, Mapper, PrimaryKeys, DataFile);
+                    if (entity != null) yield return entity;
                 }
             }
             finally
@@ -121,7 +123,7 @@ namespace SimpleDB.Core
             }
         }
 
-        public void Insert(IEnumerable<TEntity> entities)
+        public void Insert(IReadOnlyCollection<TEntity> entities)
         {
             try
             {
@@ -153,7 +155,7 @@ namespace SimpleDB.Core
             }
         }
 
-        public void Update(IEnumerable<TEntity> entities)
+        public void Update(IReadOnlyCollection<TEntity> entities)
         {
             try
             {
@@ -194,7 +196,7 @@ namespace SimpleDB.Core
             }
         }
 
-        public void InsertOrUpdate(IEnumerable<TEntity> entities)
+        public void InsertOrUpdate(IReadOnlyCollection<TEntity> entities)
         {
             try
             {
@@ -236,7 +238,7 @@ namespace SimpleDB.Core
             }
         }
 
-        public void Delete(IEnumerable<object> idList)
+        public void Delete(IReadOnlyCollection<object> idList)
         {
             try
             {
@@ -282,7 +284,7 @@ namespace SimpleDB.Core
 
     internal interface ICollectionFactory
     {
-        Collection<TEntity> Make<TEntity>(Mapper<TEntity> mapper, IndexHolder indexHolder = null, IIndexUpdater indexUpdater = null);
+        Collection<TEntity> Make<TEntity>(Mapper<TEntity> mapper, IndexHolder? indexHolder = null, IIndexUpdater? indexUpdater = null);
     }
 
     internal class CollectionFactory : ICollectionFactory
@@ -290,13 +292,13 @@ namespace SimpleDB.Core
         private readonly IFileSystem _fileSystem;
         private readonly IMemory _memory;
 
-        public CollectionFactory(IFileSystem fileSystem, IMemory memory = null)
+        public CollectionFactory(IFileSystem fileSystem, IMemory? memory = null)
         {
             _fileSystem = fileSystem;
             _memory = memory ?? Memory.Instance;
         }
 
-        public Collection<TEntity> Make<TEntity>(Mapper<TEntity> mapper, IndexHolder indexHolder = null, IIndexUpdater indexUpdater = null)
+        public Collection<TEntity> Make<TEntity>(Mapper<TEntity> mapper, IndexHolder? indexHolder = null, IIndexUpdater? indexUpdater = null)
         {
             return new Collection<TEntity>(
                 mapper,

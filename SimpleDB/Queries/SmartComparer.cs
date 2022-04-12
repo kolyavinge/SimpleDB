@@ -5,11 +5,11 @@ namespace SimpleDB.Queries
 {
     internal static class SmartComparer
     {
-        public static bool AreEquals(object x, object y)
+        public static bool AreEquals(object? x, object? y)
         {
             if (x == null && y == null) return true;
             if (x == null && y != null || x != null && y == null) return false;
-            if (x.GetType() != y.GetType() && x.IsStandartType() && y.IsStandartType())
+            if (x!.GetType() != y!.GetType() && x.IsStandartType() && y.IsStandartType())
             {
                 if (x.GetStandartTypeSize() > y.GetStandartTypeSize())
                 {
@@ -38,9 +38,11 @@ namespace SimpleDB.Queries
             return x.Equals(y);
         }
 
-        public static int Compare(object x, object y)
+        public static int Compare(object? x, object? y)
         {
-            if (x.GetType() != y.GetType() && x.IsStandartType() && y.IsStandartType())
+            if (x == null && y == null) return 0;
+            if (x == null && y != null || x != null && y == null) throw new DBEngineException("Values to compare are invalid");
+            if (x!.GetType() != y!.GetType() && x.IsStandartType() && y.IsStandartType())
             {
                 if (x.GetStandartTypeSize() > y.GetStandartTypeSize())
                 {

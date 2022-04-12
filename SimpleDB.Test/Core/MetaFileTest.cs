@@ -38,7 +38,7 @@ namespace SimpleDB.Test.Core
                 new FieldMeta(16, "Inner", typeof(Inner))
             };
             var metaFile = new MetaFile("full path", _fileSystem);
-            var metaData = MetaData.Make("EntityTypeName", typeof(Inner), "Primary key name", fieldMetaCollection);
+            var metaData = new MetaData("EntityTypeName", typeof(Inner), "Primary key name", fieldMetaCollection);
             metaFile.Save(metaData);
             var loadedMetaData = metaFile.GetMetaData();
             Assert.IsTrue(metaData.Equals(loadedMetaData));

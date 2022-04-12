@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using SimpleDB.Core;
-using SimpleDB.Utils.EnumerableExtension;
 
 namespace SimpleDB.IndexedSearch
 {
@@ -41,11 +40,12 @@ namespace SimpleDB.IndexedSearch
         }
 
         private Index<TField> MakeNewIndex<TField>(
-            IndexFile indexFile, string indexName, Expression<Func<TEntity, TField>> indexedFieldExpression, IEnumerable<Expression<Func<TEntity, object>>> includedExpressions) where TField : IComparable<TField>
+            IndexFile indexFile, string indexName, Expression<Func<TEntity, TField>> indexedFieldExpression, IEnumerable<Expression<Func<TEntity, object>>>? includedExpressions)
+            where TField : IComparable<TField>
         {
             var indexedFieldName = FieldMapping<TEntity>.GetPropertyName(indexedFieldExpression);
             var includedFieldNames = (includedExpressions ?? Enumerable.Empty<Expression<Func<TEntity, object>>>()).Select(FieldMapping<TEntity>.GetPropertyName).ToHashSet();
-            var fieldMetaCollection = _mapper.EntityMeta.GetPrimaryKeyAndFieldMetaCollection();
+            var fieldMetaCollection = _mapper.EntityMeta.GetPrimaryKeyAndFieldMetaCollection().ToList();
             var indexedFieldNumber = fieldMetaCollection.First(fm => fm.Name == indexedFieldName).Number;
             var includedFieldNumbers = fieldMetaCollection.Where(fm => includedFieldNames.Contains(fm.Name)).Select(x => x.Number).ToArray();
             if (includedFieldNumbers.Contains(PrimaryKey.FieldNumber)) throw new ArgumentException("Primary key cannot be included in any index");
@@ -58,10 +58,10 @@ namespace SimpleDB.IndexedSearch
             return index;
         }
 
-        private void PopulateIndex(IIndex index, byte indexedFieldNumber, IEnumerable<byte> includedFieldNumbers)
+        private void PopulateIndex(IIndex index, byte indexedFieldNumber, IReadOnlyCollection<byte> includedFieldNumbers)
         {
-            PrimaryKeyFile primaryKeyFile = null;
-            DataFile dataFile = null;
+            PrimaryKeyFile? primaryKeyFile = null;
+            DataFile? dataFile = null;
             try
             {
                 primaryKeyFile = _primaryKeyFileFactory.MakeFromEntityName(_mapper.EntityName, _mapper.PrimaryKeyMapping.PropertyType);

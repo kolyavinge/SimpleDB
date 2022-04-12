@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace SimpleDB.Queries
 {
@@ -14,9 +11,9 @@ namespace SimpleDB.Queries
 
         public SelectClause SelectClause { get; }
 
-        public WhereClause WhereClause { get; set; }
+        public WhereClause? WhereClause { get; set; }
 
-        public OrderByClause OrderByClause { get; set; }
+        public OrderByClause? OrderByClause { get; set; }
 
         public int? Skip { get; set; }
 

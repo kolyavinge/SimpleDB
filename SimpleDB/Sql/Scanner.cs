@@ -6,8 +6,8 @@ namespace SimpleDB.Sql
     internal class Scanner
     {
         private readonly SqlQueryReader _rd;
-        private List<Token> _tokens;
-        private char[] _valueBuffer;
+        private readonly List<Token> _tokens = new();
+        private readonly char[] _valueBuffer = new char[256];
         private int _valueBufferLength;
         private int _row, _col;
 
@@ -18,8 +18,7 @@ namespace SimpleDB.Sql
 
         public IEnumerable<Token> GetTokens()
         {
-            _tokens = new List<Token>();
-            _valueBuffer = new char[256];
+            _tokens.Clear();
             ReadAllTokens();
 
             return _tokens;
@@ -96,7 +95,7 @@ namespace SimpleDB.Sql
             _valueBufferLength = 0;
         }
 
-        private readonly Dictionary<string, TokenKind> _tokenKinds = new Dictionary<string, TokenKind>(StringComparer.OrdinalIgnoreCase)
+        private readonly Dictionary<string, TokenKind> _tokenKinds = new(StringComparer.OrdinalIgnoreCase)
         {
             { "SELECT", TokenKind.SelectKeyword },
             { "UPDATE", TokenKind.UpdateKeyword },

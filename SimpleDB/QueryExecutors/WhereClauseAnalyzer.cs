@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using SimpleDB.Core;
 using SimpleDB.IndexedSearch;
@@ -30,7 +29,7 @@ namespace SimpleDB.QueryExecutors
             var root = AnalyzedTreeItem.MakeFrom(whereClause.Root);
             ApplyNot(ref root);
             SearchIndexes(root);
-            List<FieldValueCollection> partialResult = null;
+            List<FieldValueCollection>? partialResult = null;
             ProcessTree(ref root, ref partialResult);
             var treeResult = GetTreeResult(root);
 
@@ -42,7 +41,7 @@ namespace SimpleDB.QueryExecutors
             foreach (var item in root.ToEnumerable().Where(x => x.NotOperation).ToList())
             {
                 item.ToEnumerable().Each(x => x.IsNotApplied = !x.IsNotApplied);
-                AnalyzedTreeItem.Replace(ref root, item, item.Left);
+                AnalyzedTreeItem.Replace(ref root, item, item.Left!);
             }
         }
 
@@ -50,7 +49,7 @@ namespace SimpleDB.QueryExecutors
         {
             foreach (var item in root.ToEnumerable().Where(x => x.IsFieldOperation))
             {
-                List<FieldValueCollection> fieldValueCollections = null;
+                List<FieldValueCollection> fieldValueCollections;
                 // ищем значение поля среди проиндексированных
                 var indexResult = _indexHolder.GetIndexResult(item.OperationType, item.IsNotApplied, _entityName, item.FieldNumber, item.ConstantValue);
                 if (indexResult != null)
@@ -68,7 +67,7 @@ namespace SimpleDB.QueryExecutors
                 if (fieldValueCollections.Any())
                 {
                     item.IndexResult = fieldValueCollections;
-                    item.PrimaryKeys = fieldValueCollections.Select(x => x.PrimaryKey.Value).ToHashSet();
+                    item.PrimaryKeys = fieldValueCollections.Select(x => x.PrimaryKey!.Value).ToHashSet();
                     _indexCache = FieldValueCollection.Union(_indexCache, fieldValueCollections).ToList();
                 }
                 else
@@ -78,7 +77,7 @@ namespace SimpleDB.QueryExecutors
             }
         }
 
-        private void ProcessTree(ref AnalyzedTreeItem root, ref List<FieldValueCollection> partialResult)
+        private void ProcessTree(ref AnalyzedTreeItem root, ref List<FieldValueCollection>? partialResult)
         {
             var itemsToProcess = new Queue<AnalyzedTreeItem>(root.ToEnumerable().Where(x => x.IsIndexed));
             while (itemsToProcess.Any())
@@ -88,7 +87,7 @@ namespace SimpleDB.QueryExecutors
                 var sibling = item.Sibling;
                 if (item.Parent.AndOperation)
                 {
-                    sibling.ApplyAnd(item.PrimaryKeys);
+                    sibling.ApplyAnd(item.PrimaryKeys!);
                     if (item.IsIndexed && sibling.IsIndexed)
                     {
                         item.Parent.PrimaryKeys = sibling.PrimaryKeys;
@@ -109,7 +108,7 @@ namespace SimpleDB.QueryExecutors
                 {
                     if (item.IsIndexed && sibling.IsIndexed)
                     {
-                        item.Parent.PrimaryKeys = item.PrimaryKeys.Union(sibling.PrimaryKeys).ToHashSet();
+                        item.Parent.PrimaryKeys = item.PrimaryKeys!.Union(sibling.PrimaryKeys!).ToHashSet();
                         item.Parent.IndexResult = FieldValueCollection.Union(item.IndexResult, sibling.IndexResult).ToList();
                         itemsToProcess.Enqueue(item.Parent);
                         item.Parent.Left = null;
@@ -119,10 +118,10 @@ namespace SimpleDB.QueryExecutors
                     }
                     else if (item.IsIndexed && !sibling.IsIndexed)
                     {
-                        sibling.ApplyOr(item.PrimaryKeys);
+                        sibling.ApplyOr(item.PrimaryKeys!);
                         if (item.OnlyOrOperationToRoot)
                         {
-                            var indexResult = item.IndexResult.Where(x => item.PrimaryKeys.Contains(x.PrimaryKey.Value));
+                            var indexResult = item.IndexResult!.Where(x => item.PrimaryKeys!.Contains(x.PrimaryKey!.Value));
                             partialResult = FieldValueCollection.Union(partialResult, indexResult).ToList();
                             AnalyzedTreeItem.Replace(ref root, item.Parent, sibling);
                             itemsToProcess.Enqueue(sibling);
@@ -134,7 +133,7 @@ namespace SimpleDB.QueryExecutors
 
         private IEnumerable<FieldValueCollection> GetTreeResult(AnalyzedTreeItem root)
         {
-            var fieldValueCollections = root.ToEnumerable().Where(x => x.IsIndexed).SelectMany(x => x.IndexResult).ToDictionary(k => k.PrimaryKey.Value, v => v);
+            var fieldValueCollections = root.ToEnumerable().Where(x => x.IsIndexed).SelectMany(x => x.IndexResult).ToDictionary(k => k.PrimaryKey!.Value, v => v);
             var fieldNumbers = root.ToEnumerable()
                 .Where(x => !x.IsIndexed && x.PrimaryKeys != null)
                 .Select(x => x.FieldNumber)

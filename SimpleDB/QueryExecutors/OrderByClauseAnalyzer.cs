@@ -94,8 +94,8 @@ namespace SimpleDB.QueryExecutors
             {
                 foreach (var indexItemDictionary in _indexItemDictionaries)
                 {
-                    var xPosition = indexItemDictionary[x.PrimaryKey.Value];
-                    var yPosition = indexItemDictionary[y.PrimaryKey.Value];
+                    var xPosition = indexItemDictionary[x.PrimaryKey!.Value];
+                    var yPosition = indexItemDictionary[y.PrimaryKey!.Value];
                     var compareResult = xPosition.CompareTo(yPosition);
                     if (compareResult == 0) continue;
                     return compareResult;

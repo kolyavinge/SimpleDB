@@ -11,10 +11,15 @@ namespace SimpleDB.DataStructures
 
         public class StepResult
         {
-            public RBTree<TKey, TValue>.Node Node;
+            public readonly RBTree<TKey, TValue>.Node Node;
             public bool ToLeft;
             public bool ToRight;
             public bool Finded;
+
+            public StepResult(RBTree<TKey, TValue>.Node node)
+            {
+                Node = node;
+            }
         }
 
         public RBTreeFindNodeEnumerable(RBTree<TKey, TValue>.Node root, TKey keyToFind)
@@ -31,17 +36,17 @@ namespace SimpleDB.DataStructures
                 var compareResult = _keyToFind.CompareTo(node.Key);
                 if (compareResult < 0)
                 {
-                    yield return new StepResult { Node = node, ToLeft = true };
+                    yield return new StepResult(node) { ToLeft = true };
                     node = node.Left;
                 }
                 else if (compareResult > 0)
                 {
-                    yield return new StepResult { Node = node, ToRight = true };
+                    yield return new StepResult(node) { ToRight = true };
                     node = node.Right;
                 }
                 else
                 {
-                    yield return new StepResult { Node = node, Finded = true };
+                    yield return new StepResult(node) { Finded = true };
                     yield break;
                 }
             }

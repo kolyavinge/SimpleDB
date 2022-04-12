@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using SimpleDB.Core;
 using SimpleDB.Infrastructure;
-using SimpleDB.Utils.EnumerableExtension;
 
 namespace SimpleDB.Maintenance
 {
@@ -30,7 +29,7 @@ namespace SimpleDB.Maintenance
         {
             foreach (var primaryKeyFileName in GetPrimaryKeyFileNames())
             {
-                PrimaryKeyFile primaryKeyFile = null;
+                PrimaryKeyFile? primaryKeyFile = null;
                 try
                 {
                     var entityName = Path.GetFileNameWithoutExtension(primaryKeyFileName);
@@ -59,8 +58,8 @@ namespace SimpleDB.Maintenance
         {
             foreach (var primaryKeyFileName in GetPrimaryKeyFileNames())
             {
-                PrimaryKeyFile primaryKeyFile = null;
-                DataFile dataFile = null;
+                PrimaryKeyFile? primaryKeyFile = null;
+                DataFile? dataFile = null;
                 try
                 {
                     var entityName = Path.GetFileNameWithoutExtension(primaryKeyFileName);

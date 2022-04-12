@@ -38,7 +38,7 @@ namespace SimpleDB.Test.Core
         {
             _collection.Insert(_entity);
 
-            var result = _collection.Get(123);
+            var result = _collection.GetOrDefault(123);
             Assert.AreEqual(123, result.Id);
             Assert.AreEqual((byte)45, result.Byte);
             Assert.AreEqual(6.7f, result.Float);
@@ -52,7 +52,7 @@ namespace SimpleDB.Test.Core
             _entity.Float = 60.7f;
             _collection.Update(_entity);
 
-            var result = _collection.Get(123);
+            var result = _collection.GetOrDefault(123);
             Assert.AreEqual((byte)10, result.Byte);
             Assert.AreEqual(60.7f, result.Float);
             var primaryKey = _collection.PrimaryKeys[123];
@@ -68,7 +68,7 @@ namespace SimpleDB.Test.Core
             _entity.String = "12345";
             _collection.Update(_entity);
 
-            var result = _collection.Get(123);
+            var result = _collection.GetOrDefault(123);
             Assert.AreEqual("12345", result.String);
             var primaryKey = _collection.PrimaryKeys[123];
             Assert.AreEqual(0, primaryKey.PrimaryKeyFileOffset);
@@ -84,7 +84,7 @@ namespace SimpleDB.Test.Core
             _entity.String = "12345";
             _collection.Update(_entity);
 
-            var result = _collection.Get(123);
+            var result = _collection.GetOrDefault(123);
             Assert.AreEqual("12345", result.String);
             var primaryKey = _collection.PrimaryKeys[123];
             Assert.AreEqual(0, primaryKey.PrimaryKeyFileOffset);
@@ -100,7 +100,7 @@ namespace SimpleDB.Test.Core
             _entity.String = null;
             _collection.Update(_entity);
 
-            var result = _collection.Get(123);
+            var result = _collection.GetOrDefault(123);
             Assert.AreEqual(null, result.String);
         }
 
@@ -112,7 +112,7 @@ namespace SimpleDB.Test.Core
             _entity.String = "0123456789";
             _collection.Update(_entity);
 
-            var result = _collection.Get(123);
+            var result = _collection.GetOrDefault(123);
             Assert.AreEqual("0123456789", result.String);
         }
 
@@ -124,7 +124,7 @@ namespace SimpleDB.Test.Core
             _entity.String = null;
             _collection.Update(_entity);
 
-            var result = _collection.Get(123);
+            var result = _collection.GetOrDefault(123);
             Assert.AreEqual(null, result.String);
         }
 
@@ -134,7 +134,7 @@ namespace SimpleDB.Test.Core
             _collection.Insert(_entity);
             _collection.Delete(123);
 
-            Assert.IsNull(_collection.Get(123));
+            Assert.IsNull(_collection.GetOrDefault(123));
         }
 
         [Test]

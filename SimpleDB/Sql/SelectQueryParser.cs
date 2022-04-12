@@ -32,8 +32,14 @@ namespace SimpleDB.Sql
 
         class OrderByItem
         {
-            public string Field;
+            public readonly string Field;
             public SortDirection Direction;
+
+            public OrderByItem(string field, SortDirection direction)
+            {
+                Field = field;
+                Direction = direction;
+            }
         }
 
         public override AbstractQuery GetQuery(QueryContext context, List<Token> tokens)
@@ -42,7 +48,7 @@ namespace SimpleDB.Sql
             EntityMeta entityMeta;
             bool selectAll = false;
             var selectTokens = new List<Token>();
-            SelectQuery selectQuery = null;
+            SelectQuery? selectQuery = null;
             var orderByItems = new List<OrderByItem>();
 
             switch (State.Select)
@@ -79,8 +85,8 @@ namespace SimpleDB.Sql
                     if (tokenIter.Eof) break;
                     if (tokenIter.Current.Kind == TokenKind.WhereKeyword)
                     {
-                        var whereClauseParser = new WhereClauseParser();
-                        selectQuery.WhereClause = whereClauseParser.GetClause(entityMeta, tokenIter);
+                        var whereClauseParser = new WhereClauseParser(entityMeta, tokenIter);
+                        selectQuery.WhereClause = whereClauseParser.GetClause();
                     }
                     goto case State.OrderBy;
                 case State.OrderBy:
@@ -94,7 +100,7 @@ namespace SimpleDB.Sql
                 case State.OrderByItem:
                     if (tokenIter.Current.Kind == TokenKind.Identificator)
                     {
-                        orderByItems.Add(new OrderByItem { Field = tokenIter.Current.Value, Direction = SortDirection.Asc });
+                        orderByItems.Add(new OrderByItem(tokenIter.Current.Value, SortDirection.Asc));
                         tokenIter.NextToken();
                         goto case State.OrderByDirection;
                     }
@@ -143,7 +149,7 @@ namespace SimpleDB.Sql
                     break;
             }
 
-            return selectQuery;
+            return selectQuery!;
         }
 
         private IEnumerable<SelectClause.SelectClauseItem> GetSelectClauseItems(EntityMeta entityMeta, IEnumerable<Token> selectTokens, bool selectAll)

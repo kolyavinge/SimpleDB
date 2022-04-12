@@ -20,7 +20,7 @@ namespace SimpleDB.Core
             _fieldValues = fieldValues.ToDictionary(k => k.Number, v => v);
         }
 
-        public PrimaryKey PrimaryKey { get; set; }
+        public PrimaryKey? PrimaryKey { get; set; }
 
         public bool Contains(byte fieldNumber)
         {
@@ -29,7 +29,7 @@ namespace SimpleDB.Core
 
         public FieldValue this[byte fieldNumber]
         {
-            get { return _fieldValues[fieldNumber]; }
+            get => _fieldValues[fieldNumber];
             set
             {
                 _fieldValues[fieldNumber] = value;
@@ -51,10 +51,7 @@ namespace SimpleDB.Core
             }
         }
 
-        public int Count
-        {
-            get { return _fieldValues.Count; }
-        }
+        public int Count => _fieldValues.Count;
 
         public void Clear()
         {
@@ -84,7 +81,7 @@ namespace SimpleDB.Core
             foreach (var fieldValue in this)
             {
                 if (!x.Contains(fieldValue.Number)) return false;
-                if (!x[fieldValue.Number].Value.Equals(fieldValue.Value)) return false;
+                if (!Equals(x[fieldValue.Number].Value, fieldValue.Value)) return false;
             }
 
             return true;
@@ -99,7 +96,7 @@ namespace SimpleDB.Core
                     _hashCode = 1430287;
                     foreach (var kv in _fieldValues)
                     {
-                        _hashCode *= 7302013 ^ kv.Value.Value.GetHashCode();
+                        _hashCode *= 7302013 ^ (kv.Value.Value != null ? kv.Value.Value.GetHashCode() : 0);
                     }
                 }
             }
@@ -117,24 +114,24 @@ namespace SimpleDB.Core
             return this;
         }
 
-        public static IEnumerable<FieldValueCollection> Intersect(IEnumerable<FieldValueCollection> x, IEnumerable<FieldValueCollection> y)
+        public static IEnumerable<FieldValueCollection> Intersect(IEnumerable<FieldValueCollection>? x, IEnumerable<FieldValueCollection>? y)
         {
-            x = x ?? Enumerable.Empty<FieldValueCollection>();
-            y = y ?? Enumerable.Empty<FieldValueCollection>();
+            x ??= Enumerable.Empty<FieldValueCollection>();
+            y ??= Enumerable.Empty<FieldValueCollection>();
             return from xitem in x
                    join yitem in y
-                   on xitem.PrimaryKey.Value equals yitem.PrimaryKey.Value
+                   on xitem.PrimaryKey!.Value equals yitem.PrimaryKey!.Value
                    select xitem.Merge(yitem);
         }
 
-        public static IEnumerable<FieldValueCollection> Union(IEnumerable<FieldValueCollection> x, IEnumerable<FieldValueCollection> y)
+        public static IEnumerable<FieldValueCollection> Union(IEnumerable<FieldValueCollection>? x, IEnumerable<FieldValueCollection>? y)
         {
-            x = x ?? Enumerable.Empty<FieldValueCollection>();
-            y = y ?? Enumerable.Empty<FieldValueCollection>();
-            var result = x.ToDictionary(k => k.PrimaryKey.Value, v => v);
+            x ??= Enumerable.Empty<FieldValueCollection>();
+            y ??= Enumerable.Empty<FieldValueCollection>();
+            var result = x.ToDictionary(k => k.PrimaryKey!.Value, v => v);
             foreach (var yitem in y)
             {
-                if (result.ContainsKey(yitem.PrimaryKey.Value))
+                if (result.ContainsKey(yitem.PrimaryKey!.Value))
                 {
                     result[yitem.PrimaryKey.Value].Merge(yitem);
                 }
@@ -147,14 +144,14 @@ namespace SimpleDB.Core
             return result.Values;
         }
 
-        public static IEnumerable<FieldValueCollection> Merge(IEnumerable<FieldValueCollection> x, IEnumerable<FieldValueCollection> y)
+        public static IEnumerable<FieldValueCollection> Merge(IEnumerable<FieldValueCollection>? x, IEnumerable<FieldValueCollection>? y)
         {
-            x = x ?? Enumerable.Empty<FieldValueCollection>();
-            y = y ?? Enumerable.Empty<FieldValueCollection>();
-            var result = x.ToDictionary(k => k.PrimaryKey.Value, v => v);
+            x ??= Enumerable.Empty<FieldValueCollection>();
+            y ??= Enumerable.Empty<FieldValueCollection>();
+            var result = x.ToDictionary(k => k.PrimaryKey!.Value, v => v);
             foreach (var yitem in y)
             {
-                if (result.ContainsKey(yitem.PrimaryKey.Value))
+                if (result.ContainsKey(yitem.PrimaryKey!.Value))
                 {
                     result[yitem.PrimaryKey.Value].Merge(yitem);
                 }

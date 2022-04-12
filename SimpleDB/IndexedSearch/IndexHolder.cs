@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using SimpleDB.Core;
 using SimpleDB.Queries;
-using SimpleDB.Utils.EnumerableExtension;
 
 namespace SimpleDB.IndexedSearch
 {
@@ -56,7 +55,7 @@ namespace SimpleDB.IndexedSearch
             return _indexes[entityName].Any(x => x.Meta.IndexedFieldNumber == indexedFieldNumber);
         }
 
-        public IEnumerable<IndexResult> GetIndexResult(Type operationType, bool isNotApplied, string entityName, byte fieldNumber, object fieldValue)
+        public IEnumerable<IndexResult>? GetIndexResult(Type operationType, bool isNotApplied, string entityName, byte fieldNumber, object fieldValue)
         {
             if (!_indexes.ContainsKey(entityName)) return null;
             IEnumerable<IndexValue> indexValues = null;

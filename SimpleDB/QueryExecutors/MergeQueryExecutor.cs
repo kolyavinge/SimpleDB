@@ -3,7 +3,6 @@ using System.Linq;
 using SimpleDB.Core;
 using SimpleDB.IndexedSearch;
 using SimpleDB.Queries;
-using SimpleDB.Utils.EnumerableExtension;
 
 namespace SimpleDB.QueryExecutors
 {
@@ -31,7 +30,7 @@ namespace SimpleDB.QueryExecutors
 
         public MergeQueryResult<TEntity> ExecuteQuery(MergeQuery<TEntity> query)
         {
-            List<TEntity> newEntities = null;
+            List<TEntity> newEntities;
             try
             {
                 _dataFile.BeginRead();
@@ -57,7 +56,7 @@ namespace SimpleDB.QueryExecutors
                 _dataFile.EndReadWrite();
             }
 
-            return new MergeQueryResult<TEntity> { NewItems = newEntities };
+            return new MergeQueryResult<TEntity>(newEntities);
         }
 
         private List<TEntity> GetNewEntities(MergeQuery<TEntity> query)
@@ -82,6 +81,11 @@ namespace SimpleDB.QueryExecutors
 
     internal class MergeQueryResult<TEntity> : IMergeQueryResult<TEntity>
     {
-        public List<TEntity> NewItems { get; set; }
+        public List<TEntity> NewItems { get; }
+
+        public MergeQueryResult(List<TEntity> newItems)
+        {
+            NewItems = newItems;
+        }
     }
 }

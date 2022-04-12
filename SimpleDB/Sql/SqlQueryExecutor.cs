@@ -41,7 +41,7 @@ namespace SimpleDB.Sql
             var queryType = GetQueryType(tokens);
             var factory = new QueryParserFactory();
             var parser = factory.MakeParser(queryType);
-            var context = new QueryContext { EntityMetaDictionary = _entityMetaDictionary };
+            var context = new QueryContext(_entityMetaDictionary);
             var query = parser.GetQuery(context, tokens);
             var entityMeta = _entityMetaDictionary[query.EntityName];
             var primaryKeyFile = _primaryKeyFileFactory.MakeFromEntityName(entityMeta.EntityName, entityMeta.PrimaryKeyFieldMeta.Type);
@@ -66,9 +66,8 @@ namespace SimpleDB.Sql
             {
                 var executor = new SelectQueryExecutor(dataFile, primaryKeys, new FieldValueReader(dataFile), _indexHolder);
                 var result = executor.ExecuteQuery((SelectQuery)query);
-                return new SqlQueryResult
+                return new SqlQueryResult(query.EntityName)
                 {
-                    EntityName = query.EntityName,
                     FieldValueCollections = result.FieldValueCollections,
                     Scalar = result.Scalar
                 };
@@ -77,9 +76,8 @@ namespace SimpleDB.Sql
             {
                 var executor = new UpdateQueryExecutor(entityMeta, primaryKeyFile, dataFile, primaryKeys, new FieldValueReader(dataFile), _indexHolder, _indexUpdater);
                 var result = executor.ExecuteQuery((UpdateQuery)query);
-                return new SqlQueryResult
+                return new SqlQueryResult(query.EntityName)
                 {
-                    EntityName = query.EntityName,
                     Scalar = result
                 };
             }
@@ -87,9 +85,8 @@ namespace SimpleDB.Sql
             {
                 var executor = new DeleteQueryExecutor(entityMeta, primaryKeyFile, dataFile, primaryKeys, new FieldValueReader(dataFile), _indexHolder, _indexUpdater);
                 var result = executor.ExecuteQuery((DeleteQuery)query);
-                return new SqlQueryResult
+                return new SqlQueryResult(query.EntityName)
                 {
-                    EntityName = query.EntityName,
                     Scalar = result
                 };
             }
@@ -109,10 +106,15 @@ namespace SimpleDB.Sql
 
     internal class SqlQueryResult
     {
-        public string EntityName { get; set; }
+        public string EntityName { get; }
 
-        public List<FieldValueCollection> FieldValueCollections { get; set; }
+        public List<FieldValueCollection>? FieldValueCollections { get; set; }
 
-        public object Scalar { get; set; }
+        public object? Scalar { get; set; }
+
+        public SqlQueryResult(string entityName)
+        {
+            EntityName = entityName;
+        }
     }
 }

@@ -13,6 +13,6 @@ namespace SimpleDB.Queries
 
         public UpdateClause UpdateClause { get; }
 
-        public WhereClause WhereClause { get; set; }
+        public WhereClause? WhereClause { get; set; }
     }
 }

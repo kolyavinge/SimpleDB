@@ -67,7 +67,7 @@ namespace SimpleDB.Test.QueryExecutors
             Assert.True(_collection.Exist(1));
             Assert.True(_collection.Exist(2));
             Assert.True(_collection.Exist(3));
-            var entity = _collection.Get(12);
+            var entity = _collection.GetOrDefault(12);
             Assert.AreEqual(20, entity.Byte);
             Assert.AreEqual(9.9f, entity.Float);
         }

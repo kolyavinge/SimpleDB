@@ -98,7 +98,7 @@ namespace SimpleDB.QueryExecutors
             // добираем из индексов недостающие поля
             var allFieldNumbersInQuery = query.GetAllFieldNumbers().ToHashSet();
             allFieldNumbersInQuery.ExceptWith(alreadyReadedFieldNumbers);
-            var remainingFieldValues = _indexHolder.GetScanResult(query.EntityName, fieldValueCollections.Select(x => x.PrimaryKey.Value), _primaryKeys, allFieldNumbersInQuery);
+            var remainingFieldValues = _indexHolder.GetScanResult(query.EntityName, fieldValueCollections.Select(x => x.PrimaryKey!.Value), _primaryKeys, allFieldNumbersInQuery);
             FieldValueCollection.Merge(fieldValueCollections, remainingFieldValues);
             alreadyReadedFieldNumbers.AddRange(fieldValueCollections.SelectMany(collection => collection.Select(field => field.Number)));
             // order by
@@ -112,7 +112,7 @@ namespace SimpleDB.QueryExecutors
                     foreach (var fieldValueCollection in fieldValueCollections)
                     {
                         var primaryKey = fieldValueCollection.PrimaryKey;
-                        _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, orderbyFieldNumbers, fieldValueCollection);
+                        _dataFile.ReadFields(primaryKey!.StartDataFileOffset, primaryKey.EndDataFileOffset, orderbyFieldNumbers, fieldValueCollection);
                     }
                 }
                 fieldValueCollections.Sort(query.OrderByClause);
@@ -143,7 +143,7 @@ namespace SimpleDB.QueryExecutors
                 foreach (var fieldValueCollection in fieldValueCollections)
                 {
                     var primaryKey = fieldValueCollection.PrimaryKey;
-                    _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, nonSelectedFieldNumbers, fieldValueCollection);
+                    _dataFile.ReadFields(primaryKey!.StartDataFileOffset, primaryKey.EndDataFileOffset, nonSelectedFieldNumbers, fieldValueCollection);
                 }
             }
 
@@ -155,10 +155,10 @@ namespace SimpleDB.QueryExecutors
             var selectFieldNumbers = query.SelectClause.GetAllFieldNumbers().ToHashSet();
             var includePrimaryKey = query.SelectClause.SelectItems.Any(x => x is SelectClause.PrimaryKey);
             var queryResultItems = new List<TEntity>();
-            foreach (var fieldValueCollection in result.FieldValueCollections)
+            foreach (var fieldValueCollection in result.FieldValueCollections!)
             {
                 var primaryKey = fieldValueCollection.PrimaryKey;
-                var entity = mapper.MakeEntity(primaryKey.Value, fieldValueCollection, includePrimaryKey, selectFieldNumbers);
+                var entity = mapper.MakeEntity(primaryKey!.Value, fieldValueCollection, includePrimaryKey, selectFieldNumbers);
                 queryResultItems.Add(entity);
             }
 
@@ -168,8 +168,8 @@ namespace SimpleDB.QueryExecutors
 
     internal class SelectQueryResult
     {
-        public List<FieldValueCollection> FieldValueCollections { get; set; }
+        public List<FieldValueCollection>? FieldValueCollections { get; set; }
 
-        public object Scalar { get; set; }
+        public object? Scalar { get; set; }
     }
 }

@@ -15,27 +15,22 @@ namespace SimpleDB.Test.Sql
         [SetUp]
         public void Setup()
         {
-            _context = new QueryContext
-            {
-                EntityMetaDictionary = new Dictionary<string, EntityMeta>
+            _context = new QueryContext(
+                new Dictionary<string, EntityMeta>
                 {
                     {
                         "User",
-                        new EntityMeta
-                        {
-                            EntityName = "User",
-                            PrimaryKeyFieldMeta = new PrimaryKeyFieldMeta("Id", typeof(int)),
-                            FieldMetaCollection = new[]
+                        new EntityMeta("User",
+                            new PrimaryKeyFieldMeta("Id", typeof(int)),
+                            new[]
                             {
                                 new FieldMeta(1, "Login", typeof(string)),
                                 new FieldMeta(2, "Name", typeof(string)),
                                 new FieldMeta(3, "Byte", typeof(byte)),
                                 new FieldMeta(4, "Float", typeof(float))
-                            }
-                        }
+                            })
                     }
-                }
-            };
+                });
             _parser = new UpdateQueryParser();
         }
 

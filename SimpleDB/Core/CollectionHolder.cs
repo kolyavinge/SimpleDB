@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace SimpleDB.Core
@@ -13,7 +12,7 @@ namespace SimpleDB.Core
             _collection = new Dictionary<Type, object>();
         }
 
-        public Collection<TEntity> GetOrNull<TEntity>()
+        public Collection<TEntity>? GetOrNull<TEntity>()
         {
             return _collection.ContainsKey(typeof(TEntity)) ? (Collection<TEntity>)_collection[typeof(TEntity)] : null;
         }

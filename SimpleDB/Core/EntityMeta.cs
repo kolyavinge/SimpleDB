@@ -5,20 +5,22 @@ namespace SimpleDB.Core
 {
     internal class EntityMeta
     {
-        public string EntityName { get; set; }
+        public string EntityName { get; private set; }
 
-        public PrimaryKeyFieldMeta PrimaryKeyFieldMeta { get; set; }
+        public PrimaryKeyFieldMeta PrimaryKeyFieldMeta { get; private set; }
 
-        public IEnumerable<FieldMeta> FieldMetaCollection { get; set; }
+        public IEnumerable<FieldMeta> FieldMetaCollection { get; private set; }
 
         public static EntityMeta MakeFromMetaData(MetaData metaData)
         {
-            return new EntityMeta
-            {
-                EntityName = metaData.EntityName,
-                PrimaryKeyFieldMeta = new PrimaryKeyFieldMeta(metaData.PrimaryKeyName, metaData.PrimaryKeyType),
-                FieldMetaCollection = metaData.FieldMetaCollection
-            };
+            return new EntityMeta(metaData.EntityName, new PrimaryKeyFieldMeta(metaData.PrimaryKeyName, metaData.PrimaryKeyType), metaData.FieldMetaCollection);
+        }
+
+        public EntityMeta(string entityName, PrimaryKeyFieldMeta primaryKeyFieldMeta, IEnumerable<FieldMeta> fieldMetaCollection)
+        {
+            EntityName = entityName;
+            PrimaryKeyFieldMeta = primaryKeyFieldMeta;
+            FieldMetaCollection = fieldMetaCollection;
         }
 
         public IEnumerable<FieldMeta> GetPrimaryKeyAndFieldMetaCollection()

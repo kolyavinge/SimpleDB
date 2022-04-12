@@ -7,7 +7,7 @@ namespace SimpleDB.QueryExecutors
 {
     internal interface IFieldValueReader
     {
-        void ReadFieldValues(IEnumerable<FieldValueCollection> fieldValueCollections, IEnumerable<byte> fieldNumbers);
+        void ReadFieldValues(IEnumerable<FieldValueCollection> fieldValueCollections, IReadOnlyCollection<byte> fieldNumbers);
     }
 
     internal class FieldValueReader : IFieldValueReader
@@ -19,10 +19,10 @@ namespace SimpleDB.QueryExecutors
             _dataFile = dataFile;
         }
 
-        public void ReadFieldValues(IEnumerable<FieldValueCollection> fieldValueCollections, IEnumerable<byte> fieldNumbers)
+        public void ReadFieldValues(IEnumerable<FieldValueCollection> fieldValueCollections, IReadOnlyCollection<byte> fieldNumbers)
         {
             var remainingFieldNumbers = new HashSet<byte>();
-            foreach (var fieldValueCollection in fieldValueCollections.OrderBy(x => x.PrimaryKey.StartDataFileOffset))
+            foreach (var fieldValueCollection in fieldValueCollections.OrderBy(x => x.PrimaryKey!.StartDataFileOffset))
             {
                 remainingFieldNumbers.Clear();
                 remainingFieldNumbers.AddRange(fieldNumbers);
@@ -30,7 +30,7 @@ namespace SimpleDB.QueryExecutors
                 if (remainingFieldNumbers.Any())
                 {
                     var primaryKey = fieldValueCollection.PrimaryKey;
-                    _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, remainingFieldNumbers, fieldValueCollection);
+                    _dataFile.ReadFields(primaryKey!.StartDataFileOffset, primaryKey.EndDataFileOffset, remainingFieldNumbers, fieldValueCollection);
                 }
             }
         }

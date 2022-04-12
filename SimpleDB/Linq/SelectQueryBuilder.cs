@@ -9,17 +9,17 @@ namespace SimpleDB.Linq
     internal class SelectQueryBuilder<TEntity>
     {
         private readonly Mapper<TEntity> _mapper;
-        private readonly Expression<Func<TEntity, object>> _selectExpression;
-        private readonly Expression<Func<TEntity, bool>> _whereExpression;
-        private readonly List<OrderByExpressionItem<TEntity>> _orderbyExpressionItems;
+        private readonly Expression<Func<TEntity, object>>? _selectExpression;
+        private readonly Expression<Func<TEntity, bool>>? _whereExpression;
+        private readonly List<OrderByExpressionItem<TEntity>>? _orderbyExpressionItems;
         private readonly int? _skipValue;
         private readonly int? _limitValue;
 
         public SelectQueryBuilder(
             Mapper<TEntity> mapper,
-            Expression<Func<TEntity, object>> selectExpression,
-            Expression<Func<TEntity, bool>> whereExpression = null,
-            List<OrderByExpressionItem<TEntity>> orderbyExpressionItems = null,
+            Expression<Func<TEntity, object>>? selectExpression,
+            Expression<Func<TEntity, bool>>? whereExpression = null,
+            List<OrderByExpressionItem<TEntity>>? orderbyExpressionItems = null,
             int? skipValue = null,
             int? limitValue = null)
         {

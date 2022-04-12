@@ -25,15 +25,15 @@ namespace SimpleDB.Sql
 
         class UpdateItem
         {
-            public string FieldName;
-            public object Value;
+            public string? FieldName;
+            public object? Value;
         }
 
         public override AbstractQuery GetQuery(QueryContext context, List<Token> tokens)
         {
             var tokenIter = new TokenIterator(tokens);
             EntityMeta entityMeta;
-            UpdateQuery updateQuery = null;
+            UpdateQuery updateQuery;
             var updateItems = new List<UpdateItem>();
 
             switch (State.Update)
@@ -91,8 +91,8 @@ namespace SimpleDB.Sql
                 case State.Where:
                     if (tokenIter.Current.Kind == TokenKind.WhereKeyword)
                     {
-                        var whereClauseParser = new WhereClauseParser();
-                        updateQuery.WhereClause = whereClauseParser.GetClause(entityMeta, tokenIter);
+                        var whereClauseParser = new WhereClauseParser(entityMeta, tokenIter);
+                        updateQuery.WhereClause = whereClauseParser.GetClause();
                     }
                     goto case State.End;
                 case State.End:

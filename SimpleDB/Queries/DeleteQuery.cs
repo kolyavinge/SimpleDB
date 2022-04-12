@@ -8,6 +8,6 @@ namespace SimpleDB.Queries
     {
         public DeleteQuery(string entityName) : base(entityName) { }
 
-        public WhereClause WhereClause { get; set; }
+        public WhereClause? WhereClause { get; set; }
     }
 }

@@ -14,19 +14,16 @@ namespace SimpleDB.Test.Sql
         [SetUp]
         public void Setup()
         {
-            _entityMeta = new EntityMeta
-            {
-                EntityName = "User",
-                PrimaryKeyFieldMeta = new PrimaryKeyFieldMeta("Id", typeof(int)),
-                FieldMetaCollection = new FieldMeta[]
+            _entityMeta = new EntityMeta(
+                "User",
+                new PrimaryKeyFieldMeta("Id", typeof(int)),
+                new []
                 {
                     new FieldMeta(1, "Login", typeof(string)),
                     new FieldMeta(2, "Name", typeof(string)),
                     new FieldMeta(3, "Age", typeof(int)),
-                    new FieldMeta(4, "Float", typeof(float)),
-                }
-            };
-            _parser = new WhereClauseParser();
+                    new FieldMeta(4, "Float", typeof(float))
+                });
         }
 
         [Test]
@@ -419,7 +416,8 @@ namespace SimpleDB.Test.Sql
 
         private dynamic GetClause(IEnumerable<Token> tokens)
         {
-            return _parser.GetClause(_entityMeta, new TokenIterator(tokens)).Root;
+            _parser = new WhereClauseParser(_entityMeta, new TokenIterator(tokens));
+            return _parser.GetClause().Root;
         }
     }
 }

@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace SimpleDB.Sql
 {
     class TokenIterator
     {
-        private IEnumerator<Token> _iterator;
+        private readonly IEnumerator<Token> _iterator;
 
         public TokenIterator(IEnumerable<Token> tokens)
         {
+            Current = new Token("", TokenKind.EqualsOperation, 0, 0); // dummy
             _iterator = tokens.GetEnumerator();
             Eof = false;
             NextToken();
@@ -23,7 +23,7 @@ namespace SimpleDB.Sql
         {
             if (_iterator.MoveNext())
             {
-                Current = _iterator.Current;
+                Current = _iterator.Current ?? throw new NullReferenceException();
             }
             else
             {

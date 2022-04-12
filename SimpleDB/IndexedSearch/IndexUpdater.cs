@@ -16,9 +16,9 @@ namespace SimpleDB.IndexedSearch
     internal class IndexUpdater : IIndexUpdater
     {
         private readonly Dictionary<string, List<IIndex>> _indexes;
-        private readonly IIndexFileFactory _indexFileFactory;
+        private readonly IIndexFileFactory? _indexFileFactory;
 
-        public IndexUpdater(IEnumerable<IIndex> indexes, IIndexFileFactory indexFileFactory)
+        public IndexUpdater(IEnumerable<IIndex> indexes, IIndexFileFactory? indexFileFactory)
         {
             _indexes = indexes.GroupBy(x => x.Meta.EntityName).ToDictionary(k => k.Key, v => v.ToList());
             _indexFileFactory = indexFileFactory;
@@ -152,7 +152,7 @@ namespace SimpleDB.IndexedSearch
 
         private void SaveIndexFile(EntityMeta entityMeta, IIndex index)
         {
-            var indexFile = _indexFileFactory.Make(entityMeta.EntityName, index.Meta.Name, entityMeta.PrimaryKeyFieldMeta.Type, entityMeta.FieldMetaCollection);
+            var indexFile = _indexFileFactory!.Make(entityMeta.EntityName, index.Meta.Name, entityMeta.PrimaryKeyFieldMeta.Type, entityMeta.FieldMetaCollection);
             indexFile.WriteIndex(index);
         }
 

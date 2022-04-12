@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using SimpleDB.Utils.EnumerableExtension;
 
 namespace SimpleDB.Core
 {
     internal static class EntityOperations
     {
-        public static TEntity Get<TEntity>(object id, Mapper<TEntity> mapper, IDictionary<object, PrimaryKey> primaryKeys, DataFile dataFile)
+        public static TEntity? GetOrDefault<TEntity>(object id, Mapper<TEntity> mapper, IDictionary<object, PrimaryKey> primaryKeys, DataFile dataFile)
         {
-            if (primaryKeys.ContainsKey(id) == false) return default(TEntity);
+            if (primaryKeys.ContainsKey(id) == false) return default;
             var primaryKey = primaryKeys[id];
             var fieldNumbers = mapper.FieldMetaCollection.Select(x => x.Number).ToHashSet();
             var fieldValueCollection = new FieldValueCollection();
@@ -66,6 +65,7 @@ namespace SimpleDB.Core
         public static void UpdateAllFields(FieldValueCollection fieldValueCollection, PrimaryKeyFile primaryKeyFile, DataFile dataFile)
         {
             var primaryKey = fieldValueCollection.PrimaryKey;
+            if (primaryKey == null) throw new DBEngineException("PrimaryKey in FieldValueCollection cannot be null");
             var updateResult = dataFile.Update(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldValueCollection);
             primaryKeyFile.UpdatePrimaryKey(primaryKey, updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset);
         }

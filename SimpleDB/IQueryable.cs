@@ -6,7 +6,7 @@ namespace SimpleDB
 {
     public interface IQueryable<TEntity>
     {
-        IQueryableSelect<TEntity> Select(Expression<Func<TEntity, object>> selectExpression = null);
+        IQueryableSelect<TEntity> Select(Expression<Func<TEntity, object>>? selectExpression = null);
 
         IQueryableSelect<TEntity> Where(Expression<Func<TEntity, bool>> whereExpression);
 
@@ -18,9 +18,9 @@ namespace SimpleDB
 
         List<TEntity> ToList();
 
-        int Update(Expression<Func<TEntity, TEntity>> updateExpression, Expression<Func<TEntity, bool>> whereExpression = null);
+        int Update(Expression<Func<TEntity, TEntity>> updateExpression, Expression<Func<TEntity, bool>>? whereExpression = null);
 
-        int Delete(Expression<Func<TEntity, bool>> whereExpression = null);
+        int Delete(Expression<Func<TEntity, bool>>? whereExpression = null);
 
         IMergeQueryResult<TEntity> Merge(Expression<Func<TEntity, object>> mergeFieldsExpression, IEnumerable<TEntity> entities);
 

@@ -7,9 +7,9 @@ namespace SimpleDB.Core
     {
         public byte Number { get; protected set; }
 
-        public string Name { get; private set; }
+        public string Name { get; }
 
-        public Type Type { get; private set; }
+        public Type Type { get; }
 
         public FieldSettings Settings { get; set; }
 
@@ -25,23 +25,24 @@ namespace SimpleDB.Core
             Type = type;
         }
 
-        public object GetDefaultValue()
+        public object? GetDefaultValue()
         {
             if (Type == typeof(bool)) return default(bool);
-            else if (Type == typeof(sbyte)) return default(sbyte);
-            else if (Type == typeof(byte)) return default(byte);
-            else if (Type == typeof(char)) return default(char);
-            else if (Type == typeof(short)) return default(short);
-            else if (Type == typeof(ushort)) return default(ushort);
-            else if (Type == typeof(int)) return default(int);
-            else if (Type == typeof(uint)) return default(uint);
-            else if (Type == typeof(long)) return default(long);
-            else if (Type == typeof(ulong)) return default(ulong);
-            else if (Type == typeof(float)) return default(float);
-            else if (Type == typeof(double)) return default(double);
-            else if (Type == typeof(decimal)) return default(decimal);
-            else if (Type == typeof(DateTime)) return default(DateTime);
-            else return null;
+            if (Type == typeof(sbyte)) return default(sbyte);
+            if (Type == typeof(byte)) return default(byte);
+            if (Type == typeof(char)) return default(char);
+            if (Type == typeof(short)) return default(short);
+            if (Type == typeof(ushort)) return default(ushort);
+            if (Type == typeof(int)) return default(int);
+            if (Type == typeof(uint)) return default(uint);
+            if (Type == typeof(long)) return default(long);
+            if (Type == typeof(ulong)) return default(ulong);
+            if (Type == typeof(float)) return default(float);
+            if (Type == typeof(double)) return default(double);
+            if (Type == typeof(decimal)) return default(decimal);
+            if (Type == typeof(DateTime)) return default(DateTime);
+
+            return null;
         }
 
         public override bool Equals(object obj)
@@ -113,7 +114,8 @@ namespace SimpleDB.Core
             if (type == FieldTypes.Double) return sizeof(double);
             if (type == FieldTypes.Decimal) return sizeof(decimal);
             if (type == FieldTypes.DateTime) return sizeof(long);
-            else throw new UnsupportedFieldTypeException();
+
+            throw new UnsupportedFieldTypeException();
         }
     }
 
@@ -137,28 +139,30 @@ namespace SimpleDB.Core
             if (type == FieldTypes.DateTime) return typeof(DateTime);
             if (type == FieldTypes.String) return typeof(string);
             if (type == FieldTypes.ByteArray) return typeof(byte[]);
-            else throw new UnsupportedFieldTypeException();
+
+            throw new UnsupportedFieldTypeException();
         }
 
         public static FieldTypes GetFieldType(Type type)
         {
             if (type == typeof(bool)) return FieldTypes.Bool;
-            else if (type == typeof(sbyte)) return FieldTypes.Sbyte;
-            else if (type == typeof(byte)) return FieldTypes.Byte;
-            else if (type == typeof(char)) return FieldTypes.Char;
-            else if (type == typeof(short)) return FieldTypes.Short;
-            else if (type == typeof(ushort)) return FieldTypes.UShort;
-            else if (type == typeof(int)) return FieldTypes.Int;
-            else if (type == typeof(uint)) return FieldTypes.UInt;
-            else if (type == typeof(long)) return FieldTypes.Long;
-            else if (type == typeof(ulong)) return FieldTypes.ULong;
-            else if (type == typeof(float)) return FieldTypes.Float;
-            else if (type == typeof(double)) return FieldTypes.Double;
-            else if (type == typeof(decimal)) return FieldTypes.Decimal;
-            else if (type == typeof(DateTime)) return FieldTypes.DateTime;
-            else if (type == typeof(string)) return FieldTypes.String;
-            else if (type == typeof(byte[])) return FieldTypes.ByteArray;
-            else return FieldTypes.Object;
+            if (type == typeof(sbyte)) return FieldTypes.Sbyte;
+            if (type == typeof(byte)) return FieldTypes.Byte;
+            if (type == typeof(char)) return FieldTypes.Char;
+            if (type == typeof(short)) return FieldTypes.Short;
+            if (type == typeof(ushort)) return FieldTypes.UShort;
+            if (type == typeof(int)) return FieldTypes.Int;
+            if (type == typeof(uint)) return FieldTypes.UInt;
+            if (type == typeof(long)) return FieldTypes.Long;
+            if (type == typeof(ulong)) return FieldTypes.ULong;
+            if (type == typeof(float)) return FieldTypes.Float;
+            if (type == typeof(double)) return FieldTypes.Double;
+            if (type == typeof(decimal)) return FieldTypes.Decimal;
+            if (type == typeof(DateTime)) return FieldTypes.DateTime;
+            if (type == typeof(string)) return FieldTypes.String;
+            if (type == typeof(byte[])) return FieldTypes.ByteArray;
+
+            return FieldTypes.Object;
         }
     }
 

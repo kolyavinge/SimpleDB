@@ -3,7 +3,6 @@ using System.Linq;
 using SimpleDB.Core;
 using SimpleDB.IndexedSearch;
 using SimpleDB.Queries;
-using SimpleDB.Utils.EnumerableExtension;
 
 namespace SimpleDB.QueryExecutors
 {
@@ -61,7 +60,7 @@ namespace SimpleDB.QueryExecutors
                 if (_indexHolder.AnyIndexContainsFields(query.EntityName, whereFieldNumbers))
                 {
                     var analyzer = new WhereClauseAnalyzer(query.EntityName, _primaryKeysDictionary, _fieldValueReader, _indexHolder);
-                    primaryKeysForDelete.AddRange(analyzer.GetResult(query.WhereClause).Select(x => x.PrimaryKey));
+                    primaryKeysForDelete.AddRange(analyzer.GetResult(query.WhereClause).Select(x => x.PrimaryKey!));
                 }
                 else
                 {

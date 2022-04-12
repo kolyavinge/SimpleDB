@@ -9,7 +9,7 @@ namespace SimpleDB.Linq
 {
     internal class SelectClauseBuilder
     {
-        public SelectClause Build<TEntity>(Mapper<TEntity> mapper, Expression<Func<TEntity, object>> selectExpression)
+        public SelectClause Build<TEntity>(Mapper<TEntity> mapper, Expression<Func<TEntity, object>>? selectExpression)
         {
             var selectedItems = new List<SelectClause.SelectClauseItem>();
             if (selectExpression == null)

@@ -10,11 +10,11 @@ namespace SimpleDB.DataStructures
         public sealed class Node
         {
             public readonly TKey Key;
-            public TValue Value;
+            public TValue? Value;
             public Color Color;
-            public Node Parent;
-            public Node Left;
-            public Node Right;
+            public Node? Parent;
+            public Node? Left;
+            public Node? Right;
 
             public Node(TKey key)
             {
@@ -51,7 +51,7 @@ namespace SimpleDB.DataStructures
             }
         }
 
-        private static readonly Node _dummyNode = new Node(default) { Color = Color.Black };
+        private static readonly Node DummyNode = new(default) { Color = Color.Black };
 
         public RBTree() { }
 
@@ -60,14 +60,14 @@ namespace SimpleDB.DataStructures
             Root = root;
         }
 
-        public Node Root { get; private set; }
+        public Node? Root { get; private set; }
 
         public void Clear()
         {
             Root = null;
         }
 
-        public Node Find(TKey key)
+        public Node? Find(TKey key)
         {
             var node = Root;
             while (node != null)
@@ -95,7 +95,7 @@ namespace SimpleDB.DataStructures
         private Node NodeInsertOrGetExists(TKey key)
         {
             Node node;
-            var parent = Root;
+            var parent = Root!;
             while (true)
             {
                 var compareResult = key.CompareTo(parent.Key);
@@ -132,7 +132,7 @@ namespace SimpleDB.DataStructures
         private void InsertFixup(Node node)
         {
             var grandParent = GetGrandParent(node);
-            if (grandParent != null && node.Parent.Color == Color.Red)
+            if (grandParent != null && node.Parent!.Color == Color.Red)
             {
                 var nodeLeftChild = IsLeftChild(node);
                 var nodeRightChild = IsRightChild(node);
@@ -143,8 +143,8 @@ namespace SimpleDB.DataStructures
                     parentLeftChild && grandParent.Right != null && grandParent.Right.Color == Color.Red)
                 {
                     grandParent.Color = Color.Red;
-                    grandParent.Left.Color = Color.Black;
-                    grandParent.Right.Color = Color.Black;
+                    grandParent.Left!.Color = Color.Black;
+                    grandParent.Right!.Color = Color.Black;
                     InsertFixup(grandParent);
                 }
                 // uncle = black (triangle)
@@ -190,7 +190,7 @@ namespace SimpleDB.DataStructures
             }
         }
 
-        public Node Delete(TKey key)
+        public Node? Delete(TKey key)
         {
             var deleted = Find(key);
             if (deleted == null) return null;
@@ -198,20 +198,20 @@ namespace SimpleDB.DataStructures
             // no children
             if (deleted.Left == null && deleted.Right == null)
             {
-                replacement = _dummyNode;
+                replacement = DummyNode;
                 x = replacement;
             }
             // one child
             else if (deleted.Left == null || deleted.Right == null)
             {
-                replacement = deleted.Left ?? deleted.Right;
+                replacement = deleted.Left ?? deleted.Right ?? throw new RBTreeException();
                 x = replacement;
             }
             // two children
             else
             {
                 replacement = GetHighestNode(deleted.Left);
-                x = replacement.Left ?? _dummyNode;
+                x = replacement.Left ?? DummyNode;
                 ReplaceDeletedNode(replacement, x);
             }
             ReplaceDeletedNode(deleted, replacement);
@@ -231,7 +231,7 @@ namespace SimpleDB.DataStructures
 
         private void DeleteDummyIfNeeded(Node dummy)
         {
-            if (dummy == _dummyNode && dummy.Parent != null)
+            if (dummy == DummyNode && dummy.Parent != null)
             {
                 if (IsLeftChild(dummy)) dummy.Parent.Left = null;
                 else dummy.Parent.Right = null;
@@ -244,7 +244,7 @@ namespace SimpleDB.DataStructures
             // case 1
             if (node.Parent == null)
             {
-                if (Root == _dummyNode) Root = null;
+                if (Root == DummyNode) Root = null;
                 return;
             }
             // case 2
@@ -280,7 +280,7 @@ namespace SimpleDB.DataStructures
             {
                 if (IsLeftChild(node) &&
                     (sibling.Right == null || sibling.Right.Color == Color.Black) &&
-                    sibling.Left.Color == Color.Red)
+                    sibling.Left!.Color == Color.Red)
                 {
                     sibling.Color = Color.Red;
                     sibling.Left.Color = Color.Black;
@@ -289,7 +289,7 @@ namespace SimpleDB.DataStructures
                 }
                 else if (IsRightChild(node) &&
                     (sibling.Left == null || sibling.Left.Color == Color.Black) &&
-                    sibling.Right.Color == Color.Red)
+                    sibling.Right!.Color == Color.Red)
                 {
                     sibling.Color = Color.Red;
                     sibling.Right.Color = Color.Black;
@@ -333,8 +333,8 @@ namespace SimpleDB.DataStructures
             {
                 replacement.Right = null;
             }
-            if (IsLeftChild(node)) node.Parent.Left = replacement;
-            else if (IsRightChild(node)) node.Parent.Right = replacement;
+            if (IsLeftChild(node)) node.Parent!.Left = replacement;
+            else if (IsRightChild(node)) node.Parent!.Right = replacement;
             if (node == Root) Root = replacement;
         }
 
@@ -346,14 +346,14 @@ namespace SimpleDB.DataStructures
 
         private void LeftRotate(Node rotated)
         {
-            var newParent = rotated.Right;
+            var newParent = rotated.Right ?? throw new RBTreeException();
             rotated.Right = newParent.Left;
             if (newParent.Left != null) newParent.Left.Parent = rotated;
             newParent.Parent = rotated.Parent;
             if (rotated != Root)
             {
-                if (IsLeftChild(rotated)) rotated.Parent.Left = newParent;
-                else rotated.Parent.Right = newParent;
+                if (IsLeftChild(rotated)) rotated.Parent!.Left = newParent;
+                else rotated.Parent!.Right = newParent;
             }
             else
             {
@@ -365,14 +365,14 @@ namespace SimpleDB.DataStructures
 
         private void RightRotate(Node rotated)
         {
-            var newParent = rotated.Left;
+            var newParent = rotated.Left ?? throw new RBTreeException();
             rotated.Left = newParent.Right;
             if (newParent.Right != null) newParent.Right.Parent = rotated;
             newParent.Parent = rotated.Parent;
             if (rotated != Root)
             {
-                if (IsRightChild(rotated)) rotated.Parent.Right = newParent;
-                else rotated.Parent.Left = newParent;
+                if (IsRightChild(rotated)) rotated.Parent!.Right = newParent;
+                else rotated.Parent!.Left = newParent;
             }
             else
             {
@@ -386,16 +386,21 @@ namespace SimpleDB.DataStructures
 
         private bool IsRightChild(Node node) { return node.Parent != null && node.Parent.Right == node; }
 
-        private Node GetGrandParent(Node node) { return node.Parent != null && node.Parent.Parent != null ? node.Parent.Parent : null; }
+        private Node? GetGrandParent(Node node) { return node.Parent != null && node.Parent.Parent != null ? node.Parent.Parent : null; }
 
         private Node GetSibling(Node node)
         {
             if (node.Parent != null)
             {
-                if (IsLeftChild(node)) return node.Parent.Right;
-                else return node.Parent.Left;
+                if (IsLeftChild(node)) return node.Parent.Right ?? throw new RBTreeException();
+                else return node.Parent.Left ?? throw new RBTreeException();
             }
-            else return null;
+
+            throw new RBTreeException();
         }
+    }
+
+    internal class RBTreeException : Exception
+    {
     }
 }

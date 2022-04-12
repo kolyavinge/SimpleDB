@@ -41,13 +41,7 @@ namespace SimpleDB.Core
                     fieldMetaCollection.Add(new FieldMeta(number, name, type) { Settings = new FieldSettings { Compressed = compressed } });
                 }
 
-                return new MetaData
-                {
-                    EntityName = entityName,
-                    PrimaryKeyType = primaryKeyType,
-                    PrimaryKeyName = primaryKeyName,
-                    FieldMetaCollection = fieldMetaCollection
-                };
+                return new MetaData(entityName, primaryKeyType, primaryKeyName, fieldMetaCollection);
             }
         }
 
@@ -105,6 +99,14 @@ namespace SimpleDB.Core
         public string PrimaryKeyName { get; set; }
         public IEnumerable<FieldMeta> FieldMetaCollection { get; set; }
 
+        public MetaData(string entityName, Type primaryKeyType, string primaryKeyName, IEnumerable<FieldMeta> fieldMetaCollection)
+        {
+            EntityName = entityName;
+            PrimaryKeyType = primaryKeyType;
+            PrimaryKeyName = primaryKeyName;
+            FieldMetaCollection = fieldMetaCollection;
+        }
+
         public override bool Equals(object obj)
         {
             return obj is MetaData data &&
@@ -127,22 +129,11 @@ namespace SimpleDB.Core
 
         public static MetaData MakeFromMapper<TEntity>(Mapper<TEntity> mapper)
         {
-            return Make(
+            return new MetaData(
                 mapper.EntityName,
                 mapper.PrimaryKeyMapping.PropertyType,
                 mapper.PrimaryKeyMapping.PropertyName,
                 mapper.FieldMetaCollection);
-        }
-
-        public static MetaData Make(string entityName, Type primaryKeyType, string primaryKeyName, IEnumerable<FieldMeta> fieldMetaCollection)
-        {
-            return new MetaData
-            {
-                EntityName = entityName,
-                PrimaryKeyType = primaryKeyType,
-                PrimaryKeyName = primaryKeyName,
-                FieldMetaCollection = fieldMetaCollection
-            };
         }
     }
 

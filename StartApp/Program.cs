@@ -16,8 +16,8 @@ namespace StartApp
             var doDelete = 1;
             var doQuery = 1;
             var doMerge = 1;
-            var doStatistics = 0;
-            var doDefragmentation = 0;
+            var doStatistics = 1;
+            var doDefragmentation = 1;
 
             var databaseFilePath = @"D:\Projects\SimpleDB\StartApp\bin\Debug\netcoreapp3.1\StartApp.database";
             if (doInsert == 1)
@@ -95,10 +95,10 @@ namespace StartApp
                 Console.WriteLine("========== Get ==========");
                 var personIdList = Enumerable.Range(0, count).Cast<object>().ToList();
                 sw = System.Diagnostics.Stopwatch.StartNew();
-                collection.Get(personIdList).ToList();
+                collection.GetOrDefault(personIdList).ToList();
                 sw.Stop();
                 Console.WriteLine(sw.Elapsed);
-                var result = collection.Get(new object[] { 0, 1, count - 2, count - 1 }).ToList();
+                var result = collection.GetOrDefault(new object[] { 0, 1, count - 2, count - 1 }).ToList();
                 Console.WriteLine(result[0]);
                 Console.WriteLine(result[1]);
                 Console.WriteLine(result[2]);
@@ -162,7 +162,7 @@ namespace StartApp
             if (doGet == 1)
             {
                 Console.WriteLine("========== Get ==========");
-                var result = collection.Get(new object[] { 0, 1, count - 2, count - 1 }).ToList();
+                var result = collection.GetOrDefault(new object[] { 0, 1, count - 2, count - 1 }).ToList();
                 Console.WriteLine(result[0]);
                 Console.WriteLine(result[1]);
                 Console.WriteLine(result[2]);
@@ -197,8 +197,8 @@ namespace StartApp
                 {
                     Console.WriteLine(String.Format("Id {0} not exists", 0));
                 }
-                Console.WriteLine(collection.Get(0) == null ? "collection.Get(0): null" : "collection.Get(0): !!! not null !!!");
-                Console.WriteLine("collection.Get(1): " + collection.Get(1));
+                Console.WriteLine(collection.GetOrDefault(0) == null ? "collection.Get(0): null" : "collection.Get(0): !!! not null !!!");
+                Console.WriteLine("collection.Get(1): " + collection.GetOrDefault(1));
             }
 
             if (doQuery == 1)
@@ -253,8 +253,8 @@ namespace StartApp
                 sw = System.Diagnostics.Stopwatch.StartNew();
                 var updateQueryResult = collection.Query()
                     .Update(x => new Person { Name = "Linq new name" }, x => x.Id == 100 || x.Id == 101);
-                Console.WriteLine(collection.Get(100));
-                Console.WriteLine(collection.Get(101));
+                Console.WriteLine(collection.GetOrDefault(100));
+                Console.WriteLine(collection.GetOrDefault(101));
                 sw.Stop();
                 Console.WriteLine(sw.Elapsed);
 

@@ -9,14 +9,18 @@ namespace SimpleDB.Sql
 {
     internal class WhereClauseParser
     {
-        private EntityMeta _entityMeta;
-        private TokenIterator _tokenIterator;
+        private readonly EntityMeta _entityMeta;
+        private readonly TokenIterator _tokenIterator;
 
-        public WhereClause GetClause(EntityMeta entityMeta, TokenIterator tokenIterator)
+        public WhereClauseParser(EntityMeta entityMeta, TokenIterator tokenIterator)
         {
             if (tokenIterator.Current.Kind != TokenKind.WhereKeyword) throw new InvalidQueryException();
             _entityMeta = entityMeta;
             _tokenIterator = tokenIterator;
+        }
+
+        public WhereClause GetClause()
+        {
             _tokenIterator.NextToken();
             var root = Exp1();
 

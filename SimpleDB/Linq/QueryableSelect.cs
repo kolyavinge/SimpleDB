@@ -10,16 +10,16 @@ namespace SimpleDB.Linq
     {
         private readonly SelectQueryExecutor _queryExecutor;
         private readonly Mapper<TEntity> _mapper;
-        private Expression<Func<TEntity, object>> _selectExpression;
-        private Expression<Func<TEntity, bool>> _whereExpression;
-        private List<OrderByExpressionItem<TEntity>> _orderbyExpressionItems;
+        private readonly Expression<Func<TEntity, object>>? _selectExpression;
+        private Expression<Func<TEntity, bool>>? _whereExpression;
+        private readonly List<OrderByExpressionItem<TEntity>> _orderbyExpressionItems;
         private int? _skipValue;
         private int? _limitValue;
 
         public QueryableSelect(
             SelectQueryExecutor queryExecutor,
             Mapper<TEntity> mapper,
-            Expression<Func<TEntity, object>> selectExpression)
+            Expression<Func<TEntity, object>>? selectExpression)
         {
             _queryExecutor = queryExecutor;
             _mapper = mapper;

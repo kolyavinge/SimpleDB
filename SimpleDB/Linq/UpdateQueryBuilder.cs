@@ -9,12 +9,12 @@ namespace SimpleDB.Linq
     {
         private readonly Mapper<TEntity> _mapper;
         private readonly Expression<Func<TEntity, TEntity>> _updateExpression;
-        private readonly Expression<Func<TEntity, bool>> _whereExpression;
+        private readonly Expression<Func<TEntity, bool>>? _whereExpression;
 
         public UpdateQueryBuilder(
             Mapper<TEntity> mapper,
             Expression<Func<TEntity, TEntity>> updateExpression,
-            Expression<Func<TEntity, bool>> whereExpression = null)
+            Expression<Func<TEntity, bool>>? whereExpression = null)
         {
             _mapper = mapper;
             _updateExpression = updateExpression;

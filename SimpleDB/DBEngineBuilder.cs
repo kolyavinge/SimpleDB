@@ -11,11 +11,11 @@ namespace SimpleDB
 {
     public sealed class DBEngineBuilder
     {
-        private readonly List<MapperBuilder> _mapperBuilders = new List<MapperBuilder>();
-        private readonly List<IndexBuilder> _indexBuilders = new List<IndexBuilder>();
-        private string _databaseFilePath;
-        private IFileSystem _fileSystem;
-        internal CollectionFactory _collectionFactory;
+        private readonly List<MapperBuilder> _mapperBuilders = new();
+        private readonly List<IndexBuilder> _indexBuilders = new();
+        private string? _databaseFilePath;
+        private IFileSystem? _fileSystem;
+        internal CollectionFactory? _collectionFactory;
 
         public static DBEngineBuilder Make()
         {
@@ -40,7 +40,7 @@ namespace SimpleDB
 
         public IIndexBuilder<TEntity> Index<TEntity>()
         {
-            var indexBuilder = new IndexBuilder<TEntity>(_fileSystem);
+            var indexBuilder = new IndexBuilder<TEntity>(_fileSystem!);
             _indexBuilders.Add(indexBuilder);
             return indexBuilder;
         }
@@ -49,13 +49,13 @@ namespace SimpleDB
         {
             var mappers = _mapperBuilders.Select(x => x.Build()).ToList();
             var mapperHolder = new MapperHolder(mappers);
-            var fileBuilder = new FileBuilder(_fileSystem);
+            var fileBuilder = new FileBuilder(_fileSystem!);
             fileBuilder.CreateNewFiles(mappers);
-            var indexes = _indexBuilders.Select(x => x.BuildFunction(mapperHolder)).ToList();
+            var indexes = _indexBuilders.Select(x => x.BuildFunction!(mapperHolder)).ToList();
             var indexHolder = new IndexHolder(indexes);
-            var indexUpdater = new IndexUpdater(indexes, new IndexFileFactory(_fileSystem));
+            var indexUpdater = new IndexUpdater(indexes, new IndexFileFactory(_fileSystem!));
 
-            return new DBEngine(_collectionFactory, mapperHolder, indexHolder, indexUpdater);
+            return new DBEngine(_collectionFactory!, mapperHolder, indexHolder, indexUpdater);
         }
     }
 
@@ -74,7 +74,7 @@ namespace SimpleDB
 
     public delegate void PrimaryKeySetFunctionDelegate<in TEntity>(object primaryKeyValue, TEntity entity);
 
-    public delegate void FieldSetFunctionDelegate<in TEntity>(byte fieldNumber, object fieldValue, TEntity entity);
+    public delegate void FieldSetFunctionDelegate<in TEntity>(byte fieldNumber, object? fieldValue, TEntity entity);
 
     public interface IIndexBuilder<TEntity>
     {

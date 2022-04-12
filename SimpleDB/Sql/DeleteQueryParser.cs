@@ -40,8 +40,8 @@ namespace SimpleDB.Sql
                 case State.Where:
                     if (tokenIter.Current.Kind == TokenKind.WhereKeyword)
                     {
-                        var whereClauseParser = new WhereClauseParser();
-                        deleteQuery.WhereClause = whereClauseParser.GetClause(entityMeta, tokenIter);
+                        var whereClauseParser = new WhereClauseParser(entityMeta, tokenIter);
+                        deleteQuery.WhereClause = whereClauseParser.GetClause();
                     }
                     goto case State.End;
                 case State.End:

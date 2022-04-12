@@ -33,18 +33,18 @@ namespace SimpleDB.QueryExecutors
             }
         }
 
-        private WhereClause.WhereClauseItem _whereClauseItem;
-        private AnalyzedTreeItem _right;
-        private AnalyzedTreeItem _left;
+        private readonly WhereClause.WhereClauseItem _whereClauseItem;
+        private AnalyzedTreeItem? _right;
+        private AnalyzedTreeItem? _left;
 
         public AnalyzedTreeItem(WhereClause.WhereClauseItem whereClauseItem)
         {
             _whereClauseItem = whereClauseItem;
         }
 
-        public AnalyzedTreeItem Left
+        public AnalyzedTreeItem? Left
         {
-            get { return _left; }
+            get => _left;
             set
             {
                 _left = value;
@@ -52,9 +52,9 @@ namespace SimpleDB.QueryExecutors
             }
         }
 
-        public AnalyzedTreeItem Right
+        public AnalyzedTreeItem? Right
         {
-            get { return _right; }
+            get => _right;
             set
             {
                 _right = value;
@@ -62,23 +62,17 @@ namespace SimpleDB.QueryExecutors
             }
         }
 
-        public AnalyzedTreeItem Parent { get; set; }
+        public AnalyzedTreeItem? Parent { get; set; }
 
-        public List<FieldValueCollection> IndexResult { get; set; }
+        public List<FieldValueCollection>? IndexResult { get; set; }
 
-        public HashSet<object> PrimaryKeys { get; set; }
+        public HashSet<object>? PrimaryKeys { get; set; }
 
         public bool IsNotApplied { get; set; }
 
-        public bool IsFieldOperation
-        {
-            get { return _whereClauseItem is WhereClause.FieldOperation; }
-        }
+        public bool IsFieldOperation => _whereClauseItem is WhereClause.FieldOperation;
 
-        public Type OperationType
-        {
-            get { return _whereClauseItem.GetType(); }
-        }
+        public Type OperationType => _whereClauseItem.GetType();
 
         public byte FieldNumber
         {
@@ -97,53 +91,29 @@ namespace SimpleDB.QueryExecutors
             get
             {
                 if (_whereClauseItem is WhereClause.Constant) return ((WhereClause.Constant)_whereClauseItem).Value;
-                else if (_whereClauseItem.Right is WhereClause.Constant) return ((WhereClause.Constant)_whereClauseItem.Right).Value;
-                else if (_whereClauseItem.Right is WhereClause.Set) return ((WhereClause.Set)_whereClauseItem.Right).Value;
-                else throw new InvalidOperationException();
+                if (_whereClauseItem.Right is WhereClause.Constant) return ((WhereClause.Constant)_whereClauseItem.Right).Value;
+                if (_whereClauseItem.Right is WhereClause.Set) return ((WhereClause.Set)_whereClauseItem.Right).Value;
+                throw new InvalidOperationException();
             }
         }
 
-        public bool IsIndexed
-        {
-            get { return IndexResult != null; }
-        }
+        public bool IsIndexed => IndexResult != null;
 
-        public bool AndOperation
-        {
-            get
-            {
-                return
-                    !IsNotApplied && _whereClauseItem is WhereClause.AndOperation ||
-                    IsNotApplied && _whereClauseItem is WhereClause.OrOperation;
-            }
-        }
+        public bool AndOperation =>
+            !IsNotApplied && _whereClauseItem is WhereClause.AndOperation ||
+            IsNotApplied && _whereClauseItem is WhereClause.OrOperation;
 
-        public bool OrOperation
-        {
-            get
-            {
-                return
-                    !IsNotApplied && _whereClauseItem is WhereClause.OrOperation ||
-                    IsNotApplied && _whereClauseItem is WhereClause.AndOperation;
-            }
-        }
+        public bool OrOperation =>
+            !IsNotApplied && _whereClauseItem is WhereClause.OrOperation ||
+            IsNotApplied && _whereClauseItem is WhereClause.AndOperation;
 
-        public bool NotOperation
-        {
-            get { return _whereClauseItem is WhereClause.NotOperation; }
-        }
+        public bool NotOperation => _whereClauseItem is WhereClause.NotOperation;
 
-        public bool IsLeftChild
-        {
-            get { return Parent != null && Parent.Left == this; }
-        }
+        public bool IsLeftChild => Parent != null && Parent.Left == this;
 
-        public bool IsRightChild
-        {
-            get { return Parent != null && Parent.Right == this; }
-        }
+        public bool IsRightChild => Parent != null && Parent.Right == this;
 
-        public AnalyzedTreeItem Sibling
+        public AnalyzedTreeItem? Sibling
         {
             get
             {
@@ -161,29 +131,31 @@ namespace SimpleDB.QueryExecutors
         {
             if (IsIndexed)
             {
-                return PrimaryKeys.Contains(fieldValueCollection.PrimaryKey.Value);
+                return PrimaryKeys!.Contains(fieldValueCollection.PrimaryKey!.Value);
             }
             else
             {
-                var value = (bool)_whereClauseItem.GetValue(fieldValueCollection);
-                if (IsNotApplied) value = !value;
-                return value;
+                var value = _whereClauseItem.GetValue(fieldValueCollection);
+                if (value == null) throw new DBEngineException($"{GetType().Namespace} is invalid");
+                var boolValue = (bool)value;
+                if (IsNotApplied) boolValue = !boolValue;
+                return boolValue;
             }
         }
 
-        public void ApplyAnd(IEnumerable<object> primaryKeys)
+        public void ApplyAnd(IReadOnlyCollection<object> primaryKeys)
         {
             foreach (var item in ToEnumerable().Where(x => x.PrimaryKeys != null))
             {
-                item.PrimaryKeys.IntersectWith(primaryKeys);
+                item.PrimaryKeys!.IntersectWith(primaryKeys);
             }
         }
 
-        public void ApplyOr(IEnumerable<object> primaryKeys)
+        public void ApplyOr(IReadOnlyCollection<object> primaryKeys)
         {
             foreach (var item in ToEnumerable().Where(x => x.PrimaryKeys != null))
             {
-                item.PrimaryKeys.ExceptWith(primaryKeys);
+                item.PrimaryKeys!.ExceptWith(primaryKeys);
             }
         }
 

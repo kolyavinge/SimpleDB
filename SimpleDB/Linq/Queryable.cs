@@ -17,7 +17,7 @@ namespace SimpleDB.Linq
             _mapper = mapper;
         }
 
-        public IQueryableSelect<TEntity> Select(Expression<Func<TEntity, object>> selectExpression = null)
+        public IQueryableSelect<TEntity> Select(Expression<Func<TEntity, object>>? selectExpression = null)
         {
             return MakeQueryableSelect(selectExpression);
         }
@@ -52,7 +52,7 @@ namespace SimpleDB.Linq
             return MakeQueryableSelect().Count();
         }
 
-        public int Update(Expression<Func<TEntity, TEntity>> updateExpression, Expression<Func<TEntity, bool>> whereExpression = null)
+        public int Update(Expression<Func<TEntity, TEntity>> updateExpression, Expression<Func<TEntity, bool>>? whereExpression = null)
         {
             var queryBuilder = new UpdateQueryBuilder<TEntity>(
                 _mapper,
@@ -65,7 +65,7 @@ namespace SimpleDB.Linq
             return result;
         }
 
-        public int Delete(Expression<Func<TEntity, bool>> whereExpression = null)
+        public int Delete(Expression<Func<TEntity, bool>>? whereExpression = null)
         {
             var queryBuilder = new DeleteQueryBuilder<TEntity>(
                 _mapper,
@@ -90,7 +90,7 @@ namespace SimpleDB.Linq
             return result;
         }
 
-        private IQueryableSelect<TEntity> MakeQueryableSelect(Expression<Func<TEntity, object>> selectExpression = null)
+        private IQueryableSelect<TEntity> MakeQueryableSelect(Expression<Func<TEntity, object>>? selectExpression = null)
         {
             var queryExecutor = _queryExecutorFactory.MakeSelectQueryExecutor();
             return new QueryableSelect<TEntity>(queryExecutor, _mapper, selectExpression);

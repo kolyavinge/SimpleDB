@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using SimpleDB.Core;
 using SimpleDB.Utils;
-using SimpleDB.Utils.EnumerableExtension;
 
 namespace SimpleDB.Queries
 {
@@ -19,8 +18,9 @@ namespace SimpleDB.Queries
 
         public bool GetValue(FieldValueCollection fieldValueCollection)
         {
-            var value = (bool)Root.GetValue(fieldValueCollection);
-            return value;
+            var value = Root.GetValue(fieldValueCollection);
+            if (value == null) throw new DBEngineException("WhereClause incorrect");
+            return (bool)value;
         }
 
         public IEnumerable<byte> GetAllFieldNumbers()
@@ -30,32 +30,32 @@ namespace SimpleDB.Queries
 
         public abstract class WhereClauseItem
         {
-            private WhereClauseItem _left;
-            private WhereClauseItem _right;
+            private WhereClauseItem? _left;
+            private WhereClauseItem? _right;
 
-            public WhereClauseItem Parent { get; private set; }
+            public WhereClauseItem? Parent { get; private set; }
 
-            public WhereClauseItem Left
+            public WhereClauseItem? Left
             {
-                get { return _left; }
+                get => _left;
                 set
                 {
                     _left = value;
-                    _left.Parent = this;
+                    if (_left != null) _left.Parent = this;
                 }
             }
 
-            public WhereClauseItem Right
+            public WhereClauseItem? Right
             {
-                get { return _right; }
+                get => _right;
                 set
                 {
                     _right = value;
-                    _right.Parent = this;
+                    if (_right != null) _right.Parent = this;
                 }
             }
 
-            public WhereClauseItem GetSibling()
+            public WhereClauseItem? GetSibling()
             {
                 if (Parent == null) return null;
                 return Parent.Left == this ? Parent.Right : Parent.Left;
@@ -66,7 +66,7 @@ namespace SimpleDB.Queries
                 return TreeUtils.ToEnumerable(this, n => n.Left, n => n.Right);
             }
 
-            public abstract object GetValue(FieldValueCollection fieldValueCollection);
+            public abstract object? GetValue(FieldValueCollection fieldValueCollection);
         }
 
         public abstract class FieldOperation : WhereClauseItem
@@ -83,14 +83,14 @@ namespace SimpleDB.Queries
 
             public override object GetValue(FieldValueCollection fieldValueCollection)
             {
-                var leftValue = Left.GetValue(fieldValueCollection);
-                var rightValue = Right.GetValue(fieldValueCollection);
+                var leftValue = Left!.GetValue(fieldValueCollection);
+                var rightValue = Right!.GetValue(fieldValueCollection);
                 return SmartComparer.AreEquals(leftValue, rightValue);
             }
 
             public override string ToString()
             {
-                return String.Format("Equals({0}, {1})", Left, Right);
+                return $"Equals({Left}, {Right})";
             }
         }
 
@@ -101,15 +101,16 @@ namespace SimpleDB.Queries
                 Left = left;
             }
 
-            public override object GetValue(FieldValueCollection fieldValueCollection)
+            public override object? GetValue(FieldValueCollection fieldValueCollection)
             {
-                var leftValue = (bool)Left.GetValue(fieldValueCollection);
-                return leftValue == false;
+                var leftValue = Left!.GetValue(fieldValueCollection);
+                if (leftValue == null) throw new DBEngineException("WhereClause incorrect");
+                return (bool)leftValue == false;
             }
 
             public override string ToString()
             {
-                return String.Format("Not({0})", Left);
+                return $"Not({Left})";
             }
         }
 
@@ -123,14 +124,17 @@ namespace SimpleDB.Queries
 
             public override object GetValue(FieldValueCollection fieldValueCollection)
             {
-                var leftValue = (bool)Left.GetValue(fieldValueCollection);
-                var rightValue = (bool)Right.GetValue(fieldValueCollection);
-                return leftValue && rightValue;
+                var leftValue = Left!.GetValue(fieldValueCollection);
+                var rightValue = Right!.GetValue(fieldValueCollection);
+                if (leftValue == null) throw new DBEngineException("WhereClause incorrect");
+                if (rightValue == null) throw new DBEngineException("WhereClause incorrect");
+
+                return (bool)leftValue && (bool)rightValue;
             }
 
             public override string ToString()
             {
-                return String.Format("And({0}, {1})", Left, Right);
+                return $"And({Left}, {Right})";
             }
         }
 
@@ -144,14 +148,17 @@ namespace SimpleDB.Queries
 
             public override object GetValue(FieldValueCollection fieldValueCollection)
             {
-                var leftValue = (bool)Left.GetValue(fieldValueCollection);
-                var rightValue = (bool)Right.GetValue(fieldValueCollection);
-                return leftValue || rightValue;
+                var leftValue = Left!.GetValue(fieldValueCollection);
+                var rightValue = Right!.GetValue(fieldValueCollection);
+                if (leftValue == null) throw new DBEngineException("WhereClause incorrect");
+                if (rightValue == null) throw new DBEngineException("WhereClause incorrect");
+
+                return (bool)leftValue || (bool)rightValue;
             }
 
             public override string ToString()
             {
-                return String.Format("Or({0}, {1})", Left, Right);
+                return $"Or({Left}, {Right})";
             }
         }
 
@@ -163,16 +170,16 @@ namespace SimpleDB.Queries
                 Right = right;
             }
 
-            public override object GetValue(FieldValueCollection fieldValueCollection)
+            public override object? GetValue(FieldValueCollection fieldValueCollection)
             {
-                var leftValue = Left.GetValue(fieldValueCollection);
-                var rightValue = Right.GetValue(fieldValueCollection);
+                var leftValue = Left!.GetValue(fieldValueCollection);
+                var rightValue = Right!.GetValue(fieldValueCollection);
                 return SmartComparer.Compare(leftValue, rightValue) < 0;
             }
 
             public override string ToString()
             {
-                return String.Format("Less({0}, {1})", Left, Right);
+                return $"Less({Left}, {Right})";
             }
         }
 
@@ -184,16 +191,16 @@ namespace SimpleDB.Queries
                 Right = right;
             }
 
-            public override object GetValue(FieldValueCollection fieldValueCollection)
+            public override object? GetValue(FieldValueCollection fieldValueCollection)
             {
-                var leftValue = Left.GetValue(fieldValueCollection);
-                var rightValue = Right.GetValue(fieldValueCollection);
+                var leftValue = Left!.GetValue(fieldValueCollection);
+                var rightValue = Right!.GetValue(fieldValueCollection);
                 return SmartComparer.Compare(leftValue, rightValue) > 0;
             }
 
             public override string ToString()
             {
-                return String.Format("Great({0}, {1})", Left, Right);
+                return $"Great({Left}, {Right})";
             }
         }
 
@@ -205,16 +212,16 @@ namespace SimpleDB.Queries
                 Right = right;
             }
 
-            public override object GetValue(FieldValueCollection fieldValueCollection)
+            public override object? GetValue(FieldValueCollection fieldValueCollection)
             {
-                var leftValue = Left.GetValue(fieldValueCollection);
-                var rightValue = Right.GetValue(fieldValueCollection);
+                var leftValue = Left!.GetValue(fieldValueCollection);
+                var rightValue = Right!.GetValue(fieldValueCollection);
                 return SmartComparer.Compare(leftValue, rightValue) < 0 || SmartComparer.Compare(leftValue, rightValue) == 0;
             }
 
             public override string ToString()
             {
-                return String.Format("LessOrEquals({0}, {1})", Left, Right);
+                return $"LessOrEquals({Left}, {Right})";
             }
         }
 
@@ -226,16 +233,16 @@ namespace SimpleDB.Queries
                 Right = right;
             }
 
-            public override object GetValue(FieldValueCollection fieldValueCollection)
+            public override object? GetValue(FieldValueCollection fieldValueCollection)
             {
-                var leftValue = Left.GetValue(fieldValueCollection);
-                var rightValue = Right.GetValue(fieldValueCollection);
+                var leftValue = Left!.GetValue(fieldValueCollection);
+                var rightValue = Right!.GetValue(fieldValueCollection);
                 return SmartComparer.Compare(leftValue, rightValue) > 0 || SmartComparer.Compare(leftValue, rightValue) == 0;
             }
 
             public override string ToString()
             {
-                return String.Format("GreatOrEquals({0}, {1})", Left, Right);
+                return $"GreatOrEquals({Left}, {Right})";
             }
         }
 
@@ -249,14 +256,17 @@ namespace SimpleDB.Queries
 
             public override object GetValue(FieldValueCollection fieldValueCollection)
             {
-                var leftValue = (string)Left.GetValue(fieldValueCollection);
-                var rightValue = (string)Right.GetValue(fieldValueCollection);
-                return leftValue.Contains(rightValue);
+                var leftValue = Left!.GetValue(fieldValueCollection);
+                var rightValue = Right!.GetValue(fieldValueCollection);
+                if (leftValue == null) throw new DBEngineException("WhereClause incorrect");
+                if (rightValue == null) throw new DBEngineException("WhereClause incorrect");
+
+                return ((string)leftValue).Contains((string)rightValue);
             }
 
             public override string ToString()
             {
-                return String.Format("Like({0}, {1})", Left, Right);
+                return $"Like({Left}, {Right})";
             }
         }
 
@@ -270,14 +280,16 @@ namespace SimpleDB.Queries
 
             public override object GetValue(FieldValueCollection fieldValueCollection)
             {
-                var leftValue = Left.GetValue(fieldValueCollection);
-                var set = (ISet<object>)Right.GetValue(fieldValueCollection);
+                var leftValue = Left!.GetValue(fieldValueCollection);
+                var set = Right!.GetValue(fieldValueCollection) as ISet<object?>;
+                if (set == null) throw new DBEngineException("WhereClause incorrect");
+
                 return set.Contains(leftValue);
             }
 
             public override string ToString()
             {
-                return String.Format("In({0}, {1})", Left, Right);
+                return $"In({Left}, {Right})";
             }
         }
 
@@ -285,12 +297,12 @@ namespace SimpleDB.Queries
         {
             public override object GetValue(FieldValueCollection fieldValueCollection)
             {
-                return fieldValueCollection.PrimaryKey.Value;
+                return fieldValueCollection.PrimaryKey!.Value;
             }
 
             public override string ToString()
             {
-                return String.Format("PrimaryKey()");
+                return "PrimaryKey()";
             }
         }
 
@@ -303,14 +315,14 @@ namespace SimpleDB.Queries
 
             public byte Number { get; }
 
-            public override object GetValue(FieldValueCollection fieldValueCollection)
+            public override object? GetValue(FieldValueCollection fieldValueCollection)
             {
                 return fieldValueCollection[Number].Value;
             }
 
             public override string ToString()
             {
-                return String.Format("Field({0})", Number);
+                return $"Field({Number})";
             }
         }
 
@@ -332,11 +344,11 @@ namespace SimpleDB.Queries
             {
                 if (Value is string)
                 {
-                    return String.Format("'{0}'", Value);
+                    return $"'{Value}'";
                 }
                 else
                 {
-                    return String.Format("{0}", Value);
+                    return $"{Value}";
                 }
             }
         }
@@ -357,7 +369,7 @@ namespace SimpleDB.Queries
 
             public override string ToString()
             {
-                return String.Format("Set({0})", String.Join(",", Value));
+                return $"Set({String.Join(",", Value)})";
             }
         }
     }
