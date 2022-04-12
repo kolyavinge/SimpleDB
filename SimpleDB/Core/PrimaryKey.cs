@@ -6,6 +6,8 @@ namespace SimpleDB.Core
 {
     internal class PrimaryKey
     {
+        internal static PrimaryKey Dummy = new(0, 0, 0, 0, 0);
+
         public const byte FieldNumber = 0;
 
         public object Value { get; }

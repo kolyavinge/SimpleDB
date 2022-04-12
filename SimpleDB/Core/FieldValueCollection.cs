@@ -10,17 +10,27 @@ namespace SimpleDB.Core
         private readonly Dictionary<byte, FieldValue> _fieldValues;
         private int? _hashCode;
 
-        public FieldValueCollection()
+        public FieldValueCollection() : this(PrimaryKey.Dummy)
         {
+        }
+
+        public FieldValueCollection(PrimaryKey primaryKey)
+        {
+            PrimaryKey = primaryKey;
             _fieldValues = new Dictionary<byte, FieldValue>();
         }
 
-        public FieldValueCollection(IEnumerable<FieldValue> fieldValues)
+        public FieldValueCollection(IEnumerable<FieldValue> fieldValues) : this(PrimaryKey.Dummy, fieldValues)
         {
+        }
+
+        public FieldValueCollection(PrimaryKey primaryKey, IEnumerable<FieldValue> fieldValues)
+        {
+            PrimaryKey = primaryKey;
             _fieldValues = fieldValues.ToDictionary(k => k.Number, v => v);
         }
 
-        public PrimaryKey? PrimaryKey { get; set; }
+        public PrimaryKey PrimaryKey { get; }
 
         public bool Contains(byte fieldNumber)
         {
@@ -120,7 +130,7 @@ namespace SimpleDB.Core
             y ??= Enumerable.Empty<FieldValueCollection>();
             return from xitem in x
                    join yitem in y
-                   on xitem.PrimaryKey!.Value equals yitem.PrimaryKey!.Value
+                   on xitem.PrimaryKey.Value equals yitem.PrimaryKey.Value
                    select xitem.Merge(yitem);
         }
 
@@ -128,10 +138,10 @@ namespace SimpleDB.Core
         {
             x ??= Enumerable.Empty<FieldValueCollection>();
             y ??= Enumerable.Empty<FieldValueCollection>();
-            var result = x.ToDictionary(k => k.PrimaryKey!.Value, v => v);
+            var result = x.ToDictionary(k => k.PrimaryKey.Value, v => v);
             foreach (var yitem in y)
             {
-                if (result.ContainsKey(yitem.PrimaryKey!.Value))
+                if (result.ContainsKey(yitem.PrimaryKey.Value))
                 {
                     result[yitem.PrimaryKey.Value].Merge(yitem);
                 }
@@ -148,10 +158,10 @@ namespace SimpleDB.Core
         {
             x ??= Enumerable.Empty<FieldValueCollection>();
             y ??= Enumerable.Empty<FieldValueCollection>();
-            var result = x.ToDictionary(k => k.PrimaryKey!.Value, v => v);
+            var result = x.ToDictionary(k => k.PrimaryKey.Value, v => v);
             foreach (var yitem in y)
             {
-                if (result.ContainsKey(yitem.PrimaryKey!.Value))
+                if (result.ContainsKey(yitem.PrimaryKey.Value))
                 {
                     result[yitem.PrimaryKey.Value].Merge(yitem);
                 }

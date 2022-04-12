@@ -10,7 +10,7 @@ namespace SimpleDB.Core
             if (primaryKeys.ContainsKey(id) == false) return default;
             var primaryKey = primaryKeys[id];
             var fieldNumbers = mapper.FieldMetaCollection.Select(x => x.Number).ToHashSet();
-            var fieldValueCollection = new FieldValueCollection();
+            var fieldValueCollection = new FieldValueCollection(PrimaryKey.Dummy);
             dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldNumbers, fieldValueCollection);
             var entity = mapper.MakeEntity(primaryKey.Value, fieldValueCollection, true);
 

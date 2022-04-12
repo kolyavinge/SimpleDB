@@ -297,7 +297,7 @@ namespace SimpleDB.Queries
         {
             public override object GetValue(FieldValueCollection fieldValueCollection)
             {
-                return fieldValueCollection.PrimaryKey!.Value;
+                return fieldValueCollection.PrimaryKey.Value;
             }
 
             public override string ToString()

@@ -131,7 +131,7 @@ namespace SimpleDB.QueryExecutors
         {
             if (IsIndexed)
             {
-                return PrimaryKeys!.Contains(fieldValueCollection.PrimaryKey!.Value);
+                return PrimaryKeys!.Contains(fieldValueCollection.PrimaryKey.Value);
             }
             else
             {

@@ -22,7 +22,7 @@ namespace SimpleDB.QueryExecutors
         public void ReadFieldValues(IEnumerable<FieldValueCollection> fieldValueCollections, IReadOnlyCollection<byte> fieldNumbers)
         {
             var remainingFieldNumbers = new HashSet<byte>();
-            foreach (var fieldValueCollection in fieldValueCollections.OrderBy(x => x.PrimaryKey!.StartDataFileOffset))
+            foreach (var fieldValueCollection in fieldValueCollections.OrderBy(x => x.PrimaryKey.StartDataFileOffset))
             {
                 remainingFieldNumbers.Clear();
                 remainingFieldNumbers.AddRange(fieldNumbers);

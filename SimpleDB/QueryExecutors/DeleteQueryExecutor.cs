@@ -60,14 +60,14 @@ namespace SimpleDB.QueryExecutors
                 if (_indexHolder.AnyIndexContainsFields(query.EntityName, whereFieldNumbers))
                 {
                     var analyzer = new WhereClauseAnalyzer(query.EntityName, _primaryKeysDictionary, _fieldValueReader, _indexHolder);
-                    primaryKeysForDelete.AddRange(analyzer.GetResult(query.WhereClause).Select(x => x.PrimaryKey!));
+                    primaryKeysForDelete.AddRange(analyzer.GetResult(query.WhereClause).Select(x => x.PrimaryKey));
                 }
                 else
                 {
                     var primaryKeys = _primaryKeysDictionary.Values;
                     foreach (var primaryKey in primaryKeys.OrderBy(x => x.StartDataFileOffset))
                     {
-                        var fieldValueCollection = new FieldValueCollection { PrimaryKey = primaryKey };
+                        var fieldValueCollection = new FieldValueCollection(primaryKey);
                         _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, whereFieldNumbers, fieldValueCollection);
                         var whereResult = query.WhereClause.GetValue(fieldValueCollection);
                         if (whereResult)

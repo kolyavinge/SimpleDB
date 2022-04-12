@@ -56,7 +56,7 @@ namespace SimpleDB.QueryExecutors
                     alreadyReadedFieldNumbers.AddRange(whereFieldNumbers);
                     foreach (var primaryKey in _primaryKeys.Values.OrderBy(x => x.StartDataFileOffset))
                     {
-                        var fieldValueCollection = new FieldValueCollection { PrimaryKey = primaryKey };
+                        var fieldValueCollection = new FieldValueCollection(primaryKey);
                         if (whereFieldNumbers.Any())
                         {
                             _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, whereFieldNumbers, fieldValueCollection);
@@ -81,7 +81,7 @@ namespace SimpleDB.QueryExecutors
             {
                 foreach (var primaryKey in _primaryKeys.Values.OrderBy(x => x.StartDataFileOffset))
                 {
-                    var fieldValueCollection = new FieldValueCollection { PrimaryKey = primaryKey };
+                    var fieldValueCollection = new FieldValueCollection(primaryKey);
                     fieldValueCollections.Add(fieldValueCollection);
                 }
             }
@@ -98,7 +98,7 @@ namespace SimpleDB.QueryExecutors
             // добираем из индексов недостающие поля
             var allFieldNumbersInQuery = query.GetAllFieldNumbers().ToHashSet();
             allFieldNumbersInQuery.ExceptWith(alreadyReadedFieldNumbers);
-            var remainingFieldValues = _indexHolder.GetScanResult(query.EntityName, fieldValueCollections.Select(x => x.PrimaryKey!.Value), _primaryKeys, allFieldNumbersInQuery);
+            var remainingFieldValues = _indexHolder.GetScanResult(query.EntityName, fieldValueCollections.Select(x => x.PrimaryKey.Value), _primaryKeys, allFieldNumbersInQuery);
             FieldValueCollection.Merge(fieldValueCollections, remainingFieldValues);
             alreadyReadedFieldNumbers.AddRange(fieldValueCollections.SelectMany(collection => collection.Select(field => field.Number)));
             // order by

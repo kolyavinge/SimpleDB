@@ -17,7 +17,7 @@ namespace SimpleDB.IndexedSearch
             var converter = new IndexValueConverter(IndexMeta);
             foreach (var indexItem in IndexValue.Items)
             {
-                var fieldValueCollection = new FieldValueCollection { PrimaryKey = primaryKeys[indexItem.PrimaryKeyValue] };
+                var fieldValueCollection = new FieldValueCollection(primaryKeys[indexItem.PrimaryKeyValue]);
                 fieldValueCollection.AddRange(converter.GetFieldValues(IndexValue, indexItem));
                 yield return fieldValueCollection;
             }
@@ -150,7 +150,7 @@ namespace SimpleDB.IndexedSearch
         {
             if (!_indexes.ContainsKey(entityName)) return null;
             var fieldNumbersSet = fieldNumbers.ToHashSet();
-            var fieldValueDictionary = primaryKeyValues.Select(pk => new FieldValueCollection { PrimaryKey = primaryKeys[pk] }).ToDictionary(k => k.PrimaryKey.Value, v => v);
+            var fieldValueDictionary = primaryKeyValues.Select(pk => new FieldValueCollection(primaryKeys[pk])).ToDictionary(k => k.PrimaryKey.Value, v => v);
             foreach (var index in _indexes[entityName].Where(x => x.Meta.IsContainAnyFields(fieldNumbersSet)))
             {
                 var converter = new IndexValueConverter(index.Meta);

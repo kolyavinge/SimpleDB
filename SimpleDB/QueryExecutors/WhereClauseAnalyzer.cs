@@ -67,7 +67,7 @@ namespace SimpleDB.QueryExecutors
                 if (fieldValueCollections.Any())
                 {
                     item.IndexResult = fieldValueCollections;
-                    item.PrimaryKeys = fieldValueCollections.Select(x => x.PrimaryKey!.Value).ToHashSet();
+                    item.PrimaryKeys = fieldValueCollections.Select(x => x.PrimaryKey.Value).ToHashSet();
                     _indexCache = FieldValueCollection.Union(_indexCache, fieldValueCollections).ToList();
                 }
                 else
@@ -121,7 +121,7 @@ namespace SimpleDB.QueryExecutors
                         sibling.ApplyOr(item.PrimaryKeys!);
                         if (item.OnlyOrOperationToRoot)
                         {
-                            var indexResult = item.IndexResult!.Where(x => item.PrimaryKeys!.Contains(x.PrimaryKey!.Value));
+                            var indexResult = item.IndexResult!.Where(x => item.PrimaryKeys!.Contains(x.PrimaryKey.Value));
                             partialResult = FieldValueCollection.Union(partialResult, indexResult).ToList();
                             AnalyzedTreeItem.Replace(ref root, item.Parent, sibling);
                             itemsToProcess.Enqueue(sibling);
@@ -133,7 +133,7 @@ namespace SimpleDB.QueryExecutors
 
         private IEnumerable<FieldValueCollection> GetTreeResult(AnalyzedTreeItem root)
         {
-            var fieldValueCollections = root.ToEnumerable().Where(x => x.IsIndexed).SelectMany(x => x.IndexResult).ToDictionary(k => k.PrimaryKey!.Value, v => v);
+            var fieldValueCollections = root.ToEnumerable().Where(x => x.IsIndexed).SelectMany(x => x.IndexResult).ToDictionary(k => k.PrimaryKey.Value, v => v);
             var fieldNumbers = root.ToEnumerable()
                 .Where(x => !x.IsIndexed && x.PrimaryKeys != null)
                 .Select(x => x.FieldNumber)
@@ -143,7 +143,7 @@ namespace SimpleDB.QueryExecutors
                 var primaryKeyValues = root.ToEnumerable().Where(x => !x.IsIndexed && x.PrimaryKeys != null).SelectMany(x => x.PrimaryKeys).ToHashSet();
                 foreach (var primaryKeyValue in primaryKeyValues.Where(pk => !fieldValueCollections.ContainsKey(pk)))
                 {
-                    fieldValueCollections.Add(primaryKeyValue, new FieldValueCollection { PrimaryKey = _primaryKeys[primaryKeyValue] });
+                    fieldValueCollections.Add(primaryKeyValue, new FieldValueCollection(_primaryKeys[primaryKeyValue]));
                 }
                 _fieldValueReader.ReadFieldValues(fieldValueCollections.Values, fieldNumbers);
             }

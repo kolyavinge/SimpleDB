@@ -41,7 +41,7 @@ namespace SimpleDB.QueryExecutors
                     if (firstFieldIndexResult.IndexValue.Items.Count == 1)
                     {
                         var item = firstFieldIndexResult.IndexValue.Items.First();
-                        var fieldValueCollection = new FieldValueCollection { PrimaryKey = _primaryKeys[item.PrimaryKeyValue] };
+                        var fieldValueCollection = new FieldValueCollection(_primaryKeys[item.PrimaryKeyValue]);
                         fieldValueCollection.Add(new FieldValue(firstFieldIndexResult.IndexMeta.IndexedFieldNumber, firstFieldIndexResult.IndexValue.IndexedFieldValue));
                         result[resultPosition++] = fieldValueCollection;
                     }
@@ -50,7 +50,7 @@ namespace SimpleDB.QueryExecutors
                         var resultPositionStart = resultPosition;
                         foreach (var item in firstFieldIndexResult.IndexValue.Items)
                         {
-                            var fieldValueCollection = new FieldValueCollection { PrimaryKey = _primaryKeys[item.PrimaryKeyValue] };
+                            var fieldValueCollection = new FieldValueCollection(_primaryKeys[item.PrimaryKeyValue]);
                             fieldValueCollection.Add(new FieldValue(firstFieldIndexResult.IndexMeta.IndexedFieldNumber, firstFieldIndexResult.IndexValue.IndexedFieldValue));
                             result[resultPosition++] = fieldValueCollection;
                         }
@@ -94,8 +94,8 @@ namespace SimpleDB.QueryExecutors
             {
                 foreach (var indexItemDictionary in _indexItemDictionaries)
                 {
-                    var xPosition = indexItemDictionary[x.PrimaryKey!.Value];
-                    var yPosition = indexItemDictionary[y.PrimaryKey!.Value];
+                    var xPosition = indexItemDictionary[x.PrimaryKey.Value];
+                    var yPosition = indexItemDictionary[y.PrimaryKey.Value];
                     var compareResult = xPosition.CompareTo(yPosition);
                     if (compareResult == 0) continue;
                     return compareResult;

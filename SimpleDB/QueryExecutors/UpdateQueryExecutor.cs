@@ -70,7 +70,7 @@ namespace SimpleDB.QueryExecutors
                     allFieldNumbers.AddRange(whereFieldNumbers);
                     foreach (var primaryKey in _primaryKeys.Values.OrderBy(x => x.StartDataFileOffset))
                     {
-                        var fieldValueCollection = new FieldValueCollection { PrimaryKey = primaryKey };
+                        var fieldValueCollection = new FieldValueCollection(primaryKey);
                         _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, whereFieldNumbers, fieldValueCollection);
                         var whereResult = query.WhereClause.GetValue(fieldValueCollection);
                         if (whereResult)
@@ -84,7 +84,7 @@ namespace SimpleDB.QueryExecutors
             {
                 foreach (var primaryKey in _primaryKeys.Values.OrderBy(x => x.StartDataFileOffset))
                 {
-                    var fieldValueCollection = new FieldValueCollection { PrimaryKey = primaryKey };
+                    var fieldValueCollection = new FieldValueCollection(primaryKey);
                     fieldValueCollections.Add(fieldValueCollection);
                 }
             }
@@ -111,7 +111,7 @@ namespace SimpleDB.QueryExecutors
                     foreach (var fieldValueCollection in fieldValueCollections)
                     {
                         var primaryKey = fieldValueCollection.PrimaryKey;
-                        _dataFile.ReadFields(primaryKey!.StartDataFileOffset, primaryKey.EndDataFileOffset, nonSelectedUpdateFieldNumbers, fieldValueCollection);
+                        _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, nonSelectedUpdateFieldNumbers, fieldValueCollection);
                     }
                 }
                 foreach (var fieldValueCollection in fieldValueCollections)
@@ -127,7 +127,7 @@ namespace SimpleDB.QueryExecutors
                         if (currentValueByteArray.Length != newValueByteArray.Length)
                         {
                             // если не равняются, добираем все значения до конца
-                            _dataFile.ReadFields(primaryKey!.StartDataFileOffset, primaryKey.EndDataFileOffset, remainingFieldNumbers, fieldValueCollection);
+                            _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, remainingFieldNumbers, fieldValueCollection);
                             foreach (var updateFieldValue in updateFieldDictionary.Values)
                             {
                                 // обновляем их
@@ -138,7 +138,7 @@ namespace SimpleDB.QueryExecutors
                             break;
                         }
                     }
-                    _dataFile.UpdateManual(primaryKey!.StartDataFileOffset, primaryKey.EndDataFileOffset, updateFieldDictionary.Values);
+                    _dataFile.UpdateManual(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, updateFieldDictionary.Values);
                 }
             }
             else
@@ -150,7 +150,7 @@ namespace SimpleDB.QueryExecutors
                 }
             }
 
-            _indexUpdater.UpdateIndexes(_entityMeta, fieldValueCollections.Select(x => x.PrimaryKey!.Value), updateFieldDictionary.Values);
+            _indexUpdater.UpdateIndexes(_entityMeta, fieldValueCollections.Select(x => x.PrimaryKey.Value), updateFieldDictionary.Values);
 
             return fieldValueCollections.Count;
         }
