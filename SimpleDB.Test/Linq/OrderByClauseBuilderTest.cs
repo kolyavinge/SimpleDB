@@ -44,8 +44,8 @@ namespace SimpleDB.Test.Linq
         {
             var items = new List<OrderByExpressionItem<TestEntity>>
             {
-                new OrderByExpressionItem<TestEntity> { Expression = x => x.Id, Direction = SortDirection.Asc },
-                new OrderByExpressionItem<TestEntity> { Expression = x => x.Int, Direction = SortDirection.Desc }
+                new OrderByExpressionItem<TestEntity>(x => x.Id, SortDirection.Asc),
+                new OrderByExpressionItem<TestEntity>(x => x.Int, SortDirection.Desc)
             };
             var result = _builder.Build(_mapper, items).OrderedItems.ToList();
             Assert.AreEqual(2, result.Count);
@@ -61,8 +61,8 @@ namespace SimpleDB.Test.Linq
         {
             var items = new List<OrderByExpressionItem<TestEntity>>
             {
-                new OrderByExpressionItem<TestEntity> { Expression = x => x.Id, Direction = SortDirection.Asc },
-                new OrderByExpressionItem<TestEntity> { Expression = x => x.String, Direction = SortDirection.Desc }
+                new OrderByExpressionItem<TestEntity>(x => x.Id, SortDirection.Asc),
+                new OrderByExpressionItem<TestEntity>(x => x.String, SortDirection.Desc)
             };
             var result = _builder.Build(_mapper, items).OrderedItems.ToList();
             Assert.AreEqual(2, result.Count);

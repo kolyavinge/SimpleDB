@@ -10,7 +10,7 @@ namespace SimpleDB.Linq
 {
     internal class WhereClauseBuilder
     {
-        public WhereClause Build<TEntity>(Mapper<TEntity> mapper, Expression<Func<TEntity, bool>>? whereExpression)
+        public WhereClause? Build<TEntity>(Mapper<TEntity> mapper, Expression<Func<TEntity, bool>>? whereExpression)
         {
             if (whereExpression is null) return null;
             var whereClause = new WhereClause(BuildItem(mapper, whereExpression.Body));

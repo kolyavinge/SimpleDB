@@ -113,12 +113,14 @@ namespace SimpleDB.QueryExecutors
 
         public bool IsRightChild => Parent != null && Parent.Right == this;
 
-        public AnalyzedTreeItem? Sibling
+        public AnalyzedTreeItem Sibling
         {
             get
             {
-                if (Parent == null) return null;
-                return Parent.Left == this ? Parent.Right : Parent.Left;
+                if (Parent == null) throw new DBEngineException("AnalyzedTreeItem is invalid");
+                return Parent.Left == this
+                    ? Parent.Right ?? throw new DBEngineException("AnalyzedTreeItem is invalid")
+                    : Parent.Left ?? throw new DBEngineException("AnalyzedTreeItem is invalid");
             }
         }
 

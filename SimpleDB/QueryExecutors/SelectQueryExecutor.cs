@@ -93,7 +93,7 @@ namespace SimpleDB.QueryExecutors
                 {
                     count = Math.Min(count, query.Limit.Value);
                 }
-                return new SelectQueryResult { Scalar = count };
+                return new SelectQueryResult(count);
             }
             // добираем из индексов недостающие поля
             var allFieldNumbersInQuery = query.GetAllFieldNumbers().ToHashSet();
@@ -112,7 +112,7 @@ namespace SimpleDB.QueryExecutors
                     foreach (var fieldValueCollection in fieldValueCollections)
                     {
                         var primaryKey = fieldValueCollection.PrimaryKey;
-                        _dataFile.ReadFields(primaryKey!.StartDataFileOffset, primaryKey.EndDataFileOffset, orderbyFieldNumbers, fieldValueCollection);
+                        _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, orderbyFieldNumbers, fieldValueCollection);
                     }
                 }
                 fieldValueCollections.Sort(query.OrderByClause);
@@ -143,11 +143,11 @@ namespace SimpleDB.QueryExecutors
                 foreach (var fieldValueCollection in fieldValueCollections)
                 {
                     var primaryKey = fieldValueCollection.PrimaryKey;
-                    _dataFile.ReadFields(primaryKey!.StartDataFileOffset, primaryKey.EndDataFileOffset, nonSelectedFieldNumbers, fieldValueCollection);
+                    _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, nonSelectedFieldNumbers, fieldValueCollection);
                 }
             }
 
-            return new SelectQueryResult { FieldValueCollections = fieldValueCollections };
+            return new SelectQueryResult(fieldValueCollections);
         }
 
         public List<TEntity> MakeEntities<TEntity>(SelectQuery query, SelectQueryResult result, Mapper<TEntity> mapper)
@@ -155,10 +155,10 @@ namespace SimpleDB.QueryExecutors
             var selectFieldNumbers = query.SelectClause.GetAllFieldNumbers().ToHashSet();
             var includePrimaryKey = query.SelectClause.SelectItems.Any(x => x is SelectClause.PrimaryKey);
             var queryResultItems = new List<TEntity>();
-            foreach (var fieldValueCollection in result.FieldValueCollections!)
+            foreach (var fieldValueCollection in result.FieldValueCollections)
             {
                 var primaryKey = fieldValueCollection.PrimaryKey;
-                var entity = mapper.MakeEntity(primaryKey!.Value, fieldValueCollection, includePrimaryKey, selectFieldNumbers);
+                var entity = mapper.MakeEntity(primaryKey.Value, fieldValueCollection, includePrimaryKey, selectFieldNumbers);
                 queryResultItems.Add(entity);
             }
 
@@ -168,8 +168,20 @@ namespace SimpleDB.QueryExecutors
 
     internal class SelectQueryResult
     {
-        public List<FieldValueCollection>? FieldValueCollections { get; set; }
+        public List<FieldValueCollection> FieldValueCollections { get; }
 
-        public object? Scalar { get; set; }
+        public object Scalar { get; }
+
+        public SelectQueryResult(List<FieldValueCollection> fieldValueCollections)
+        {
+            FieldValueCollections = fieldValueCollections;
+            Scalar = FieldValueCollections.Count;
+        }
+
+        public SelectQueryResult(object scalar)
+        {
+            FieldValueCollections = new List<FieldValueCollection>();
+            Scalar = scalar;
+        }
     }
 }

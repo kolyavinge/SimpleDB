@@ -10,7 +10,7 @@ namespace SimpleDB.Infrastructure
             return JsonConvert.SerializeObject(obj);
         }
 
-        public static object FromJson(Type type, string json)
+        public static object? FromJson(Type type, string json)
         {
             return JsonConvert.DeserializeObject(json, type);
         }

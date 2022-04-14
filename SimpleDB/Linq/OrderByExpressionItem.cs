@@ -1,13 +1,18 @@
 ﻿using System;
 using System.Linq.Expressions;
-using SimpleDB.Queries;
 
 namespace SimpleDB.Linq
 {
     internal class OrderByExpressionItem<TEntity>
     {
-        public Expression<Func<TEntity, object>> Expression { get; set; }
+        public Expression<Func<TEntity, object>> Expression { get; }
 
-        public SortDirection Direction { get; set; }
+        public SortDirection Direction { get; }
+
+        public OrderByExpressionItem(Expression<Func<TEntity, object>> expression, SortDirection direction)
+        {
+            Expression = expression;
+            Direction = direction;
+        }
     }
 }

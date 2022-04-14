@@ -36,7 +36,7 @@ namespace SimpleDB.Linq
 
         public IQueryableSelect<TEntity> OrderBy(Expression<Func<TEntity, object>> orderbyExpression, SortDirection direction)
         {
-            var item = new OrderByExpressionItem<TEntity> { Expression = orderbyExpression, Direction = direction };
+            var item = new OrderByExpressionItem<TEntity>(orderbyExpression, direction);
             _orderbyExpressionItems.Add(item);
             return this;
         }

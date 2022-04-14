@@ -130,7 +130,7 @@ namespace SimpleDB.Core
                     currentPosition += sizeof(int) + length;
                     var bytes = _fileStream.ReadByteArray(length);
                     var fieldValueJson = Encoding.UTF8.GetString(bytes);
-                    primaryKeyValue = JsonSerialization.FromJson(_primaryKeyType, fieldValueJson);
+                    primaryKeyValue = JsonSerialization.FromJson(_primaryKeyType, fieldValueJson) ?? throw new PrimaryKeyException();
                 }
                 yield return new PrimaryKey(primaryKeyValue, startDataFileOffset, endDataFileOffset, primaryKeyFileOffset, primaryKeyFlags);
             }

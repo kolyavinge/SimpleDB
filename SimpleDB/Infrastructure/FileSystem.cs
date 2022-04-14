@@ -31,7 +31,7 @@ namespace SimpleDB.Infrastructure
     internal class FileSystem : IFileSystem
     {
         private readonly List<IFileStream> _openedFiles;
-        private IStorage _storage;
+        private IStorage? _storage;
 
         public string DatabaseFilePath { get; }
 
@@ -103,7 +103,7 @@ namespace SimpleDB.Infrastructure
         private void DisposeFileStreamFunc(IFileStream fileStream)
         {
             _openedFiles.Remove(fileStream);
-            if (!_openedFiles.Any())
+            if (!_openedFiles.Any() && _storage != null)
             {
                 _storage.Dispose();
                 _storage = null;
