@@ -75,7 +75,7 @@ namespace SimpleDB.IndexedSearch
                     dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldNumbers, fieldValueCollection);
                     var indexedFieldValue = indexedFieldNumber == PrimaryKey.FieldNumber ? primaryKey.Value : fieldValueCollection[indexedFieldNumber].Value;
                     var includedFieldValues = includedFieldNumbers.Select(fn => fieldValueCollection[fn].Value).ToArray();
-                    var indexItem = new IndexItem { PrimaryKeyValue = primaryKey.Value, IncludedFields = includedFieldValues };
+                    var indexItem = new IndexItem(primaryKey.Value, includedFieldValues);
                     index.Add(indexedFieldValue, indexItem);
                     fieldValueCollection.Clear();
                 }

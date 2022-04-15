@@ -40,21 +40,21 @@ namespace SimpleDB.Test.QueryExecutors
 
             var indexId = new Index<int>(
                 new IndexMeta { EntityName = "TestEntity", Name = "indexId", IndexedFieldType = typeof(int), IndexedFieldNumber = PrimaryKey.FieldNumber, IncludedFieldNumbers = new byte[] { 1 } });
-            indexId.Add(10, new IndexItem { PrimaryKeyValue = 10, IncludedFields = new object[] { 1 } });
-            indexId.Add(20, new IndexItem { PrimaryKeyValue = 20, IncludedFields = new object[] { 6 } });
+            indexId.Add(10, new IndexItem(10, new object[] { 1 }));
+            indexId.Add(20, new IndexItem(20, new object[] { 6 }));
 
             var indexA = new Index<int>(new IndexMeta { EntityName = "TestEntity", Name = "indexA", IndexedFieldType = typeof(int), IndexedFieldNumber = 1 });
-            indexA.Add(1, new IndexItem { PrimaryKeyValue = 10 });
-            indexA.Add(6, new IndexItem { PrimaryKeyValue = 20 });
+            indexA.Add(1, new IndexItem(10, new object[0]));
+            indexA.Add(6, new IndexItem(20, new object[0]));
 
             var indexB = new Index<int>(new IndexMeta { EntityName = "TestEntity", Name = "indexB", IndexedFieldType = typeof(int), IndexedFieldNumber = 2 });
-            indexB.Add(2, new IndexItem { PrimaryKeyValue = 10 });
-            indexB.Add(7, new IndexItem { PrimaryKeyValue = 20 });
+            indexB.Add(2, new IndexItem(10, new object[0]));
+            indexB.Add(7, new IndexItem(20, new object[0]));
 
             var indexS = new Index<string>(
                 new IndexMeta { EntityName = "TestEntity", Name = "indexS", IndexedFieldType = typeof(string), IndexedFieldNumber = 6, IncludedFieldNumbers = new byte[] { 5 } });
-            indexS.Add("123", new IndexItem { PrimaryKeyValue = 10, IncludedFields = new object[] { 5 } });
-            indexS.Add("987", new IndexItem { PrimaryKeyValue = 20, IncludedFields = new object[] { 10 } });
+            indexS.Add("123", new IndexItem(10, new object[] { 5 }));
+            indexS.Add("987", new IndexItem(20, new object[] { 10 }));
 
             var indexHolder = new IndexHolder(new IIndex[] { indexId, indexA, indexB, indexS });
 

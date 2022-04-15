@@ -58,69 +58,67 @@ namespace SimpleDB.IndexedSearch
         public IEnumerable<IndexResult>? GetIndexResult(Type operationType, bool isNotApplied, string entityName, byte fieldNumber, object fieldValue)
         {
             if (!_indexes.ContainsKey(entityName)) return null;
-            IEnumerable<IndexValue> indexValues = null;
+            IEnumerable<IndexValue>? indexValues = null;
             var index = _indexes[entityName].FirstOrDefault(i => i.Meta.IndexedFieldNumber == fieldNumber);
-            if (index != null)
+            if (index == null) return null;
+            if (operationType == typeof(WhereClause.EqualsOperation) && !isNotApplied)
             {
-                if (operationType == typeof(WhereClause.EqualsOperation) && !isNotApplied)
-                {
-                    var indexValue = index.GetEquals(fieldValue);
-                    if (indexValue != null) indexValues = new[] { indexValue };
-                }
-                else if (operationType == typeof(WhereClause.EqualsOperation) && isNotApplied)
-                {
-                    indexValues = index.GetNotEquals(fieldValue);
-                }
-                else if (operationType == typeof(WhereClause.LessOperation) && !isNotApplied)
-                {
-                    indexValues = index.GetLess(fieldValue);
-                }
-                else if (operationType == typeof(WhereClause.LessOperation) && isNotApplied)
-                {
-                    indexValues = index.GetGreatOrEquals(fieldValue);
-                }
-                else if (operationType == typeof(WhereClause.GreatOperation) && !isNotApplied)
-                {
-                    indexValues = index.GetGreat(fieldValue);
-                }
-                else if (operationType == typeof(WhereClause.GreatOperation) && isNotApplied)
-                {
-                    indexValues = index.GetLessOrEquals(fieldValue);
-                }
-                else if (operationType == typeof(WhereClause.LessOrEqualsOperation) && !isNotApplied)
-                {
-                    indexValues = index.GetLessOrEquals(fieldValue);
-                }
-                else if (operationType == typeof(WhereClause.LessOrEqualsOperation) && isNotApplied)
-                {
-                    indexValues = index.GetGreat(fieldValue);
-                }
-                else if (operationType == typeof(WhereClause.GreatOrEqualsOperation) && !isNotApplied)
-                {
-                    indexValues = index.GetGreatOrEquals(fieldValue);
-                }
-                else if (operationType == typeof(WhereClause.GreatOrEqualsOperation) && isNotApplied)
-                {
-                    indexValues = index.GetLess(fieldValue);
-                }
-                else if (operationType == typeof(WhereClause.LikeOperation) && !isNotApplied)
-                {
-                    indexValues = index.GetLike(fieldValue);
-                }
-                else if (operationType == typeof(WhereClause.LikeOperation) && isNotApplied)
-                {
-                    indexValues = index.GetNotLike(fieldValue);
-                }
-                else if (operationType == typeof(WhereClause.InOperation) && !isNotApplied)
-                {
-                    indexValues = index.GetIn((IEnumerable<object>)fieldValue);
-                }
-                else if (operationType == typeof(WhereClause.InOperation) && isNotApplied)
-                {
-                    indexValues = index.GetNotIn((IEnumerable<object>)fieldValue);
-                }
-                else throw new InvalidOperationException();
+                var indexValue = index.GetEquals(fieldValue);
+                if (indexValue != null) indexValues = new[] { indexValue };
             }
+            else if (operationType == typeof(WhereClause.EqualsOperation) && isNotApplied)
+            {
+                indexValues = index.GetNotEquals(fieldValue);
+            }
+            else if (operationType == typeof(WhereClause.LessOperation) && !isNotApplied)
+            {
+                indexValues = index.GetLess(fieldValue);
+            }
+            else if (operationType == typeof(WhereClause.LessOperation) && isNotApplied)
+            {
+                indexValues = index.GetGreatOrEquals(fieldValue);
+            }
+            else if (operationType == typeof(WhereClause.GreatOperation) && !isNotApplied)
+            {
+                indexValues = index.GetGreat(fieldValue);
+            }
+            else if (operationType == typeof(WhereClause.GreatOperation) && isNotApplied)
+            {
+                indexValues = index.GetLessOrEquals(fieldValue);
+            }
+            else if (operationType == typeof(WhereClause.LessOrEqualsOperation) && !isNotApplied)
+            {
+                indexValues = index.GetLessOrEquals(fieldValue);
+            }
+            else if (operationType == typeof(WhereClause.LessOrEqualsOperation) && isNotApplied)
+            {
+                indexValues = index.GetGreat(fieldValue);
+            }
+            else if (operationType == typeof(WhereClause.GreatOrEqualsOperation) && !isNotApplied)
+            {
+                indexValues = index.GetGreatOrEquals(fieldValue);
+            }
+            else if (operationType == typeof(WhereClause.GreatOrEqualsOperation) && isNotApplied)
+            {
+                indexValues = index.GetLess(fieldValue);
+            }
+            else if (operationType == typeof(WhereClause.LikeOperation) && !isNotApplied)
+            {
+                indexValues = index.GetLike(fieldValue);
+            }
+            else if (operationType == typeof(WhereClause.LikeOperation) && isNotApplied)
+            {
+                indexValues = index.GetNotLike(fieldValue);
+            }
+            else if (operationType == typeof(WhereClause.InOperation) && !isNotApplied)
+            {
+                indexValues = index.GetIn((IEnumerable<object>)fieldValue);
+            }
+            else if (operationType == typeof(WhereClause.InOperation) && isNotApplied)
+            {
+                indexValues = index.GetNotIn((IEnumerable<object>)fieldValue);
+            }
+            else throw new InvalidOperationException();
             if (indexValues != null)
             {
                 return indexValues.Select(indexValue => new IndexResult { IndexMeta = index.Meta, IndexValue = indexValue });
@@ -146,7 +144,8 @@ namespace SimpleDB.IndexedSearch
             }
         }
 
-        public IEnumerable<FieldValueCollection> GetScanResult(string entityName, IEnumerable<object> primaryKeyValues, IDictionary<object, PrimaryKey> primaryKeys, IEnumerable<byte> fieldNumbers)
+        public IEnumerable<FieldValueCollection>? GetScanResult(
+            string entityName, IEnumerable<object> primaryKeyValues, IDictionary<object, PrimaryKey> primaryKeys, IEnumerable<byte> fieldNumbers)
         {
             if (!_indexes.ContainsKey(entityName)) return null;
             var fieldNumbersSet = fieldNumbers.ToHashSet();

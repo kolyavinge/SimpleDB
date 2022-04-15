@@ -43,7 +43,7 @@ namespace SimpleDB.IndexedSearch
                         ? fieldValueCollection.PrimaryKeyValue
                         : fieldValueCollection.FieldValues[index.Meta.IndexedFieldNumber];
                     var includedFieldValues = index.Meta.IncludedFieldNumbers.Select(fn => fieldValueCollection.FieldValues[fn]).ToArray();
-                    var indexItem = new IndexItem { PrimaryKeyValue = fieldValueCollection.PrimaryKeyValue, IncludedFields = includedFieldValues };
+                    var indexItem = new IndexItem(fieldValueCollection.PrimaryKeyValue, includedFieldValues);
                     index.Add(indexedFieldValue, indexItem);
                 }
                 SaveIndexFile(mapper.EntityMeta, index);
@@ -96,12 +96,7 @@ namespace SimpleDB.IndexedSearch
                             var updatedIndexedFieldValue = fieldValueCollection[index.Meta.IndexedFieldNumber];
                             if (updatedIndexedFieldValue != indexValue.IndexedFieldValue)
                             {
-                                updatedIndexItems.Add(new UpdatedIndexItem
-                                {
-                                    UpdatedIndexedFieldValue = updatedIndexedFieldValue,
-                                    IndexValue = indexValue,
-                                    IndexItem = item
-                                });
+                                updatedIndexItems.Add(new UpdatedIndexItem(updatedIndexedFieldValue, indexValue, item));
                             }
                         }
                     }
@@ -114,7 +109,7 @@ namespace SimpleDB.IndexedSearch
                         index.Delete(item.IndexValue.IndexedFieldValue);
                     }
                 }
-                foreach (var item in updatedIndexItems.GroupBy(x => x.UpdatedIndexedFieldValue))
+                foreach (var item in updatedIndexItems.GroupBy(x => x.UpdatedIndexedFieldValue!))
                 {
                     index.Add(item.Key, item.Select(x => x.IndexItem));
                 }
@@ -135,7 +130,7 @@ namespace SimpleDB.IndexedSearch
                     foreach (var item in indexValue.Items)
                     {
                         if (!primaryKeyValuesSet.Contains(item.PrimaryKeyValue)) continue;
-                        updatedIndexItems.Add(new UpdatedIndexItem { IndexValue = indexValue, IndexItem = item });
+                        updatedIndexItems.Add(new UpdatedIndexItem(null, indexValue, item));
                     }
                 }
                 foreach (var item in updatedIndexItems)
@@ -158,9 +153,16 @@ namespace SimpleDB.IndexedSearch
 
         class UpdatedIndexItem
         {
-            public object UpdatedIndexedFieldValue;
-            public IndexValue IndexValue;
-            public IndexItem IndexItem;
+            public object? UpdatedIndexedFieldValue { get; }
+            public IndexValue IndexValue { get; }
+            public IndexItem IndexItem { get; }
+
+            public UpdatedIndexItem(object? updatedIndexedFieldValue, IndexValue indexValue, IndexItem indexItem)
+            {
+                UpdatedIndexedFieldValue = updatedIndexedFieldValue;
+                IndexValue = indexValue;
+                IndexItem = indexItem;
+            }
         }
     }
 }

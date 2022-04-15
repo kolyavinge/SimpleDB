@@ -51,15 +51,11 @@ namespace SimpleDB.IndexedSearch
 
         public IndexValue DeserializeValue(IReadableStream stream)
         {
-            var indexValue = new IndexValue();
-            indexValue.IndexedFieldValue = _lastKey;
             var itemsCount = stream.ReadInt();
-            indexValue.Items = new List<IndexItem>(itemsCount);
+            var indexValue = new IndexValue(_lastKey, new List<IndexItem>(itemsCount));
             for (int itemIndex = 0; itemIndex < itemsCount; itemIndex++)
             {
-                var indexItem = new IndexItem();
-                indexItem.PrimaryKeyValue = DeserializeObject(_primaryKeyType, stream);
-                indexItem.IncludedFields = new object[_indexMeta.IncludedFieldNumbers.Length];
+                var indexItem = new IndexItem(DeserializeObject(_primaryKeyType, stream), new object[_indexMeta.IncludedFieldNumbers.Length]);
                 for (int includedFieldIndex = 0; includedFieldIndex < _indexMeta.IncludedFieldNumbers.Length; includedFieldIndex++)
                 {
                     var includedFieldNumber = _indexMeta.IncludedFieldNumbers[includedFieldIndex];

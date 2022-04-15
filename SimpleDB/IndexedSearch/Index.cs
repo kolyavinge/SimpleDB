@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using SimpleDB.DataStructures;
 using SimpleDB.Infrastructure;
-using SimpleDB.Utils.EnumerableExtension;
 
 namespace SimpleDB.IndexedSearch
 {
@@ -23,7 +22,7 @@ namespace SimpleDB.IndexedSearch
             Meta = meta;
         }
 
-        public IndexMeta Meta { get; private set; }
+        public IndexMeta Meta { get; }
 
         public IndexValue GetEquals(object fieldValue)
         {
@@ -159,7 +158,7 @@ namespace SimpleDB.IndexedSearch
             var node = _indexTree.InsertOrGetExists((TField)indexedFieldValue);
             if (node.Value == null)
             {
-                node.Value = new IndexValue { IndexedFieldValue = indexedFieldValue, Items = new List<IndexItem> { indexItem } };
+                node.Value = new IndexValue(indexedFieldValue, new List<IndexItem> { indexItem });
             }
             else
             {
@@ -172,7 +171,7 @@ namespace SimpleDB.IndexedSearch
             var node = _indexTree.InsertOrGetExists((TField)indexedFieldValue);
             if (node.Value == null)
             {
-                node.Value = new IndexValue { IndexedFieldValue = indexedFieldValue, Items = indexItems.ToList() };
+                node.Value = new IndexValue(indexedFieldValue, indexItems.ToList());
             }
             else
             {

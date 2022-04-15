@@ -404,9 +404,9 @@ namespace SimpleDB.Test.QueryExecutors
             };
 
             var indexId = new Index<int>(new IndexMeta { EntityName = "TestEntity", Name = "indexId", IndexedFieldType = typeof(int), IndexedFieldNumber = PrimaryKey.FieldNumber });
-            indexId.Add(1, new IndexItem { PrimaryKeyValue = 1 });
-            indexId.Add(2, new IndexItem { PrimaryKeyValue = 2 });
-            indexId.Add(3, new IndexItem { PrimaryKeyValue = 3 });
+            indexId.Add(1, new IndexItem(1, new object[0]));
+            indexId.Add(2, new IndexItem(2, new object[0]));
+            indexId.Add(3, new IndexItem(3, new object[0]));
             _indexHolder.SetIndexes(new IIndex[] { indexId });
             _fileSystem.FileStreams.Clear();
 
@@ -433,14 +433,14 @@ namespace SimpleDB.Test.QueryExecutors
             };
 
             var indexId = new Index<int>(new IndexMeta { EntityName = "TestEntity", Name = "indexId", IndexedFieldType = typeof(int), IndexedFieldNumber = PrimaryKey.FieldNumber });
-            indexId.Add(1, new IndexItem { PrimaryKeyValue = 1 });
-            indexId.Add(2, new IndexItem { PrimaryKeyValue = 2 });
-            indexId.Add(3, new IndexItem { PrimaryKeyValue = 3 });
+            indexId.Add(1, new IndexItem(1, new object[0]));
+            indexId.Add(2, new IndexItem(2, new object[0]));
+            indexId.Add(3, new IndexItem(3, new object[0]));
 
             var indexByte = new Index<byte>(new IndexMeta { EntityName = "TestEntity", Name = "indexByte", IndexedFieldType = typeof(byte), IndexedFieldNumber = 1 });
-            indexByte.Add((byte)10, new IndexItem { PrimaryKeyValue = 1 });
-            indexByte.Add((byte)20, new IndexItem { PrimaryKeyValue = 2 });
-            indexByte.Add((byte)30, new IndexItem { PrimaryKeyValue = 3 });
+            indexByte.Add((byte)10, new IndexItem(1, new object[0]));
+            indexByte.Add((byte)20, new IndexItem(2, new object[0]));
+            indexByte.Add((byte)30, new IndexItem(3, new object[0]));
 
             _indexHolder.SetIndexes(new IIndex[] { indexId, indexByte });
             _fileSystem.FileStreams.Clear();

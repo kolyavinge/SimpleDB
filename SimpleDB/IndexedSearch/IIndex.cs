@@ -28,7 +28,7 @@ namespace SimpleDB.IndexedSearch
             }
             else
             {
-                result = new byte[] { IndexedFieldNumber };
+                result = new[] { IndexedFieldNumber };
             }
 
             return result;
@@ -71,16 +71,28 @@ namespace SimpleDB.IndexedSearch
 
     internal class IndexValue
     {
-        public object IndexedFieldValue { get; set; }
+        public object IndexedFieldValue { get; }
 
-        public List<IndexItem> Items { get; set; }
+        public List<IndexItem> Items { get; }
+
+        public IndexValue(object indexedFieldValue, List<IndexItem> items)
+        {
+            IndexedFieldValue = indexedFieldValue;
+            Items = items;
+        }
     }
 
     internal class IndexItem
     {
-        public object PrimaryKeyValue { get; set; }
+        public object PrimaryKeyValue { get; }
 
-        public object[] IncludedFields { get; set; }
+        public object[] IncludedFields { get; }
+
+        public IndexItem(object primaryKeyValue, object[] includedFields)
+        {
+            PrimaryKeyValue = primaryKeyValue;
+            IncludedFields = includedFields;
+        }
     }
 
     internal interface IIndex

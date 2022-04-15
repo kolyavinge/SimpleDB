@@ -43,11 +43,11 @@ namespace SimpleDB.Test.IndexedSearch
         public void SerializeDeserialize_PrimitiveTypes()
         {
             _index.Clear();
-            _index.Add(10, new IndexItem { PrimaryKeyValue = 1, IncludedFields = new object[] { 101, 201 } });
-            _index.Add(20, new IndexItem { PrimaryKeyValue = 2, IncludedFields = new object[] { 102, 202 } });
-            _index.Add(30, new IndexItem { PrimaryKeyValue = 3, IncludedFields = new object[] { 103, 203 } });
-            _index.Add(30, new IndexItem { PrimaryKeyValue = 4, IncludedFields = new object[] { 104, 204 } });
-            _index.Add(30, new IndexItem { PrimaryKeyValue = 5, IncludedFields = new object[] { 105, 205 } });
+            _index.Add(10, new IndexItem(1, new object[] { 101, 201 }));
+            _index.Add(20, new IndexItem(2, new object[] { 102, 202 }));
+            _index.Add(30, new IndexItem(3, new object[] { 103, 203 }));
+            _index.Add(30, new IndexItem(4, new object[] { 104, 204 }));
+            _index.Add(30, new IndexItem(5, new object[] { 105, 205 }));
 
             _index.Serialize(_stream);
             _stream.Seek(0, System.IO.SeekOrigin.Begin);
@@ -101,9 +101,9 @@ namespace SimpleDB.Test.IndexedSearch
             _index.Meta.IncludedFieldNumbers = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
             _index.Add(10,
             new IndexItem
-            {
-                PrimaryKeyValue = 1,
-                IncludedFields = new object[]
+            (
+                1,
+                new object[]
                 {
                     false,
                     (sbyte)1,
@@ -122,7 +122,7 @@ namespace SimpleDB.Test.IndexedSearch
                     "1234567890",
                     new Inner { Value = "123" }
                 }
-            });
+            ));
 
             _index.Serialize(_stream);
             _stream.Seek(0, System.IO.SeekOrigin.Begin);
