@@ -49,7 +49,7 @@ internal class IndexInitializer<TEntity>
         var indexedFieldNumber = fieldMetaCollection.First(fm => fm.Name == indexedFieldName).Number;
         var includedFieldNumbers = fieldMetaCollection.Where(fm => includedFieldNames.Contains(fm.Name)).Select(x => x.Number).ToArray();
         if (includedFieldNumbers.Contains(PrimaryKey.FieldNumber)) throw new ArgumentException("Primary key cannot be included in any index");
-        var meta = new IndexMeta { EntityName = _mapper.EntityName, IndexedFieldType = typeof(TField), Name = indexName, IndexedFieldNumber = indexedFieldNumber, IncludedFieldNumbers = includedFieldNumbers };
+        var meta = new IndexMeta(_mapper.EntityName, typeof(TField), indexName, indexedFieldNumber, includedFieldNumbers);
         var index = new Index<TField>(meta);
         PopulateIndex(index, indexedFieldNumber, includedFieldNumbers);
         indexFile.Create();

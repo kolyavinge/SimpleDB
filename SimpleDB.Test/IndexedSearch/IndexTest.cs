@@ -24,13 +24,13 @@ class IndexTest
     {
         _stream = new MemoryFileStream();
         var meta = new IndexMeta
-        {
-            EntityName = "TestEntity",
-            IndexedFieldType = typeof(int),
-            Name = "test index",
-            IndexedFieldNumber = 0,
-            IncludedFieldNumbers = new byte[] { 1, 2 }
-        };
+        (
+            "TestEntity",
+            typeof(int),
+            "test index",
+            0,
+            new byte[] { 1, 2 }
+        );
         _index = new Index<int>(meta);
         for (int i = 0; i < 100; i++)
         {

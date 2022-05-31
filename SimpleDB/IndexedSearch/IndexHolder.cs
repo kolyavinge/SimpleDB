@@ -8,9 +8,15 @@ namespace SimpleDB.IndexedSearch;
 
 internal class IndexResult
 {
-    public IndexMeta IndexMeta { get; set; }
+    public IndexMeta IndexMeta { get; }
 
-    public IndexValue IndexValue { get; set; }
+    public IndexValue IndexValue { get; }
+
+    public IndexResult(IndexMeta indexMeta, IndexValue indexValue)
+    {
+        IndexMeta = indexMeta;
+        IndexValue = indexValue;
+    }
 
     public IEnumerable<FieldValueCollection> ToFieldValueCollections(IDictionary<object, PrimaryKey> primaryKeys)
     {
@@ -26,21 +32,22 @@ internal class IndexResult
 
 internal class IndexHolder
 {
-    private Dictionary<string, List<IIndex>> _indexes;
+    private readonly Dictionary<string, List<IIndex>> _indexes = new();
 
     public IndexHolder(IEnumerable<IIndex> indexes)
     {
         SetIndexes(indexes);
     }
 
-    public IndexHolder()
-    {
-        _indexes = new Dictionary<string, List<IIndex>>();
-    }
+    public IndexHolder() { }
 
     public void SetIndexes(IEnumerable<IIndex> indexes)
     {
-        _indexes = indexes.GroupBy(x => x.Meta.EntityName).ToDictionary(k => k.Key, v => v.ToList());
+        _indexes.Clear();
+        foreach (var group in indexes.GroupBy(x => x.Meta.EntityName))
+        {
+            _indexes.Add(group.Key, group.ToList());
+        }
     }
 
     public bool AnyIndexContainsFields(string entityName, ISet<byte> fieldNumbers)
@@ -121,7 +128,7 @@ internal class IndexHolder
         else throw new InvalidOperationException();
         if (indexValues != null)
         {
-            return indexValues.Select(indexValue => new IndexResult { IndexMeta = index.Meta, IndexValue = indexValue });
+            return indexValues.Select(indexValue => new IndexResult(index.Meta, indexValue));
         }
         else
         {
@@ -136,7 +143,7 @@ internal class IndexHolder
         if (index != null)
         {
             var indexValues = index.GetAllIndexValues(sortDirection);
-            return indexValues.Select(indexValue => new IndexResult { IndexMeta = index.Meta, IndexValue = indexValue });
+            return indexValues.Select(indexValue => new IndexResult(index.Meta, indexValue));
         }
         else
         {

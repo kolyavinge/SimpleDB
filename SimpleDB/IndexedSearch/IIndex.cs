@@ -7,15 +7,24 @@ namespace SimpleDB.IndexedSearch;
 
 internal class IndexMeta
 {
-    public string EntityName { get; set; }
+    public string EntityName { get; }
 
-    public Type IndexedFieldType { get; set; }
+    public Type IndexedFieldType { get; }
 
-    public string Name { get; set; }
+    public string Name { get; }
 
-    public byte IndexedFieldNumber { get; set; }
+    public byte IndexedFieldNumber { get; }
 
-    public byte[] IncludedFieldNumbers { get; set; }
+    public byte[]? IncludedFieldNumbers { get; set; }
+
+    public IndexMeta(string entityName, Type indexedFieldType, string name, byte indexedFieldNumber, byte[]? includedFieldNumbers = null)
+    {
+        EntityName = entityName;
+        IndexedFieldType = indexedFieldType;
+        Name = name;
+        IndexedFieldNumber = indexedFieldNumber;
+        IncludedFieldNumbers = includedFieldNumbers;
+    }
 
     public byte[] GetAllFieldNumbers()
     {
@@ -47,15 +56,14 @@ internal class IndexMeta
 
     public static IndexMeta Deserialize(IReadableStream stream)
     {
-        var meta = new IndexMeta();
-        meta.EntityName = stream.ReadString();
-        meta.IndexedFieldType = Type.GetType(stream.ReadString());
-        meta.Name = stream.ReadString();
-        meta.IndexedFieldNumber = stream.ReadByte();
+        var entityName = stream.ReadString();
+        var indexedFieldType = Type.GetType(stream.ReadString());
+        var name = stream.ReadString();
+        var indexedFieldNumber = stream.ReadByte();
         var includedFieldNumbersLength = stream.ReadByte();
-        meta.IncludedFieldNumbers = stream.ReadByteArray(includedFieldNumbersLength);
+        var includedFieldNumbers = stream.ReadByteArray(includedFieldNumbersLength);
 
-        return meta;
+        return new IndexMeta(entityName, indexedFieldType, name, indexedFieldNumber, includedFieldNumbers);
     }
 
     public void Serialize(IWriteableStream stream)
@@ -64,8 +72,15 @@ internal class IndexMeta
         stream.WriteString(IndexedFieldType.AssemblyQualifiedName);
         stream.WriteString(Name);
         stream.WriteByte(IndexedFieldNumber);
-        stream.WriteByte((byte)IncludedFieldNumbers.Length);
-        stream.WriteByteArray(IncludedFieldNumbers, 0, IncludedFieldNumbers.Length);
+        if (IncludedFieldNumbers != null)
+        {
+            stream.WriteByte((byte)IncludedFieldNumbers.Length);
+            stream.WriteByteArray(IncludedFieldNumbers, 0, IncludedFieldNumbers.Length);
+        }
+        else
+        {
+            stream.WriteByte(0);
+        }
     }
 }
 
@@ -86,9 +101,9 @@ internal class IndexItem
 {
     public object PrimaryKeyValue { get; }
 
-    public object[] IncludedFields { get; }
+    public object?[] IncludedFields { get; }
 
-    public IndexItem(object primaryKeyValue, object[] includedFields)
+    public IndexItem(object primaryKeyValue, object?[] includedFields)
     {
         PrimaryKeyValue = primaryKeyValue;
         IncludedFields = includedFields;
@@ -99,7 +114,7 @@ internal interface IIndex
 {
     IndexMeta Meta { get; }
 
-    IndexValue GetEquals(object fieldValue);
+    IndexValue? GetEquals(object fieldValue);
 
     IEnumerable<IndexValue> GetNotEquals(object fieldValue);
 

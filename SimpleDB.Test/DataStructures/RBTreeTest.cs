@@ -18,15 +18,15 @@ public class RBTreeTest
     [Test]
     public void Insert_Root()
     {
-        _tree.InsertOrGetExists(1);
+        _tree.InsertOrGetExists(1, default);
         Assert.AreEqual("key: 1, color: Black, parent: -, left: -, right: -", AsString(_tree.Root));
     }
 
     [Test]
     public void Insert_LeftChild()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
 
         Assert.AreEqual("key: 5, color: Black, parent: -, left: 1, right: -", AsString(_tree.Root));
         Assert.AreEqual("key: 5, color: Black, parent: -, left: 1, right: -", AsString(node5));
@@ -36,8 +36,8 @@ public class RBTreeTest
     [Test]
     public void Insert_RightChild()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node10 = _tree.InsertOrGetExists(10);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
 
         Assert.AreEqual("key: 5, color: Black, parent: -, left: -, right: 10", AsString(_tree.Root));
         Assert.AreEqual("key: 5, color: Black, parent: -, left: -, right: 10", AsString(node5));
@@ -47,9 +47,9 @@ public class RBTreeTest
     [Test]
     public void Insert_LeftRightChild()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node10 = _tree.InsertOrGetExists(10);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
 
         Assert.AreEqual("key: 5, color: Black, parent: -, left: 1, right: 10", AsString(_tree.Root));
         Assert.AreEqual("key: 5, color: Black, parent: -, left: 1, right: 10", AsString(node5));
@@ -60,10 +60,10 @@ public class RBTreeTest
     [Test]
     public void Insert_Fixup_UncleRed_1()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node10 = _tree.InsertOrGetExists(10);
-        var node2 = _tree.InsertOrGetExists(2);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
+        var node2 = _tree.InsertOrGetExists(2, default);
 
         Assert.AreEqual("key: 5, color: Black, parent: -, left: 1, right: 10", AsString(_tree.Root));
         Assert.AreEqual("key: 5, color: Black, parent: -, left: 1, right: 10", AsString(node5));
@@ -75,10 +75,10 @@ public class RBTreeTest
     [Test]
     public void Insert_Fixup_UncleRed_2()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node10 = _tree.InsertOrGetExists(10);
-        var node9 = _tree.InsertOrGetExists(9);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
+        var node9 = _tree.InsertOrGetExists(9, default);
 
         Assert.AreEqual("key: 5, color: Black, parent: -, left: 1, right: 10", AsString(_tree.Root));
         Assert.AreEqual("key: 5, color: Black, parent: -, left: 1, right: 10", AsString(node5));
@@ -90,11 +90,11 @@ public class RBTreeTest
     [Test]
     public void Insert_Fixup_UncleBlackTriangle_RightLeftRotation()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node10 = _tree.InsertOrGetExists(10);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
         node1.Color = RBTree<int, int>.Color.Black;
-        var node9 = _tree.InsertOrGetExists(9);
+        var node9 = _tree.InsertOrGetExists(9, default);
 
         Assert.AreEqual("key: 9, color: Black, parent: -, left: 5, right: 10", AsString(_tree.Root));
         Assert.AreEqual("key: 9, color: Black, parent: -, left: 5, right: 10", AsString(node9));
@@ -106,11 +106,11 @@ public class RBTreeTest
     [Test]
     public void Insert_Fixup_UncleBlackTriangle_LeftRightRotation()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node10 = _tree.InsertOrGetExists(10);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
         node10.Color = RBTree<int, int>.Color.Black;
-        var node2 = _tree.InsertOrGetExists(2);
+        var node2 = _tree.InsertOrGetExists(2, default);
 
         Assert.AreEqual("key: 2, color: Black, parent: -, left: 1, right: 5", AsString(_tree.Root));
         Assert.AreEqual("key: 2, color: Black, parent: -, left: 1, right: 5", AsString(node2));
@@ -122,11 +122,11 @@ public class RBTreeTest
     [Test]
     public void Insert_Fixup_UncleBlackLine_LeftRotation()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node9 = _tree.InsertOrGetExists(9);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node9 = _tree.InsertOrGetExists(9, default);
         node1.Color = RBTree<int, int>.Color.Black;
-        var node10 = _tree.InsertOrGetExists(10);
+        var node10 = _tree.InsertOrGetExists(10, default);
 
         Assert.AreEqual("key: 9, color: Black, parent: -, left: 5, right: 10", AsString(_tree.Root));
         Assert.AreEqual("key: 9, color: Black, parent: -, left: 5, right: 10", AsString(node9));
@@ -138,11 +138,11 @@ public class RBTreeTest
     [Test]
     public void Insert_Fixup_UncleBlackLine_RightRotation()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node2 = _tree.InsertOrGetExists(2);
-        var node10 = _tree.InsertOrGetExists(10);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node2 = _tree.InsertOrGetExists(2, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
         node10.Color = RBTree<int, int>.Color.Black;
-        var node1 = _tree.InsertOrGetExists(1);
+        var node1 = _tree.InsertOrGetExists(1, default);
 
         Assert.AreEqual("key: 2, color: Black, parent: -, left: 1, right: 5", AsString(_tree.Root));
         Assert.AreEqual("key: 2, color: Black, parent: -, left: 1, right: 5", AsString(node2));
@@ -154,34 +154,34 @@ public class RBTreeTest
     [Test]
     public void Insert_1Twice_SameNode()
     {
-        var node = _tree.InsertOrGetExists(1);
-        var result = _tree.InsertOrGetExists(1);
+        var node = _tree.InsertOrGetExists(1, default);
+        var result = _tree.InsertOrGetExists(1, default);
         Assert.AreEqual(node, result);
     }
 
     [Test]
     public void Insert_20()
     {
-        var node1 = _tree.InsertOrGetExists(1);
-        var node2 = _tree.InsertOrGetExists(2);
-        var node3 = _tree.InsertOrGetExists(3);
-        var node4 = _tree.InsertOrGetExists(4);
-        var node5 = _tree.InsertOrGetExists(5);
-        var node6 = _tree.InsertOrGetExists(6);
-        var node7 = _tree.InsertOrGetExists(7);
-        var node8 = _tree.InsertOrGetExists(8);
-        var node9 = _tree.InsertOrGetExists(9);
-        var node10 = _tree.InsertOrGetExists(10);
-        var node11 = _tree.InsertOrGetExists(11);
-        var node12 = _tree.InsertOrGetExists(12);
-        var node13 = _tree.InsertOrGetExists(13);
-        var node14 = _tree.InsertOrGetExists(14);
-        var node15 = _tree.InsertOrGetExists(15);
-        var node16 = _tree.InsertOrGetExists(16);
-        var node17 = _tree.InsertOrGetExists(17);
-        var node18 = _tree.InsertOrGetExists(18);
-        var node19 = _tree.InsertOrGetExists(19);
-        var node20 = _tree.InsertOrGetExists(20);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node2 = _tree.InsertOrGetExists(2, default);
+        var node3 = _tree.InsertOrGetExists(3, default);
+        var node4 = _tree.InsertOrGetExists(4, default);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node6 = _tree.InsertOrGetExists(6, default);
+        var node7 = _tree.InsertOrGetExists(7, default);
+        var node8 = _tree.InsertOrGetExists(8, default);
+        var node9 = _tree.InsertOrGetExists(9, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
+        var node11 = _tree.InsertOrGetExists(11, default);
+        var node12 = _tree.InsertOrGetExists(12, default);
+        var node13 = _tree.InsertOrGetExists(13, default);
+        var node14 = _tree.InsertOrGetExists(14, default);
+        var node15 = _tree.InsertOrGetExists(15, default);
+        var node16 = _tree.InsertOrGetExists(16, default);
+        var node17 = _tree.InsertOrGetExists(17, default);
+        var node18 = _tree.InsertOrGetExists(18, default);
+        var node19 = _tree.InsertOrGetExists(19, default);
+        var node20 = _tree.InsertOrGetExists(20, default);
 
         // 1
         Assert.AreEqual(null, node8.Parent);
@@ -253,7 +253,7 @@ public class RBTreeTest
     [Test]
     public void Find_1()
     {
-        _tree.InsertOrGetExists(1);
+        _tree.InsertOrGetExists(1, default);
         var node = _tree.Find(1);
         Assert.AreEqual(1, node.Key);
     }
@@ -261,9 +261,9 @@ public class RBTreeTest
     [Test]
     public void Find_2()
     {
-        _tree.InsertOrGetExists(5);
-        _tree.InsertOrGetExists(1);
-        _tree.InsertOrGetExists(10);
+        _tree.InsertOrGetExists(5, default);
+        _tree.InsertOrGetExists(1, default);
+        _tree.InsertOrGetExists(10, default);
 
         var node = _tree.Find(10);
         Assert.AreEqual(10, node.Key);
@@ -278,9 +278,9 @@ public class RBTreeTest
     [Test]
     public void Find_No()
     {
-        _tree.InsertOrGetExists(5);
-        _tree.InsertOrGetExists(1);
-        _tree.InsertOrGetExists(10);
+        _tree.InsertOrGetExists(5, default);
+        _tree.InsertOrGetExists(1, default);
+        _tree.InsertOrGetExists(10, default);
 
         var node = _tree.Find(123);
         Assert.AreEqual(null, node);
@@ -299,7 +299,7 @@ public class RBTreeTest
         var count = 1000;
         for (int i = 0; i < count; i++)
         {
-            _tree.InsertOrGetExists(i);
+            _tree.InsertOrGetExists(i, default);
         }
         Assert.AreEqual(count, _tree.Root.GetAllNodesAsc().Count());
         for (int i = 0; i < count; i++)
@@ -314,7 +314,7 @@ public class RBTreeTest
     {
         var count = 1000;
         int i = 0;
-        while (i < count) _tree.InsertOrGetExists(i++);
+        while (i < count) _tree.InsertOrGetExists(i++, default);
         i = 0;
         foreach (var node in _tree.Root.GetAllNodesAsc())
         {
@@ -326,14 +326,14 @@ public class RBTreeTest
     public void Clear()
     {
         var count = 1000;
-        for (int i = 0; i < count; i++) _tree.InsertOrGetExists(i);
+        for (int i = 0; i < count; i++) _tree.InsertOrGetExists(i, default);
 
         _tree.Clear();
         Assert.AreEqual(null, _tree.Root);
 
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node10 = _tree.InsertOrGetExists(10);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
         Assert.AreEqual("key: 5, color: Black, parent: -, left: 1, right: 10", AsString(node5));
         Assert.AreEqual("key: 1, color: Red, parent: 5, left: -, right: -", AsString(node1));
         Assert.AreEqual("key: 10, color: Red, parent: 5, left: -, right: -", AsString(node10));
@@ -342,7 +342,7 @@ public class RBTreeTest
     [Test]
     public void Delete_Root()
     {
-        _tree.InsertOrGetExists(5);
+        _tree.InsertOrGetExists(5, default);
         _tree.Delete(5);
         Assert.AreEqual(null, _tree.Root);
     }
@@ -350,11 +350,11 @@ public class RBTreeTest
     [Test]
     public void Delete_AllNodes()
     {
-        _tree.InsertOrGetExists(1);
-        _tree.InsertOrGetExists(2);
-        _tree.InsertOrGetExists(3);
-        _tree.InsertOrGetExists(4);
-        _tree.InsertOrGetExists(5);
+        _tree.InsertOrGetExists(1, default);
+        _tree.InsertOrGetExists(2, default);
+        _tree.InsertOrGetExists(3, default);
+        _tree.InsertOrGetExists(4, default);
+        _tree.InsertOrGetExists(5, default);
         _tree.Delete(1);
         _tree.Delete(2);
         _tree.Delete(3);
@@ -366,9 +366,9 @@ public class RBTreeTest
     [Test]
     public void Delete_NoNode()
     {
-        _tree.InsertOrGetExists(5);
-        _tree.InsertOrGetExists(1);
-        _tree.InsertOrGetExists(10);
+        _tree.InsertOrGetExists(5, default);
+        _tree.InsertOrGetExists(1, default);
+        _tree.InsertOrGetExists(10, default);
 
         var node = _tree.Delete(123);
         Assert.AreEqual(null, node);
@@ -377,9 +377,9 @@ public class RBTreeTest
     [Test]
     public void Delete_NoChildren_Left()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node10 = _tree.InsertOrGetExists(10);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
 
         _tree.Delete(1);
 
@@ -393,9 +393,9 @@ public class RBTreeTest
     [Test]
     public void Delete_NoChildren_Right()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node10 = _tree.InsertOrGetExists(10);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
 
         _tree.Delete(10);
 
@@ -409,10 +409,10 @@ public class RBTreeTest
     [Test]
     public void Delete_LeftChildWithOneLeftChild()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node10 = _tree.InsertOrGetExists(10);
-        var node0 = _tree.InsertOrGetExists(0);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
+        var node0 = _tree.InsertOrGetExists(0, default);
         node1.Color = RBTree<int, int>.Color.Black;
         node0.Color = RBTree<int, int>.Color.Red;
 
@@ -429,10 +429,10 @@ public class RBTreeTest
     [Test]
     public void Delete_RightChildWithOneLeftChild()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node10 = _tree.InsertOrGetExists(10);
-        var node9 = _tree.InsertOrGetExists(9);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
+        var node9 = _tree.InsertOrGetExists(9, default);
         node10.Color = RBTree<int, int>.Color.Black;
         node9.Color = RBTree<int, int>.Color.Red;
 
@@ -449,10 +449,10 @@ public class RBTreeTest
     [Test]
     public void Delete_LeftChildWithOneRightChild()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node10 = _tree.InsertOrGetExists(10);
-        var node2 = _tree.InsertOrGetExists(2);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
+        var node2 = _tree.InsertOrGetExists(2, default);
         node1.Color = RBTree<int, int>.Color.Black;
         node2.Color = RBTree<int, int>.Color.Red;
 
@@ -469,10 +469,10 @@ public class RBTreeTest
     [Test]
     public void Delete_RightChildWithOneRightChild()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node10 = _tree.InsertOrGetExists(10);
-        var node11 = _tree.InsertOrGetExists(11);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
+        var node11 = _tree.InsertOrGetExists(11, default);
         node10.Color = RBTree<int, int>.Color.Black;
         node11.Color = RBTree<int, int>.Color.Red;
 
@@ -489,11 +489,11 @@ public class RBTreeTest
     [Test]
     public void Delete_LeftChildWithTwoChildren()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node10 = _tree.InsertOrGetExists(10);
-        var node2 = _tree.InsertOrGetExists(2);
-        var node3 = _tree.InsertOrGetExists(3);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
+        var node2 = _tree.InsertOrGetExists(2, default);
+        var node3 = _tree.InsertOrGetExists(3, default);
 
         _tree.Delete(2);
 
@@ -509,11 +509,11 @@ public class RBTreeTest
     [Test]
     public void Delete_RightChildWithTwoChildren()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node10 = _tree.InsertOrGetExists(10);
-        var node9 = _tree.InsertOrGetExists(9);
-        var node11 = _tree.InsertOrGetExists(11);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
+        var node9 = _tree.InsertOrGetExists(9, default);
+        var node11 = _tree.InsertOrGetExists(11, default);
 
         _tree.Delete(10);
 
@@ -529,20 +529,20 @@ public class RBTreeTest
     [Test]
     public void Delete_Case_1_DeleteLastNode()
     {
-        _tree.InsertOrGetExists(5);
+        _tree.InsertOrGetExists(5, default);
         _tree.Delete(5);
         Assert.AreEqual(null, _tree.Root);
 
-        var node5 = _tree.InsertOrGetExists(5);
+        var node5 = _tree.InsertOrGetExists(5, default);
         Assert.AreEqual(node5, _tree.Root);
     }
 
     [Test]
     public void Delete_Case_1()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node3 = _tree.InsertOrGetExists(3);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node3 = _tree.InsertOrGetExists(3, default);
         node1.Color = RBTree<int, int>.Color.Black;
         node5.Color = RBTree<int, int>.Color.Black;
 
@@ -558,11 +558,11 @@ public class RBTreeTest
     [Test]
     public void Delete_Case_2_4_LeftChild()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node10 = _tree.InsertOrGetExists(10);
-        var node11 = _tree.InsertOrGetExists(11);
-        var node12 = _tree.InsertOrGetExists(12);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
+        var node11 = _tree.InsertOrGetExists(11, default);
+        var node12 = _tree.InsertOrGetExists(12, default);
         node11.Color = RBTree<int, int>.Color.Red;
         node10.Color = RBTree<int, int>.Color.Black;
         node12.Color = RBTree<int, int>.Color.Black;
@@ -581,11 +581,11 @@ public class RBTreeTest
     [Test]
     public void Delete_Case_2_4_RightChild()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node2 = _tree.InsertOrGetExists(2);
-        var node10 = _tree.InsertOrGetExists(10);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node3 = _tree.InsertOrGetExists(3);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node2 = _tree.InsertOrGetExists(2, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node3 = _tree.InsertOrGetExists(3, default);
         node2.Color = RBTree<int, int>.Color.Red;
         node1.Color = RBTree<int, int>.Color.Black;
         node3.Color = RBTree<int, int>.Color.Black;
@@ -604,9 +604,9 @@ public class RBTreeTest
     [Test]
     public void Delete_Case_3_LeftChild()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node10 = _tree.InsertOrGetExists(10);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
         node1.Color = RBTree<int, int>.Color.Black;
         node10.Color = RBTree<int, int>.Color.Black;
 
@@ -622,9 +622,9 @@ public class RBTreeTest
     [Test]
     public void Delete_Case_3_RightChild()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node10 = _tree.InsertOrGetExists(10);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
         node1.Color = RBTree<int, int>.Color.Black;
         node10.Color = RBTree<int, int>.Color.Black;
 
@@ -640,10 +640,10 @@ public class RBTreeTest
     [Test]
     public void Delete_Case_5_LeftChild()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node11 = _tree.InsertOrGetExists(11);
-        var node10 = _tree.InsertOrGetExists(10);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node11 = _tree.InsertOrGetExists(11, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
 
         _tree.Delete(1);
 
@@ -658,10 +658,10 @@ public class RBTreeTest
     [Test]
     public void Delete_Case_5_RightChild()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node10 = _tree.InsertOrGetExists(10);
-        var node2 = _tree.InsertOrGetExists(2);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
+        var node2 = _tree.InsertOrGetExists(2, default);
 
         _tree.Delete(10);
 
@@ -676,11 +676,11 @@ public class RBTreeTest
     [Test]
     public void Delete_Case_6_LeftChild()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node11 = _tree.InsertOrGetExists(11);
-        var node10 = _tree.InsertOrGetExists(10);
-        var node12 = _tree.InsertOrGetExists(12);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node11 = _tree.InsertOrGetExists(11, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
+        var node12 = _tree.InsertOrGetExists(12, default);
 
         _tree.Delete(1);
 
@@ -696,11 +696,11 @@ public class RBTreeTest
     [Test]
     public void Delete_Case_6_RightChild()
     {
-        var node5 = _tree.InsertOrGetExists(5);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node10 = _tree.InsertOrGetExists(10);
-        var node2 = _tree.InsertOrGetExists(2);
-        var node0 = _tree.InsertOrGetExists(0);
+        var node5 = _tree.InsertOrGetExists(5, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
+        var node2 = _tree.InsertOrGetExists(2, default);
+        var node0 = _tree.InsertOrGetExists(0, default);
 
         _tree.Delete(10);
 
@@ -716,16 +716,16 @@ public class RBTreeTest
     [Test]
     public void Delete_Hard_1()
     {
-        var node13 = _tree.InsertOrGetExists(13);
-        var node8 = _tree.InsertOrGetExists(8);
-        var node17 = _tree.InsertOrGetExists(17);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node11 = _tree.InsertOrGetExists(11);
-        var node15 = _tree.InsertOrGetExists(15);
-        var node25 = _tree.InsertOrGetExists(25);
-        var node6 = _tree.InsertOrGetExists(6);
-        var node22 = _tree.InsertOrGetExists(22);
-        var node27 = _tree.InsertOrGetExists(27);
+        var node13 = _tree.InsertOrGetExists(13, default);
+        var node8 = _tree.InsertOrGetExists(8, default);
+        var node17 = _tree.InsertOrGetExists(17, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node11 = _tree.InsertOrGetExists(11, default);
+        var node15 = _tree.InsertOrGetExists(15, default);
+        var node25 = _tree.InsertOrGetExists(25, default);
+        var node6 = _tree.InsertOrGetExists(6, default);
+        var node22 = _tree.InsertOrGetExists(22, default);
+        var node27 = _tree.InsertOrGetExists(27, default);
 
         _tree.Delete(8);
 
@@ -746,14 +746,14 @@ public class RBTreeTest
     [Test]
     public void Delete_Hard_2()
     {
-        var node7 = _tree.InsertOrGetExists(7);
-        var node3 = _tree.InsertOrGetExists(3);
-        var node18 = _tree.InsertOrGetExists(18);
-        var node10 = _tree.InsertOrGetExists(10);
-        var node22 = _tree.InsertOrGetExists(22);
-        var node8 = _tree.InsertOrGetExists(8);
-        var node11 = _tree.InsertOrGetExists(11);
-        var node26 = _tree.InsertOrGetExists(26);
+        var node7 = _tree.InsertOrGetExists(7, default);
+        var node3 = _tree.InsertOrGetExists(3, default);
+        var node18 = _tree.InsertOrGetExists(18, default);
+        var node10 = _tree.InsertOrGetExists(10, default);
+        var node22 = _tree.InsertOrGetExists(22, default);
+        var node8 = _tree.InsertOrGetExists(8, default);
+        var node11 = _tree.InsertOrGetExists(11, default);
+        var node26 = _tree.InsertOrGetExists(26, default);
 
         _tree.Delete(3);
 
@@ -772,16 +772,16 @@ public class RBTreeTest
     [Test]
     public void Delete_Hard_3()
     {
-        var node13 = _tree.InsertOrGetExists(13);
-        var node8 = _tree.InsertOrGetExists(8);
-        var node17 = _tree.InsertOrGetExists(17);
-        var node1 = _tree.InsertOrGetExists(1);
-        var node11 = _tree.InsertOrGetExists(11);
-        var node15 = _tree.InsertOrGetExists(15);
-        var node25 = _tree.InsertOrGetExists(25);
-        var node6 = _tree.InsertOrGetExists(6);
-        var node22 = _tree.InsertOrGetExists(22);
-        var node27 = _tree.InsertOrGetExists(27);
+        var node13 = _tree.InsertOrGetExists(13, default);
+        var node8 = _tree.InsertOrGetExists(8, default);
+        var node17 = _tree.InsertOrGetExists(17, default);
+        var node1 = _tree.InsertOrGetExists(1, default);
+        var node11 = _tree.InsertOrGetExists(11, default);
+        var node15 = _tree.InsertOrGetExists(15, default);
+        var node25 = _tree.InsertOrGetExists(25, default);
+        var node6 = _tree.InsertOrGetExists(6, default);
+        var node22 = _tree.InsertOrGetExists(22, default);
+        var node27 = _tree.InsertOrGetExists(27, default);
 
         _tree.Delete(11);
 

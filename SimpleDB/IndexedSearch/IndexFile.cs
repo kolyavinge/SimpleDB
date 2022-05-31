@@ -79,7 +79,7 @@ internal class IndexFileFactory : IIndexFileFactory
     private readonly IFileSystem _fileSystem;
     private readonly IMemory _memory;
 
-    public IndexFileFactory(IFileSystem fileSystem, IMemory memory = null)
+    public IndexFileFactory(IFileSystem fileSystem, IMemory? memory = null)
     {
         _fileSystem = fileSystem;
         _memory = memory ?? Memory.Instance;

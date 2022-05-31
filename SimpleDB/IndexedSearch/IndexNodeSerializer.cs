@@ -8,20 +8,6 @@ namespace SimpleDB.IndexedSearch;
 
 internal class IndexNodeSerializer<TField> : IRBTreeNodeSerializer<TField, IndexValue> where TField : IComparable<TField>
 {
-    private readonly IndexMeta _indexMeta;
-    private readonly Type _primaryKeyType;
-    private readonly IDictionary<byte, Type> _fieldTypes;
-    private TField _lastKey;
-
-    public IndexNodeSerializer() { }
-
-    public IndexNodeSerializer(IndexMeta indexMeta, Type primaryKeyType, IDictionary<byte, Type> fieldTypes)
-    {
-        _indexMeta = indexMeta;
-        _primaryKeyType = primaryKeyType;
-        _fieldTypes = fieldTypes;
-    }
-
     public void SerializeKey(TField nodeKey, IWriteableStream stream)
     {
         SerializeObject(nodeKey, stream);
@@ -42,30 +28,6 @@ internal class IndexNodeSerializer<TField> : IRBTreeNodeSerializer<TField, Index
                 }
             }
         }
-    }
-
-    public TField DeserializeKey(IReadableStream stream)
-    {
-        return _lastKey = (TField)DeserializeObject(typeof(TField), stream);
-    }
-
-    public IndexValue DeserializeValue(IReadableStream stream)
-    {
-        var itemsCount = stream.ReadInt();
-        var indexValue = new IndexValue(_lastKey, new List<IndexItem>(itemsCount));
-        for (int itemIndex = 0; itemIndex < itemsCount; itemIndex++)
-        {
-            var indexItem = new IndexItem(DeserializeObject(_primaryKeyType, stream), new object[_indexMeta.IncludedFieldNumbers.Length]);
-            for (int includedFieldIndex = 0; includedFieldIndex < _indexMeta.IncludedFieldNumbers.Length; includedFieldIndex++)
-            {
-                var includedFieldNumber = _indexMeta.IncludedFieldNumbers[includedFieldIndex];
-                var includedFieldType = _fieldTypes[includedFieldNumber];
-                indexItem.IncludedFields[includedFieldIndex] = DeserializeObject(includedFieldType, stream);
-            }
-            indexValue.Items.Add(indexItem);
-        }
-
-        return indexValue;
     }
 
     private static void SerializeObject(object obj, IWriteableStream stream)
@@ -139,6 +101,45 @@ internal class IndexNodeSerializer<TField> : IRBTreeNodeSerializer<TField, Index
             stream.WriteInt(bytes.Length);
             stream.WriteByteArray(bytes, 0, bytes.Length);
         }
+    }
+}
+
+internal class IndexNodeDeserializer<TField> : IRBTreeNodeDeserializer<TField, IndexValue> where TField : IComparable<TField>
+{
+    private readonly IndexMeta _indexMeta;
+    private readonly Type _primaryKeyType;
+    private readonly IDictionary<byte, Type> _fieldTypes;
+    private TField? _lastKey;
+
+    public IndexNodeDeserializer(IndexMeta indexMeta, Type primaryKeyType, IDictionary<byte, Type> fieldTypes)
+    {
+        _indexMeta = indexMeta;
+        _primaryKeyType = primaryKeyType;
+        _fieldTypes = fieldTypes;
+    }
+
+    public TField DeserializeKey(IReadableStream stream)
+    {
+        return _lastKey = (TField)DeserializeObject(typeof(TField), stream);
+    }
+
+    public IndexValue DeserializeValue(IReadableStream stream)
+    {
+        var itemsCount = stream.ReadInt();
+        var indexValue = new IndexValue(_lastKey!, new List<IndexItem>(itemsCount));
+        for (int itemIndex = 0; itemIndex < itemsCount; itemIndex++)
+        {
+            var indexItem = new IndexItem(DeserializeObject(_primaryKeyType, stream), new object[_indexMeta.IncludedFieldNumbers.Length]);
+            for (int includedFieldIndex = 0; includedFieldIndex < _indexMeta.IncludedFieldNumbers.Length; includedFieldIndex++)
+            {
+                var includedFieldNumber = _indexMeta.IncludedFieldNumbers[includedFieldIndex];
+                var includedFieldType = _fieldTypes[includedFieldNumber];
+                indexItem.IncludedFields[includedFieldIndex] = DeserializeObject(includedFieldType, stream);
+            }
+            indexValue.Items.Add(indexItem);
+        }
+
+        return indexValue;
     }
 
     private static object DeserializeObject(Type type, IReadableStream stream)

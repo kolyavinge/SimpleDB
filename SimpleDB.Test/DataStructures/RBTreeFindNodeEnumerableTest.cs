@@ -10,11 +10,11 @@ class RBTreeFindNodeEnumerableTest
     public void RBTreeFindNodeEnumerable()
     {
         var tree = new RBTree<int, int>();
-        var node1 = tree.InsertOrGetExists(1);
-        var node2 = tree.InsertOrGetExists(2);
-        var node3 = tree.InsertOrGetExists(3);
-        var node4 = tree.InsertOrGetExists(4);
-        var node5 = tree.InsertOrGetExists(5);
+        tree.InsertOrGetExists(1, default);
+        var node2 = tree.InsertOrGetExists(2, default);
+        var node3 = tree.InsertOrGetExists(3, default);
+        var node4 = tree.InsertOrGetExists(4, default);
+        tree.InsertOrGetExists(5, default);
 
         var result = new RBTreeFindNodeEnumerable<int, int>(tree.Root, 3).ToList();
 

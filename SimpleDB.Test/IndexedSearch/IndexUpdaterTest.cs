@@ -25,29 +25,29 @@ class IndexUpdaterTest
                 new FieldMapping<TestEntity>(2, entity => entity.Double),
             });
         _indexId = new Index<int>(new IndexMeta
-        {
-            EntityName = "TestEntity",
-            Name = "index id",
-            IndexedFieldType = typeof(int),
-            IndexedFieldNumber = PrimaryKey.FieldNumber,
-            IncludedFieldNumbers = new byte[] { 1 }
-        });
+        (
+            "TestEntity",
+            typeof(int),
+            "index id",
+            PrimaryKey.FieldNumber,
+            new byte[] { 1 }
+        ));
         _indexInt = new Index<int>(new IndexMeta
-        {
-            EntityName = "TestEntity",
-            Name = "index int",
-            IndexedFieldType = typeof(int),
-            IndexedFieldNumber = 1,
-            IncludedFieldNumbers = new byte[] { 2 }
-        });
+        (
+            "TestEntity",
+            typeof(int),
+            "index int",
+            1,
+            new byte[] { 2 }
+        ));
         _indexDouble = new Index<double>(new IndexMeta
-        {
-            EntityName = "TestEntity",
-            Name = "index double",
-            IndexedFieldType = typeof(double),
-            IndexedFieldNumber = 2,
-            IncludedFieldNumbers = new byte[] { 1 }
-        });
+        (
+            "TestEntity",
+            typeof(double),
+            "index double",
+            2,
+            new byte[] { 1 }
+        ));
         _indexUpdater = new IndexUpdater(
             new IIndex[] { _indexId, _indexInt, _indexDouble },
             new IndexFileFactory(fileSystem));

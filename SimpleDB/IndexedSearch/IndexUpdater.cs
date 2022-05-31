@@ -72,7 +72,7 @@ internal class IndexUpdater : IIndexUpdater
         UpdateIndexes(entityMeta, entityIndexes, fieldValueDictionary);
     }
 
-    private void UpdateIndexes(EntityMeta entityMeta, IEnumerable<IIndex> entityIndexes, Dictionary<object, Dictionary<byte, object>> fieldValueDictionary)
+    private void UpdateIndexes(EntityMeta entityMeta, IEnumerable<IIndex> entityIndexes, Dictionary<object, Dictionary<byte, object?>> fieldValueDictionary)
     {
         foreach (var index in entityIndexes)
         {

@@ -38,8 +38,8 @@ internal static class IndexDeserializer
 
     private static Index<TField> Deserialize<TField>(IReadableStream stream, IndexMeta indexMeta, Type primaryKeyType, IDictionary<byte, Type> fieldTypes) where TField : IComparable<TField>
     {
-        var rbTreeSerializer = new RBTreeSerializer<TField, IndexValue>(new IndexNodeSerializer<TField>(indexMeta, primaryKeyType, fieldTypes));
-        var indexTree = rbTreeSerializer.Deserialize(stream);
+        var deserializer = new RBTreeDeserializer<TField, IndexValue>(new IndexNodeDeserializer<TField>(indexMeta, primaryKeyType, fieldTypes));
+        var indexTree = deserializer.Deserialize(stream);
 
         return new Index<TField>(indexMeta, indexTree);
     }

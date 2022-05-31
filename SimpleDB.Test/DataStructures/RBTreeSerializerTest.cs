@@ -7,7 +7,7 @@ using SimpleDB.Test.Tools;
 
 namespace SimpleDB.Test.DataStructures;
 
-class IntRBTreeSerializer : IRBTreeNodeSerializer<int, int>
+class IntRBTreeSerializerDeserializer : IRBTreeNodeSerializer<int, int>, IRBTreeNodeDeserializer<int, int>
 {
     public void SerializeKey(int nodeKey, IWriteableStream stream) { stream.WriteInt(nodeKey); }
     public int DeserializeKey(IReadableStream stream) { return stream.ReadInt(); }
@@ -20,13 +20,15 @@ class RBTreeSerializerTest
     private MemoryFileStream _stream;
     private RBTree<int, int> _tree;
     private RBTreeSerializer<int, int> _serializer;
+    private RBTreeDeserializer<int, int> _deserializer;
 
     [SetUp]
     public void Setup()
     {
         _stream = new MemoryFileStream();
         _tree = new RBTree<int, int>();
-        _serializer = new RBTreeSerializer<int, int>(new IntRBTreeSerializer());
+        _serializer = new RBTreeSerializer<int, int>(new IntRBTreeSerializerDeserializer());
+        _deserializer = new RBTreeDeserializer<int, int>(new IntRBTreeSerializerDeserializer());
     }
 
     [Test]
@@ -34,17 +36,17 @@ class RBTreeSerializerTest
     {
         _serializer.Serialize(_tree, _stream);
         _stream.Seek(0, System.IO.SeekOrigin.Begin);
-        var result = _serializer.Deserialize(_stream);
+        var result = _deserializer.Deserialize(_stream);
         Assert.AreEqual(null, result.Root);
     }
 
     [Test]
     public void SerializeDeserialize_One()
     {
-        _tree.InsertOrGetExists(1).Value = 1;
+        _tree.InsertOrGetExists(1, default).Value = 1;
         _serializer.Serialize(_tree, _stream);
         _stream.Seek(0, System.IO.SeekOrigin.Begin);
-        var result = _serializer.Deserialize(_stream);
+        var result = _deserializer.Deserialize(_stream);
         var originalNodes = _tree.Root.GetAllNodesAsc();
         var resultNodes = result.Root.GetAllNodesAsc();
         TreesAreEquals(originalNodes, resultNodes);
@@ -53,11 +55,11 @@ class RBTreeSerializerTest
     [Test]
     public void SerializeDeserialize_Two()
     {
-        _tree.InsertOrGetExists(1).Value = 1;
-        _tree.InsertOrGetExists(2).Value = 2;
+        _tree.InsertOrGetExists(1, default).Value = 1;
+        _tree.InsertOrGetExists(2, default).Value = 2;
         _serializer.Serialize(_tree, _stream);
         _stream.Seek(0, System.IO.SeekOrigin.Begin);
-        var result = _serializer.Deserialize(_stream);
+        var result = _deserializer.Deserialize(_stream);
         var originalNodes = _tree.Root.GetAllNodesAsc();
         var resultNodes = result.Root.GetAllNodesAsc();
         TreesAreEquals(originalNodes, resultNodes);
@@ -66,12 +68,12 @@ class RBTreeSerializerTest
     [Test]
     public void SerializeDeserialize_Three()
     {
-        _tree.InsertOrGetExists(1).Value = 1;
-        _tree.InsertOrGetExists(2).Value = 2;
-        _tree.InsertOrGetExists(3).Value = 3;
+        _tree.InsertOrGetExists(1, default).Value = 1;
+        _tree.InsertOrGetExists(2, default).Value = 2;
+        _tree.InsertOrGetExists(3, default).Value = 3;
         _serializer.Serialize(_tree, _stream);
         _stream.Seek(0, System.IO.SeekOrigin.Begin);
-        var result = _serializer.Deserialize(_stream);
+        var result = _deserializer.Deserialize(_stream);
         var originalNodes = _tree.Root.GetAllNodesAsc();
         var resultNodes = result.Root.GetAllNodesAsc();
         TreesAreEquals(originalNodes, resultNodes);
@@ -80,10 +82,10 @@ class RBTreeSerializerTest
     [Test]
     public void SerializeDeserialize_100()
     {
-        for (int i = 0; i < 100; i++) _tree.InsertOrGetExists(i).Value = i;
+        for (int i = 0; i < 100; i++) _tree.InsertOrGetExists(i, default).Value = i;
         _serializer.Serialize(_tree, _stream);
         _stream.Seek(0, System.IO.SeekOrigin.Begin);
-        var result = _serializer.Deserialize(_stream);
+        var result = _deserializer.Deserialize(_stream);
         var originalNodes = _tree.Root.GetAllNodesAsc();
         var resultNodes = result.Root.GetAllNodesAsc();
         TreesAreEquals(originalNodes, resultNodes);
@@ -92,10 +94,10 @@ class RBTreeSerializerTest
     [Test]
     public void SerializeDeserialize_1000()
     {
-        for (int i = 0; i < 1000; i++) _tree.InsertOrGetExists(i).Value = i;
+        for (int i = 0; i < 1000; i++) _tree.InsertOrGetExists(i, default).Value = i;
         _serializer.Serialize(_tree, _stream);
         _stream.Seek(0, System.IO.SeekOrigin.Begin);
-        var result = _serializer.Deserialize(_stream);
+        var result = _deserializer.Deserialize(_stream);
         var originalNodes = _tree.Root.GetAllNodesAsc();
         var resultNodes = result.Root.GetAllNodesAsc();
         TreesAreEquals(originalNodes, resultNodes);

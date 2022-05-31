@@ -403,7 +403,7 @@ class SelectQueryExecutorTest
             OrderByClause = new OrderByClause(new[] { new OrderByClause.PrimaryKey(SortDirection.Desc) })
         };
 
-        var indexId = new Index<int>(new IndexMeta { EntityName = "TestEntity", Name = "indexId", IndexedFieldType = typeof(int), IndexedFieldNumber = PrimaryKey.FieldNumber });
+        var indexId = new Index<int>(new IndexMeta("TestEntity", typeof(int), "indexId", PrimaryKey.FieldNumber));
         indexId.Add(1, new IndexItem(1, new object[0]));
         indexId.Add(2, new IndexItem(2, new object[0]));
         indexId.Add(3, new IndexItem(3, new object[0]));
@@ -432,12 +432,12 @@ class SelectQueryExecutorTest
             OrderByClause = new OrderByClause(new OrderByClause.OrderByClauseItem[] { new OrderByClause.Field(1, SortDirection.Desc), new OrderByClause.PrimaryKey(SortDirection.Desc) })
         };
 
-        var indexId = new Index<int>(new IndexMeta { EntityName = "TestEntity", Name = "indexId", IndexedFieldType = typeof(int), IndexedFieldNumber = PrimaryKey.FieldNumber });
+        var indexId = new Index<int>(new IndexMeta("TestEntity", typeof(int), "indexId", PrimaryKey.FieldNumber));
         indexId.Add(1, new IndexItem(1, new object[0]));
         indexId.Add(2, new IndexItem(2, new object[0]));
         indexId.Add(3, new IndexItem(3, new object[0]));
 
-        var indexByte = new Index<byte>(new IndexMeta { EntityName = "TestEntity", Name = "indexByte", IndexedFieldType = typeof(byte), IndexedFieldNumber = 1 });
+        var indexByte = new Index<byte>(new IndexMeta("TestEntity", typeof(byte), "indexByte", 1));
         indexByte.Add((byte)10, new IndexItem(1, new object[0]));
         indexByte.Add((byte)20, new IndexItem(2, new object[0]));
         indexByte.Add((byte)30, new IndexItem(3, new object[0]));

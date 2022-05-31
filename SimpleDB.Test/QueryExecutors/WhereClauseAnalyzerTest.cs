@@ -39,20 +39,20 @@ class WhereClauseAnalyzerTest
         collection.Insert(new TestEntity { Id = 20, A = 6, B = 7, C = 8, D = 9, E = 10, S = "987" });
 
         var indexId = new Index<int>(
-            new IndexMeta { EntityName = "TestEntity", Name = "indexId", IndexedFieldType = typeof(int), IndexedFieldNumber = PrimaryKey.FieldNumber, IncludedFieldNumbers = new byte[] { 1 } });
+            new IndexMeta("TestEntity", typeof(int), "indexId", PrimaryKey.FieldNumber, new byte[] { 1 }));
         indexId.Add(10, new IndexItem(10, new object[] { 1 }));
         indexId.Add(20, new IndexItem(20, new object[] { 6 }));
 
-        var indexA = new Index<int>(new IndexMeta { EntityName = "TestEntity", Name = "indexA", IndexedFieldType = typeof(int), IndexedFieldNumber = 1 });
+        var indexA = new Index<int>(new IndexMeta("TestEntity", typeof(int), "indexA", 1));
         indexA.Add(1, new IndexItem(10, new object[0]));
         indexA.Add(6, new IndexItem(20, new object[0]));
 
-        var indexB = new Index<int>(new IndexMeta { EntityName = "TestEntity", Name = "indexB", IndexedFieldType = typeof(int), IndexedFieldNumber = 2 });
+        var indexB = new Index<int>(new IndexMeta("TestEntity", typeof(int), "indexB", 2));
         indexB.Add(2, new IndexItem(10, new object[0]));
         indexB.Add(7, new IndexItem(20, new object[0]));
 
         var indexS = new Index<string>(
-            new IndexMeta { EntityName = "TestEntity", Name = "indexS", IndexedFieldType = typeof(string), IndexedFieldNumber = 6, IncludedFieldNumbers = new byte[] { 5 } });
+            new IndexMeta("TestEntity", typeof(string), "indexS", 6, new byte[] { 5 }));
         indexS.Add("123", new IndexItem(10, new object[] { 5 }));
         indexS.Add("987", new IndexItem(20, new object[] { 10 }));
 

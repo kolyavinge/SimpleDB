@@ -185,9 +185,9 @@ internal class DataFile
         else // object
         {
             byte[] bytes;
-            if (fieldValue is byte[])
+            if (fieldValue is byte[] byteArrayValue)
             {
-                bytes = (byte[])fieldValue;
+                bytes = byteArrayValue;
             }
             else if (fieldValue is ObjectContainer)
             {

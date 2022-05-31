@@ -6,11 +6,12 @@ namespace SimpleDB.DataStructures;
 internal interface IRBTreeNodeSerializer<TKey, TValue> where TKey : IComparable<TKey>
 {
     void SerializeKey(TKey nodeKey, IWriteableStream stream);
-
-    TKey DeserializeKey(IReadableStream stream);
-
     void SerializeValue(TValue nodeValue, IWriteableStream stream);
+}
 
+internal interface IRBTreeNodeDeserializer<TKey, TValue> where TKey : IComparable<TKey>
+{
+    TKey DeserializeKey(IReadableStream stream);
     TValue DeserializeValue(IReadableStream stream);
 }
 
@@ -46,14 +47,25 @@ internal class RBTreeSerializer<TKey, TValue> where TKey : IComparable<TKey>
         _nodeSerializer.SerializeKey(node.Key, stream);
         _nodeSerializer.SerializeValue(node.Value, stream);
     }
+}
+
+internal class RBTreeDeserializer<TKey, TValue> where TKey : IComparable<TKey>
+{
+    private const byte _emptyTreeFlag = 255;
+
+    private readonly IRBTreeNodeDeserializer<TKey, TValue> _nodeSerializer;
+
+    public RBTreeDeserializer(IRBTreeNodeDeserializer<TKey, TValue> nodeSerializer)
+    {
+        _nodeSerializer = nodeSerializer;
+    }
 
     public RBTree<TKey, TValue> Deserialize(IReadableStream stream)
     {
         var emptyFlag = stream.ReadByte();
         if (emptyFlag == _emptyTreeFlag) return new RBTree<TKey, TValue>();
         else stream.Seek(-1, System.IO.SeekOrigin.Current);
-        bool hasLeft, hasRight;
-        var root = ReadNode(stream, out hasLeft, out hasRight);
+        var root = ReadNode(stream, out bool hasLeft, out bool hasRight);
         if (hasLeft) ReadNodeRec(root, true, stream);
         if (hasRight) ReadNodeRec(root, false, stream);
 
@@ -62,8 +74,7 @@ internal class RBTreeSerializer<TKey, TValue> where TKey : IComparable<TKey>
 
     private void ReadNodeRec(RBTree<TKey, TValue>.Node parent, bool toLeft, IReadableStream stream)
     {
-        bool hasLeft, hasRight;
-        var node = ReadNode(stream, out hasLeft, out hasRight);
+        var node = ReadNode(stream, out bool hasLeft, out bool hasRight);
         if (toLeft)
         {
             parent.Left = node;
@@ -87,6 +98,6 @@ internal class RBTreeSerializer<TKey, TValue> where TKey : IComparable<TKey>
         var key = _nodeSerializer.DeserializeKey(stream);
         var value = _nodeSerializer.DeserializeValue(stream);
 
-        return new RBTree<TKey, TValue>.Node(key) { Color = color, Value = value };
+        return new RBTree<TKey, TValue>.Node(key, value) { Color = color };
     }
 }

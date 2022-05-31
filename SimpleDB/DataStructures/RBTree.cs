@@ -10,15 +10,16 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
     public sealed class Node
     {
         public readonly TKey Key;
-        public TValue? Value;
+        public TValue Value;
         public Color Color;
         public Node? Parent;
         public Node? Left;
         public Node? Right;
 
-        public Node(TKey key)
+        public Node(TKey key, TValue value)
         {
             Key = key;
+            Value = value;
             Color = Color.Red;
         }
 
@@ -51,7 +52,7 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
         }
     }
 
-    private static readonly Node DummyNode = new(default) { Color = Color.Black };
+    private static readonly Node DummyNode = new(default!, default!) { Color = Color.Black };
 
     public RBTree() { }
 
@@ -81,18 +82,18 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
         return null;
     }
 
-    public Node InsertOrGetExists(TKey key)
+    public Node InsertOrGetExists(TKey key, TValue insertedValue)
     {
-        if (Root != null) return NodeInsertOrGetExists(key);
-        else return RootInsert(key);
+        if (Root != null) return NodeInsertOrGetExists(key, insertedValue);
+        else return RootInsert(key, insertedValue);
     }
 
-    private Node RootInsert(TKey key)
+    private Node RootInsert(TKey key, TValue insertedValue)
     {
-        return Root = new Node(key) { Color = Color.Black };
+        return Root = new Node(key, insertedValue) { Color = Color.Black };
     }
 
-    private Node NodeInsertOrGetExists(TKey key)
+    private Node NodeInsertOrGetExists(TKey key, TValue insertedValue)
     {
         Node node;
         var parent = Root!;
@@ -104,7 +105,7 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
                 if (parent.Left != null) parent = parent.Left;
                 else
                 {
-                    node = new Node(key);
+                    node = new Node(key, insertedValue);
                     parent.Left = node;
                     node.Parent = parent;
                     break;
@@ -115,7 +116,7 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
                 if (parent.Right != null) parent = parent.Right;
                 else
                 {
-                    node = new Node(key);
+                    node = new Node(key, insertedValue);
                     parent.Right = node;
                     node.Parent = parent;
                     break;
