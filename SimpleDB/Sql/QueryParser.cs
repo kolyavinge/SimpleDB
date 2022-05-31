@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using SimpleDB.Core;
 using SimpleDB.Queries;
 
-namespace SimpleDB.Sql
-{
-    internal abstract class QueryParser
-    {
-        public abstract AbstractQuery GetQuery(QueryContext context, List<Token> tokens);
-    }
+namespace SimpleDB.Sql;
 
-    internal class InvalidQueryException : Exception
-    {
-        public InvalidQueryException() { }
-    }
+internal abstract class QueryParser
+{
+    public abstract AbstractQuery GetQuery(QueryContext context, List<Token> tokens);
+}
+
+internal class InvalidQueryException : Exception
+{
+    public InvalidQueryException() { }
 }

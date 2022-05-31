@@ -1,15 +1,14 @@
 ﻿using System;
 
-namespace SimpleDB
-{
-    public class PrimaryKeyException : Exception
-    {
-    }
+namespace SimpleDB;
 
-    public class DBEngineException : Exception
+public class PrimaryKeyException : Exception
+{
+}
+
+public class DBEngineException : Exception
+{
+    public DBEngineException(string message) : base(message)
     {
-        public DBEngineException(string message) : base(message)
-        {
-        }
     }
 }

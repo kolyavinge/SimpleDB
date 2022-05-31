@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace SimpleDB.Sql;
 
-namespace SimpleDB.Sql
+internal enum QueryType
 {
-    internal enum QueryType
-    {
-        Select,
-        Insert,
-        Update,
-        Delete
-    }
+    Select,
+    Insert,
+    Update,
+    Delete
 }

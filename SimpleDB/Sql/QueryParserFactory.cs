@@ -2,32 +2,31 @@
 using System.Linq;
 using System.Reflection;
 
-namespace SimpleDB.Sql
+namespace SimpleDB.Sql;
+
+internal class QueryParserFactory
 {
-    internal class QueryParserFactory
+    public QueryParser MakeParser(QueryType queryType)
     {
-        public QueryParser MakeParser(QueryType queryType)
-        {
-            return Assembly.GetExecutingAssembly()
-                .GetTypes()
-                .Where(t =>
-                    t.IsClass
-                    && !t.IsAbstract
-                    && t.GetCustomAttribute<QueryParserAttribute>() != null
-                    && t.GetCustomAttribute<QueryParserAttribute>().QueryType == queryType)
-                .Select(t => (QueryParser)Activator.CreateInstance(t))
-                .First();
-        }
+        return Assembly.GetExecutingAssembly()
+            .GetTypes()
+            .Where(t =>
+                t.IsClass
+                && !t.IsAbstract
+                && t.GetCustomAttribute<QueryParserAttribute>() != null
+                && t.GetCustomAttribute<QueryParserAttribute>().QueryType == queryType)
+            .Select(t => (QueryParser)Activator.CreateInstance(t))
+            .First();
     }
+}
 
-    [AttributeUsage(AttributeTargets.Class)]
-    internal class QueryParserAttribute : Attribute
+[AttributeUsage(AttributeTargets.Class)]
+internal class QueryParserAttribute : Attribute
+{
+    public QueryType QueryType { get; }
+
+    public QueryParserAttribute(QueryType queryType)
     {
-        public QueryType QueryType { get; }
-
-        public QueryParserAttribute(QueryType queryType)
-        {
-            QueryType = queryType;
-        }
+        QueryType = queryType;
     }
 }

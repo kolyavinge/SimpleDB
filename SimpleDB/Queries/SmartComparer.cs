@@ -1,77 +1,76 @@
 ﻿using System;
 using SimpleDB.Utils.ObjectExtension;
 
-namespace SimpleDB.Queries
+namespace SimpleDB.Queries;
+
+internal static class SmartComparer
 {
-    internal static class SmartComparer
+    public static bool AreEquals(object? x, object? y)
     {
-        public static bool AreEquals(object? x, object? y)
+        if (x == null && y == null) return true;
+        if (x == null && y != null || x != null && y == null) return false;
+        if (x!.GetType() != y!.GetType() && x.IsStandartType() && y.IsStandartType())
         {
-            if (x == null && y == null) return true;
-            if (x == null && y != null || x != null && y == null) return false;
-            if (x!.GetType() != y!.GetType() && x.IsStandartType() && y.IsStandartType())
+            if (x.GetStandartTypeSize() > y.GetStandartTypeSize())
             {
-                if (x.GetStandartTypeSize() > y.GetStandartTypeSize())
+                if (x.IsUnsignedType() && y.IsNegative())
                 {
-                    if (x.IsUnsignedType() && y.IsNegative())
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        y = Convert.ChangeType(y, x.GetType());
-                    }
+                    return false;
                 }
                 else
                 {
-                    if (y.IsUnsignedType() && x.IsNegative())
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        x = Convert.ChangeType(x, y.GetType());
-                    }
+                    y = Convert.ChangeType(y, x.GetType());
                 }
             }
-
-            return x.Equals(y);
-        }
-
-        public static int Compare(object? x, object? y)
-        {
-            if (x == null && y == null) return 0;
-            if (x == null && y != null || x != null && y == null) throw new DBEngineException("Values to compare are invalid");
-            if (x!.GetType() != y!.GetType() && x.IsStandartType() && y.IsStandartType())
+            else
             {
-                if (x.GetStandartTypeSize() > y.GetStandartTypeSize())
+                if (y.IsUnsignedType() && x.IsNegative())
                 {
-                    if (x.IsUnsignedType() && y.IsNegative())
-                    {
-                        return -1;
-                    }
-                    else
-                    {
-                        y = Convert.ChangeType(y, x.GetType());
-                    }
+                    return false;
                 }
                 else
                 {
-                    if (y.IsUnsignedType() && x.IsNegative())
-                    {
-                        return 1;
-                    }
-                    else
-                    {
-                        x = Convert.ChangeType(x, y.GetType());
-                    }
+                    x = Convert.ChangeType(x, y.GetType());
                 }
             }
-
-            var xComparable = (IComparable)x;
-            var yComparable = (IComparable)y;
-
-            return xComparable.CompareTo(yComparable);
         }
+
+        return x.Equals(y);
+    }
+
+    public static int Compare(object? x, object? y)
+    {
+        if (x == null && y == null) return 0;
+        if (x == null && y != null || x != null && y == null) throw new DBEngineException("Values to compare are invalid");
+        if (x!.GetType() != y!.GetType() && x.IsStandartType() && y.IsStandartType())
+        {
+            if (x.GetStandartTypeSize() > y.GetStandartTypeSize())
+            {
+                if (x.IsUnsignedType() && y.IsNegative())
+                {
+                    return -1;
+                }
+                else
+                {
+                    y = Convert.ChangeType(y, x.GetType());
+                }
+            }
+            else
+            {
+                if (y.IsUnsignedType() && x.IsNegative())
+                {
+                    return 1;
+                }
+                else
+                {
+                    x = Convert.ChangeType(x, y.GetType());
+                }
+            }
+        }
+
+        var xComparable = (IComparable)x;
+        var yComparable = (IComparable)y;
+
+        return xComparable.CompareTo(yComparable);
     }
 }

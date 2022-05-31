@@ -2,33 +2,32 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace SimpleDB
+namespace SimpleDB;
+
+public interface IQueryable<TEntity>
 {
-    public interface IQueryable<TEntity>
-    {
-        IQueryableSelect<TEntity> Select(Expression<Func<TEntity, object>>? selectExpression = null);
+    IQueryableSelect<TEntity> Select(Expression<Func<TEntity, object>>? selectExpression = null);
 
-        IQueryableSelect<TEntity> Where(Expression<Func<TEntity, bool>> whereExpression);
+    IQueryableSelect<TEntity> Where(Expression<Func<TEntity, bool>> whereExpression);
 
-        IQueryableSelect<TEntity> OrderBy(Expression<Func<TEntity, object>> orderbyExpression, SortDirection direction);
+    IQueryableSelect<TEntity> OrderBy(Expression<Func<TEntity, object>> orderbyExpression, SortDirection direction);
 
-        IQueryableSelect<TEntity> Skip(int value);
+    IQueryableSelect<TEntity> Skip(int value);
 
-        IQueryableSelect<TEntity> Limit(int value);
+    IQueryableSelect<TEntity> Limit(int value);
 
-        List<TEntity> ToList();
+    List<TEntity> ToList();
 
-        int Update(Expression<Func<TEntity, TEntity>> updateExpression, Expression<Func<TEntity, bool>>? whereExpression = null);
+    int Update(Expression<Func<TEntity, TEntity>> updateExpression, Expression<Func<TEntity, bool>>? whereExpression = null);
 
-        int Delete(Expression<Func<TEntity, bool>>? whereExpression = null);
+    int Delete(Expression<Func<TEntity, bool>>? whereExpression = null);
 
-        IMergeQueryResult<TEntity> Merge(Expression<Func<TEntity, object>> mergeFieldsExpression, IEnumerable<TEntity> entities);
+    IMergeQueryResult<TEntity> Merge(Expression<Func<TEntity, object>> mergeFieldsExpression, IEnumerable<TEntity> entities);
 
-        int Count();
-    }
+    int Count();
+}
 
-    public interface IMergeQueryResult<TEntity>
-    {
-        List<TEntity> NewItems { get; }
-    }
+public interface IMergeQueryResult<TEntity>
+{
+    List<TEntity> NewItems { get; }
 }

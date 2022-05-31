@@ -3,35 +3,34 @@ using System.Linq;
 using SimpleDB.Core;
 using SimpleDB.Utils.EnumerableExtension;
 
-namespace SimpleDB.QueryExecutors
+namespace SimpleDB.QueryExecutors;
+
+internal interface IFieldValueReader
 {
-    internal interface IFieldValueReader
+    void ReadFieldValues(IEnumerable<FieldValueCollection> fieldValueCollections, IReadOnlyCollection<byte> fieldNumbers);
+}
+
+internal class FieldValueReader : IFieldValueReader
+{
+    private readonly DataFile _dataFile;
+
+    public FieldValueReader(DataFile dataFile)
     {
-        void ReadFieldValues(IEnumerable<FieldValueCollection> fieldValueCollections, IReadOnlyCollection<byte> fieldNumbers);
+        _dataFile = dataFile;
     }
 
-    internal class FieldValueReader : IFieldValueReader
+    public void ReadFieldValues(IEnumerable<FieldValueCollection> fieldValueCollections, IReadOnlyCollection<byte> fieldNumbers)
     {
-        private readonly DataFile _dataFile;
-
-        public FieldValueReader(DataFile dataFile)
+        var remainingFieldNumbers = new HashSet<byte>();
+        foreach (var fieldValueCollection in fieldValueCollections.OrderBy(x => x.PrimaryKey.StartDataFileOffset))
         {
-            _dataFile = dataFile;
-        }
-
-        public void ReadFieldValues(IEnumerable<FieldValueCollection> fieldValueCollections, IReadOnlyCollection<byte> fieldNumbers)
-        {
-            var remainingFieldNumbers = new HashSet<byte>();
-            foreach (var fieldValueCollection in fieldValueCollections.OrderBy(x => x.PrimaryKey.StartDataFileOffset))
+            remainingFieldNumbers.Clear();
+            remainingFieldNumbers.AddRange(fieldNumbers);
+            remainingFieldNumbers.RemoveRange(fieldValueCollection.Select(x => x.Number));
+            if (remainingFieldNumbers.Any())
             {
-                remainingFieldNumbers.Clear();
-                remainingFieldNumbers.AddRange(fieldNumbers);
-                remainingFieldNumbers.RemoveRange(fieldValueCollection.Select(x => x.Number));
-                if (remainingFieldNumbers.Any())
-                {
-                    var primaryKey = fieldValueCollection.PrimaryKey;
-                    _dataFile.ReadFields(primaryKey!.StartDataFileOffset, primaryKey.EndDataFileOffset, remainingFieldNumbers, fieldValueCollection);
-                }
+                var primaryKey = fieldValueCollection.PrimaryKey;
+                _dataFile.ReadFields(primaryKey!.StartDataFileOffset, primaryKey.EndDataFileOffset, remainingFieldNumbers, fieldValueCollection);
             }
         }
     }

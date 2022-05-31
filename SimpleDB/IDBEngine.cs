@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace SimpleDB;
 
-namespace SimpleDB
+public interface IDBEngine
 {
-    public interface IDBEngine
-    {
-        ICollection<TEntity> GetCollection<TEntity>();
-    }
+    ICollection<TEntity> GetCollection<TEntity>();
 }

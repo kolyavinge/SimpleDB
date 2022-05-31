@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace SimpleDB.Maintenance;
 
-namespace SimpleDB.Maintenance
+public interface IDefragmentator
 {
-    public interface IDefragmentator
-    {
-        void DefragmentDataFile(string dataFileName);
-    }
+    void DefragmentDataFile(string dataFileName);
 }

@@ -1,30 +1,29 @@
 ﻿using System.Collections.Generic;
 using SimpleDB.Core;
 
-namespace SimpleDB.IndexedSearch
+namespace SimpleDB.IndexedSearch;
+
+internal class IndexValueConverter
 {
-    internal class IndexValueConverter
+    private readonly IndexMeta _indexMeta;
+
+    public IndexValueConverter(IndexMeta indexMeta)
     {
-        private readonly IndexMeta _indexMeta;
+        _indexMeta = indexMeta;
+    }
 
-        public IndexValueConverter(IndexMeta indexMeta)
+    public IEnumerable<FieldValue> GetFieldValues(IndexValue indexValue, IndexItem indexItem)
+    {
+        if (_indexMeta.IndexedFieldNumber != PrimaryKey.FieldNumber)
         {
-            _indexMeta = indexMeta;
+            yield return new FieldValue(_indexMeta.IndexedFieldNumber, indexValue.IndexedFieldValue);
         }
-
-        public IEnumerable<FieldValue> GetFieldValues(IndexValue indexValue, IndexItem indexItem)
+        var includedFieldNumbers = _indexMeta.IncludedFieldNumbers ?? new byte[0];
+        for (int includedFieldNumberIndex = 0; includedFieldNumberIndex < includedFieldNumbers.Length; includedFieldNumberIndex++)
         {
-            if (_indexMeta.IndexedFieldNumber != PrimaryKey.FieldNumber)
-            {
-                yield return new FieldValue(_indexMeta.IndexedFieldNumber, indexValue.IndexedFieldValue);
-            }
-            var includedFieldNumbers = _indexMeta.IncludedFieldNumbers ?? new byte[0];
-            for (int includedFieldNumberIndex = 0; includedFieldNumberIndex < includedFieldNumbers.Length; includedFieldNumberIndex++)
-            {
-                var number = includedFieldNumbers[includedFieldNumberIndex];
-                var value = indexItem.IncludedFields[includedFieldNumberIndex];
-                yield return new FieldValue(number, value);
-            }
+            var number = includedFieldNumbers[includedFieldNumberIndex];
+            var value = indexItem.IncludedFields[includedFieldNumberIndex];
+            yield return new FieldValue(number, value);
         }
     }
 }

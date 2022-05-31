@@ -1,214 +1,210 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
-namespace SimpleDB.Infrastructure
+namespace SimpleDB.Infrastructure;
+
+internal interface IMemory
 {
-    internal interface IMemory
+    IMemoryBuffer GetBuffer();
+}
+
+internal class Memory : IMemory
+{
+    public static readonly Memory Instance = new Memory();
+
+    private Memory() { }
+
+    public IMemoryBuffer GetBuffer()
     {
-        IMemoryBuffer GetBuffer();
+        return new MemoryBuffer();
+    }
+}
+
+internal interface IMemoryBuffer : IReadableStream, IWriteableStream
+{
+    byte[] BufferArray { get; }
+}
+
+internal class MemoryBuffer : IMemoryBuffer
+{
+    private readonly MemoryStream _memoryStream;
+    private readonly BinaryReader _reader;
+    private readonly BinaryWriter _writer;
+
+    public byte[] BufferArray => _memoryStream.ToArray();
+
+    public long Position => _memoryStream.Position;
+
+    public long Length => _memoryStream.Length;
+
+    public MemoryBuffer()
+    {
+        _memoryStream = new MemoryStream();
+        _reader = new BinaryReader(_memoryStream);
+        _writer = new BinaryWriter(_memoryStream);
     }
 
-    internal class Memory : IMemory
+    public void Dispose()
     {
-        public static readonly Memory Instance = new Memory();
-
-        private Memory() { }
-
-        public IMemoryBuffer GetBuffer()
-        {
-            return new MemoryBuffer();
-        }
+        _memoryStream.Dispose();
     }
 
-    internal interface IMemoryBuffer : IReadableStream, IWriteableStream
+    public bool ReadBool()
     {
-        byte[] BufferArray { get; }
+        return _reader.ReadBoolean();
     }
 
-    internal class MemoryBuffer : IMemoryBuffer
+    public byte ReadByte()
     {
-        private readonly MemoryStream _memoryStream;
-        private readonly BinaryReader _reader;
-        private readonly BinaryWriter _writer;
+        return _reader.ReadByte();
+    }
 
-        public byte[] BufferArray => _memoryStream.ToArray();
+    public char ReadChar()
+    {
+        return _reader.ReadChar();
+    }
 
-        public long Position => _memoryStream.Position;
+    public decimal ReadDecimal()
+    {
+        return _reader.ReadDecimal();
+    }
 
-        public long Length => _memoryStream.Length;
+    public double ReadDouble()
+    {
+        return _reader.ReadDouble();
+    }
 
-        public MemoryBuffer()
-        {
-            _memoryStream = new MemoryStream();
-            _reader = new BinaryReader(_memoryStream);
-            _writer = new BinaryWriter(_memoryStream);
-        }
+    public float ReadFloat()
+    {
+        return _reader.ReadSingle();
+    }
 
-        public void Dispose()
-        {
-            _memoryStream.Dispose();
-        }
+    public int ReadInt()
+    {
+        return _reader.ReadInt32();
+    }
 
-        public bool ReadBool()
-        {
-            return _reader.ReadBoolean();
-        }
+    public long ReadLong()
+    {
+        return _reader.ReadInt64();
+    }
 
-        public byte ReadByte()
-        {
-            return _reader.ReadByte();
-        }
+    public sbyte ReadSByte()
+    {
+        return _reader.ReadSByte();
+    }
 
-        public char ReadChar()
-        {
-            return _reader.ReadChar();
-        }
+    public short ReadShort()
+    {
+        return _reader.ReadInt16();
+    }
 
-        public decimal ReadDecimal()
-        {
-            return _reader.ReadDecimal();
-        }
+    public string ReadString()
+    {
+        return _reader.ReadString();
+    }
 
-        public double ReadDouble()
-        {
-            return _reader.ReadDouble();
-        }
+    public uint ReadUInt()
+    {
+        return _reader.ReadUInt32();
+    }
 
-        public float ReadFloat()
-        {
-            return _reader.ReadSingle();
-        }
+    public ulong ReadULong()
+    {
+        return _reader.ReadUInt64();
+    }
 
-        public int ReadInt()
-        {
-            return _reader.ReadInt32();
-        }
+    public ushort ReadUShort()
+    {
+        return _reader.ReadUInt16();
+    }
 
-        public long ReadLong()
-        {
-            return _reader.ReadInt64();
-        }
+    public byte[] ReadByteArray(int count)
+    {
+        return _reader.ReadBytes(count);
+    }
 
-        public sbyte ReadSByte()
-        {
-            return _reader.ReadSByte();
-        }
+    public void ReadByteArray(byte[] buffer, int index, int count)
+    {
+        _reader.Read(buffer, index, count);
+    }
 
-        public short ReadShort()
-        {
-            return _reader.ReadInt16();
-        }
+    public long Seek(long offset, SeekOrigin origin)
+    {
+        return _memoryStream.Seek(offset, origin);
+    }
 
-        public string ReadString()
-        {
-            return _reader.ReadString();
-        }
+    public void WriteBool(bool value)
+    {
+        _writer.Write(value);
+    }
 
-        public uint ReadUInt()
-        {
-            return _reader.ReadUInt32();
-        }
+    public void WriteSByte(sbyte value)
+    {
+        _writer.Write(value);
+    }
 
-        public ulong ReadULong()
-        {
-            return _reader.ReadUInt64();
-        }
+    public void WriteByte(byte value)
+    {
+        _writer.Write(value);
+    }
 
-        public ushort ReadUShort()
-        {
-            return _reader.ReadUInt16();
-        }
+    public void WriteChar(char value)
+    {
+        _writer.Write(value);
+    }
 
-        public byte[] ReadByteArray(int count)
-        {
-            return _reader.ReadBytes(count);
-        }
+    public void WriteShort(short value)
+    {
+        _writer.Write(value);
+    }
 
-        public void ReadByteArray(byte[] buffer, int index, int count)
-        {
-            _reader.Read(buffer, index, count);
-        }
+    public void WriteUShort(ushort value)
+    {
+        _writer.Write(value);
+    }
 
-        public long Seek(long offset, SeekOrigin origin)
-        {
-            return _memoryStream.Seek(offset, origin);
-        }
+    public void WriteInt(int value)
+    {
+        _writer.Write(value);
+    }
 
-        public void WriteBool(bool value)
-        {
-            _writer.Write(value);
-        }
+    public void WriteUInt(uint value)
+    {
+        _writer.Write(value);
+    }
 
-        public void WriteSByte(sbyte value)
-        {
-            _writer.Write(value);
-        }
+    public void WriteLong(long value)
+    {
+        _writer.Write(value);
+    }
 
-        public void WriteByte(byte value)
-        {
-            _writer.Write(value);
-        }
+    public void WriteULong(ulong value)
+    {
+        _writer.Write(value);
+    }
 
-        public void WriteChar(char value)
-        {
-            _writer.Write(value);
-        }
+    public void WriteFloat(float value)
+    {
+        _writer.Write(value);
+    }
 
-        public void WriteShort(short value)
-        {
-            _writer.Write(value);
-        }
+    public void WriteDouble(double value)
+    {
+        _writer.Write(value);
+    }
 
-        public void WriteUShort(ushort value)
-        {
-            _writer.Write(value);
-        }
+    public void WriteDecimal(decimal value)
+    {
+        _writer.Write(value);
+    }
 
-        public void WriteInt(int value)
-        {
-            _writer.Write(value);
-        }
+    public void WriteString(string value)
+    {
+        _writer.Write(value);
+    }
 
-        public void WriteUInt(uint value)
-        {
-            _writer.Write(value);
-        }
-
-        public void WriteLong(long value)
-        {
-            _writer.Write(value);
-        }
-
-        public void WriteULong(ulong value)
-        {
-            _writer.Write(value);
-        }
-
-        public void WriteFloat(float value)
-        {
-            _writer.Write(value);
-        }
-
-        public void WriteDouble(double value)
-        {
-            _writer.Write(value);
-        }
-
-        public void WriteDecimal(decimal value)
-        {
-            _writer.Write(value);
-        }
-
-        public void WriteString(string value)
-        {
-            _writer.Write(value);
-        }
-
-        public void WriteByteArray(byte[] value, int index, int count)
-        {
-            _writer.Write(value, index, count);
-        }
+    public void WriteByteArray(byte[] value, int index, int count)
+    {
+        _writer.Write(value, index, count);
     }
 }

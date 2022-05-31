@@ -1,27 +1,26 @@
 ﻿using System.Collections.Generic;
 
-namespace SimpleDB.Core
+namespace SimpleDB.Core;
+
+internal class MetaFileCollection
 {
-    internal class MetaFileCollection
+    private readonly Dictionary<string, MetaFile> _metaFiles;
+    private readonly IMetaFileFactory _metaFileFactory;
+
+    public MetaFileCollection(IMetaFileFactory metaFileFactory)
     {
-        private readonly Dictionary<string, MetaFile> _metaFiles;
-        private readonly IMetaFileFactory _metaFileFactory;
+        _metaFiles = new Dictionary<string, MetaFile>();
+        _metaFileFactory = metaFileFactory;
+    }
 
-        public MetaFileCollection(IMetaFileFactory metaFileFactory)
+    public MetaFile GetMetaFile(string entityName)
+    {
+        if (!_metaFiles.ContainsKey(entityName))
         {
-            _metaFiles = new Dictionary<string, MetaFile>();
-            _metaFileFactory = metaFileFactory;
+            var metaFile = _metaFileFactory.MakeFromEntityName(entityName);
+            _metaFiles.Add(entityName, metaFile);
         }
 
-        public MetaFile GetMetaFile(string entityName)
-        {
-            if (!_metaFiles.ContainsKey(entityName))
-            {
-                var metaFile = _metaFileFactory.MakeFromEntityName(entityName);
-                _metaFiles.Add(entityName, metaFile);
-            }
-
-            return _metaFiles[entityName];
-        }
+        return _metaFiles[entityName];
     }
 }

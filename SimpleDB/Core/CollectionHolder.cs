@@ -1,25 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SimpleDB.Core
+namespace SimpleDB.Core;
+
+internal class CollectionHolder
 {
-    internal class CollectionHolder
+    private readonly Dictionary<Type, object> _collection;
+
+    public CollectionHolder()
     {
-        private readonly Dictionary<Type, object> _collection;
+        _collection = new Dictionary<Type, object>();
+    }
 
-        public CollectionHolder()
-        {
-            _collection = new Dictionary<Type, object>();
-        }
+    public Collection<TEntity>? GetOrNull<TEntity>()
+    {
+        return _collection.ContainsKey(typeof(TEntity)) ? (Collection<TEntity>)_collection[typeof(TEntity)] : null;
+    }
 
-        public Collection<TEntity>? GetOrNull<TEntity>()
-        {
-            return _collection.ContainsKey(typeof(TEntity)) ? (Collection<TEntity>)_collection[typeof(TEntity)] : null;
-        }
-
-        public void Add<TEntity>(Collection<TEntity> collection)
-        {
-            _collection.Add(typeof(TEntity), collection);
-        }
+    public void Add<TEntity>(Collection<TEntity> collection)
+    {
+        _collection.Add(typeof(TEntity), collection);
     }
 }

@@ -4,102 +4,101 @@ using SimpleDB.Core;
 using SimpleDB.IndexedSearch;
 using SimpleDB.Queries;
 
-namespace SimpleDB.QueryExecutors
+namespace SimpleDB.QueryExecutors;
+
+internal class DeleteQueryExecutor
 {
-    internal class DeleteQueryExecutor
+    private readonly EntityMeta _entityMeta;
+    private readonly PrimaryKeyFile _primaryKeyFile;
+    private readonly DataFile _dataFile;
+    private readonly IndexHolder _indexHolder;
+    private readonly IIndexUpdater _indexUpdater;
+    private readonly IDictionary<object, PrimaryKey> _primaryKeysDictionary;
+    private readonly IFieldValueReader _fieldValueReader;
+
+    public DeleteQueryExecutor(
+        EntityMeta entityMeta,
+        PrimaryKeyFile primaryKeyFile,
+        DataFile dataFile,
+        IDictionary<object, PrimaryKey> primaryKeysDictionary,
+        IFieldValueReader fieldValueReader,
+        IndexHolder indexHolder,
+        IIndexUpdater indexUpdater)
     {
-        private readonly EntityMeta _entityMeta;
-        private readonly PrimaryKeyFile _primaryKeyFile;
-        private readonly DataFile _dataFile;
-        private readonly IndexHolder _indexHolder;
-        private readonly IIndexUpdater _indexUpdater;
-        private readonly IDictionary<object, PrimaryKey> _primaryKeysDictionary;
-        private readonly IFieldValueReader _fieldValueReader;
+        _entityMeta = entityMeta;
+        _primaryKeyFile = primaryKeyFile;
+        _primaryKeysDictionary = primaryKeysDictionary;
+        _fieldValueReader = fieldValueReader;
+        _dataFile = dataFile;
+        _indexHolder = indexHolder;
+        _indexUpdater = indexUpdater;
+    }
 
-        public DeleteQueryExecutor(
-            EntityMeta entityMeta,
-            PrimaryKeyFile primaryKeyFile,
-            DataFile dataFile,
-            IDictionary<object, PrimaryKey> primaryKeysDictionary,
-            IFieldValueReader fieldValueReader,
-            IndexHolder indexHolder,
-            IIndexUpdater indexUpdater)
+    public int ExecuteQuery(DeleteQuery query)
+    {
+        try
         {
-            _entityMeta = entityMeta;
-            _primaryKeyFile = primaryKeyFile;
-            _primaryKeysDictionary = primaryKeysDictionary;
-            _fieldValueReader = fieldValueReader;
-            _dataFile = dataFile;
-            _indexHolder = indexHolder;
-            _indexUpdater = indexUpdater;
+            _primaryKeyFile.BeginReadWrite();
+            _dataFile.BeginReadWrite();
+            return TryExecuteQuery(query);
         }
-
-        public int ExecuteQuery(DeleteQuery query)
+        finally
         {
-            try
-            {
-                _primaryKeyFile.BeginReadWrite();
-                _dataFile.BeginReadWrite();
-                return TryExecuteQuery(query);
-            }
-            finally
-            {
-                _primaryKeyFile.EndReadWrite();
-                _dataFile.EndReadWrite();
-            }
+            _primaryKeyFile.EndReadWrite();
+            _dataFile.EndReadWrite();
         }
+    }
 
-        private int TryExecuteQuery(DeleteQuery query)
+    private int TryExecuteQuery(DeleteQuery query)
+    {
+        var result = 0;
+        var primaryKeysForDelete = new List<PrimaryKey>();
+        // where
+        if (query.WhereClause != null)
         {
-            var result = 0;
-            var primaryKeysForDelete = new List<PrimaryKey>();
-            // where
-            if (query.WhereClause != null)
+            var whereFieldNumbers = query.WhereClause.GetAllFieldNumbers().ToHashSet();
+            if (_indexHolder.AnyIndexContainsFields(query.EntityName, whereFieldNumbers))
             {
-                var whereFieldNumbers = query.WhereClause.GetAllFieldNumbers().ToHashSet();
-                if (_indexHolder.AnyIndexContainsFields(query.EntityName, whereFieldNumbers))
-                {
-                    var analyzer = new WhereClauseAnalyzer(query.EntityName, _primaryKeysDictionary, _fieldValueReader, _indexHolder);
-                    primaryKeysForDelete.AddRange(analyzer.GetResult(query.WhereClause).Select(x => x.PrimaryKey));
-                }
-                else
-                {
-                    var primaryKeys = _primaryKeysDictionary.Values;
-                    foreach (var primaryKey in primaryKeys.OrderBy(x => x.StartDataFileOffset))
-                    {
-                        var fieldValueCollection = new FieldValueCollection(primaryKey);
-                        _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, whereFieldNumbers, fieldValueCollection);
-                        var whereResult = query.WhereClause.GetValue(fieldValueCollection);
-                        if (whereResult)
-                        {
-                            primaryKeysForDelete.Add(primaryKey);
-                            result++;
-                        }
-                    }
-                }
+                var analyzer = new WhereClauseAnalyzer(query.EntityName, _primaryKeysDictionary, _fieldValueReader, _indexHolder);
+                primaryKeysForDelete.AddRange(analyzer.GetResult(query.WhereClause).Select(x => x.PrimaryKey));
             }
             else
             {
-                foreach (var primaryKey in _primaryKeysDictionary.Values)
+                var primaryKeys = _primaryKeysDictionary.Values;
+                foreach (var primaryKey in primaryKeys.OrderBy(x => x.StartDataFileOffset))
                 {
-                    primaryKeysForDelete.Add(primaryKey);
-                    result++;
+                    var fieldValueCollection = new FieldValueCollection(primaryKey);
+                    _dataFile.ReadFields(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, whereFieldNumbers, fieldValueCollection);
+                    var whereResult = query.WhereClause.GetValue(fieldValueCollection);
+                    if (whereResult)
+                    {
+                        primaryKeysForDelete.Add(primaryKey);
+                        result++;
+                    }
                 }
             }
-            foreach (var primaryKey in primaryKeysForDelete)
-            {
-                Delete(primaryKey);
-            }
-
-            _indexUpdater.DeleteFromIndexes(_entityMeta, primaryKeysForDelete.Select(x => x.Value));
-
-            return result;
         }
-
-        private void Delete(PrimaryKey primaryKey)
+        else
         {
-            _primaryKeyFile.Delete(primaryKey.PrimaryKeyFileOffset);
-            _primaryKeysDictionary.Remove(primaryKey.Value);
+            foreach (var primaryKey in _primaryKeysDictionary.Values)
+            {
+                primaryKeysForDelete.Add(primaryKey);
+                result++;
+            }
         }
+        foreach (var primaryKey in primaryKeysForDelete)
+        {
+            Delete(primaryKey);
+        }
+
+        _indexUpdater.DeleteFromIndexes(_entityMeta, primaryKeysForDelete.Select(x => x.Value));
+
+        return result;
+    }
+
+    private void Delete(PrimaryKey primaryKey)
+    {
+        _primaryKeyFile.Delete(primaryKey.PrimaryKeyFileOffset);
+        _primaryKeysDictionary.Remove(primaryKey.Value);
     }
 }

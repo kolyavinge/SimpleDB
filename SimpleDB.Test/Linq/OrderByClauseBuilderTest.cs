@@ -5,79 +5,78 @@ using SimpleDB.Core;
 using SimpleDB.Linq;
 using SimpleDB.Queries;
 
-namespace SimpleDB.Test.Linq
+namespace SimpleDB.Test.Linq;
+
+class OrderByClauseBuilderTest
 {
-    class OrderByClauseBuilderTest
+    private Mapper<TestEntity> _mapper;
+    private OrderByClauseBuilder _builder;
+
+    [SetUp]
+    public void Setup()
     {
-        private Mapper<TestEntity> _mapper;
-        private OrderByClauseBuilder _builder;
-
-        [SetUp]
-        public void Setup()
-        {
-            _mapper = new Mapper<TestEntity>(
-                new PrimaryKeyMapping<TestEntity>(x => x.Id),
-                new[]
-                {
-                    new FieldMapping<TestEntity>(1, x => x.Int),
-                    new FieldMapping<TestEntity>(2, x => x.String)
-                });
-            _builder = new OrderByClauseBuilder();
-        }
-
-        [Test]
-        public void Build_Null()
-        {
-            var result = _builder.Build(_mapper, null);
-            Assert.IsNull(result);
-        }
-
-        [Test]
-        public void Build_Empty()
-        {
-            var result = _builder.Build(_mapper, new List<OrderByExpressionItem<TestEntity>>());
-            Assert.IsNull(result);
-        }
-
-        [Test]
-        public void Build_1()
-        {
-            var items = new List<OrderByExpressionItem<TestEntity>>
+        _mapper = new Mapper<TestEntity>(
+            new PrimaryKeyMapping<TestEntity>(x => x.Id),
+            new[]
             {
-                new OrderByExpressionItem<TestEntity>(x => x.Id, SortDirection.Asc),
-                new OrderByExpressionItem<TestEntity>(x => x.Int, SortDirection.Desc)
-            };
-            var result = _builder.Build(_mapper, items).OrderedItems.ToList();
-            Assert.AreEqual(2, result.Count);
-            Assert.AreEqual(typeof(OrderByClause.PrimaryKey), result[0].GetType());
-            Assert.AreEqual(typeof(OrderByClause.Field), result[1].GetType());
-            Assert.AreEqual(SortDirection.Asc, ((OrderByClause.PrimaryKey)result[0]).Direction);
-            Assert.AreEqual(SortDirection.Desc, ((OrderByClause.Field)result[1]).Direction);
-            Assert.AreEqual(1, ((OrderByClause.Field)result[1]).Number);
-        }
+                new FieldMapping<TestEntity>(1, x => x.Int),
+                new FieldMapping<TestEntity>(2, x => x.String)
+            });
+        _builder = new OrderByClauseBuilder();
+    }
 
-        [Test]
-        public void Build_2()
-        {
-            var items = new List<OrderByExpressionItem<TestEntity>>
-            {
-                new OrderByExpressionItem<TestEntity>(x => x.Id, SortDirection.Asc),
-                new OrderByExpressionItem<TestEntity>(x => x.String, SortDirection.Desc)
-            };
-            var result = _builder.Build(_mapper, items).OrderedItems.ToList();
-            Assert.AreEqual(2, result.Count);
-            Assert.AreEqual(typeof(OrderByClause.PrimaryKey), result[0].GetType());
-            Assert.AreEqual(typeof(OrderByClause.Field), result[1].GetType());
-            Assert.AreEqual(SortDirection.Asc, ((OrderByClause.PrimaryKey)result[0]).Direction);
-            Assert.AreEqual(SortDirection.Desc, ((OrderByClause.Field)result[1]).Direction);
-            Assert.AreEqual(2, ((OrderByClause.Field)result[1]).Number);
-        }
+    [Test]
+    public void Build_Null()
+    {
+        var result = _builder.Build(_mapper, null);
+        Assert.IsNull(result);
+    }
 
-        class TestEntity
+    [Test]
+    public void Build_Empty()
+    {
+        var result = _builder.Build(_mapper, new List<OrderByExpressionItem<TestEntity>>());
+        Assert.IsNull(result);
+    }
+
+    [Test]
+    public void Build_1()
+    {
+        var items = new List<OrderByExpressionItem<TestEntity>>
         {
-            public int Id { get; set; }
-            public int Int { get; set; }
-            public string String { get; set; }
-        }
+            new OrderByExpressionItem<TestEntity>(x => x.Id, SortDirection.Asc),
+            new OrderByExpressionItem<TestEntity>(x => x.Int, SortDirection.Desc)
+        };
+        var result = _builder.Build(_mapper, items).OrderedItems.ToList();
+        Assert.AreEqual(2, result.Count);
+        Assert.AreEqual(typeof(OrderByClause.PrimaryKey), result[0].GetType());
+        Assert.AreEqual(typeof(OrderByClause.Field), result[1].GetType());
+        Assert.AreEqual(SortDirection.Asc, ((OrderByClause.PrimaryKey)result[0]).Direction);
+        Assert.AreEqual(SortDirection.Desc, ((OrderByClause.Field)result[1]).Direction);
+        Assert.AreEqual(1, ((OrderByClause.Field)result[1]).Number);
+    }
+
+    [Test]
+    public void Build_2()
+    {
+        var items = new List<OrderByExpressionItem<TestEntity>>
+        {
+            new OrderByExpressionItem<TestEntity>(x => x.Id, SortDirection.Asc),
+            new OrderByExpressionItem<TestEntity>(x => x.String, SortDirection.Desc)
+        };
+        var result = _builder.Build(_mapper, items).OrderedItems.ToList();
+        Assert.AreEqual(2, result.Count);
+        Assert.AreEqual(typeof(OrderByClause.PrimaryKey), result[0].GetType());
+        Assert.AreEqual(typeof(OrderByClause.Field), result[1].GetType());
+        Assert.AreEqual(SortDirection.Asc, ((OrderByClause.PrimaryKey)result[0]).Direction);
+        Assert.AreEqual(SortDirection.Desc, ((OrderByClause.Field)result[1]).Direction);
+        Assert.AreEqual(2, ((OrderByClause.Field)result[1]).Number);
+    }
+
+    class TestEntity
+    {
+        public int Id { get; set; }
+        public int Int { get; set; }
+        public string String { get; set; }
     }
 }

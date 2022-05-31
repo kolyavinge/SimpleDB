@@ -5,178 +5,205 @@ using SimpleDB.Infrastructure;
 using SimpleDB.Linq;
 using SimpleDB.QueryExecutors;
 
-namespace SimpleDB.Core
+namespace SimpleDB.Core;
+
+internal class Collection<TEntity> : ICollection<TEntity>
 {
-    internal class Collection<TEntity> : ICollection<TEntity>
+    private readonly IndexHolder _indexHolder;
+    private readonly IIndexUpdater _indexUpdater;
+
+    internal Mapper<TEntity> Mapper { get; }
+
+    internal PrimaryKeyFile PrimaryKeyFile { get; }
+
+    internal DataFile DataFile { get; }
+
+    internal Dictionary<object, PrimaryKey> PrimaryKeys { get; }
+
+    public Collection(
+        Mapper<TEntity> mapper,
+        IPrimaryKeyFileFactory primaryKeyFileFactory,
+        IDataFileFactory dataFileFactory,
+        IMetaFileFactory metaFileFactory,
+        IndexHolder? indexHolder = null,
+        IIndexUpdater? indexUpdater = null)
     {
-        private readonly IndexHolder _indexHolder;
-        private readonly IIndexUpdater _indexUpdater;
+        Mapper = mapper;
+        _indexHolder = indexHolder ?? new IndexHolder();
+        _indexUpdater = indexUpdater ?? new IndexUpdater(Enumerable.Empty<IIndex>(), null);
+        PrimaryKeyFile = primaryKeyFileFactory.MakeFromEntityName(mapper.EntityName, mapper.PrimaryKeyMapping.PropertyType);
+        DataFile = dataFileFactory.MakeFromEntityName(mapper.EntityName, mapper.FieldMetaCollection);
+        PrimaryKeys = GetAllPrimaryKeys().Where(x => !x.IsDeleted).ToDictionary(k => k.Value, v => v);
+        SaveMetaFileIfNeeded(metaFileFactory);
+    }
 
-        internal Mapper<TEntity> Mapper { get; }
-
-        internal PrimaryKeyFile PrimaryKeyFile { get; }
-
-        internal DataFile DataFile { get; }
-
-        internal Dictionary<object, PrimaryKey> PrimaryKeys { get; }
-
-        public Collection(
-            Mapper<TEntity> mapper,
-            IPrimaryKeyFileFactory primaryKeyFileFactory,
-            IDataFileFactory dataFileFactory,
-            IMetaFileFactory metaFileFactory,
-            IndexHolder? indexHolder = null,
-            IIndexUpdater? indexUpdater = null)
+    private List<PrimaryKey> GetAllPrimaryKeys()
+    {
+        try
         {
-            Mapper = mapper;
-            _indexHolder = indexHolder ?? new IndexHolder();
-            _indexUpdater = indexUpdater ?? new IndexUpdater(Enumerable.Empty<IIndex>(), null);
-            PrimaryKeyFile = primaryKeyFileFactory.MakeFromEntityName(mapper.EntityName, mapper.PrimaryKeyMapping.PropertyType);
-            DataFile = dataFileFactory.MakeFromEntityName(mapper.EntityName, mapper.FieldMetaCollection);
-            PrimaryKeys = GetAllPrimaryKeys().Where(x => !x.IsDeleted).ToDictionary(k => k.Value, v => v);
-            SaveMetaFileIfNeeded(metaFileFactory);
+            PrimaryKeyFile.BeginRead();
+            return PrimaryKeyFile.GetAllPrimaryKeys().ToList();
         }
-
-        private List<PrimaryKey> GetAllPrimaryKeys()
+        finally
         {
-            try
-            {
-                PrimaryKeyFile.BeginRead();
-                return PrimaryKeyFile.GetAllPrimaryKeys().ToList();
-            }
-            finally
-            {
-                PrimaryKeyFile.EndReadWrite();
-            }
+            PrimaryKeyFile.EndReadWrite();
         }
+    }
 
-        public int Count()
+    public int Count()
+    {
+        return PrimaryKeys.Count;
+    }
+
+    public bool Exist(object id)
+    {
+        return PrimaryKeys.ContainsKey(id);
+    }
+
+    public TEntity? GetOrDefault(object id)
+    {
+        try
         {
-            return PrimaryKeys.Count;
+            DataFile.BeginRead();
+            return EntityOperations.GetOrDefault(id, Mapper, PrimaryKeys, DataFile);
         }
-
-        public bool Exist(object id)
+        finally
         {
-            return PrimaryKeys.ContainsKey(id);
+            DataFile.EndReadWrite();
         }
+    }
 
-        public TEntity? GetOrDefault(object id)
+    public IEnumerable<TEntity> GetOrDefault(IReadOnlyCollection<object> idList)
+    {
+        try
         {
-            try
+            DataFile.BeginRead();
+            foreach (var id in idList)
             {
-                DataFile.BeginRead();
-                return EntityOperations.GetOrDefault(id, Mapper, PrimaryKeys, DataFile);
-            }
-            finally
-            {
-                DataFile.EndReadWrite();
+                var entity = EntityOperations.GetOrDefault(id, Mapper, PrimaryKeys, DataFile);
+                if (entity != null) yield return entity;
             }
         }
-
-        public IEnumerable<TEntity> GetOrDefault(IReadOnlyCollection<object> idList)
+        finally
         {
-            try
+            DataFile.EndReadWrite();
+        }
+    }
+
+    public IEnumerable<TEntity> GetAll()
+    {
+        try
+        {
+            DataFile.BeginRead();
+            foreach (var id in PrimaryKeys.Keys)
             {
-                DataFile.BeginRead();
-                foreach (var id in idList)
-                {
-                    var entity = EntityOperations.GetOrDefault(id, Mapper, PrimaryKeys, DataFile);
-                    if (entity != null) yield return entity;
-                }
-            }
-            finally
-            {
-                DataFile.EndReadWrite();
+                var entity = EntityOperations.GetOrDefault(id, Mapper, PrimaryKeys, DataFile);
+                if (entity != null) yield return entity;
             }
         }
-
-        public IEnumerable<TEntity> GetAll()
+        finally
         {
-            try
-            {
-                DataFile.BeginRead();
-                foreach (var id in PrimaryKeys.Keys)
-                {
-                    var entity = EntityOperations.GetOrDefault(id, Mapper, PrimaryKeys, DataFile);
-                    if (entity != null) yield return entity;
-                }
-            }
-            finally
-            {
-                DataFile.EndReadWrite();
-            }
+            DataFile.EndReadWrite();
         }
+    }
 
-        public void Insert(TEntity entity)
+    public void Insert(TEntity entity)
+    {
+        try
         {
-            try
-            {
-                DataFile.BeginReadWrite();
-                PrimaryKeyFile.BeginReadWrite();
-                EntityOperations.Insert(new[] { entity }, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
-                _indexUpdater.AddToIndexes(Mapper, new[] { entity });
-            }
-            finally
-            {
-                DataFile.EndReadWrite();
-                PrimaryKeyFile.EndReadWrite();
-            }
+            DataFile.BeginReadWrite();
+            PrimaryKeyFile.BeginReadWrite();
+            EntityOperations.Insert(new[] { entity }, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
+            _indexUpdater.AddToIndexes(Mapper, new[] { entity });
         }
-
-        public void Insert(IReadOnlyCollection<TEntity> entities)
+        finally
         {
-            try
-            {
-                DataFile.BeginReadWrite();
-                PrimaryKeyFile.BeginReadWrite();
-                EntityOperations.Insert(entities, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
-                _indexUpdater.AddToIndexes(Mapper, entities);
-            }
-            finally
-            {
-                DataFile.EndReadWrite();
-                PrimaryKeyFile.EndReadWrite();
-            }
+            DataFile.EndReadWrite();
+            PrimaryKeyFile.EndReadWrite();
         }
+    }
 
-        public void Update(TEntity entity)
+    public void Insert(IReadOnlyCollection<TEntity> entities)
+    {
+        try
         {
-            try
+            DataFile.BeginReadWrite();
+            PrimaryKeyFile.BeginReadWrite();
+            EntityOperations.Insert(entities, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
+            _indexUpdater.AddToIndexes(Mapper, entities);
+        }
+        finally
+        {
+            DataFile.EndReadWrite();
+            PrimaryKeyFile.EndReadWrite();
+        }
+    }
+
+    public void Update(TEntity entity)
+    {
+        try
+        {
+            DataFile.BeginReadWrite();
+            PrimaryKeyFile.BeginReadWrite();
+            EntityOperations.Update(new[] { entity }, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
+            _indexUpdater.UpdateIndexes(Mapper, new[] { entity });
+        }
+        finally
+        {
+            DataFile.EndReadWrite();
+            PrimaryKeyFile.EndReadWrite();
+        }
+    }
+
+    public void Update(IReadOnlyCollection<TEntity> entities)
+    {
+        try
+        {
+            DataFile.BeginReadWrite();
+            PrimaryKeyFile.BeginReadWrite();
+            EntityOperations.Update(entities, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
+            _indexUpdater.UpdateIndexes(Mapper, entities);
+        }
+        finally
+        {
+            DataFile.EndReadWrite();
+            PrimaryKeyFile.EndReadWrite();
+        }
+    }
+
+    public void InsertOrUpdate(TEntity entity)
+    {
+        try
+        {
+            DataFile.BeginReadWrite();
+            PrimaryKeyFile.BeginReadWrite();
+            var primaryKeyValue = Mapper.GetPrimaryKeyValue(entity);
+            if (Exist(primaryKeyValue))
             {
-                DataFile.BeginReadWrite();
-                PrimaryKeyFile.BeginReadWrite();
                 EntityOperations.Update(new[] { entity }, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
                 _indexUpdater.UpdateIndexes(Mapper, new[] { entity });
             }
-            finally
+            else
             {
-                DataFile.EndReadWrite();
-                PrimaryKeyFile.EndReadWrite();
+                EntityOperations.Insert(new[] { entity }, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
+                _indexUpdater.AddToIndexes(Mapper, new[] { entity });
             }
         }
-
-        public void Update(IReadOnlyCollection<TEntity> entities)
+        finally
         {
-            try
-            {
-                DataFile.BeginReadWrite();
-                PrimaryKeyFile.BeginReadWrite();
-                EntityOperations.Update(entities, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
-                _indexUpdater.UpdateIndexes(Mapper, entities);
-            }
-            finally
-            {
-                DataFile.EndReadWrite();
-                PrimaryKeyFile.EndReadWrite();
-            }
+            DataFile.EndReadWrite();
+            PrimaryKeyFile.EndReadWrite();
         }
+    }
 
-        public void InsertOrUpdate(TEntity entity)
+    public void InsertOrUpdate(IReadOnlyCollection<TEntity> entities)
+    {
+        try
         {
-            try
+            DataFile.BeginReadWrite();
+            PrimaryKeyFile.BeginReadWrite();
+            foreach (var entity in entities)
             {
-                DataFile.BeginReadWrite();
-                PrimaryKeyFile.BeginReadWrite();
                 var primaryKeyValue = Mapper.GetPrimaryKeyValue(entity);
                 if (Exist(primaryKeyValue))
                 {
@@ -189,124 +216,96 @@ namespace SimpleDB.Core
                     _indexUpdater.AddToIndexes(Mapper, new[] { entity });
                 }
             }
-            finally
-            {
-                DataFile.EndReadWrite();
-                PrimaryKeyFile.EndReadWrite();
-            }
         }
-
-        public void InsertOrUpdate(IReadOnlyCollection<TEntity> entities)
+        finally
         {
-            try
-            {
-                DataFile.BeginReadWrite();
-                PrimaryKeyFile.BeginReadWrite();
-                foreach (var entity in entities)
-                {
-                    var primaryKeyValue = Mapper.GetPrimaryKeyValue(entity);
-                    if (Exist(primaryKeyValue))
-                    {
-                        EntityOperations.Update(new[] { entity }, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
-                        _indexUpdater.UpdateIndexes(Mapper, new[] { entity });
-                    }
-                    else
-                    {
-                        EntityOperations.Insert(new[] { entity }, Mapper, PrimaryKeyFile, DataFile, PrimaryKeys);
-                        _indexUpdater.AddToIndexes(Mapper, new[] { entity });
-                    }
-                }
-            }
-            finally
-            {
-                DataFile.EndReadWrite();
-                PrimaryKeyFile.EndReadWrite();
-            }
+            DataFile.EndReadWrite();
+            PrimaryKeyFile.EndReadWrite();
         }
+    }
 
-        public void Delete(object id)
+    public void Delete(object id)
+    {
+        try
         {
-            try
+            PrimaryKeyFile.BeginReadWrite();
+            EntityOperations.Delete(id, PrimaryKeyFile, PrimaryKeys);
+            _indexUpdater.DeleteFromIndexes(Mapper.EntityMeta, new[] { id });
+        }
+        finally
+        {
+            PrimaryKeyFile.EndReadWrite();
+        }
+    }
+
+    public void Delete(IReadOnlyCollection<object> idList)
+    {
+        try
+        {
+            PrimaryKeyFile.BeginReadWrite();
+            foreach (var id in idList)
             {
-                PrimaryKeyFile.BeginReadWrite();
                 EntityOperations.Delete(id, PrimaryKeyFile, PrimaryKeys);
-                _indexUpdater.DeleteFromIndexes(Mapper.EntityMeta, new[] { id });
-            }
-            finally
-            {
-                PrimaryKeyFile.EndReadWrite();
+                _indexUpdater.DeleteFromIndexes(Mapper.EntityMeta, idList);
             }
         }
-
-        public void Delete(IReadOnlyCollection<object> idList)
+        finally
         {
-            try
-            {
-                PrimaryKeyFile.BeginReadWrite();
-                foreach (var id in idList)
-                {
-                    EntityOperations.Delete(id, PrimaryKeyFile, PrimaryKeys);
-                    _indexUpdater.DeleteFromIndexes(Mapper.EntityMeta, idList);
-                }
-            }
-            finally
-            {
-                PrimaryKeyFile.EndReadWrite();
-            }
+            PrimaryKeyFile.EndReadWrite();
         }
+    }
 
-        public IQueryable<TEntity> Query()
-        {
-            var queryExecutorFactory = new QueryExecutorFactory(Mapper.EntityMeta, PrimaryKeyFile, PrimaryKeys, DataFile, _indexHolder, _indexUpdater);
-            return new Queryable<TEntity>(queryExecutorFactory, Mapper);
-        }
+    public IQueryable<TEntity> Query()
+    {
+        var queryExecutorFactory = new QueryExecutorFactory(Mapper.EntityMeta, PrimaryKeyFile, PrimaryKeys, DataFile, _indexHolder, _indexUpdater);
+        return new Queryable<TEntity>(queryExecutorFactory, Mapper);
+    }
 
-        private void SaveMetaFileIfNeeded(IMetaFileFactory metaFileFactory)
+    private void SaveMetaFileIfNeeded(IMetaFileFactory metaFileFactory)
+    {
+        var currentMetaData = MetaData.MakeFromMapper(Mapper);
+        var metaFile = metaFileFactory.MakeFromEntityName(Mapper.EntityName);
+        if (metaFile.IsExist())
         {
-            var currentMetaData = MetaData.MakeFromMapper(Mapper);
-            var metaFile = metaFileFactory.MakeFromEntityName(Mapper.EntityName);
-            if (metaFile.IsExist())
+            var savedMetaData = metaFile.GetMetaData();
+            if (!currentMetaData.Equals(savedMetaData))
             {
-                var savedMetaData = metaFile.GetMetaData();
-                if (!currentMetaData.Equals(savedMetaData))
-                {
-                    metaFile.Delete();
-                    metaFile.Save(currentMetaData);
-                }
-            }
-            else
-            {
-                metaFile.Create();
+                metaFile.Delete();
                 metaFile.Save(currentMetaData);
             }
         }
+        else
+        {
+            metaFile.Create();
+            metaFile.Save(currentMetaData);
+        }
+    }
+}
+
+internal interface ICollectionFactory
+{
+    Collection<TEntity> Make<TEntity>(Mapper<TEntity> mapper, IndexHolder? indexHolder = null, IIndexUpdater? indexUpdater = null);
+}
+
+internal class CollectionFactory : ICollectionFactory
+{
+    private readonly IFileSystem _fileSystem;
+    private readonly IMemory _memory;
+
+    public CollectionFactory(IFileSystem fileSystem, IMemory? memory = null)
+    {
+        _fileSystem = fileSystem;
+        _memory = memory ?? Memory.Instance;
     }
 
-    internal interface ICollectionFactory
+    public Collection<TEntity> Make<TEntity>(Mapper<TEntity> mapper, IndexHolder? indexHolder = null, IIndexUpdater? indexUpdater = null)
     {
-        Collection<TEntity> Make<TEntity>(Mapper<TEntity> mapper, IndexHolder? indexHolder = null, IIndexUpdater? indexUpdater = null);
-    }
-
-    internal class CollectionFactory : ICollectionFactory
-    {
-        private readonly IFileSystem _fileSystem;
-        private readonly IMemory _memory;
-
-        public CollectionFactory(IFileSystem fileSystem, IMemory? memory = null)
-        {
-            _fileSystem = fileSystem;
-            _memory = memory ?? Memory.Instance;
-        }
-
-        public Collection<TEntity> Make<TEntity>(Mapper<TEntity> mapper, IndexHolder? indexHolder = null, IIndexUpdater? indexUpdater = null)
-        {
-            return new Collection<TEntity>(
-                mapper,
-                new PrimaryKeyFileFactory(_fileSystem, _memory),
-                new DataFileFactory(_fileSystem, _memory),
-                new MetaFileFactory(_fileSystem),
-                indexHolder,
-                indexUpdater);
-        }
+        return new Collection<TEntity>(
+            mapper,
+            new PrimaryKeyFileFactory(_fileSystem, _memory),
+            new DataFileFactory(_fileSystem, _memory),
+            new MetaFileFactory(_fileSystem),
+            indexHolder,
+            indexUpdater);
     }
 }

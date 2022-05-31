@@ -3,22 +3,21 @@ using System.Linq;
 using SimpleDB.Core;
 using SimpleDB.Infrastructure;
 
-namespace SimpleDB.Building
+namespace SimpleDB.Building;
+
+internal class FileBuilder
 {
-    internal class FileBuilder
+    private readonly IFileSystem _fileSystem;
+
+    public FileBuilder(IFileSystem fileSystem)
     {
-        private IFileSystem _fileSystem;
+        _fileSystem = fileSystem;
+    }
 
-        public FileBuilder(IFileSystem fileSystem)
-        {
-            _fileSystem = fileSystem;
-        }
-
-        public void CreateNewFiles(List<IMapper> mappers)
-        {
-            var primaryKeyFileNames = mappers.Select(x => PrimaryKeyFileName.FromEntityName(x.EntityName)).ToList();
-            var dataFileNames = mappers.Select(x => DataFileName.FromEntityName(x.EntityName)).ToList();
-            _fileSystem.CreateNewFiles(primaryKeyFileNames.Union(dataFileNames).ToArray());
-        }
+    public void CreateNewFiles(List<IMapper> mappers)
+    {
+        var primaryKeyFileNames = mappers.Select(x => PrimaryKeyFileName.FromEntityName(x.EntityName)).ToList();
+        var dataFileNames = mappers.Select(x => DataFileName.FromEntityName(x.EntityName)).ToList();
+        _fileSystem.CreateNewFiles(primaryKeyFileNames.Union(dataFileNames).ToArray());
     }
 }

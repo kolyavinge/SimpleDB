@@ -1,14 +1,13 @@
 ﻿using System;
 using System.IO;
 
-namespace SimpleDB.Infrastructure
+namespace SimpleDB.Infrastructure;
+
+internal interface IStream : IDisposable
 {
-    internal interface IStream : IDisposable
-    {
-        long Position { get; }
+    long Position { get; }
 
-        long Length { get; }
+    long Length { get; }
 
-        long Seek(long offset, SeekOrigin origin);
-    }
+    long Seek(long offset, SeekOrigin origin);
 }

@@ -1,24 +1,23 @@
 ﻿using System.Collections.Generic;
 
-namespace SimpleDB.Queries
+namespace SimpleDB.Queries;
+
+internal class MergeClause
 {
-    internal class MergeClause
+    public MergeClause(IEnumerable<MergeClauseItem> mergeItems)
     {
-        public MergeClause(IEnumerable<MergeClauseItem> mergeItems)
+        MergeItems = mergeItems;
+    }
+
+    public IEnumerable<MergeClauseItem> MergeItems { get; }
+
+    internal class MergeClauseItem
+    {
+        public MergeClauseItem(byte fieldNumber)
         {
-            MergeItems = mergeItems;
+            FieldNumber = fieldNumber;
         }
 
-        public IEnumerable<MergeClauseItem> MergeItems { get; }
-
-        internal class MergeClauseItem
-        {
-            public MergeClauseItem(byte fieldNumber)
-            {
-                FieldNumber = fieldNumber;
-            }
-
-            public byte FieldNumber { get; }
-        }
+        public byte FieldNumber { get; }
     }
 }

@@ -1,34 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SimpleDB.Sql
+namespace SimpleDB.Sql;
+
+class TokenIterator
 {
-    class TokenIterator
+    private readonly IEnumerator<Token> _iterator;
+
+    public TokenIterator(IEnumerable<Token> tokens)
     {
-        private readonly IEnumerator<Token> _iterator;
+        Current = new Token("", TokenKind.EqualsOperation, 0, 0); // dummy
+        _iterator = tokens.GetEnumerator();
+        Eof = false;
+        NextToken();
+    }
 
-        public TokenIterator(IEnumerable<Token> tokens)
+    public Token Current { get; private set; }
+
+    public bool Eof { get; private set; }
+
+    public void NextToken()
+    {
+        if (_iterator.MoveNext())
         {
-            Current = new Token("", TokenKind.EqualsOperation, 0, 0); // dummy
-            _iterator = tokens.GetEnumerator();
-            Eof = false;
-            NextToken();
+            Current = _iterator.Current ?? throw new NullReferenceException();
         }
-
-        public Token Current { get; private set; }
-
-        public bool Eof { get; private set; }
-
-        public void NextToken()
+        else
         {
-            if (_iterator.MoveNext())
-            {
-                Current = _iterator.Current ?? throw new NullReferenceException();
-            }
-            else
-            {
-                Eof = true;
-            }
+            Eof = true;
         }
     }
 }

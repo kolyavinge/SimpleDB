@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace SimpleDB.Linq
+namespace SimpleDB.Linq;
+
+internal class UnsupportedQueryException : Exception
 {
-    internal class UnsupportedQueryException : Exception
+    public UnsupportedQueryException()
     {
-        public UnsupportedQueryException()
-        {
-        }
+    }
 
-        public UnsupportedQueryException(string message) : base(message)
-        {
-        }
+    public UnsupportedQueryException(string message) : base(message)
+    {
     }
 }

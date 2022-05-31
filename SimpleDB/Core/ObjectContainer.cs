@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace SimpleDB.Core;
 
-namespace SimpleDB.Core
+internal class ObjectContainer
 {
-    internal class ObjectContainer
+    private readonly string _fieldValueJson;
+
+    public ObjectContainer(string fieldValueJson)
     {
-        private readonly string _fieldValueJson;
+        _fieldValueJson = fieldValueJson;
+    }
 
-        public ObjectContainer(string fieldValueJson)
-        {
-            _fieldValueJson = fieldValueJson;
-        }
-
-        public override string ToString()
-        {
-            return _fieldValueJson;
-        }
+    public override string ToString()
+    {
+        return _fieldValueJson;
     }
 }

@@ -4,86 +4,85 @@ using System.IO;
 using System.Linq;
 using SimpleDB.Infrastructure;
 
-namespace SimpleDB.Test.Tools
+namespace SimpleDB.Test.Tools;
+
+internal class MemoryFileSystem : IFileSystem
 {
-    internal class MemoryFileSystem : IFileSystem
+    public List<MemoryFileStream> FileStreams { get; set; }
+
+    public MemoryFileSystem()
     {
-        public List<MemoryFileStream> FileStreams { get; set; }
+        FileStreams = new List<MemoryFileStream>();
+        FileNames = new List<string>();
+    }
 
-        public MemoryFileSystem()
+    public string DatabaseFilePath { get; }
+
+    public List<string> FileNames { get; set; }
+
+    public bool FileExists(string fileName)
+    {
+        return FileStreams.Any(x => x.Name == fileName);
+    }
+
+    public void CreateFiles(params string[] fileNames)
+    {
+        foreach (var fileName in fileNames)
         {
-            FileStreams = new List<MemoryFileStream>();
-            FileNames = new List<string>();
+            FileNames.Add(fileName);
         }
+    }
 
-        public string DatabaseFilePath { get; }
+    public void CreateNewFiles(params string[] fileNames)
+    {
+        throw new NotImplementedException();
+    }
 
-        public List<string> FileNames { get; set; }
+    public IFileStream OpenFileRead(string fileName)
+    {
+        return GetStream(fileName);
+    }
 
-        public bool FileExists(string fileName)
+    public IFileStream OpenFileReadWrite(string fileName)
+    {
+        return GetStream(fileName);
+    }
+
+    private MemoryFileStream GetStream(string fileName)
+    {
+        var fileStream = FileStreams.FirstOrDefault(x => x.Name == fileName);
+        if (fileStream != null)
         {
-            return FileStreams.Any(x => x.Name == fileName);
+            fileStream.Seek(0, SeekOrigin.Begin);
+            return fileStream;
         }
-
-        public void CreateFiles(params string[] fileNames)
+        else
         {
-            foreach (var fileName in fileNames)
-            {
-                FileNames.Add(fileName);
-            }
+            fileStream = new MemoryFileStream { Name = fileName };
+            FileStreams.Add(fileStream);
+            return fileStream;
         }
+    }
 
-        public void CreateNewFiles(params string[] fileNames)
-        {
-            throw new NotImplementedException();
-        }
+    public IEnumerable<string> GetFiles(string extension)
+    {
+        return FileStreams.Where(x => Path.GetExtension(x.Name) == extension).Select(x => x.Name);
+    }
 
-        public IFileStream OpenFileRead(string fileName)
-        {
-            return GetStream(fileName);
-        }
+    public void RenameFile(string fileName, string renamedFileName)
+    {
+        FileNames.Remove(fileName);
+        FileNames.Add(renamedFileName);
+        FileStreams.First(x => x.Name == fileName).Name = renamedFileName;
+    }
 
-        public IFileStream OpenFileReadWrite(string fileName)
-        {
-            return GetStream(fileName);
-        }
+    public void DeleteFile(string fileName)
+    {
+        FileNames.Remove(fileName);
+        FileStreams.RemoveAll(x => x.Name == fileName);
+    }
 
-        private MemoryFileStream GetStream(string fileName)
-        {
-            var fileStream = FileStreams.FirstOrDefault(x => x.Name == fileName);
-            if (fileStream != null)
-            {
-                fileStream.Seek(0, SeekOrigin.Begin);
-                return fileStream;
-            }
-            else
-            {
-                fileStream = new MemoryFileStream { Name = fileName };
-                FileStreams.Add(fileStream);
-                return fileStream;
-            }
-        }
-
-        public IEnumerable<string> GetFiles(string extension)
-        {
-            return FileStreams.Where(x => Path.GetExtension(x.Name) == extension).Select(x => x.Name);
-        }
-
-        public void RenameFile(string fileName, string renamedFileName)
-        {
-            FileNames.Remove(fileName);
-            FileNames.Add(renamedFileName);
-            FileStreams.First(x => x.Name == fileName).Name = renamedFileName;
-        }
-
-        public void DeleteFile(string fileName)
-        {
-            FileNames.Remove(fileName);
-            FileStreams.RemoveAll(x => x.Name == fileName);
-        }
-
-        public void DefragmentDatabaseFile()
-        {
-        }
+    public void DefragmentDatabaseFile()
+    {
     }
 }

@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
-namespace SimpleDB.Queries
+namespace SimpleDB.Queries;
+
+internal class MergeQuery<TEntity> : AbstractQuery
 {
-    internal class MergeQuery<TEntity> : AbstractQuery
+    public MergeQuery(string entityName, MergeClause mergeClause, IEnumerable<TEntity> entities) : base(entityName)
     {
-        public MergeQuery(string entityName, MergeClause mergeClause, IEnumerable<TEntity> entities) : base(entityName)
-        {
-            MergeClause = mergeClause;
-            Entities = entities;
-        }
-
-        public MergeClause MergeClause { get; }
-        public IEnumerable<TEntity> Entities { get; }
+        MergeClause = mergeClause;
+        Entities = entities;
     }
+
+    public MergeClause MergeClause { get; }
+    public IEnumerable<TEntity> Entities { get; }
 }

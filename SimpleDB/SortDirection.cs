@@ -1,4 +1,3 @@
-﻿namespace SimpleDB
-{
-    public enum SortDirection { Asc, Desc }
-}
+﻿namespace SimpleDB;
+
+public enum SortDirection { Asc, Desc }

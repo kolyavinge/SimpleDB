@@ -1,32 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SimpleDB.Utils.EnumerableExtension
+namespace SimpleDB.Utils.EnumerableExtension;
+
+internal static class EnumerableExt
 {
-    internal static class EnumerableExt
+    public static void Each<T>(this IEnumerable<T> collection, Action<T> action)
     {
-        public static void Each<T>(this IEnumerable<T> collection, Action<T> action)
+        foreach (var item in collection)
         {
-            foreach (var item in collection)
-            {
-                action(item);
-            }
+            action(item);
         }
+    }
 
-        public static void AddRange<T>(this ISet<T> set, IEnumerable<T> range)
+    public static void AddRange<T>(this ISet<T> set, IEnumerable<T> range)
+    {
+        foreach (var item in range)
         {
-            foreach (var item in range)
-            {
-                set.Add(item);
-            }
+            set.Add(item);
         }
+    }
 
-        public static void RemoveRange<T>(this ISet<T> set, IEnumerable<T> range)
+    public static void RemoveRange<T>(this ISet<T> set, IEnumerable<T> range)
+    {
+        foreach (var item in range)
         {
-            foreach (var item in range)
-            {
-                set.Remove(item);
-            }
+            set.Remove(item);
         }
     }
 }

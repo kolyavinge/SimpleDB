@@ -3,172 +3,171 @@ using System.Linq;
 using NUnit.Framework;
 using SimpleDB.Core;
 
-namespace SimpleDB.Test.Core
+namespace SimpleDB.Test.Core;
+
+class MapperTest
 {
-    class MapperTest
+    private TestEntity _entity;
+    private Mapper<TestEntity> _mapper;
+
+    [SetUp]
+    public void Setup()
     {
-        private TestEntity _entity;
-        private Mapper<TestEntity> _mapper;
+        _entity = new TestEntity { Id = 123, Byte = 45, Float = 6.7f, String = "123" };
 
-        [SetUp]
-        public void Setup()
-        {
-            _entity = new TestEntity { Id = 123, Byte = 45, Float = 6.7f, String = "123" };
-
-            _mapper = new Mapper<TestEntity>(
-                new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
-                new FieldMapping<TestEntity>[]
-                {
-                    new FieldMapping<TestEntity>(1, entity => entity.Byte),
-                    new FieldMapping<TestEntity>(2, entity => entity.Float),
-                    new FieldMapping<TestEntity>(3, entity => entity.String)
-                });
-        }
-
-        [Test]
-        public void PrimaryKeyType()
-        {
-            Assert.AreEqual(typeof(int), _mapper.PrimaryKeyMapping.PropertyType);
-        }
-
-        [Test]
-        public void FieldMetaCollection()
-        {
-            var result = _mapper.FieldMetaCollection.ToList();
-            Assert.AreEqual(3, result.Count);
-            Assert.AreEqual(1, result[0].Number);
-            Assert.AreEqual(2, result[1].Number);
-            Assert.AreEqual(3, result[2].Number);
-            Assert.AreEqual(typeof(byte), result[0].Type);
-            Assert.AreEqual(typeof(float), result[1].Type);
-            Assert.AreEqual(typeof(string), result[2].Type);
-        }
-
-        [Test]
-        public void GetPrimaryKeyValue()
-        {
-            Assert.AreEqual(123, _mapper.GetPrimaryKeyValue(_entity));
-        }
-
-        [Test]
-        public void GetFieldValueCollection()
-        {
-            var result = _mapper.GetFieldValueCollection(_entity).ToList();
-            Assert.AreEqual(3, result.Count);
-            Assert.AreEqual(1, result[0].Number);
-            Assert.AreEqual(2, result[1].Number);
-            Assert.AreEqual(3, result[2].Number);
-            Assert.AreEqual((byte)45, result[0].Value);
-            Assert.AreEqual(6.7f, result[1].Value);
-            Assert.AreEqual("123", result[2].Value);
-        }
-
-        [Test]
-        public void GetFieldValueCollectionWithFieldNumbers()
-        {
-            var fieldNumbers = new HashSet<byte>(new byte[] { 2, 3 });
-            var result = _mapper.GetFieldValueCollection(_entity, fieldNumbers).ToList();
-            Assert.AreEqual(2, result.Count);
-            Assert.AreEqual(2, result[0].Number);
-            Assert.AreEqual(3, result[1].Number);
-            Assert.AreEqual(6.7f, result[0].Value);
-            Assert.AreEqual("123", result[1].Value);
-        }
-
-        [Test]
-        public void GetEntity_IncludePrimaryKeyYes()
-        {
-            var fieldValueCollection = new FieldValue[]
+        _mapper = new Mapper<TestEntity>(
+            new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
+            new FieldMapping<TestEntity>[]
             {
-                new FieldValue(1, (byte)45),
-                new FieldValue(2, 6.7f),
-                new FieldValue(3, "123")
-            };
-            var result = _mapper.MakeEntity(123, fieldValueCollection, true);
-            Assert.AreEqual(123, result.Id);
-            Assert.AreEqual((byte)45, result.Byte);
-            Assert.AreEqual(6.7f, result.Float);
-            Assert.AreEqual("123", result.String);
-        }
+                new FieldMapping<TestEntity>(1, entity => entity.Byte),
+                new FieldMapping<TestEntity>(2, entity => entity.Float),
+                new FieldMapping<TestEntity>(3, entity => entity.String)
+            });
+    }
 
-        [Test]
-        public void GetEntity_IncludePrimaryKeyNo()
+    [Test]
+    public void PrimaryKeyType()
+    {
+        Assert.AreEqual(typeof(int), _mapper.PrimaryKeyMapping.PropertyType);
+    }
+
+    [Test]
+    public void FieldMetaCollection()
+    {
+        var result = _mapper.FieldMetaCollection.ToList();
+        Assert.AreEqual(3, result.Count);
+        Assert.AreEqual(1, result[0].Number);
+        Assert.AreEqual(2, result[1].Number);
+        Assert.AreEqual(3, result[2].Number);
+        Assert.AreEqual(typeof(byte), result[0].Type);
+        Assert.AreEqual(typeof(float), result[1].Type);
+        Assert.AreEqual(typeof(string), result[2].Type);
+    }
+
+    [Test]
+    public void GetPrimaryKeyValue()
+    {
+        Assert.AreEqual(123, _mapper.GetPrimaryKeyValue(_entity));
+    }
+
+    [Test]
+    public void GetFieldValueCollection()
+    {
+        var result = _mapper.GetFieldValueCollection(_entity).ToList();
+        Assert.AreEqual(3, result.Count);
+        Assert.AreEqual(1, result[0].Number);
+        Assert.AreEqual(2, result[1].Number);
+        Assert.AreEqual(3, result[2].Number);
+        Assert.AreEqual((byte)45, result[0].Value);
+        Assert.AreEqual(6.7f, result[1].Value);
+        Assert.AreEqual("123", result[2].Value);
+    }
+
+    [Test]
+    public void GetFieldValueCollectionWithFieldNumbers()
+    {
+        var fieldNumbers = new HashSet<byte>(new byte[] { 2, 3 });
+        var result = _mapper.GetFieldValueCollection(_entity, fieldNumbers).ToList();
+        Assert.AreEqual(2, result.Count);
+        Assert.AreEqual(2, result[0].Number);
+        Assert.AreEqual(3, result[1].Number);
+        Assert.AreEqual(6.7f, result[0].Value);
+        Assert.AreEqual("123", result[1].Value);
+    }
+
+    [Test]
+    public void GetEntity_IncludePrimaryKeyYes()
+    {
+        var fieldValueCollection = new FieldValue[]
         {
-            var fieldValueCollection = new FieldValue[]
+            new FieldValue(1, (byte)45),
+            new FieldValue(2, 6.7f),
+            new FieldValue(3, "123")
+        };
+        var result = _mapper.MakeEntity(123, fieldValueCollection, true);
+        Assert.AreEqual(123, result.Id);
+        Assert.AreEqual((byte)45, result.Byte);
+        Assert.AreEqual(6.7f, result.Float);
+        Assert.AreEqual("123", result.String);
+    }
+
+    [Test]
+    public void GetEntity_IncludePrimaryKeyNo()
+    {
+        var fieldValueCollection = new FieldValue[]
+        {
+            new FieldValue(1, (byte)45),
+            new FieldValue(2, 6.7f),
+            new FieldValue(3, "123")
+        };
+        var result = _mapper.MakeEntity(123, fieldValueCollection, false);
+        Assert.AreEqual(0, result.Id);
+        Assert.AreEqual((byte)45, result.Byte);
+        Assert.AreEqual(6.7f, result.Float);
+        Assert.AreEqual("123", result.String);
+    }
+
+    [Test]
+    public void GetEntity_SetFunctions()
+    {
+        _mapper = new Mapper<TestEntity>(
+            new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
+            new FieldMapping<TestEntity>[]
             {
-                new FieldValue(1, (byte)45),
-                new FieldValue(2, 6.7f),
-                new FieldValue(3, "123")
-            };
-            var result = _mapper.MakeEntity(123, fieldValueCollection, false);
-            Assert.AreEqual(0, result.Id);
-            Assert.AreEqual((byte)45, result.Byte);
-            Assert.AreEqual(6.7f, result.Float);
-            Assert.AreEqual("123", result.String);
-        }
-
-        [Test]
-        public void GetEntity_SetFunctions()
+                new FieldMapping<TestEntity>(1, entity => entity.Byte),
+                new FieldMapping<TestEntity>(2, entity => entity.Float),
+                new FieldMapping<TestEntity>(3, entity => entity.String)
+            });
+        _mapper.MakeFunction = () => new TestEntity();
+        _mapper.PrimaryKeySetFunction = (primaryKeyValue, entity) => entity.Id = (int)primaryKeyValue;
+        _mapper.FieldSetFunction = (fieldNumber, fieldValue, entity) =>
         {
-            _mapper = new Mapper<TestEntity>(
-                new PrimaryKeyMapping<TestEntity>(entity => entity.Id),
-                new FieldMapping<TestEntity>[]
-                {
-                    new FieldMapping<TestEntity>(1, entity => entity.Byte),
-                    new FieldMapping<TestEntity>(2, entity => entity.Float),
-                    new FieldMapping<TestEntity>(3, entity => entity.String)
-                });
-            _mapper.MakeFunction = () => new TestEntity();
-            _mapper.PrimaryKeySetFunction = (primaryKeyValue, entity) => entity.Id = (int)primaryKeyValue;
-            _mapper.FieldSetFunction = (fieldNumber, fieldValue, entity) =>
-            {
-                if (fieldNumber == 1) entity.Byte = (byte)fieldValue;
-                if (fieldNumber == 2) entity.Float = (float)fieldValue;
-                if (fieldNumber == 3) entity.String = (string)fieldValue;
-            };
+            if (fieldNumber == 1) entity.Byte = (byte)fieldValue;
+            if (fieldNumber == 2) entity.Float = (float)fieldValue;
+            if (fieldNumber == 3) entity.String = (string)fieldValue;
+        };
 
-            var fieldValueCollection = new FieldValue[]
-            {
-                new FieldValue(1, (byte)45),
-                new FieldValue(2, 6.7f),
-                new FieldValue(3, "123")
-            };
-            var result = _mapper.MakeEntity(123, fieldValueCollection, false);
-            Assert.AreEqual(0, result.Id);
-            Assert.AreEqual((byte)45, result.Byte);
-            Assert.AreEqual(6.7f, result.Float);
-            Assert.AreEqual("123", result.String);
-        }
-
-        [Test]
-        public void PrimaryKeyObject()
+        var fieldValueCollection = new FieldValue[]
         {
-            var entity = new TestEntityPrimaryKeyObject { Id = new TestPrimaryKey() };
+            new FieldValue(1, (byte)45),
+            new FieldValue(2, 6.7f),
+            new FieldValue(3, "123")
+        };
+        var result = _mapper.MakeEntity(123, fieldValueCollection, false);
+        Assert.AreEqual(0, result.Id);
+        Assert.AreEqual((byte)45, result.Byte);
+        Assert.AreEqual(6.7f, result.Float);
+        Assert.AreEqual("123", result.String);
+    }
 
-            var mapper = new Mapper<TestEntityPrimaryKeyObject>(
-                new PrimaryKeyMapping<TestEntityPrimaryKeyObject>(entity => entity.Id),
-                new FieldMapping<TestEntityPrimaryKeyObject>[0]);
-        }
+    [Test]
+    public void PrimaryKeyObject()
+    {
+        var entity = new TestEntityPrimaryKeyObject { Id = new TestPrimaryKey() };
 
-        class TestEntity
-        {
-            public int Id { get; set; }
+        var mapper = new Mapper<TestEntityPrimaryKeyObject>(
+            new PrimaryKeyMapping<TestEntityPrimaryKeyObject>(entity => entity.Id),
+            new FieldMapping<TestEntityPrimaryKeyObject>[0]);
+    }
 
-            public byte Byte { get; set; }
+    class TestEntity
+    {
+        public int Id { get; set; }
 
-            public float Float { get; set; }
+        public byte Byte { get; set; }
 
-            public string String { get; set; }
-        }
+        public float Float { get; set; }
 
-        class TestEntityPrimaryKeyObject
-        {
-            public TestPrimaryKey Id { get; set; }
-        }
+        public string String { get; set; }
+    }
 
-        class TestPrimaryKey
-        {
-            public int Value { get; set; }
-        }
+    class TestEntityPrimaryKeyObject
+    {
+        public TestPrimaryKey Id { get; set; }
+    }
+
+    class TestPrimaryKey
+    {
+        public int Value { get; set; }
     }
 }
