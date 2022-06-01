@@ -120,9 +120,10 @@ internal class UpdateQueryExecutor
                 foreach (var variableFieldNumber in variableFieldNumbers)
                 {
                     var currentValue = fieldValueCollection[variableFieldNumber].Value;
-                    var currentValueByteArray = _dataFile.ToByteArray(variableFieldNumber, currentValue);
                     var newValue = updateFieldDictionary[variableFieldNumber].Value;
-                    var newValueByteArray = _dataFile.ToByteArray(variableFieldNumber, newValue);
+                    if (currentValue == null && newValue == null) break;
+                    var currentValueByteArray = currentValue != null ? _dataFile.ToByteArray(variableFieldNumber, currentValue) : new byte[0];
+                    var newValueByteArray = newValue != null ? _dataFile.ToByteArray(variableFieldNumber, newValue) : new byte[0];
                     // проверяем чтобы старое и новое значение в байтах равнялись по длине
                     if (currentValueByteArray.Length != newValueByteArray.Length)
                     {
@@ -146,7 +147,7 @@ internal class UpdateQueryExecutor
             foreach (var fieldValueCollection in fieldValueCollections)
             {
                 var primaryKey = fieldValueCollection.PrimaryKey;
-                _dataFile.UpdateManual(primaryKey!.StartDataFileOffset, primaryKey.EndDataFileOffset, updateFieldDictionary.Values);
+                _dataFile.UpdateManual(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, updateFieldDictionary.Values);
             }
         }
 

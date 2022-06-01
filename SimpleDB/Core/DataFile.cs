@@ -167,7 +167,7 @@ internal class DataFile
                 insertedBytesCount += sizeof(int) + bytes.Length;
             }
         }
-        else if (fieldValue is byte[] fieldValueBytes)
+        else if (fieldMeta.Type == typeof(byte[]))
         {
             if (fieldValue == null)
             {
@@ -176,6 +176,7 @@ internal class DataFile
             }
             else
             {
+                var fieldValueBytes = (byte[])fieldValue;
                 var bytes = ToByteArray(fieldMeta, fieldValueBytes);
                 stream.WriteInt(bytes.Length);
                 stream.WriteByteArray(bytes, 0, bytes.Length);
@@ -496,13 +497,20 @@ internal class DataFile
         {
             var length = stream.ReadInt();
             readedBytesCount += sizeof(int);
-            var bytes = stream.ReadByteArray(length);
-            if (fieldMeta.Settings.Compressed)
+            if (length == -1)
             {
-                bytes = ZipCompression.Decompress(bytes);
+                fieldValue = null;
             }
-            fieldValue = bytes;
-            readedBytesCount += length;
+            else
+            {
+                var bytes = stream.ReadByteArray(length);
+                if (fieldMeta.Settings.Compressed)
+                {
+                    bytes = ZipCompression.Decompress(bytes);
+                }
+                fieldValue = bytes;
+                readedBytesCount += length;
+            }
         }
         else
         {

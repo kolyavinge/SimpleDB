@@ -27,11 +27,11 @@ class UpdateQueryExecutorTest
             new PrimaryKeyMapping<TestEntity>(x => x.Id),
             new FieldMapping<TestEntity>[]
             {
-                new FieldMapping<TestEntity>(1, x => x.Byte),
-                new FieldMapping<TestEntity>(2, x => x.Float),
-                new FieldMapping<TestEntity>(3, x => x.String),
-                new FieldMapping<TestEntity>(4, x => x.ByteArray),
-                new FieldMapping<TestEntity>(5, x => x.InnerObject)
+                new(1, x => x.Byte),
+                new(2, x => x.Float),
+                new(3, x => x.String),
+                new(4, x => x.ByteArray),
+                new(5, x => x.InnerObject)
             });
         _collection = new Collection<TestEntity>(
             _mapper,
@@ -302,6 +302,90 @@ class UpdateQueryExecutorTest
         Assert.AreEqual((byte)30, entity3.Byte);
         Assert.AreEqual(5.6f, entity3.Float);
         Assert.AreEqual(10, entity3.ByteArray.Length);
+    }
+
+    [Test]
+    public void ExecuteQuery_ByteArrayToNull()
+    {
+        _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f, ByteArray = new byte[] { 1, 2, 3 } });
+        _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f, ByteArray = new byte[] { 4, 5, 6 } });
+        _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f, ByteArray = new byte[] { 7, 8, 9 } });
+        var query = new UpdateQuery("TestEntity", new UpdateClause(new[] { new UpdateClause.Field(4, null) }));
+
+        var result = _queryExecutor.ExecuteQuery(query);
+
+        Assert.AreEqual(3, result);
+
+        var entity1 = _collection.GetOrDefault(1);
+        Assert.AreEqual((byte)10, entity1.Byte);
+        Assert.AreEqual(1.2f, entity1.Float);
+        Assert.AreEqual(null, entity1.ByteArray);
+
+        var entity2 = _collection.GetOrDefault(2);
+        Assert.AreEqual((byte)20, entity2.Byte);
+        Assert.AreEqual(3.4f, entity2.Float);
+        Assert.AreEqual(null, entity2.ByteArray);
+
+        var entity3 = _collection.GetOrDefault(3);
+        Assert.AreEqual((byte)30, entity3.Byte);
+        Assert.AreEqual(5.6f, entity3.Float);
+        Assert.AreEqual(null, entity3.ByteArray);
+    }
+
+    [Test]
+    public void ExecuteQuery_ByteArrayFromNull()
+    {
+        _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f, ByteArray = null });
+        _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f, ByteArray = null });
+        _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f, ByteArray = null });
+        var query = new UpdateQuery("TestEntity", new UpdateClause(new[] { new UpdateClause.Field(4, new byte[] { 1, 2, 3 }) }));
+
+        var result = _queryExecutor.ExecuteQuery(query);
+
+        Assert.AreEqual(3, result);
+
+        var entity1 = _collection.GetOrDefault(1);
+        Assert.AreEqual((byte)10, entity1.Byte);
+        Assert.AreEqual(1.2f, entity1.Float);
+        Assert.AreEqual(3, entity1.ByteArray.Length);
+
+        var entity2 = _collection.GetOrDefault(2);
+        Assert.AreEqual((byte)20, entity2.Byte);
+        Assert.AreEqual(3.4f, entity2.Float);
+        Assert.AreEqual(3, entity2.ByteArray.Length);
+
+        var entity3 = _collection.GetOrDefault(3);
+        Assert.AreEqual((byte)30, entity3.Byte);
+        Assert.AreEqual(5.6f, entity3.Float);
+        Assert.AreEqual(3, entity3.ByteArray.Length);
+    }
+
+    [Test]
+    public void ExecuteQuery_ByteArrayNull()
+    {
+        _collection.Insert(new TestEntity { Id = 1, Byte = 10, Float = 1.2f, ByteArray = null });
+        _collection.Insert(new TestEntity { Id = 2, Byte = 20, Float = 3.4f, ByteArray = null });
+        _collection.Insert(new TestEntity { Id = 3, Byte = 30, Float = 5.6f, ByteArray = null });
+        var query = new UpdateQuery("TestEntity", new UpdateClause(new[] { new UpdateClause.Field(4, null) }));
+
+        var result = _queryExecutor.ExecuteQuery(query);
+
+        Assert.AreEqual(3, result);
+
+        var entity1 = _collection.GetOrDefault(1);
+        Assert.AreEqual((byte)10, entity1.Byte);
+        Assert.AreEqual(1.2f, entity1.Float);
+        Assert.AreEqual(null, entity1.ByteArray);
+
+        var entity2 = _collection.GetOrDefault(2);
+        Assert.AreEqual((byte)20, entity2.Byte);
+        Assert.AreEqual(3.4f, entity2.Float);
+        Assert.AreEqual(null, entity2.ByteArray);
+
+        var entity3 = _collection.GetOrDefault(3);
+        Assert.AreEqual((byte)30, entity3.Byte);
+        Assert.AreEqual(5.6f, entity3.Float);
+        Assert.AreEqual(null, entity3.ByteArray);
     }
 
     [Test]

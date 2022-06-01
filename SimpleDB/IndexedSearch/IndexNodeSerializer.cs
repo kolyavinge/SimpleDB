@@ -32,63 +32,63 @@ internal class IndexNodeSerializer<TField> : IRBTreeNodeSerializer<TField, Index
 
     private static void SerializeObject(object obj, IWriteableStream stream)
     {
-        if (obj.GetType() == typeof(bool))
+        if (obj is bool)
         {
             stream.WriteBool((bool)obj);
         }
-        else if (obj.GetType() == typeof(sbyte))
+        else if (obj is sbyte)
         {
             stream.WriteSByte((sbyte)obj);
         }
-        else if (obj.GetType() == typeof(byte))
+        else if (obj is byte)
         {
             stream.WriteByte((byte)obj);
         }
-        else if (obj.GetType() == typeof(char))
+        else if (obj is char)
         {
             stream.WriteChar((char)obj);
         }
-        else if (obj.GetType() == typeof(short))
+        else if (obj is short)
         {
             stream.WriteShort((short)obj);
         }
-        else if (obj.GetType() == typeof(ushort))
+        else if (obj is ushort)
         {
             stream.WriteUShort((ushort)obj);
         }
-        else if (obj.GetType() == typeof(int))
+        else if (obj is int)
         {
             stream.WriteInt((int)obj);
         }
-        else if (obj.GetType() == typeof(uint))
+        else if (obj is uint)
         {
             stream.WriteUInt((uint)obj);
         }
-        else if (obj.GetType() == typeof(long))
+        else if (obj is long)
         {
             stream.WriteLong((long)obj);
         }
-        else if (obj.GetType() == typeof(ulong))
+        else if (obj is ulong)
         {
             stream.WriteULong((ulong)obj);
         }
-        else if (obj.GetType() == typeof(float))
+        else if (obj is float)
         {
             stream.WriteFloat((float)obj);
         }
-        else if (obj.GetType() == typeof(double))
+        else if (obj is double)
         {
             stream.WriteDouble((double)obj);
         }
-        else if (obj.GetType() == typeof(decimal))
+        else if (obj is decimal)
         {
             stream.WriteDecimal((decimal)obj);
         }
-        else if (obj.GetType() == typeof(DateTime))
+        else if (obj is DateTime)
         {
             stream.WriteLong(((DateTime)obj).ToBinary());
         }
-        else if (obj.GetType() == typeof(string))
+        else if (obj is string)
         {
             var bytes = Encoding.UTF8.GetBytes((string)obj);
             stream.WriteInt(bytes.Length);

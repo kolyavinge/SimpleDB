@@ -21,7 +21,7 @@ internal class UpdateClause
 
     public class Field : UpdateClauseItem
     {
-        public Field(byte number, object value)
+        public Field(byte number, object? value)
         {
             Number = number;
             Value = value;
@@ -29,6 +29,6 @@ internal class UpdateClause
 
         public byte Number { get; }
 
-        public object Value { get; }
+        public object? Value { get; }
     }
 }
