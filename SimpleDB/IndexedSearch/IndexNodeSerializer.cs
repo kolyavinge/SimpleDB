@@ -120,7 +120,7 @@ internal class IndexNodeDeserializer<TField> : IRBTreeNodeDeserializer<TField, I
 
     public TField DeserializeKey(IReadableStream stream)
     {
-        return _lastKey = (TField)DeserializeObject(typeof(TField), stream);
+        return _lastKey = (TField)DeserializeObject(typeof(TField), stream)!;
     }
 
     public IndexValue DeserializeValue(IReadableStream stream)
@@ -129,20 +129,27 @@ internal class IndexNodeDeserializer<TField> : IRBTreeNodeDeserializer<TField, I
         var indexValue = new IndexValue(_lastKey!, new List<IndexItem>(itemsCount));
         for (int itemIndex = 0; itemIndex < itemsCount; itemIndex++)
         {
-            var indexItem = new IndexItem(DeserializeObject(_primaryKeyType, stream), new object[_indexMeta.IncludedFieldNumbers.Length]);
-            for (int includedFieldIndex = 0; includedFieldIndex < _indexMeta.IncludedFieldNumbers.Length; includedFieldIndex++)
+            var primaryKeyValue = DeserializeObject(_primaryKeyType, stream)!;
+            var includedFieldNumbers = _indexMeta.IncludedFieldNumbers != null
+                ? new object[_indexMeta.IncludedFieldNumbers.Length]
+                : null;
+            var indexItem = new IndexItem(primaryKeyValue, includedFieldNumbers);
+            if (_indexMeta.IncludedFieldNumbers != null)
             {
-                var includedFieldNumber = _indexMeta.IncludedFieldNumbers[includedFieldIndex];
-                var includedFieldType = _fieldTypes[includedFieldNumber];
-                indexItem.IncludedFields[includedFieldIndex] = DeserializeObject(includedFieldType, stream);
+                for (int includedFieldIndex = 0; includedFieldIndex < _indexMeta.IncludedFieldNumbers.Length; includedFieldIndex++)
+                {
+                    var includedFieldNumber = _indexMeta.IncludedFieldNumbers[includedFieldIndex];
+                    var includedFieldType = _fieldTypes[includedFieldNumber];
+                    indexItem.IncludedFields![includedFieldIndex] = DeserializeObject(includedFieldType, stream);
+                }
+                indexValue.Items.Add(indexItem);
             }
-            indexValue.Items.Add(indexItem);
         }
 
         return indexValue;
     }
 
-    private static object DeserializeObject(Type type, IReadableStream stream)
+    private static object? DeserializeObject(Type type, IReadableStream stream)
     {
         if (type == typeof(bool))
         {

@@ -101,9 +101,9 @@ internal class IndexItem
 {
     public object PrimaryKeyValue { get; }
 
-    public object?[] IncludedFields { get; }
+    public object?[]? IncludedFields { get; }
 
-    public IndexItem(object primaryKeyValue, object?[] includedFields)
+    public IndexItem(object primaryKeyValue, object?[]? includedFields)
     {
         PrimaryKeyValue = primaryKeyValue;
         IncludedFields = includedFields;

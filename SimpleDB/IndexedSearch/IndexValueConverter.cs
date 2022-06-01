@@ -18,12 +18,15 @@ internal class IndexValueConverter
         {
             yield return new FieldValue(_indexMeta.IndexedFieldNumber, indexValue.IndexedFieldValue);
         }
-        var includedFieldNumbers = _indexMeta.IncludedFieldNumbers ?? new byte[0];
-        for (int includedFieldNumberIndex = 0; includedFieldNumberIndex < includedFieldNumbers.Length; includedFieldNumberIndex++)
+
+        if (_indexMeta.IncludedFieldNumbers != null)
         {
-            var number = includedFieldNumbers[includedFieldNumberIndex];
-            var value = indexItem.IncludedFields[includedFieldNumberIndex];
-            yield return new FieldValue(number, value);
+            for (int includedFieldNumberIndex = 0; includedFieldNumberIndex < _indexMeta.IncludedFieldNumbers.Length; includedFieldNumberIndex++)
+            {
+                var number = _indexMeta.IncludedFieldNumbers[includedFieldNumberIndex];
+                var value = indexItem.IncludedFields![includedFieldNumberIndex];
+                yield return new FieldValue(number, value);
+            }
         }
     }
 }
