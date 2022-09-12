@@ -50,7 +50,7 @@ class SqlQueryExecutorTest
     [Test]
     public void ExecuteQuery_Select()
     {
-        _collection.Insert(new[]
+        _collection.InsertRange(new[]
         {
             new TestEntity { Id = 1, Byte = 10, Float = 10.2f, String = "123" },
             new TestEntity { Id = 2, Byte = 20, Float = 20.2f, String = "456" },
@@ -77,7 +77,7 @@ class SqlQueryExecutorTest
     [Test]
     public void ExecuteQuery_SelectByte()
     {
-        _collection.Insert(new[]
+        _collection.InsertRange(new[]
         {
             new TestEntity { Id = 1, Byte = 10, Float = 10.2f, String = "123" },
             new TestEntity { Id = 2, Byte = 20, Float = 20.2f, String = "456" },
@@ -98,7 +98,7 @@ class SqlQueryExecutorTest
     [Test]
     public void ExecuteQuery_Update()
     {
-        _collection.Insert(new[]
+        _collection.InsertRange(new[]
         {
             new TestEntity { Id = 1, Byte = 10, Float = 10.2f, String = "123" },
             new TestEntity { Id = 2, Byte = 20, Float = 20.2f, String = "456" },
@@ -113,7 +113,7 @@ class SqlQueryExecutorTest
     [Test]
     public void ExecuteQuery_Delete()
     {
-        _collection.Insert(new[]
+        _collection.InsertRange(new[]
         {
             new TestEntity { Id = 1, Byte = 10, Float = 10.2f, String = "123" },
             new TestEntity { Id = 2, Byte = 20, Float = 20.2f, String = "456" },

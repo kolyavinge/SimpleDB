@@ -69,7 +69,7 @@ class DefragmentatorTest
         InitCollection();
 
         Assert.AreEqual(0, _collection.Count());
-        Assert.AreEqual(null, _collection.GetOrDefault(1));
+        Assert.AreEqual(null, _collection.Get(1));
     }
 
     [Test]
@@ -82,7 +82,7 @@ class DefragmentatorTest
         InitCollection();
 
         Assert.AreEqual(1, _collection.Count());
-        Assert.AreEqual("123", _collection.GetOrDefault(2).String);
+        Assert.AreEqual("123", _collection.Get(2).String);
     }
 
     [Test]

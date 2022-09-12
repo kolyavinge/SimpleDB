@@ -84,7 +84,7 @@ class Program
                 AdditionalInfo = new PersonAdditionalInfo { Value = i }
             }).ToList();
             sw = System.Diagnostics.Stopwatch.StartNew();
-            collection.Insert(personList);
+            collection.InsertRange(personList);
             sw.Stop();
             Console.WriteLine(sw.Elapsed);
         }
@@ -95,10 +95,10 @@ class Program
             Console.WriteLine("========== Get ==========");
             var personIdList = Enumerable.Range(0, count).Cast<object>().ToList();
             sw = System.Diagnostics.Stopwatch.StartNew();
-            collection.GetOrDefault(personIdList).ToList();
+            collection.GetRange(personIdList).ToList();
             sw.Stop();
             Console.WriteLine(sw.Elapsed);
-            var result = collection.GetOrDefault(new object[] { 0, 1, count - 2, count - 1 }).ToList();
+            var result = collection.GetRange(new object[] { 0, 1, count - 2, count - 1 }).ToList();
             Console.WriteLine(result[0]);
             Console.WriteLine(result[1]);
             Console.WriteLine(result[2]);
@@ -154,7 +154,7 @@ class Program
                 AdditionalInfo = new PersonAdditionalInfo { Value = -i }
             }).ToList();
             sw = System.Diagnostics.Stopwatch.StartNew();
-            collection.Update(personUpdateList);
+            collection.UpdateRange(personUpdateList);
             sw.Stop();
             Console.WriteLine(sw.Elapsed);
         }
@@ -162,7 +162,7 @@ class Program
         if (doGet == 1)
         {
             Console.WriteLine("========== Get ==========");
-            var result = collection.GetOrDefault(new object[] { 0, 1, count - 2, count - 1 }).ToList();
+            var result = collection.GetRange(new object[] { 0, 1, count - 2, count - 1 }).ToList();
             Console.WriteLine(result[0]);
             Console.WriteLine(result[1]);
             Console.WriteLine(result[2]);
@@ -197,8 +197,8 @@ class Program
             {
                 Console.WriteLine(String.Format("Id {0} not exists", 0));
             }
-            Console.WriteLine(collection.GetOrDefault(0) == null ? "collection.Get(0): null" : "collection.Get(0): !!! not null !!!");
-            Console.WriteLine("collection.Get(1): " + collection.GetOrDefault(1));
+            Console.WriteLine(collection.Get(0) == null ? "collection.Get(0): null" : "collection.Get(0): !!! not null !!!");
+            Console.WriteLine("collection.Get(1): " + collection.Get(1));
         }
 
         if (doQuery == 1)
@@ -253,8 +253,8 @@ class Program
             sw = System.Diagnostics.Stopwatch.StartNew();
             var updateQueryResult = collection.Query()
                 .Update(x => new Person { Name = "Linq new name" }, x => x.Id == 100 || x.Id == 101);
-            Console.WriteLine(collection.GetOrDefault(100));
-            Console.WriteLine(collection.GetOrDefault(101));
+            Console.WriteLine(collection.Get(100));
+            Console.WriteLine(collection.Get(101));
             sw.Stop();
             Console.WriteLine(sw.Elapsed);
 

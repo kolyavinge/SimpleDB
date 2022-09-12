@@ -61,17 +61,17 @@ class UpdateQueryExecutorTest
 
         Assert.AreEqual(3, result);
 
-        var entity1 = _collection.GetOrDefault(1);
+        var entity1 = _collection.Get(1);
         Assert.AreEqual((byte)100, entity1.Byte);
         Assert.AreEqual(34.5f, entity1.Float);
         Assert.AreEqual("123", entity1.String);
 
-        var entity2 = _collection.GetOrDefault(2);
+        var entity2 = _collection.Get(2);
         Assert.AreEqual((byte)100, entity2.Byte);
         Assert.AreEqual(34.5f, entity2.Float);
         Assert.AreEqual("456", entity2.String);
 
-        var entity3 = _collection.GetOrDefault(3);
+        var entity3 = _collection.Get(3);
         Assert.AreEqual((byte)100, entity3.Byte);
         Assert.AreEqual(34.5f, entity3.Float);
         Assert.AreEqual("789", entity3.String);
@@ -92,17 +92,17 @@ class UpdateQueryExecutorTest
 
         Assert.AreEqual(1, result);
 
-        var entity1 = _collection.GetOrDefault(1);
+        var entity1 = _collection.Get(1);
         Assert.AreEqual((byte)100, entity1.Byte);
         Assert.AreEqual(34.5f, entity1.Float);
         Assert.AreEqual("123", entity1.String);
 
-        var entity2 = _collection.GetOrDefault(2);
+        var entity2 = _collection.Get(2);
         Assert.AreEqual((byte)20, entity2.Byte);
         Assert.AreEqual(3.4f, entity2.Float);
         Assert.AreEqual("456", entity2.String);
 
-        var entity3 = _collection.GetOrDefault(3);
+        var entity3 = _collection.Get(3);
         Assert.AreEqual((byte)30, entity3.Byte);
         Assert.AreEqual(5.6f, entity3.Float);
         Assert.AreEqual("789", entity3.String);
@@ -121,7 +121,7 @@ class UpdateQueryExecutorTest
 
         Assert.AreEqual(1, result);
 
-        var entity1 = _collection.GetOrDefault(1);
+        var entity1 = _collection.Get(1);
         Assert.AreEqual((byte)10, entity1.Byte);
         Assert.AreEqual(1.2f, entity1.Float);
         Assert.AreEqual("987", entity1.String);
@@ -139,17 +139,17 @@ class UpdateQueryExecutorTest
 
         Assert.AreEqual(3, result);
 
-        var entity1 = _collection.GetOrDefault(1);
+        var entity1 = _collection.Get(1);
         Assert.AreEqual((byte)10, entity1.Byte);
         Assert.AreEqual(1.2f, entity1.Float);
         Assert.AreEqual("000", entity1.String);
 
-        var entity2 = _collection.GetOrDefault(2);
+        var entity2 = _collection.Get(2);
         Assert.AreEqual((byte)20, entity2.Byte);
         Assert.AreEqual(3.4f, entity2.Float);
         Assert.AreEqual("000", entity2.String);
 
-        var entity3 = _collection.GetOrDefault(3);
+        var entity3 = _collection.Get(3);
         Assert.AreEqual((byte)30, entity3.Byte);
         Assert.AreEqual(5.6f, entity3.Float);
         Assert.AreEqual("000", entity3.String);
@@ -167,17 +167,17 @@ class UpdateQueryExecutorTest
 
         Assert.AreEqual(3, result);
 
-        var entity1 = _collection.GetOrDefault(1);
+        var entity1 = _collection.Get(1);
         Assert.AreEqual((byte)10, entity1.Byte);
         Assert.AreEqual(1.2f, entity1.Float);
         Assert.AreEqual("0", entity1.String);
 
-        var entity2 = _collection.GetOrDefault(2);
+        var entity2 = _collection.Get(2);
         Assert.AreEqual((byte)20, entity2.Byte);
         Assert.AreEqual(3.4f, entity2.Float);
         Assert.AreEqual("0", entity2.String);
 
-        var entity3 = _collection.GetOrDefault(3);
+        var entity3 = _collection.Get(3);
         Assert.AreEqual((byte)30, entity3.Byte);
         Assert.AreEqual(5.6f, entity3.Float);
         Assert.AreEqual("0", entity3.String);
@@ -195,17 +195,17 @@ class UpdateQueryExecutorTest
 
         Assert.AreEqual(3, result);
 
-        var entity1 = _collection.GetOrDefault(1);
+        var entity1 = _collection.Get(1);
         Assert.AreEqual((byte)10, entity1.Byte);
         Assert.AreEqual(1.2f, entity1.Float);
         Assert.AreEqual("0000000000", entity1.String);
 
-        var entity2 = _collection.GetOrDefault(2);
+        var entity2 = _collection.Get(2);
         Assert.AreEqual((byte)20, entity2.Byte);
         Assert.AreEqual(3.4f, entity2.Float);
         Assert.AreEqual("0000000000", entity2.String);
 
-        var entity3 = _collection.GetOrDefault(3);
+        var entity3 = _collection.Get(3);
         Assert.AreEqual((byte)30, entity3.Byte);
         Assert.AreEqual(5.6f, entity3.Float);
         Assert.AreEqual("0000000000", entity3.String);
@@ -223,21 +223,21 @@ class UpdateQueryExecutorTest
 
         Assert.AreEqual(3, result);
 
-        var entity1 = _collection.GetOrDefault(1);
+        var entity1 = _collection.Get(1);
         Assert.AreEqual((byte)10, entity1.Byte);
         Assert.AreEqual(1.2f, entity1.Float);
         Assert.AreEqual(0, entity1.ByteArray[0]);
         Assert.AreEqual(0, entity1.ByteArray[1]);
         Assert.AreEqual(0, entity1.ByteArray[2]);
 
-        var entity2 = _collection.GetOrDefault(2);
+        var entity2 = _collection.Get(2);
         Assert.AreEqual((byte)20, entity2.Byte);
         Assert.AreEqual(3.4f, entity2.Float);
         Assert.AreEqual(0, entity2.ByteArray[0]);
         Assert.AreEqual(0, entity2.ByteArray[1]);
         Assert.AreEqual(0, entity2.ByteArray[2]);
 
-        var entity3 = _collection.GetOrDefault(3);
+        var entity3 = _collection.Get(3);
         Assert.AreEqual((byte)30, entity3.Byte);
         Assert.AreEqual(5.6f, entity3.Float);
         Assert.AreEqual(0, entity3.ByteArray[0]);
@@ -257,19 +257,19 @@ class UpdateQueryExecutorTest
 
         Assert.AreEqual(3, result);
 
-        var entity1 = _collection.GetOrDefault(1);
+        var entity1 = _collection.Get(1);
         Assert.AreEqual((byte)10, entity1.Byte);
         Assert.AreEqual(1.2f, entity1.Float);
         Assert.AreEqual(1, entity1.ByteArray.Length);
         Assert.AreEqual(0, entity1.ByteArray[0]);
 
-        var entity2 = _collection.GetOrDefault(2);
+        var entity2 = _collection.Get(2);
         Assert.AreEqual((byte)20, entity2.Byte);
         Assert.AreEqual(3.4f, entity2.Float);
         Assert.AreEqual(1, entity2.ByteArray.Length);
         Assert.AreEqual(0, entity2.ByteArray[0]);
 
-        var entity3 = _collection.GetOrDefault(3);
+        var entity3 = _collection.Get(3);
         Assert.AreEqual((byte)30, entity3.Byte);
         Assert.AreEqual(5.6f, entity3.Float);
         Assert.AreEqual(1, entity3.ByteArray.Length);
@@ -288,17 +288,17 @@ class UpdateQueryExecutorTest
 
         Assert.AreEqual(3, result);
 
-        var entity1 = _collection.GetOrDefault(1);
+        var entity1 = _collection.Get(1);
         Assert.AreEqual((byte)10, entity1.Byte);
         Assert.AreEqual(1.2f, entity1.Float);
         Assert.AreEqual(10, entity1.ByteArray.Length);
 
-        var entity2 = _collection.GetOrDefault(2);
+        var entity2 = _collection.Get(2);
         Assert.AreEqual((byte)20, entity2.Byte);
         Assert.AreEqual(3.4f, entity2.Float);
         Assert.AreEqual(10, entity2.ByteArray.Length);
 
-        var entity3 = _collection.GetOrDefault(3);
+        var entity3 = _collection.Get(3);
         Assert.AreEqual((byte)30, entity3.Byte);
         Assert.AreEqual(5.6f, entity3.Float);
         Assert.AreEqual(10, entity3.ByteArray.Length);
@@ -316,17 +316,17 @@ class UpdateQueryExecutorTest
 
         Assert.AreEqual(3, result);
 
-        var entity1 = _collection.GetOrDefault(1);
+        var entity1 = _collection.Get(1);
         Assert.AreEqual((byte)10, entity1.Byte);
         Assert.AreEqual(1.2f, entity1.Float);
         Assert.AreEqual(null, entity1.ByteArray);
 
-        var entity2 = _collection.GetOrDefault(2);
+        var entity2 = _collection.Get(2);
         Assert.AreEqual((byte)20, entity2.Byte);
         Assert.AreEqual(3.4f, entity2.Float);
         Assert.AreEqual(null, entity2.ByteArray);
 
-        var entity3 = _collection.GetOrDefault(3);
+        var entity3 = _collection.Get(3);
         Assert.AreEqual((byte)30, entity3.Byte);
         Assert.AreEqual(5.6f, entity3.Float);
         Assert.AreEqual(null, entity3.ByteArray);
@@ -344,17 +344,17 @@ class UpdateQueryExecutorTest
 
         Assert.AreEqual(3, result);
 
-        var entity1 = _collection.GetOrDefault(1);
+        var entity1 = _collection.Get(1);
         Assert.AreEqual((byte)10, entity1.Byte);
         Assert.AreEqual(1.2f, entity1.Float);
         Assert.AreEqual(3, entity1.ByteArray.Length);
 
-        var entity2 = _collection.GetOrDefault(2);
+        var entity2 = _collection.Get(2);
         Assert.AreEqual((byte)20, entity2.Byte);
         Assert.AreEqual(3.4f, entity2.Float);
         Assert.AreEqual(3, entity2.ByteArray.Length);
 
-        var entity3 = _collection.GetOrDefault(3);
+        var entity3 = _collection.Get(3);
         Assert.AreEqual((byte)30, entity3.Byte);
         Assert.AreEqual(5.6f, entity3.Float);
         Assert.AreEqual(3, entity3.ByteArray.Length);
@@ -372,17 +372,17 @@ class UpdateQueryExecutorTest
 
         Assert.AreEqual(3, result);
 
-        var entity1 = _collection.GetOrDefault(1);
+        var entity1 = _collection.Get(1);
         Assert.AreEqual((byte)10, entity1.Byte);
         Assert.AreEqual(1.2f, entity1.Float);
         Assert.AreEqual(null, entity1.ByteArray);
 
-        var entity2 = _collection.GetOrDefault(2);
+        var entity2 = _collection.Get(2);
         Assert.AreEqual((byte)20, entity2.Byte);
         Assert.AreEqual(3.4f, entity2.Float);
         Assert.AreEqual(null, entity2.ByteArray);
 
-        var entity3 = _collection.GetOrDefault(3);
+        var entity3 = _collection.Get(3);
         Assert.AreEqual((byte)30, entity3.Byte);
         Assert.AreEqual(5.6f, entity3.Float);
         Assert.AreEqual(null, entity3.ByteArray);
@@ -400,19 +400,19 @@ class UpdateQueryExecutorTest
 
         Assert.AreEqual(3, result);
 
-        var entity1 = _collection.GetOrDefault(1);
+        var entity1 = _collection.Get(1);
         Assert.AreEqual((byte)10, entity1.Byte);
         Assert.AreEqual(1.2f, entity1.Float);
         Assert.AreEqual("123", entity1.String);
         Assert.AreEqual(111, entity1.InnerObject.Value);
 
-        var entity2 = _collection.GetOrDefault(2);
+        var entity2 = _collection.Get(2);
         Assert.AreEqual((byte)20, entity2.Byte);
         Assert.AreEqual(3.4f, entity2.Float);
         Assert.AreEqual("456", entity2.String);
         Assert.AreEqual(111, entity2.InnerObject.Value);
 
-        var entity3 = _collection.GetOrDefault(3);
+        var entity3 = _collection.Get(3);
         Assert.AreEqual((byte)30, entity3.Byte);
         Assert.AreEqual(5.6f, entity3.Float);
         Assert.AreEqual("789", entity3.String);
@@ -431,19 +431,19 @@ class UpdateQueryExecutorTest
 
         Assert.AreEqual(3, result);
 
-        var entity1 = _collection.GetOrDefault(1);
+        var entity1 = _collection.Get(1);
         Assert.AreEqual((byte)10, entity1.Byte);
         Assert.AreEqual(1.2f, entity1.Float);
         Assert.AreEqual("123", entity1.String);
         Assert.AreEqual(1, entity1.InnerObject.Value);
 
-        var entity2 = _collection.GetOrDefault(2);
+        var entity2 = _collection.Get(2);
         Assert.AreEqual((byte)20, entity2.Byte);
         Assert.AreEqual(3.4f, entity2.Float);
         Assert.AreEqual("456", entity2.String);
         Assert.AreEqual(1, entity2.InnerObject.Value);
 
-        var entity3 = _collection.GetOrDefault(3);
+        var entity3 = _collection.Get(3);
         Assert.AreEqual((byte)30, entity3.Byte);
         Assert.AreEqual(5.6f, entity3.Float);
         Assert.AreEqual("789", entity3.String);
@@ -462,19 +462,19 @@ class UpdateQueryExecutorTest
 
         Assert.AreEqual(3, result);
 
-        var entity1 = _collection.GetOrDefault(1);
+        var entity1 = _collection.Get(1);
         Assert.AreEqual((byte)10, entity1.Byte);
         Assert.AreEqual(1.2f, entity1.Float);
         Assert.AreEqual("123", entity1.String);
         Assert.AreEqual(123456789, entity1.InnerObject.Value);
 
-        var entity2 = _collection.GetOrDefault(2);
+        var entity2 = _collection.Get(2);
         Assert.AreEqual((byte)20, entity2.Byte);
         Assert.AreEqual(3.4f, entity2.Float);
         Assert.AreEqual("456", entity2.String);
         Assert.AreEqual(123456789, entity2.InnerObject.Value);
 
-        var entity3 = _collection.GetOrDefault(3);
+        var entity3 = _collection.Get(3);
         Assert.AreEqual((byte)30, entity3.Byte);
         Assert.AreEqual(5.6f, entity3.Float);
         Assert.AreEqual("789", entity3.String);

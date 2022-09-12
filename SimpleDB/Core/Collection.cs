@@ -60,7 +60,7 @@ internal class Collection<TEntity> : ICollection<TEntity>
         return PrimaryKeys.ContainsKey(id);
     }
 
-    public TEntity? GetOrDefault(object id)
+    public TEntity? Get(object id)
     {
         try
         {
@@ -73,7 +73,7 @@ internal class Collection<TEntity> : ICollection<TEntity>
         }
     }
 
-    public IEnumerable<TEntity> GetOrDefault(IReadOnlyCollection<object> idList)
+    public IEnumerable<TEntity> GetRange(IReadOnlyCollection<object> idList)
     {
         try
         {
@@ -123,7 +123,7 @@ internal class Collection<TEntity> : ICollection<TEntity>
         }
     }
 
-    public void Insert(IReadOnlyCollection<TEntity> entities)
+    public void InsertRange(IReadOnlyCollection<TEntity> entities)
     {
         try
         {
@@ -155,7 +155,7 @@ internal class Collection<TEntity> : ICollection<TEntity>
         }
     }
 
-    public void Update(IReadOnlyCollection<TEntity> entities)
+    public void UpdateRange(IReadOnlyCollection<TEntity> entities)
     {
         try
         {
@@ -196,7 +196,7 @@ internal class Collection<TEntity> : ICollection<TEntity>
         }
     }
 
-    public void InsertOrUpdate(IReadOnlyCollection<TEntity> entities)
+    public void InsertOrUpdateRange(IReadOnlyCollection<TEntity> entities)
     {
         try
         {
@@ -238,7 +238,7 @@ internal class Collection<TEntity> : ICollection<TEntity>
         }
     }
 
-    public void Delete(IReadOnlyCollection<object> idList)
+    public void DeleteRange(IReadOnlyCollection<object> idList)
     {
         try
         {
