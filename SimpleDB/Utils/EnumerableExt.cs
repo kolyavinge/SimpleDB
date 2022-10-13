@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SimpleDB.Utils.EnumerableExtension;
+namespace SimpleDB.Utils;
 
 internal static class EnumerableExt
 {

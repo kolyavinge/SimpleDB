@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SimpleDB.Utils.ObjectExtension;
+namespace SimpleDB.Utils;
 
 internal static class ObjectExt
 {
@@ -11,7 +11,7 @@ internal static class ObjectExt
 
     public static bool IsStandartType(this object x)
     {
-        return (x is byte) || (x is sbyte) || (x is short) || (x is ushort) || (x is int) || (x is uint) || (x is long) || (x is ulong) || (x is float) || (x is double) || (x is decimal);
+        return x is byte || x is sbyte || x is short || x is ushort || x is int || x is uint || x is long || x is ulong || x is float || x is double || x is decimal;
     }
 
     public static int GetStandartTypeSize(this object x)
@@ -32,11 +32,11 @@ internal static class ObjectExt
 
     public static bool IsSignedType(this object x)
     {
-        return (x is sbyte) || (x is short) || (x is int) || (x is long) || (x is float) || (x is double) || (x is decimal);
+        return x is sbyte || x is short || x is int || x is long || x is float || x is double || x is decimal;
     }
 
     public static bool IsUnsignedType(this object x)
     {
-        return IsSignedType(x) == false;
+        return x.IsSignedType() == false;
     }
 }

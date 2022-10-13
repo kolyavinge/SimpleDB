@@ -61,7 +61,7 @@ class DataFileTest
             new FieldValue(9, (long)8),
             new FieldValue(10, (ulong)9),
             new FieldValue(11, (float)1.2),
-            new FieldValue(12, (double)3.4),
+            new FieldValue(12, 3.4),
             new FieldValue(13, (decimal)5.6),
             new FieldValue(14, DateTime.Parse("2000-12-31")),
             new FieldValue(15, "1234567890"),
@@ -101,7 +101,7 @@ class DataFileTest
         Assert.AreEqual((long)8, readFieldsResult[9].Value);
         Assert.AreEqual((ulong)9, readFieldsResult[10].Value);
         Assert.AreEqual((float)1.2, readFieldsResult[11].Value);
-        Assert.AreEqual((double)3.4, readFieldsResult[12].Value);
+        Assert.AreEqual(3.4, readFieldsResult[12].Value);
         Assert.AreEqual((decimal)5.6, readFieldsResult[13].Value);
         Assert.AreEqual(DateTime.Parse("2000-12-31"), readFieldsResult[14].Value);
         Assert.AreEqual("1234567890", readFieldsResult[15].Value);
@@ -159,7 +159,7 @@ class DataFileTest
         Assert.AreEqual((long)8, resultObject.Long);
         Assert.AreEqual((ulong)9, resultObject.ULong);
         Assert.AreEqual((float)1.2, resultObject.Float);
-        Assert.AreEqual((double)3.4, resultObject.Double);
+        Assert.AreEqual(3.4, resultObject.Double);
         Assert.AreEqual((decimal)5.6, resultObject.Decimal);
         Assert.AreEqual(DateTime.Parse("2000-12-31"), resultObject.DateTime);
         Assert.AreEqual("1234567890", resultObject.String);
@@ -183,7 +183,7 @@ class DataFileTest
             new FieldValue(9, (long)8),
             new FieldValue(10, (ulong)9),
             new FieldValue(11, (float)1.2),
-            new FieldValue(12, (double)3.4),
+            new FieldValue(12, 3.4),
             new FieldValue(13, (decimal)5.6),
             new FieldValue(14, DateTime.Parse("2000-12-31")),
             new FieldValue(15, "1234567890"),
@@ -216,7 +216,7 @@ class DataFileTest
             new FieldValue(9, (long)8),
             new FieldValue(10, (ulong)9),
             new FieldValue(11, (float)1.2),
-            new FieldValue(12, (double)3.4),
+            new FieldValue(12, 3.4),
             new FieldValue(13, (decimal)5.6),
             new FieldValue(14, DateTime.Parse("2000-12-31")),
             new FieldValue(15, "1234567890"),
@@ -237,7 +237,7 @@ class DataFileTest
             new FieldValue(9, (long)80),
             new FieldValue(10, (ulong)90),
             new FieldValue(11, (float)10.2),
-            new FieldValue(12, (double)30.4),
+            new FieldValue(12, 30.4),
             new FieldValue(13, (decimal)50.6),
             new FieldValue(14, DateTime.Parse("2000-12-31")),
             new FieldValue(15, "0987654321"),
@@ -260,7 +260,7 @@ class DataFileTest
         Assert.AreEqual((long)80, readFieldsResult[9].Value);
         Assert.AreEqual((ulong)90, readFieldsResult[10].Value);
         Assert.AreEqual((float)10.2, readFieldsResult[11].Value);
-        Assert.AreEqual((double)30.4, readFieldsResult[12].Value);
+        Assert.AreEqual(30.4, readFieldsResult[12].Value);
         Assert.AreEqual((decimal)50.6, readFieldsResult[13].Value);
         Assert.AreEqual(DateTime.Parse("2000-12-31"), readFieldsResult[14].Value);
         Assert.AreEqual("0987654321", readFieldsResult[15].Value);
@@ -284,7 +284,7 @@ class DataFileTest
             new FieldValue(9, (long)8),
             new FieldValue(10, (ulong)9),
             new FieldValue(11, (float)1.2),
-            new FieldValue(12, (double)3.4),
+            new FieldValue(12, 3.4),
             new FieldValue(13, (decimal)5.6),
             new FieldValue(14, DateTime.Parse("2000-12-31")),
             new FieldValue(15, "1234567890"),
@@ -304,7 +304,7 @@ class DataFileTest
             new FieldValue(9, (long)80),
             new FieldValue(10, (ulong)90),
             new FieldValue(11, (float)10.2),
-            new FieldValue(12, (double)30.4),
+            new FieldValue(12, 30.4),
             new FieldValue(13, (decimal)50.6),
             new FieldValue(14, DateTime.Parse("2000-01-10")),
             new FieldValue(15, "0"),
@@ -326,7 +326,7 @@ class DataFileTest
         Assert.AreEqual((long)80, readFieldsResult[9].Value);
         Assert.AreEqual((ulong)90, readFieldsResult[10].Value);
         Assert.AreEqual((float)10.2, readFieldsResult[11].Value);
-        Assert.AreEqual((double)30.4, readFieldsResult[12].Value);
+        Assert.AreEqual(30.4, readFieldsResult[12].Value);
         Assert.AreEqual((decimal)50.6, readFieldsResult[13].Value);
         Assert.AreEqual(DateTime.Parse("2000-01-10"), readFieldsResult[14].Value);
         Assert.AreEqual("0", readFieldsResult[15].Value);
@@ -350,7 +350,7 @@ class DataFileTest
             new FieldValue(9, (long)8),
             new FieldValue(10, (ulong)9),
             new FieldValue(11, (float)1.2),
-            new FieldValue(12, (double)3.4),
+            new FieldValue(12, 3.4),
             new FieldValue(13, (decimal)5.6),
             new FieldValue(14, DateTime.Parse("2000-12-31")),
             new FieldValue(15, "1234567890"),
@@ -370,7 +370,7 @@ class DataFileTest
             new FieldValue(9, (long)80),
             new FieldValue(10, (ulong)90),
             new FieldValue(11, (float)10.2),
-            new FieldValue(12, (double)30.4),
+            new FieldValue(12, 30.4),
             new FieldValue(13, (decimal)50.6),
             new FieldValue(14, DateTime.Parse("2000-01-10")),
             new FieldValue(15, "0987654321098765432109876543210987654321"),
@@ -392,7 +392,7 @@ class DataFileTest
         Assert.AreEqual((long)80, readFieldsResult[9].Value);
         Assert.AreEqual((ulong)90, readFieldsResult[10].Value);
         Assert.AreEqual((float)10.2, readFieldsResult[11].Value);
-        Assert.AreEqual((double)30.4, readFieldsResult[12].Value);
+        Assert.AreEqual(30.4, readFieldsResult[12].Value);
         Assert.AreEqual((decimal)50.6, readFieldsResult[13].Value);
         Assert.AreEqual(DateTime.Parse("2000-01-10"), readFieldsResult[14].Value);
         Assert.AreEqual("0987654321098765432109876543210987654321", readFieldsResult[15].Value);
@@ -416,7 +416,7 @@ class DataFileTest
             new FieldValue(9, (long)8),
             new FieldValue(10, (ulong)9),
             new FieldValue(11, (float)1.2),
-            new FieldValue(12, (double)3.4),
+            new FieldValue(12, 3.4),
             new FieldValue(13, (decimal)5.6),
             new FieldValue(14, DateTime.Parse("2000-12-31")),
             new FieldValue(15, "1234567890"),
@@ -435,7 +435,7 @@ class DataFileTest
             new FieldValue(9, (long)80),
             new FieldValue(10, (ulong)90),
             new FieldValue(11, (float)10.2),
-            new FieldValue(12, (double)30.4),
+            new FieldValue(12, 30.4),
             new FieldValue(13, (decimal)50.6),
             new FieldValue(14, DateTime.Parse("2000-01-10")),
             new FieldValue(15, "0987654321"),
@@ -454,7 +454,7 @@ class DataFileTest
         Assert.AreEqual((long)80, readFieldsResult[9].Value);
         Assert.AreEqual((ulong)90, readFieldsResult[10].Value);
         Assert.AreEqual((float)10.2, readFieldsResult[11].Value);
-        Assert.AreEqual((double)30.4, readFieldsResult[12].Value);
+        Assert.AreEqual(30.4, readFieldsResult[12].Value);
         Assert.AreEqual((decimal)50.6, readFieldsResult[13].Value);
         Assert.AreEqual(DateTime.Parse("2000-01-10"), readFieldsResult[14].Value);
         Assert.AreEqual("0987654321", readFieldsResult[15].Value);
@@ -478,7 +478,7 @@ class DataFileTest
             new FieldValue(9, (long)8),
             new FieldValue(10, (ulong)9),
             new FieldValue(11, (float)1.2),
-            new FieldValue(12, (double)3.4),
+            new FieldValue(12, 3.4),
             new FieldValue(13, (decimal)5.6),
             new FieldValue(14, DateTime.Parse("2000-12-31")),
             new FieldValue(15, "1234567890"),
@@ -509,7 +509,7 @@ class DataFileTest
         Assert.AreEqual((long)80, readFieldsResult[9].Value);
         Assert.AreEqual((ulong)9, readFieldsResult[10].Value);
         Assert.AreEqual((float)10.2, readFieldsResult[11].Value);
-        Assert.AreEqual((double)3.4, readFieldsResult[12].Value);
+        Assert.AreEqual(3.4, readFieldsResult[12].Value);
         Assert.AreEqual((decimal)50.6, readFieldsResult[13].Value);
         Assert.AreEqual(DateTime.Parse("2000-12-31"), readFieldsResult[14].Value);
         Assert.AreEqual("0987654321", readFieldsResult[15].Value);
@@ -695,7 +695,7 @@ class DataFileTest
             new FieldValue(9, (long)80),
             new FieldValue(10, (ulong)90),
             new FieldValue(11, (float)10.2),
-            new FieldValue(12, (double)30.4),
+            new FieldValue(12, 30.4),
             new FieldValue(13, (decimal)50.6),
             new FieldValue(14, DateTime.Parse("2000-01-10")),
             new FieldValue(15, "0987654321098765432109876543210987654321"),
@@ -738,7 +738,7 @@ class DataFileTest
             new FieldValue(9, (long)80),
             new FieldValue(10, (ulong)90),
             new FieldValue(11, (float)10.2),
-            new FieldValue(12, (double)30.4),
+            new FieldValue(12, 30.4),
             new FieldValue(13, (decimal)50.6),
             new FieldValue(14, DateTime.Parse("2000-01-10")),
             new FieldValue(15, "0987654321098765432109876543210987654321"),
