@@ -173,7 +173,7 @@ internal class SelectQueryParser : QueryParser
                 else
                 {
                     var fieldMeta = entityMeta.FieldMetaCollection.FirstOrDefault(x => token.Value.Equals(x.Name));
-                    if (fieldMeta == null) throw new InvalidQueryException();
+                    if (fieldMeta is null) throw new InvalidQueryException();
                     yield return new SelectClause.Field(fieldMeta.Number);
                 }
             }
@@ -191,7 +191,7 @@ internal class SelectQueryParser : QueryParser
             else
             {
                 var fieldMeta = entityMeta.FieldMetaCollection.FirstOrDefault(x => orderByItem.Field.Equals(x.Name));
-                if (fieldMeta == null) throw new InvalidQueryException();
+                if (fieldMeta is null) throw new InvalidQueryException();
                 yield return new OrderByClause.Field(fieldMeta.Number, orderByItem.Direction);
             }
         }

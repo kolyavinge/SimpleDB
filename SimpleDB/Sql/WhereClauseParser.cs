@@ -126,7 +126,7 @@ internal class WhereClauseParser
         }
 
         var field = _entityMeta.FieldMetaCollection.FirstOrDefault(f => _tokenIterator.Current.Value.Equals(f.Name));
-        if (field == null) throw new InvalidQueryException();
+        if (field is null) throw new InvalidQueryException();
         return new WhereClause.Field(field.Number);
     }
 

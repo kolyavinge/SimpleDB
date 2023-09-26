@@ -27,22 +27,22 @@ internal class RBTreeSerializer<TKey, TValue> where TKey : IComparable<TKey>
 
     public void Serialize(RBTree<TKey, TValue> tree, IWriteableStream stream)
     {
-        if (tree.Root == null) stream.WriteByte(_emptyTreeFlag);
+        if (tree.Root is null) stream.WriteByte(_emptyTreeFlag);
         else WriteNodeRec(tree.Root, stream);
     }
 
     private void WriteNodeRec(RBTree<TKey, TValue>.Node node, IWriteableStream stream)
     {
         WriteNode(node, stream);
-        if (node.Left != null) WriteNodeRec(node.Left, stream);
-        if (node.Right != null) WriteNodeRec(node.Right, stream);
+        if (node.Left is not null) WriteNodeRec(node.Left, stream);
+        if (node.Right is not null) WriteNodeRec(node.Right, stream);
     }
 
     private void WriteNode(RBTree<TKey, TValue>.Node node, IWriteableStream stream)
     {
         byte flags = node.Color == RBTree<TKey, TValue>.Color.Red ? (byte)0 : (byte)1;
-        flags |= node.Left != null ? (byte)2 : (byte)0;
-        flags |= node.Right != null ? (byte)4 : (byte)0;
+        flags |= node.Left is not null ? (byte)2 : (byte)0;
+        flags |= node.Right is not null ? (byte)4 : (byte)0;
         stream.WriteByte(flags);
         _nodeSerializer.SerializeKey(node.Key, stream);
         _nodeSerializer.SerializeValue(node.Value, stream);

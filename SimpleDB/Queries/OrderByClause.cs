@@ -32,7 +32,7 @@ internal class OrderByClause : IComparer<FieldValueCollection>
                 yComparable = y.PrimaryKey.Value;
             }
             int compareResult = 0;
-            if (xComparable != null)
+            if (xComparable is not null)
             {
                 compareResult = xComparable.CompareTo(yComparable);
             }

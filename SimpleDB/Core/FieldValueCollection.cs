@@ -86,7 +86,7 @@ internal class FieldValueCollection : IEnumerable<FieldValue>, IEquatable<FieldV
     public override bool Equals(object obj)
     {
         var x = obj as FieldValueCollection;
-        if (x == null) return false;
+        if (x is null) return false;
         if (Count != x.Count) return false;
         foreach (var fieldValue in this)
         {
@@ -99,14 +99,14 @@ internal class FieldValueCollection : IEnumerable<FieldValue>, IEquatable<FieldV
 
     public override int GetHashCode()
     {
-        if (_hashCode == null)
+        if (_hashCode is null)
         {
             unchecked
             {
                 _hashCode = 1430287;
                 foreach (var kv in _fieldValues)
                 {
-                    _hashCode *= 7302013 ^ (kv.Value.Value != null ? kv.Value.Value.GetHashCode() : 0);
+                    _hashCode *= 7302013 ^ (kv.Value.Value is not null ? kv.Value.Value.GetHashCode() : 0);
                 }
             }
         }

@@ -49,7 +49,7 @@ internal class Statistics : IStatistics
             }
             finally
             {
-                if (primaryKeyFile != null) primaryKeyFile.EndReadWrite();
+                if (primaryKeyFile is not null) primaryKeyFile.EndReadWrite();
             }
         }
     }
@@ -92,8 +92,8 @@ internal class Statistics : IStatistics
             }
             finally
             {
-                if (primaryKeyFile != null) primaryKeyFile.EndReadWrite();
-                if (dataFile != null) dataFile.EndReadWrite();
+                if (primaryKeyFile is not null) primaryKeyFile.EndReadWrite();
+                if (dataFile is not null) dataFile.EndReadWrite();
             }
         }
     }

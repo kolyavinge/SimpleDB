@@ -19,7 +19,7 @@ internal class WhereClause
     public bool GetValue(FieldValueCollection fieldValueCollection)
     {
         var value = Root.GetValue(fieldValueCollection);
-        if (value == null) throw new DBEngineException("WhereClause incorrect");
+        if (value is null) throw new DBEngineException("WhereClause incorrect");
         return (bool)value;
     }
 
@@ -41,7 +41,7 @@ internal class WhereClause
             set
             {
                 _left = value;
-                if (_left != null) _left.Parent = this;
+                if (_left is not null) _left.Parent = this;
             }
         }
 
@@ -51,13 +51,13 @@ internal class WhereClause
             set
             {
                 _right = value;
-                if (_right != null) _right.Parent = this;
+                if (_right is not null) _right.Parent = this;
             }
         }
 
         public WhereClauseItem? GetSibling()
         {
-            if (Parent == null) return null;
+            if (Parent is null) return null;
             return Parent.Left == this ? Parent.Right : Parent.Left;
         }
 
@@ -104,7 +104,7 @@ internal class WhereClause
         public override object? GetValue(FieldValueCollection fieldValueCollection)
         {
             var leftValue = Left!.GetValue(fieldValueCollection);
-            if (leftValue == null) throw new DBEngineException("WhereClause incorrect");
+            if (leftValue is null) throw new DBEngineException("WhereClause incorrect");
             return (bool)leftValue == false;
         }
 
@@ -126,8 +126,8 @@ internal class WhereClause
         {
             var leftValue = Left!.GetValue(fieldValueCollection);
             var rightValue = Right!.GetValue(fieldValueCollection);
-            if (leftValue == null) throw new DBEngineException("WhereClause incorrect");
-            if (rightValue == null) throw new DBEngineException("WhereClause incorrect");
+            if (leftValue is null) throw new DBEngineException("WhereClause incorrect");
+            if (rightValue is null) throw new DBEngineException("WhereClause incorrect");
 
             return (bool)leftValue && (bool)rightValue;
         }
@@ -150,8 +150,8 @@ internal class WhereClause
         {
             var leftValue = Left!.GetValue(fieldValueCollection);
             var rightValue = Right!.GetValue(fieldValueCollection);
-            if (leftValue == null) throw new DBEngineException("WhereClause incorrect");
-            if (rightValue == null) throw new DBEngineException("WhereClause incorrect");
+            if (leftValue is null) throw new DBEngineException("WhereClause incorrect");
+            if (rightValue is null) throw new DBEngineException("WhereClause incorrect");
 
             return (bool)leftValue || (bool)rightValue;
         }
@@ -258,8 +258,8 @@ internal class WhereClause
         {
             var leftValue = Left!.GetValue(fieldValueCollection);
             var rightValue = Right!.GetValue(fieldValueCollection);
-            if (leftValue == null) throw new DBEngineException("WhereClause incorrect");
-            if (rightValue == null) throw new DBEngineException("WhereClause incorrect");
+            if (leftValue is null) throw new DBEngineException("WhereClause incorrect");
+            if (rightValue is null) throw new DBEngineException("WhereClause incorrect");
 
             return ((string)leftValue).Contains((string)rightValue);
         }
@@ -282,7 +282,7 @@ internal class WhereClause
         {
             var leftValue = Left!.GetValue(fieldValueCollection);
             var set = Right!.GetValue(fieldValueCollection) as ISet<object?>;
-            if (set == null) throw new DBEngineException("WhereClause incorrect");
+            if (set is null) throw new DBEngineException("WhereClause incorrect");
 
             return set.Contains(leftValue);
         }

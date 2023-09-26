@@ -20,7 +20,7 @@ internal class IndexNodeSerializer<TField> : IRBTreeNodeSerializer<TField, Index
         foreach (var item in nodeValue.Items)
         {
             SerializeObject(item.PrimaryKeyValue, stream);
-            if (item.IncludedFields != null)
+            if (item.IncludedFields is not null)
             {
                 foreach (var includedField in item.IncludedFields)
                 {
@@ -130,11 +130,11 @@ internal class IndexNodeDeserializer<TField> : IRBTreeNodeDeserializer<TField, I
         for (int itemIndex = 0; itemIndex < itemsCount; itemIndex++)
         {
             var primaryKeyValue = DeserializeObject(_primaryKeyType, stream)!;
-            var includedFieldNumbers = _indexMeta.IncludedFieldNumbers != null
+            var includedFieldNumbers = _indexMeta.IncludedFieldNumbers is not null
                 ? new object[_indexMeta.IncludedFieldNumbers.Length]
                 : null;
             var indexItem = new IndexItem(primaryKeyValue, includedFieldNumbers);
-            if (_indexMeta.IncludedFieldNumbers != null)
+            if (_indexMeta.IncludedFieldNumbers is not null)
             {
                 for (int includedFieldIndex = 0; includedFieldIndex < _indexMeta.IncludedFieldNumbers.Length; includedFieldIndex++)
                 {

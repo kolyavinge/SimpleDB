@@ -23,12 +23,12 @@ internal class SelectQuery : AbstractQuery
     {
         foreach (var x in SelectClause.GetAllFieldNumbers()) yield return x;
 
-        if (WhereClause != null)
+        if (WhereClause is not null)
         {
             foreach (var x in WhereClause.GetAllFieldNumbers()) yield return x;
         }
 
-        if (OrderByClause != null)
+        if (OrderByClause is not null)
         {
             foreach (var x in OrderByClause.GetAllFieldNumbers()) yield return x;
         }

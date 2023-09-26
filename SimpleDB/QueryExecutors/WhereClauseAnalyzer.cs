@@ -52,7 +52,7 @@ internal class WhereClauseAnalyzer
             List<FieldValueCollection> fieldValueCollections;
             // ищем значение поля среди проиндексированных
             var indexResult = _indexHolder.GetIndexResult(item.OperationType, item.IsNotApplied, _entityName, item.FieldNumber, item.ConstantValue);
-            if (indexResult != null)
+            if (indexResult is not null)
             {
                 fieldValueCollections = indexResult.SelectMany(x => x.ToFieldValueCollections(_primaryKeys)).ToList();
             }
@@ -83,7 +83,7 @@ internal class WhereClauseAnalyzer
         while (itemsToProcess.Any())
         {
             var item = itemsToProcess.Dequeue();
-            if (item.Parent == null) continue;
+            if (item.Parent is null) continue;
             var sibling = item.Sibling;
             if (item.Parent.AndOperation)
             {
@@ -135,12 +135,12 @@ internal class WhereClauseAnalyzer
     {
         var fieldValueCollections = root.ToEnumerable().Where(x => x.IsIndexed).SelectMany(x => x.IndexResult).ToDictionary(k => k.PrimaryKey.Value, v => v);
         var fieldNumbers = root.ToEnumerable()
-            .Where(x => !x.IsIndexed && x.PrimaryKeys != null)
+            .Where(x => !x.IsIndexed && x.PrimaryKeys is not null)
             .Select(x => x.FieldNumber)
             .ToHashSet();
         if (fieldNumbers.Any())
         {
-            var primaryKeyValues = root.ToEnumerable().Where(x => !x.IsIndexed && x.PrimaryKeys != null).SelectMany(x => x.PrimaryKeys).ToHashSet();
+            var primaryKeyValues = root.ToEnumerable().Where(x => !x.IsIndexed && x.PrimaryKeys is not null).SelectMany(x => x.PrimaryKeys).ToHashSet();
             foreach (var primaryKeyValue in primaryKeyValues.Where(pk => !fieldValueCollections.ContainsKey(pk)))
             {
                 fieldValueCollections.Add(primaryKeyValue, new FieldValueCollection(_primaryKeys[primaryKeyValue]));

@@ -802,6 +802,6 @@ public class RBTreeTest
     private string AsString(RBTree<int, int>.Node node)
     {
         return String.Format("key: {0}, color: {1}, parent: {2}, left: {3}, right: {4}",
-            node.Key, node.Color, node.Parent != null ? node.Parent.Key.ToString() : "-", node.Left != null ? node.Left.Key.ToString() : "-", node.Right != null ? node.Right.Key.ToString() : "-");
+            node.Key, node.Color, node.Parent is not null ? node.Parent.Key.ToString() : "-", node.Left is not null ? node.Left.Key.ToString() : "-", node.Right is not null ? node.Right.Key.ToString() : "-");
     }
 }

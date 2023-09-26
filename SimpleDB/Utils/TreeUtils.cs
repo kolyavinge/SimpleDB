@@ -15,9 +15,9 @@ internal static class TreeUtils
             var node = stack.Pop();
             yield return node;
             var left = getLeftFunc(node);
-            if (left != null) stack.Push(left);
+            if (left is not null) stack.Push(left);
             var right = getRightFunc(node);
-            if (right != null) stack.Push(right);
+            if (right is not null) stack.Push(right);
         }
     }
 }

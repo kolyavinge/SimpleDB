@@ -53,7 +53,7 @@ internal class MapperBuilder<TEntity> : MapperBuilder, IMapperBuilder<TEntity>
 
     public override IMapper Build()
     {
-        if (_primaryKeyMapping == null) throw new InvalidOperationException("PrimaryKeyMapping cannot be null");
+        if (_primaryKeyMapping is null) throw new InvalidOperationException("PrimaryKeyMapping cannot be null");
         return new Mapper<TEntity>(_primaryKeyMapping, _fieldMappings)
         {
             MakeFunction = _makeFunction,

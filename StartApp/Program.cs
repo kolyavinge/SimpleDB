@@ -197,7 +197,7 @@ class Program
             {
                 Console.WriteLine(String.Format("Id {0} not exists", 0));
             }
-            Console.WriteLine(collection.Get(0) == null ? "collection.Get(0): null" : "collection.Get(0): !!! not null !!!");
+            Console.WriteLine(collection.Get(0) is null ? "collection.Get(0): null" : "collection.Get(0): !!! not null !!!");
             Console.WriteLine("collection.Get(1): " + collection.Get(1));
         }
 
@@ -348,7 +348,7 @@ class Person
 
     public override string ToString()
     {
-        return String.Format("{0}:\t{1}\t{2}\t{3}\t{4:yyyy-MM-dd}\t{5}", Id, Name, Surname, Middlename, BirthDay, AdditionalInfo != null ? AdditionalInfo.Value.ToString() : "null");
+        return String.Format("{0}:\t{1}\t{2}\t{3}\t{4:yyyy-MM-dd}\t{5}", Id, Name, Surname, Middlename, BirthDay, AdditionalInfo is not null ? AdditionalInfo.Value.ToString() : "null");
     }
 }
 

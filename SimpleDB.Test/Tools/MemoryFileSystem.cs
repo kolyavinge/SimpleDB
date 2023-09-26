@@ -51,7 +51,7 @@ internal class MemoryFileSystem : IFileSystem
     private MemoryFileStream GetStream(string fileName)
     {
         var fileStream = FileStreams.FirstOrDefault(x => x.Name == fileName);
-        if (fileStream != null)
+        if (fileStream is not null)
         {
             fileStream.Seek(0, SeekOrigin.Begin);
             return fileStream;

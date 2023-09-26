@@ -12,15 +12,15 @@ internal class AnalyzedTreeItem
     public static AnalyzedTreeItem MakeFrom(WhereClause.WhereClauseItem whereClauseItem)
     {
         var item = new AnalyzedTreeItem(whereClauseItem);
-        if (whereClauseItem.Left != null) item.Left = MakeFrom(whereClauseItem.Left);
-        if (whereClauseItem.Right != null) item.Right = MakeFrom(whereClauseItem.Right);
+        if (whereClauseItem.Left is not null) item.Left = MakeFrom(whereClauseItem.Left);
+        if (whereClauseItem.Right is not null) item.Right = MakeFrom(whereClauseItem.Right);
 
         return item;
     }
 
     public static void Replace(ref AnalyzedTreeItem root, AnalyzedTreeItem oldItem, AnalyzedTreeItem newItem)
     {
-        if (oldItem.Parent != null)
+        if (oldItem.Parent is not null)
         {
             if (oldItem.IsLeftChild) oldItem.Parent.Left = newItem;
             else oldItem.Parent.Right = newItem;
@@ -48,7 +48,7 @@ internal class AnalyzedTreeItem
         set
         {
             _left = value;
-            if (_left != null) _left.Parent = this;
+            if (_left is not null) _left.Parent = this;
         }
     }
 
@@ -58,7 +58,7 @@ internal class AnalyzedTreeItem
         set
         {
             _right = value;
-            if (_right != null) _right.Parent = this;
+            if (_right is not null) _right.Parent = this;
         }
     }
 
@@ -97,7 +97,7 @@ internal class AnalyzedTreeItem
         }
     }
 
-    public bool IsIndexed => IndexResult != null;
+    public bool IsIndexed => IndexResult is not null;
 
     public bool AndOperation =>
         !IsNotApplied && _whereClauseItem is WhereClause.AndOperation ||
@@ -109,15 +109,15 @@ internal class AnalyzedTreeItem
 
     public bool NotOperation => _whereClauseItem is WhereClause.NotOperation;
 
-    public bool IsLeftChild => Parent != null && Parent.Left == this;
+    public bool IsLeftChild => Parent is not null && Parent.Left == this;
 
-    public bool IsRightChild => Parent != null && Parent.Right == this;
+    public bool IsRightChild => Parent is not null && Parent.Right == this;
 
     public AnalyzedTreeItem Sibling
     {
         get
         {
-            if (Parent == null) throw new DBEngineException("AnalyzedTreeItem is invalid");
+            if (Parent is null) throw new DBEngineException("AnalyzedTreeItem is invalid");
             return Parent.Left == this
                 ? Parent.Right ?? throw new DBEngineException("AnalyzedTreeItem is invalid")
                 : Parent.Left ?? throw new DBEngineException("AnalyzedTreeItem is invalid");
@@ -138,7 +138,7 @@ internal class AnalyzedTreeItem
         else
         {
             var value = _whereClauseItem.GetValue(fieldValueCollection);
-            if (value == null) throw new DBEngineException($"{GetType().Namespace} is invalid");
+            if (value is null) throw new DBEngineException($"{GetType().Namespace} is invalid");
             var boolValue = (bool)value;
             if (IsNotApplied) boolValue = !boolValue;
             return boolValue;
@@ -147,7 +147,7 @@ internal class AnalyzedTreeItem
 
     public void ApplyAnd(IReadOnlyCollection<object> primaryKeys)
     {
-        foreach (var item in ToEnumerable().Where(x => x.PrimaryKeys != null))
+        foreach (var item in ToEnumerable().Where(x => x.PrimaryKeys is not null))
         {
             item.PrimaryKeys!.IntersectWith(primaryKeys);
         }
@@ -155,7 +155,7 @@ internal class AnalyzedTreeItem
 
     public void ApplyOr(IReadOnlyCollection<object> primaryKeys)
     {
-        foreach (var item in ToEnumerable().Where(x => x.PrimaryKeys != null))
+        foreach (var item in ToEnumerable().Where(x => x.PrimaryKeys is not null))
         {
             item.PrimaryKeys!.ExceptWith(primaryKeys);
         }
@@ -166,8 +166,8 @@ internal class AnalyzedTreeItem
         get
         {
             var item = Parent;
-            while (item != null && item.OrOperation) item = item.Parent;
-            return item == null;
+            while (item is not null && item.OrOperation) item = item.Parent;
+            return item is null;
         }
     }
 }

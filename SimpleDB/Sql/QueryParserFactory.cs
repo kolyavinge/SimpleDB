@@ -13,7 +13,7 @@ internal class QueryParserFactory
             .Where(t =>
                 t.IsClass
                 && !t.IsAbstract
-                && t.GetCustomAttribute<QueryParserAttribute>() != null
+                && t.GetCustomAttribute<QueryParserAttribute>() is not null
                 && t.GetCustomAttribute<QueryParserAttribute>().QueryType == queryType)
             .Select(t => (QueryParser)Activator.CreateInstance(t))
             .First();

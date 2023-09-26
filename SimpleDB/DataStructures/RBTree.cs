@@ -39,16 +39,16 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
 
         private void GetAllNodesAscRec(Node node, List<Node> result)
         {
-            if (node.Left != null) GetAllNodesAscRec(node.Left, result);
+            if (node.Left is not null) GetAllNodesAscRec(node.Left, result);
             result.Add(node);
-            if (node.Right != null) GetAllNodesAscRec(node.Right, result);
+            if (node.Right is not null) GetAllNodesAscRec(node.Right, result);
         }
 
         private void GetAllNodesDescRec(Node node, List<Node> result)
         {
-            if (node.Right != null) GetAllNodesDescRec(node.Right, result);
+            if (node.Right is not null) GetAllNodesDescRec(node.Right, result);
             result.Add(node);
-            if (node.Left != null) GetAllNodesDescRec(node.Left, result);
+            if (node.Left is not null) GetAllNodesDescRec(node.Left, result);
         }
     }
 
@@ -71,7 +71,7 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
     public Node? Find(TKey key)
     {
         var node = Root;
-        while (node != null)
+        while (node is not null)
         {
             var compareResult = key.CompareTo(node.Key);
             if (compareResult < 0) node = node.Left;
@@ -84,7 +84,7 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
 
     public Node InsertOrGetExists(TKey key, TValue insertedValue)
     {
-        if (Root != null) return NodeInsertOrGetExists(key, insertedValue);
+        if (Root is not null) return NodeInsertOrGetExists(key, insertedValue);
         else return RootInsert(key, insertedValue);
     }
 
@@ -102,7 +102,7 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
             var compareResult = key.CompareTo(parent.Key);
             if (compareResult < 0)
             {
-                if (parent.Left != null) parent = parent.Left;
+                if (parent.Left is not null) parent = parent.Left;
                 else
                 {
                     node = new Node(key, insertedValue);
@@ -113,7 +113,7 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
             }
             else if (compareResult > 0)
             {
-                if (parent.Right != null) parent = parent.Right;
+                if (parent.Right is not null) parent = parent.Right;
                 else
                 {
                     node = new Node(key, insertedValue);
@@ -133,15 +133,15 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
     private void InsertFixup(Node node)
     {
         var grandParent = GetGrandParent(node);
-        if (grandParent != null && node.Parent!.Color == Color.Red)
+        if (grandParent is not null && node.Parent!.Color == Color.Red)
         {
             var nodeLeftChild = IsLeftChild(node);
             var nodeRightChild = IsRightChild(node);
             var parentLeftChild = IsLeftChild(node.Parent);
             var parentRightChild = IsRightChild(node.Parent);
             // uncle = red
-            if (parentRightChild && grandParent.Left != null && grandParent.Left.Color == Color.Red ||
-                parentLeftChild && grandParent.Right != null && grandParent.Right.Color == Color.Red)
+            if (parentRightChild && grandParent.Left is not null && grandParent.Left.Color == Color.Red ||
+                parentLeftChild && grandParent.Right is not null && grandParent.Right.Color == Color.Red)
             {
                 grandParent.Color = Color.Red;
                 grandParent.Left!.Color = Color.Black;
@@ -150,7 +150,7 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
             }
             // uncle = black (triangle)
             else if (nodeLeftChild && parentRightChild &&
-                (grandParent.Left == null || grandParent.Left.Color == Color.Black))
+                (grandParent.Left is null || grandParent.Left.Color == Color.Black))
             {
                 RightRotate(node.Parent);
                 LeftRotate(grandParent);
@@ -159,7 +159,7 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
             }
             // uncle = black (triangle)
             else if (nodeRightChild && parentLeftChild &&
-                (grandParent.Right == null || grandParent.Right.Color == Color.Black))
+                (grandParent.Right is null || grandParent.Right.Color == Color.Black))
             {
                 LeftRotate(node.Parent);
                 RightRotate(grandParent);
@@ -168,7 +168,7 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
             }
             // uncle = black (line)
             else if (nodeLeftChild && parentLeftChild &&
-                (grandParent.Right == null || grandParent.Right.Color == Color.Black))
+                (grandParent.Right is null || grandParent.Right.Color == Color.Black))
             {
                 var originalParent = node.Parent;
                 RightRotate(grandParent);
@@ -177,7 +177,7 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
             }
             // uncle = black (line)
             else if (nodeRightChild && parentRightChild &&
-                (grandParent.Left == null || grandParent.Left.Color == Color.Black))
+                (grandParent.Left is null || grandParent.Left.Color == Color.Black))
             {
                 var originalParent = node.Parent;
                 LeftRotate(grandParent);
@@ -194,16 +194,16 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
     public Node? Delete(TKey key)
     {
         var deleted = Find(key);
-        if (deleted == null) return null;
+        if (deleted is null) return null;
         Node replacement, x;
         // no children
-        if (deleted.Left == null && deleted.Right == null)
+        if (deleted.Left is null && deleted.Right is null)
         {
             replacement = DummyNode;
             x = replacement;
         }
         // one child
-        else if (deleted.Left == null || deleted.Right == null)
+        else if (deleted.Left is null || deleted.Right is null)
         {
             replacement = deleted.Left ?? deleted.Right ?? throw new RBTreeException();
             x = replacement;
@@ -232,7 +232,7 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
 
     private void DeleteDummyIfNeeded(Node dummy)
     {
-        if (dummy == DummyNode && dummy.Parent != null)
+        if (dummy == DummyNode && dummy.Parent is not null)
         {
             if (IsLeftChild(dummy)) dummy.Parent.Left = null;
             else dummy.Parent.Right = null;
@@ -243,7 +243,7 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
     private void DeleteFixup(Node node)
     {
         // case 1
-        if (node.Parent == null)
+        if (node.Parent is null)
         {
             if (Root == DummyNode) Root = null;
             return;
@@ -261,8 +261,8 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
         // case 3
         if (node.Parent.Color == Color.Black &&
             sibling.Color == Color.Black &&
-            (sibling.Left == null || sibling.Left.Color == Color.Black) &&
-            (sibling.Right == null || sibling.Right.Color == Color.Black))
+            (sibling.Left is null || sibling.Left.Color == Color.Black) &&
+            (sibling.Right is null || sibling.Right.Color == Color.Black))
         {
             sibling.Color = Color.Red;
             DeleteFixup(node.Parent);
@@ -270,8 +270,8 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
         // case 4
         else if (node.Parent.Color == Color.Red &&
             sibling.Color == Color.Black &&
-            (sibling.Left == null || sibling.Left.Color == Color.Black) &&
-            (sibling.Right == null || sibling.Right.Color == Color.Black))
+            (sibling.Left is null || sibling.Left.Color == Color.Black) &&
+            (sibling.Right is null || sibling.Right.Color == Color.Black))
         {
             sibling.Color = Color.Red;
             node.Parent.Color = Color.Black;
@@ -280,7 +280,7 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
         else if (sibling.Color == Color.Black)
         {
             if (IsLeftChild(node) &&
-                (sibling.Right == null || sibling.Right.Color == Color.Black) &&
+                (sibling.Right is null || sibling.Right.Color == Color.Black) &&
                 sibling.Left!.Color == Color.Red)
             {
                 sibling.Color = Color.Red;
@@ -289,7 +289,7 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
                 sibling = GetSibling(node);
             }
             else if (IsRightChild(node) &&
-                (sibling.Left == null || sibling.Left.Color == Color.Black) &&
+                (sibling.Left is null || sibling.Left.Color == Color.Black) &&
                 sibling.Right!.Color == Color.Red)
             {
                 sibling.Color = Color.Red;
@@ -302,12 +302,12 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
             node.Parent.Color = Color.Black;
             if (IsLeftChild(node))
             {
-                if (sibling.Right != null) sibling.Right.Color = Color.Black;
+                if (sibling.Right is not null) sibling.Right.Color = Color.Black;
                 LeftRotate(node.Parent);
             }
             else
             {
-                if (sibling.Left != null) sibling.Left.Color = Color.Black;
+                if (sibling.Left is not null) sibling.Left.Color = Color.Black;
                 RightRotate(node.Parent);
             }
         }
@@ -316,7 +316,7 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
     private void ReplaceDeletedNode(Node node, Node replacement)
     {
         replacement.Parent = node.Parent;
-        if (node.Left != replacement && node.Left != null)
+        if (node.Left != replacement && node.Left is not null)
         {
             replacement.Left = node.Left;
             replacement.Left.Parent = replacement;
@@ -325,7 +325,7 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
         {
             replacement.Left = null;
         }
-        if (node.Right != replacement && node.Right != null)
+        if (node.Right != replacement && node.Right is not null)
         {
             replacement.Right = node.Right;
             replacement.Right.Parent = replacement;
@@ -341,7 +341,7 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
 
     private Node GetHighestNode(Node node)
     {
-        while (node.Right != null) node = node.Right;
+        while (node.Right is not null) node = node.Right;
         return node;
     }
 
@@ -349,7 +349,7 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
     {
         var newParent = rotated.Right ?? throw new RBTreeException();
         rotated.Right = newParent.Left;
-        if (newParent.Left != null) newParent.Left.Parent = rotated;
+        if (newParent.Left is not null) newParent.Left.Parent = rotated;
         newParent.Parent = rotated.Parent;
         if (rotated != Root)
         {
@@ -368,7 +368,7 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
     {
         var newParent = rotated.Left ?? throw new RBTreeException();
         rotated.Left = newParent.Right;
-        if (newParent.Right != null) newParent.Right.Parent = rotated;
+        if (newParent.Right is not null) newParent.Right.Parent = rotated;
         newParent.Parent = rotated.Parent;
         if (rotated != Root)
         {
@@ -383,15 +383,15 @@ internal class RBTree<TKey, TValue> where TKey : IComparable<TKey>
         rotated.Parent = newParent;
     }
 
-    private bool IsLeftChild(Node node) { return node.Parent != null && node.Parent.Left == node; }
+    private bool IsLeftChild(Node node) { return node.Parent is not null && node.Parent.Left == node; }
 
-    private bool IsRightChild(Node node) { return node.Parent != null && node.Parent.Right == node; }
+    private bool IsRightChild(Node node) { return node.Parent is not null && node.Parent.Right == node; }
 
-    private Node? GetGrandParent(Node node) { return node.Parent != null && node.Parent.Parent != null ? node.Parent.Parent : null; }
+    private Node? GetGrandParent(Node node) { return node.Parent is not null && node.Parent.Parent is not null ? node.Parent.Parent : null; }
 
     private Node GetSibling(Node node)
     {
-        if (node.Parent != null)
+        if (node.Parent is not null)
         {
             if (IsLeftChild(node)) return node.Parent.Right ?? throw new RBTreeException();
             else return node.Parent.Left ?? throw new RBTreeException();

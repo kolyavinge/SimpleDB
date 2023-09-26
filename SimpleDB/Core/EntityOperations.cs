@@ -65,7 +65,7 @@ internal static class EntityOperations
     public static void UpdateAllFields(FieldValueCollection fieldValueCollection, PrimaryKeyFile primaryKeyFile, DataFile dataFile)
     {
         var primaryKey = fieldValueCollection.PrimaryKey;
-        if (primaryKey == null) throw new DBEngineException("PrimaryKey in FieldValueCollection cannot be null");
+        if (primaryKey is null) throw new DBEngineException("PrimaryKey in FieldValueCollection cannot be null");
         var updateResult = dataFile.Update(primaryKey.StartDataFileOffset, primaryKey.EndDataFileOffset, fieldValueCollection);
         primaryKeyFile.UpdatePrimaryKey(primaryKey, updateResult.NewStartDataFileOffset, updateResult.NewEndDataFileOffset);
     }

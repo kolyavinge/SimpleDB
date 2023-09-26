@@ -148,7 +148,7 @@ internal class DataFile
         }
         else if (fieldMeta.Type == typeof(string))
         {
-            if (fieldValue == null)
+            if (fieldValue is null)
             {
                 stream.WriteInt(-1);
                 insertedBytesCount += sizeof(int);
@@ -169,7 +169,7 @@ internal class DataFile
         }
         else if (fieldMeta.Type == typeof(byte[]))
         {
-            if (fieldValue == null)
+            if (fieldValue is null)
             {
                 stream.WriteInt(-1);
                 insertedBytesCount += sizeof(int);
@@ -522,7 +522,7 @@ internal class DataFile
                 bytes = ZipCompression.Decompress(bytes);
             }
             var fieldValueJson = Encoding.UTF8.GetString(bytes);
-            if (fieldMeta.Type != null)
+            if (fieldMeta.Type is not null)
             {
                 fieldValue = JsonSerialization.FromJson(fieldMeta.Type, fieldValueJson);
             }

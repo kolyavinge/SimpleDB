@@ -29,7 +29,7 @@ internal class IndexMeta
     public byte[] GetAllFieldNumbers()
     {
         byte[] result;
-        if (IncludedFieldNumbers != null)
+        if (IncludedFieldNumbers is not null)
         {
             result = new byte[IncludedFieldNumbers.Length + 1];
             Array.Copy(IncludedFieldNumbers, 0, result, 1, IncludedFieldNumbers.Length);
@@ -46,7 +46,7 @@ internal class IndexMeta
     public bool IsContainAnyFields(ISet<byte> fieldNumberSet)
     {
         if (fieldNumberSet.Contains(IndexedFieldNumber)) return true;
-        if (IncludedFieldNumbers != null)
+        if (IncludedFieldNumbers is not null)
         {
             return IncludedFieldNumbers.Any(fieldNumberSet.Contains);
         }
@@ -72,7 +72,7 @@ internal class IndexMeta
         stream.WriteString(IndexedFieldType.AssemblyQualifiedName);
         stream.WriteString(Name);
         stream.WriteByte(IndexedFieldNumber);
-        if (IncludedFieldNumbers != null)
+        if (IncludedFieldNumbers is not null)
         {
             stream.WriteByte((byte)IncludedFieldNumbers.Length);
             stream.WriteByteArray(IncludedFieldNumbers, 0, IncludedFieldNumbers.Length);

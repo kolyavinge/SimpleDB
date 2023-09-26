@@ -63,7 +63,7 @@ internal class Mapper<TEntity> : IMapper
     public IEnumerable<FieldValue> GetFieldValueCollection(TEntity entity, ISet<byte>? fieldNumbers = null)
     {
         var fieldMappings = _fieldMappings.Values.ToList();
-        if (fieldNumbers != null)
+        if (fieldNumbers is not null)
         {
             fieldMappings.RemoveAll(x => !fieldNumbers.Contains(x.Number));
         }
@@ -75,7 +75,7 @@ internal class Mapper<TEntity> : IMapper
 
     public TEntity MakeEntity(object primaryKeyValue, IEnumerable<FieldValue> fieldValueCollection, bool includePrimaryKey, ISet<byte>? selectedFieldNumbers = null)
     {
-        if (MakeFunction != null && PrimaryKeySetFunction != null && FieldSetFunction != null)
+        if (MakeFunction is not null && PrimaryKeySetFunction is not null && FieldSetFunction is not null)
         {
             return GetEntityBySetFunctions(primaryKeyValue, fieldValueCollection, includePrimaryKey, selectedFieldNumbers);
         }
@@ -88,14 +88,14 @@ internal class Mapper<TEntity> : IMapper
     private TEntity GetEntityByReflection(object primaryKeyValue, IEnumerable<FieldValue> fieldValueCollection, bool includePrimaryKey, ISet<byte>? selectedFieldNumbers = null)
     {
         var entity = Activator.CreateInstance<TEntity>();
-        if (entity == null) throw new DBEngineException($"Cannot make instance of type {typeof(TEntity)}");
+        if (entity is null) throw new DBEngineException($"Cannot make instance of type {typeof(TEntity)}");
         if (includePrimaryKey)
         {
             var primaryKeyProperty = entity.GetType().GetProperty(PrimaryKeyMapping.PropertyName);
-            if (primaryKeyProperty == null) throw new DBEngineException($"Cannot get property {PrimaryKeyMapping.PropertyName}");
+            if (primaryKeyProperty is null) throw new DBEngineException($"Cannot get property {PrimaryKeyMapping.PropertyName}");
             primaryKeyProperty.SetValue(entity, primaryKeyValue);
         }
-        if (selectedFieldNumbers != null)
+        if (selectedFieldNumbers is not null)
         {
             foreach (var fieldValue in fieldValueCollection)
             {
@@ -103,7 +103,7 @@ internal class Mapper<TEntity> : IMapper
                 {
                     var fieldMapping = _fieldMappings[fieldValue.Number];
                     var fieldProperty = entity.GetType().GetProperty(fieldMapping.PropertyName);
-                    if (fieldProperty == null) throw new DBEngineException($"Cannot get property {fieldMapping.PropertyName}");
+                    if (fieldProperty is null) throw new DBEngineException($"Cannot get property {fieldMapping.PropertyName}");
                     fieldProperty.SetValue(entity, fieldValue.Value);
                 }
             }
@@ -114,7 +114,7 @@ internal class Mapper<TEntity> : IMapper
             {
                 var fieldMapping = _fieldMappings[fieldValue.Number];
                 var fieldProperty = entity.GetType().GetProperty(fieldMapping.PropertyName);
-                if (fieldProperty == null) throw new DBEngineException($"Cannot get property {fieldMapping.PropertyName}");
+                if (fieldProperty is null) throw new DBEngineException($"Cannot get property {fieldMapping.PropertyName}");
                 fieldProperty.SetValue(entity, fieldValue.Value);
             }
         }
@@ -125,13 +125,13 @@ internal class Mapper<TEntity> : IMapper
     private TEntity GetEntityBySetFunctions(
         object primaryKeyValue, IEnumerable<FieldValue> fieldValueCollection, bool includePrimaryKey, ISet<byte>? selectedFieldNumbers = null)
     {
-        if (MakeFunction == null || PrimaryKeySetFunction == null || FieldSetFunction == null) throw new InvalidOperationException();
+        if (MakeFunction is null || PrimaryKeySetFunction is null || FieldSetFunction is null) throw new InvalidOperationException();
         var entity = MakeFunction();
         if (includePrimaryKey)
         {
             PrimaryKeySetFunction(primaryKeyValue, entity);
         }
-        if (selectedFieldNumbers != null)
+        if (selectedFieldNumbers is not null)
         {
             foreach (var fieldValue in fieldValueCollection)
             {

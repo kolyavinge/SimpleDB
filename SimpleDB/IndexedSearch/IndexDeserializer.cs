@@ -17,7 +17,7 @@ internal static class IndexDeserializer
     {
         var indexMeta = IndexMeta.Deserialize(stream);
         var fieldType = indexMeta.IndexedFieldType;
-        if (fieldType == null) throw new ArgumentException($"IndexedFieldType cannot be null");
+        if (fieldType is null) throw new ArgumentException($"IndexedFieldType cannot be null");
         if (fieldType == typeof(bool)) return Deserialize<bool>(stream, indexMeta, primaryKeyType, fieldTypes);
         if (fieldType == typeof(sbyte)) return Deserialize<sbyte>(stream, indexMeta, primaryKeyType, fieldTypes);
         if (fieldType == typeof(byte)) return Deserialize<byte>(stream, indexMeta, primaryKeyType, fieldTypes);

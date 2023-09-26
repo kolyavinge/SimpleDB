@@ -55,7 +55,7 @@ internal class UpdateQueryExecutor
         var fieldValueCollections = new List<FieldValueCollection>();
         var allFieldNumbers = new HashSet<byte>();
         // where
-        if (query.WhereClause != null)
+        if (query.WhereClause is not null)
         {
             var whereFieldNumbers = query.WhereClause.GetAllFieldNumbers().ToHashSet();
             if (_indexHolder.AnyIndexContainsFields(query.EntityName, whereFieldNumbers))
@@ -121,9 +121,9 @@ internal class UpdateQueryExecutor
                 {
                     var currentValue = fieldValueCollection[variableFieldNumber].Value;
                     var newValue = updateFieldDictionary[variableFieldNumber].Value;
-                    if (currentValue == null && newValue == null) break;
-                    var currentValueByteArray = currentValue != null ? _dataFile.ToByteArray(variableFieldNumber, currentValue) : new byte[0];
-                    var newValueByteArray = newValue != null ? _dataFile.ToByteArray(variableFieldNumber, newValue) : new byte[0];
+                    if (currentValue is null && newValue is null) break;
+                    var currentValueByteArray = currentValue is not null ? _dataFile.ToByteArray(variableFieldNumber, currentValue) : new byte[0];
+                    var newValueByteArray = newValue is not null ? _dataFile.ToByteArray(variableFieldNumber, newValue) : new byte[0];
                     // проверяем чтобы старое и новое значение в байтах равнялись по длине
                     if (currentValueByteArray.Length != newValueByteArray.Length)
                     {

@@ -83,7 +83,7 @@ internal class IndexUpdater : IIndexUpdater
                 {
                     if (!fieldValueDictionary.ContainsKey(item.PrimaryKeyValue)) continue;
                     var fieldValueCollection = fieldValueDictionary[item.PrimaryKeyValue];
-                    if (index.Meta.IncludedFieldNumbers != null)
+                    if (index.Meta.IncludedFieldNumbers is not null)
                     {
                         for (int includedFieldNumberIndex = 0; includedFieldNumberIndex < index.Meta.IncludedFieldNumbers.Length; includedFieldNumberIndex++)
                         {

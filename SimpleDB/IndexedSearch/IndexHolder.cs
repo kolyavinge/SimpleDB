@@ -67,11 +67,11 @@ internal class IndexHolder
         if (!_indexes.ContainsKey(entityName)) return null;
         IEnumerable<IndexValue>? indexValues = null;
         var index = _indexes[entityName].FirstOrDefault(i => i.Meta.IndexedFieldNumber == fieldNumber);
-        if (index == null) return null;
+        if (index is null) return null;
         if (operationType == typeof(WhereClause.EqualsOperation) && !isNotApplied)
         {
             var indexValue = index.GetEquals(fieldValue);
-            if (indexValue != null) indexValues = new[] { indexValue };
+            if (indexValue is not null) indexValues = new[] { indexValue };
         }
         else if (operationType == typeof(WhereClause.EqualsOperation) && isNotApplied)
         {
@@ -126,7 +126,7 @@ internal class IndexHolder
             indexValues = index.GetNotIn((IEnumerable<object>)fieldValue);
         }
         else throw new InvalidOperationException();
-        if (indexValues != null)
+        if (indexValues is not null)
         {
             return indexValues.Select(indexValue => new IndexResult(index.Meta, indexValue));
         }
@@ -140,7 +140,7 @@ internal class IndexHolder
     {
         if (!_indexes.ContainsKey(entityName)) return Enumerable.Empty<IndexResult>();
         var index = _indexes[entityName].FirstOrDefault(x => x.Meta.IndexedFieldNumber == indexedFieldNumber);
-        if (index != null)
+        if (index is not null)
         {
             var indexValues = index.GetAllIndexValues(sortDirection);
             return indexValues.Select(indexValue => new IndexResult(index.Meta, indexValue));

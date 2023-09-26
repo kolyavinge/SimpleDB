@@ -22,7 +22,7 @@ internal class DBEngine : IDBEngine
     public ICollection<TEntity> GetCollection<TEntity>()
     {
         var collection = _collectionHolder.GetOrNull<TEntity>();
-        if (collection == null)
+        if (collection is null)
         {
             var mapper = _mapperHolder.Get<TEntity>();
             collection = _collectionFactory.Make<TEntity>(mapper, _indexHolder, _indexUpdater);

@@ -29,7 +29,7 @@ internal class QueryableSelect<TEntity> : IQueryableSelect<TEntity>
 
     public IQueryableSelect<TEntity> Where(Expression<Func<TEntity, bool>> whereExpression)
     {
-        if (_whereExpression != null) throw new QueryableSelectException("Where clause is already exist in the query");
+        if (_whereExpression is not null) throw new QueryableSelectException("Where clause is already exist in the query");
         _whereExpression = whereExpression;
         return this;
     }

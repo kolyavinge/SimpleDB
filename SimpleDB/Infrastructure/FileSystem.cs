@@ -80,7 +80,7 @@ internal class FileSystem : IFileSystem
 
     public IFileStream OpenFileRead(string fileName)
     {
-        if (_storage == null) _storage = StorageFile.Open(DatabaseFilePath, Access.Read);
+        if (_storage is null) _storage = StorageFile.Open(DatabaseFilePath, Access.Read);
         else if (_storage.AccessMode != Access.Read) throw new IOException("File must be opened with Read mode.");
         if (_openedFiles.Any(x => x.Name == fileName)) throw new IOException($"File {fileName} already has been opened.");
         var fileStream = new FileStream(fileName, _storage.OpenRecord(fileName), DisposeFileStreamFunc);
@@ -91,7 +91,7 @@ internal class FileSystem : IFileSystem
 
     public IFileStream OpenFileReadWrite(string fileName)
     {
-        if (_storage == null) _storage = StorageFile.Open(DatabaseFilePath, Access.Modify);
+        if (_storage is null) _storage = StorageFile.Open(DatabaseFilePath, Access.Modify);
         else if (_storage.AccessMode != Access.Modify) throw new IOException("File must be opened with ReadWrite mode");
         if (_openedFiles.Any(x => x.Name == fileName)) throw new IOException($"File {fileName} already has been opened.");
         var fileStream = new FileStream(fileName, _storage.OpenRecord(fileName), DisposeFileStreamFunc);
@@ -103,7 +103,7 @@ internal class FileSystem : IFileSystem
     private void DisposeFileStreamFunc(IFileStream fileStream)
     {
         _openedFiles.Remove(fileStream);
-        if (!_openedFiles.Any() && _storage != null)
+        if (!_openedFiles.Any() && _storage is not null)
         {
             _storage.Dispose();
             _storage = null;
@@ -145,6 +145,6 @@ internal class FileSystem : IFileSystem
 
     private void ThrowErrorIfOpenedFilesExists()
     {
-        if (_storage != null) throw new IOException("All opened files must be closed.");
+        if (_storage is not null) throw new IOException("All opened files must be closed.");
     }
 }

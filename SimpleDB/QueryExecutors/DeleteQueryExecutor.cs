@@ -54,7 +54,7 @@ internal class DeleteQueryExecutor
         var result = 0;
         var primaryKeysForDelete = new List<PrimaryKey>();
         // where
-        if (query.WhereClause != null)
+        if (query.WhereClause is not null)
         {
             var whereFieldNumbers = query.WhereClause.GetAllFieldNumbers().ToHashSet();
             if (_indexHolder.AnyIndexContainsFields(query.EntityName, whereFieldNumbers))

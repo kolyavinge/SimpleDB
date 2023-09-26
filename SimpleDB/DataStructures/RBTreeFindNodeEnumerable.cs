@@ -31,7 +31,7 @@ internal class RBTreeFindNodeEnumerable<TKey, TValue> : IEnumerable<RBTreeFindNo
     public IEnumerator<StepResult> GetEnumerator()
     {
         var node = _root;
-        while (node != null)
+        while (node is not null)
         {
             var compareResult = _keyToFind.CompareTo(node.Key);
             if (compareResult < 0)

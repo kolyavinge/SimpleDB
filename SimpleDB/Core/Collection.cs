@@ -81,7 +81,7 @@ internal class Collection<TEntity> : ICollection<TEntity>
             foreach (var id in idList)
             {
                 var entity = EntityOperations.GetOrDefault(id, Mapper, PrimaryKeys, DataFile);
-                if (entity != null) yield return entity;
+                if (entity is not null) yield return entity;
             }
         }
         finally
@@ -98,7 +98,7 @@ internal class Collection<TEntity> : ICollection<TEntity>
             foreach (var id in PrimaryKeys.Keys)
             {
                 var entity = EntityOperations.GetOrDefault(id, Mapper, PrimaryKeys, DataFile);
-                if (entity != null) yield return entity;
+                if (entity is not null) yield return entity;
             }
         }
         finally

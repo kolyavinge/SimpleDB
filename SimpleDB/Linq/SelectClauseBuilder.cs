@@ -12,7 +12,7 @@ internal class SelectClauseBuilder
     public SelectClause Build<TEntity>(Mapper<TEntity> mapper, Expression<Func<TEntity, object>>? selectExpression)
     {
         var selectedItems = new List<SelectClause.SelectClauseItem>();
-        if (selectExpression == null)
+        if (selectExpression is null)
         {
             selectedItems.Add(new SelectClause.PrimaryKey());
             selectedItems.AddRange(mapper.FieldMetaCollection.Select(x => new SelectClause.Field(x.Number)));

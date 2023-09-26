@@ -108,7 +108,7 @@ internal class UpdateQueryParser : QueryParser
         foreach (var item in updateItems)
         {
             var fieldMeta = entityMeta.FieldMetaCollection.FirstOrDefault(x => x.Name == item.FieldName);
-            if (fieldMeta == null) throw new InvalidQueryException();
+            if (fieldMeta is null) throw new InvalidQueryException();
             var convertedValue = Convert.ChangeType(item.Value, fieldMeta.Type);
             yield return new UpdateClause.Field(fieldMeta.Number, convertedValue);
         }

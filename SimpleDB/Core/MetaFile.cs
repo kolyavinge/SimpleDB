@@ -112,7 +112,7 @@ internal class MetaData
                EntityName == data.EntityName &&
                PrimaryKeyType == data.PrimaryKeyType &&
                PrimaryKeyName == data.PrimaryKeyName &&
-               (FieldMetaCollection == null && data.FieldMetaCollection == null ||
+               (FieldMetaCollection is null && data.FieldMetaCollection is null ||
                FieldMetaCollection.ToHashSet().IsSubsetOf(data.FieldMetaCollection) && data.FieldMetaCollection.ToHashSet().IsSubsetOf(FieldMetaCollection));
     }
 

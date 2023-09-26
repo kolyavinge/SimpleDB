@@ -229,7 +229,7 @@ internal class PrimaryKeyFile
             stream.WriteByteArray(strBytes, 0, strBytes.Length);
         }
 
-        if (value == null) throw new PrimaryKeyException();
+        if (value is null) throw new PrimaryKeyException();
 
         return new PrimaryKey(value, startDataFileOffset, endDataFileOffset, primaryKeyFileOffset, primaryKeyFlags);
     }

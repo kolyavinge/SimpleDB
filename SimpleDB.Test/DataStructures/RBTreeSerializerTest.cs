@@ -111,7 +111,7 @@ class RBTreeSerializerTest
             Assert.AreEqual(originalNodes[i].Key, resultNodes[i].Key);
             Assert.AreEqual(originalNodes[i].Color, resultNodes[i].Color);
             Assert.AreEqual(originalNodes[i].Value, resultNodes[i].Value);
-            if (originalNodes[i].Left != null)
+            if (originalNodes[i].Left is not null)
             {
                 Assert.AreEqual(originalNodes[i].Left.Key, resultNodes[i].Left.Key);
             }
@@ -119,7 +119,7 @@ class RBTreeSerializerTest
             {
                 Assert.AreEqual(null, resultNodes[i].Left);
             }
-            if (originalNodes[i].Right != null)
+            if (originalNodes[i].Right is not null)
             {
                 Assert.AreEqual(originalNodes[i].Right.Key, resultNodes[i].Right.Key);
             }

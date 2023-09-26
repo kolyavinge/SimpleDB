@@ -37,17 +37,17 @@ internal class Index<TField> : IIndex where TField : IComparable<TField>
             if (step.ToLeft)
             {
                 nodes.Add(step.Node);
-                if (step.Node.Right != null) nodes.AddRange(step.Node.Right.GetAllNodesAsc());
+                if (step.Node.Right is not null) nodes.AddRange(step.Node.Right.GetAllNodesAsc());
             }
             else if (step.ToRight)
             {
                 nodes.Add(step.Node);
-                if (step.Node.Left != null) nodes.AddRange(step.Node.Left.GetAllNodesAsc());
+                if (step.Node.Left is not null) nodes.AddRange(step.Node.Left.GetAllNodesAsc());
             }
             else if (step.Finded)
             {
-                if (step.Node.Left != null) nodes.AddRange(step.Node.Left.GetAllNodesAsc());
-                if (step.Node.Right != null) nodes.AddRange(step.Node.Right.GetAllNodesAsc());
+                if (step.Node.Left is not null) nodes.AddRange(step.Node.Left.GetAllNodesAsc());
+                if (step.Node.Right is not null) nodes.AddRange(step.Node.Right.GetAllNodesAsc());
             }
         }
 
@@ -62,11 +62,11 @@ internal class Index<TField> : IIndex where TField : IComparable<TField>
             if (step.ToRight)
             {
                 nodes.Add(step.Node);
-                if (step.Node.Left != null) nodes.AddRange(step.Node.Left.GetAllNodesAsc());
+                if (step.Node.Left is not null) nodes.AddRange(step.Node.Left.GetAllNodesAsc());
             }
             else if (step.Finded)
             {
-                if (step.Node.Left != null) nodes.AddRange(step.Node.Left.GetAllNodesAsc());
+                if (step.Node.Left is not null) nodes.AddRange(step.Node.Left.GetAllNodesAsc());
             }
         }
 
@@ -81,11 +81,11 @@ internal class Index<TField> : IIndex where TField : IComparable<TField>
             if (step.ToLeft)
             {
                 nodes.Add(step.Node);
-                if (step.Node.Right != null) nodes.AddRange(step.Node.Right.GetAllNodesAsc());
+                if (step.Node.Right is not null) nodes.AddRange(step.Node.Right.GetAllNodesAsc());
             }
             else if (step.Finded)
             {
-                if (step.Node.Right != null) nodes.AddRange(step.Node.Right.GetAllNodesAsc());
+                if (step.Node.Right is not null) nodes.AddRange(step.Node.Right.GetAllNodesAsc());
             }
         }
 
@@ -100,12 +100,12 @@ internal class Index<TField> : IIndex where TField : IComparable<TField>
             if (step.ToRight)
             {
                 nodes.Add(step.Node);
-                if (step.Node.Left != null) nodes.AddRange(step.Node.Left.GetAllNodesAsc());
+                if (step.Node.Left is not null) nodes.AddRange(step.Node.Left.GetAllNodesAsc());
             }
             else if (step.Finded)
             {
                 nodes.Add(step.Node);
-                if (step.Node.Left != null) nodes.AddRange(step.Node.Left.GetAllNodesAsc());
+                if (step.Node.Left is not null) nodes.AddRange(step.Node.Left.GetAllNodesAsc());
             }
         }
 
@@ -120,12 +120,12 @@ internal class Index<TField> : IIndex where TField : IComparable<TField>
             if (step.ToLeft)
             {
                 nodes.Add(step.Node);
-                if (step.Node.Right != null) nodes.AddRange(step.Node.Right.GetAllNodesAsc());
+                if (step.Node.Right is not null) nodes.AddRange(step.Node.Right.GetAllNodesAsc());
             }
             else if (step.Finded)
             {
                 nodes.Add(step.Node);
-                if (step.Node.Right != null) nodes.AddRange(step.Node.Right.GetAllNodesAsc());
+                if (step.Node.Right is not null) nodes.AddRange(step.Node.Right.GetAllNodesAsc());
             }
         }
 
@@ -144,7 +144,7 @@ internal class Index<TField> : IIndex where TField : IComparable<TField>
 
     public IEnumerable<IndexValue> GetIn(IEnumerable<object> fieldValues)
     {
-        return fieldValues.Select(GetEquals).Where(x => x != null).Select(x => x!);
+        return fieldValues.Select(GetEquals).Where(x => x is not null).Select(x => x!);
     }
 
     public IEnumerable<IndexValue> GetNotIn(IEnumerable<object> fieldValues)

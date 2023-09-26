@@ -42,7 +42,7 @@ internal class SelectQueryExecutor
         var alreadyReadedFieldNumbers = new HashSet<byte>();
         bool isResultOrderedByIndex = false;
         // where
-        if (query.WhereClause != null)
+        if (query.WhereClause is not null)
         {
             var whereFieldNumbers = query.WhereClause.GetAllFieldNumbers().ToHashSet();
             if (_indexHolder.AnyIndexContainsFields(query.EntityName, whereFieldNumbers))
@@ -69,7 +69,7 @@ internal class SelectQueryExecutor
                 }
             }
         }
-        else if (query.OrderByClause != null
+        else if (query.OrderByClause is not null
             && query.OrderByClause.GetAllFieldNumbers().All(fieldNumber => _indexHolder.AnyIndexFor(query.EntityName, fieldNumber)))
         {
             var analyzer = new OrderByClauseAnalyzer(query.EntityName, _primaryKeys, _indexHolder);
@@ -102,7 +102,7 @@ internal class SelectQueryExecutor
         FieldValueCollection.Merge(fieldValueCollections, remainingFieldValues);
         alreadyReadedFieldNumbers.AddRange(fieldValueCollections.SelectMany(collection => collection.Select(field => field.Number)));
         // order by
-        if (!isResultOrderedByIndex && query.OrderByClause != null)
+        if (!isResultOrderedByIndex && query.OrderByClause is not null)
         {
             var orderbyFieldNumbers = query.OrderByClause.GetAllFieldNumbers().ToHashSet();
             orderbyFieldNumbers.ExceptWith(alreadyReadedFieldNumbers);

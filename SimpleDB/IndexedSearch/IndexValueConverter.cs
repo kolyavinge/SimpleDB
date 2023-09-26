@@ -19,7 +19,7 @@ internal class IndexValueConverter
             yield return new FieldValue(_indexMeta.IndexedFieldNumber, indexValue.IndexedFieldValue);
         }
 
-        if (_indexMeta.IncludedFieldNumbers != null)
+        if (_indexMeta.IncludedFieldNumbers is not null)
         {
             for (int includedFieldNumberIndex = 0; includedFieldNumberIndex < _indexMeta.IncludedFieldNumbers.Length; includedFieldNumberIndex++)
             {

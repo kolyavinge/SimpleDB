@@ -7,8 +7,8 @@ internal static class SmartComparer
 {
     public static bool AreEquals(object? x, object? y)
     {
-        if (x == null && y == null) return true;
-        if (x == null && y != null || x != null && y == null) return false;
+        if (x is null && y is null) return true;
+        if (x is null && y is not null || x is not null && y is null) return false;
         if (x!.GetType() != y!.GetType() && x.IsStandartType() && y.IsStandartType())
         {
             if (x.GetStandartTypeSize() > y.GetStandartTypeSize())
@@ -40,8 +40,8 @@ internal static class SmartComparer
 
     public static int Compare(object? x, object? y)
     {
-        if (x == null && y == null) return 0;
-        if (x == null && y != null || x != null && y == null) throw new DBEngineException("Values to compare are invalid");
+        if (x is null && y is null) return 0;
+        if (x is null && y is not null || x is not null && y is null) throw new DBEngineException("Values to compare are invalid");
         if (x!.GetType() != y!.GetType() && x.IsStandartType() && y.IsStandartType())
         {
             if (x.GetStandartTypeSize() > y.GetStandartTypeSize())
